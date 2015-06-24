@@ -1,6 +1,5 @@
-// transpile:main
+import { RemoteDebugger, DEBUGGER_TYPES, REMOTE_DEBUGGER_PORT } from './lib/remote-debugger';
+import WebKitRemoteDebugger from './lib/webkit-remote-debugger';
 
-import {default as sample} from './lib/sample';
-
-export {sample};
+export { RemoteDebugger, DEBUGGER_TYPES, REMOTE_DEBUGGER_PORT, WebKitRemoteDebugger };
 
