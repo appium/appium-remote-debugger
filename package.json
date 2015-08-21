@@ -1,6 +1,6 @@
 {
   "name": "appium-remote-debugger",
-  "description": "Description goes here.",
+  "description": "Appium proxy for Remote Debugger protocol",
   "keywords": [
     "appium"
   ],
