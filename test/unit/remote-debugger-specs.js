@@ -2,7 +2,7 @@
 
 import { RemoteDebugger, DEBUGGER_TYPES } from '../../..';
 import { RemoteDebuggerServer, APP_INFO } from '../helpers/remote-debugger-server';
-import { withConnectedServer, withUnconnectedServer } from '../helpers/server-setup';
+import { withConnectedServer } from '../helpers/server-setup';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import 'mochawait';
@@ -92,10 +92,6 @@ describe('RemoteDebugger', () => {
       await rd.disconnect();
       spy.calledOnce.should.be.true;
     });
-  }));
-
-  describe('#setConnectionKey', withUnconnectedServer((server) => {
-    confirmRemoteDebuggerErrorHandling(server, 'connect', [], 'Unable to connect');
   }));
 
   describe('#selectApp', withConnectedServer(rds, (server) => {
