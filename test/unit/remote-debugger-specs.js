@@ -208,7 +208,7 @@ describe('RemoteDebugger', () => {
 
     requireAppIdKey('navToUrl', [url]);
     requirePageIdKey('navToUrl', [url]);
-    confirmRpcSend('navToUrl', [url]);
+    confirmRpcSend('navToUrl', [url], 2);
   }));
 
   describe('#callFunction', withConnectedServer(rds, () => {
