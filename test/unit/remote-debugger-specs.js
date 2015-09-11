@@ -172,11 +172,6 @@ describe('RemoteDebugger', () => {
   describe('timeline', withConnectedServer(rds, () => {
     describe('#startTimeline', () => {
       let timelineCallback = sinon.spy();
-
-      it('should set the callback', async () => {
-        await rd.startTimeline(timelineCallback);
-        rd.timelineEventHandler.should.eql(timelineCallback);
-      });
       confirmRpcSend('startTimeline', [timelineCallback]);
     });
 
