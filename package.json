@@ -25,6 +25,7 @@
   "dependencies": {
     "appium-atoms": "0.0.5",
     "appium-logger": "^2.0.0",
+    "appium-support": "^2.0.0",
     "babel-runtime": "=5.8.24",
     "bluebird": "^2.10.0",
     "bplist-creator": "0.0.5",
