@@ -1,4 +1,3 @@
-import 'mochawait';
 import { RemoteDebuggerServer } from './remote-debugger-server';
 
 

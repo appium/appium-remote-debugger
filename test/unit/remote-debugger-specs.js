@@ -1,11 +1,10 @@
 // transpile:mocha
 
-import { RemoteDebugger, DEBUGGER_TYPES } from '../../..';
+import { RemoteDebugger, DEBUGGER_TYPES } from '../../index.js';
 import { RemoteDebuggerServer, APP_INFO } from '../helpers/remote-debugger-server';
 import { withConnectedServer } from '../helpers/server-setup';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import 'mochawait';
 import sinon from 'sinon';
 import Promise from 'bluebird';
 
