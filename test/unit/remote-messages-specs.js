@@ -2,8 +2,6 @@
 
 import getRemoteCommand from '../../lib/remote-messages';
 import chai from 'chai';
-import 'mochawait';
-
 
 chai.should();
 
