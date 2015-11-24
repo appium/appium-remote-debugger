@@ -114,7 +114,7 @@ describe('RemoteDebugger', () => {
 
       let spy = sinon.spy(rd.rpcClient, 'selectApp');
       await rd.selectApp();
-      rd.appIdKey.should.equal('PID:44');
+      rd.appIdKey.should.equal('PID:42');
       spy.calledOnce.should.be.true;
     });
     it('should be able to handle an app change event during selection', async () => {
