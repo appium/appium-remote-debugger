@@ -4,7 +4,7 @@
   "keywords": [
     "appium"
   ],
-  "version": "1.8.0",
+  "version": "1.9.0",
   "author": "appium",
   "license": "Apache-2.0",
   "repository": {
@@ -24,15 +24,15 @@
   },
   "dependencies": {
     "appium-atoms": "^0.1.0",
-    "appium-logger": "^2.0.0",
-    "appium-support": "^2.0.7",
+    "appium-logger": "^2.1.0",
+    "appium-support": "^2.0.9",
     "babel-runtime": "=5.8.24",
     "bluebird": "^2.10.0",
     "bplist-creator": "0.0.6",
     "bplist-parser": "^0.1.0",
     "bufferpack": "0.0.6",
     "lodash": "^3.10.0",
-    "mobile-json-wire-protocol": "^1.0.2",
+    "mobile-json-wire-protocol": "^1.2.0",
     "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
     "source-map-support": "^0.3.2",
