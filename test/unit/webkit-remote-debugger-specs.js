@@ -73,7 +73,7 @@ describe('WebKitRemoteDebugger', () => {
       });
       it('should correctly map webSocketDebuggerUrl to id', async () => {
         let r = await wrd.pageArrayFromJson();
-        _.pluck(r, 'id').should.eql(['42', '43']);
+        _.map(r, 'id').should.eql(['42', '43']);
       });
     });
     describe('#getJsonFromUrl', () => {
