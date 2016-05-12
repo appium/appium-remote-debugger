@@ -21,7 +21,8 @@ const APP_INFO = {
     name: 'app',
     bundleId: 'io.appium.bundle',
     isProxy: false,
-    hostId: ''
+    hostId: '',
+    isActive: '1'
   }
 };
 
@@ -33,28 +34,32 @@ const UPDATED_APP_INFO = [
     name: 'proxy app 1',
     bundleId: 'io.appium.bundle.proxy1',
     isProxy: true,
-    hostId: 'PID:42'
+    hostId: 'PID:42',
+    isActive: '1'
   },
   {
     id: 'PID:46',
     name: 'proxy app 1',
     bundleId: 'io.appium.bundle.proxy1',
     isProxy: true,
-    hostId: 'PID:44'
+    hostId: 'PID:44',
+    isActive: '1'
   },
   {
     id: 'PID:48',
     name: 'proxy app 1',
     bundleId: 'io.appium.bundle.proxy1',
     isProxy: true,
-    hostId: 'PID:46'
+    hostId: 'PID:46',
+    isActive: '1'
   },
   {
     id: 'PID:50',
     name: 'proxy app 1',
     bundleId: 'io.appium.bundle.proxy1',
     isProxy: true,
-    hostId: 'PID:48'
+    hostId: 'PID:48',
+    isActive: '1'
   }
 ];
 
@@ -84,7 +89,8 @@ class RemoteDebuggerServer {
           WIRApplicationNameKey: APP_INFO['PID:42'].name,
           WIRApplicationBundleIdentifierKey: APP_INFO['PID:42'].bundleId,
           WIRIsApplicationProxyKey: APP_INFO['PID:42'].isProxy,
-          WIRHostApplicationIdentifierKey: APP_INFO['PID:42'].hostId
+          WIRHostApplicationIdentifierKey: APP_INFO['PID:42'].hostId,
+          WIRIsApplicationActiveKey: APP_INFO['PID:42'].isActive
         }]
       }
     };
@@ -207,7 +213,8 @@ class RemoteDebuggerServer {
             WIRApplicationNameKey: UPDATED_APP_INFO[this.app-1].name,
             WIRApplicationBundleIdentifierKey: UPDATED_APP_INFO[this.app-1].bundleId,
             WIRIsApplicationProxyKey: UPDATED_APP_INFO[this.app-1].isProxy,
-            WIRHostApplicationIdentifierKey: UPDATED_APP_INFO[this.app-1].hostId
+            WIRHostApplicationIdentifierKey: UPDATED_APP_INFO[this.app-1].hostId,
+            WIRIsApplicationActiveKey: UPDATED_APP_INFO[this.app-1].isActive
           }
         };
         this.send(data);
