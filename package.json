@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "appium-atoms": "^0.1.0",
+    "appium-base-driver": "^2.0.0",
     "appium-logger": "^2.1.0",
     "appium-support": "^2.0.10",
     "babel-runtime": "=5.8.24",
@@ -32,7 +33,6 @@
     "bplist-parser": "^0.1.0",
     "bufferpack": "0.0.6",
     "lodash": "^4.2.1",
-    "mobile-json-wire-protocol": "^1.2.0",
     "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
     "source-map-support": "^0.4.0",
