@@ -113,7 +113,13 @@ describe('RemoteDebugger', () => {
       }
 
       let spy = sinon.spy(rd.rpcClient, 'selectApp');
-      await rd.selectApp();
+      let selectPromise = rd.selectApp();
+
+      server.sendPageInfoMessage('PID:42');
+      server.sendPageInfoMessage('PID:44');
+
+      await selectPromise;
+
       rd.appIdKey.should.equal('PID:42');
       spy.calledOnce.should.be.true;
     });
@@ -122,16 +128,23 @@ describe('RemoteDebugger', () => {
       server.changeApp(1, false);
 
       let spy = sinon.spy(rd.rpcClient, 'selectApp');
-      await rd.selectApp();
+      let selectPromise = rd.selectApp();
+
+      await Promise.delay(1000);
+      server.sendPageInfoMessage('PID:44');
+      server.sendPageInfoMessage('PID:42');
+      server.sendPageInfoMessage('PID:46');
+
+      await selectPromise;
+
       spy.calledTwice.should.be.true;
     });
   }));
 
   describe('#selectPage', withConnectedServer(rds, (server) => {
-    requireAppIdKey('selectPage', []);
-    confirmRpcSend('selectPage', [1, true], 3);
-    confirmRpcSend('selectPage', [1, false], 4);
-    confirmRemoteDebuggerErrorHandling(server, 'selectPage', [1]);
+    confirmRpcSend('selectPage', [1, 2, true], 3);
+    confirmRpcSend('selectPage', [1, 2, false], 4);
+    confirmRemoteDebuggerErrorHandling(server, 'selectPage', [1, 2]);
   }));
 
   describe('#execute', withConnectedServer(rds, () => {

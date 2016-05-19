@@ -226,6 +226,24 @@ class RemoteDebuggerServer {
     }
   }
 
+  sendPageInfoMessage (appIdKey) {
+    let data = {
+      __selector: '_rpc_applicationSentListing:',
+      __argument: {
+        WIRApplicationIdentifierKey: appIdKey,
+        WIRListingKey: {
+          '1': {
+            WIRTypeKey: 'WIRTypeWeb',
+            WIRPageIdentifierKey: 1,
+            WIRTitleKey: '',
+            WIRURLKey: ''
+          }
+        }
+      }
+    };
+    this.send(data);
+  }
+
   sendFrameNavigationMessage () {
     let dataKey = {
       method: 'Page.frameNavigated',
