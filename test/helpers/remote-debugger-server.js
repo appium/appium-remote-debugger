@@ -22,7 +22,8 @@ const APP_INFO = {
     bundleId: 'io.appium.bundle',
     isProxy: false,
     hostId: '',
-    isActive: '1'
+    isActive: '1',
+    isAutomationEnabled: false
   }
 };
 
