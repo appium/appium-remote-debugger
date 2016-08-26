@@ -83,7 +83,7 @@ describe('RemoteDebugger', () => {
       let spy = sinon.spy(rd.rpcClient, 'disconnect');
       await rd.disconnect();
       spy.calledOnce.should.be.true;
-      rd.rpcClient.disconnect.restore();
+      spy.restore();
     });
     it('should emit an appropriate event', async () => {
       let spy = sinon.spy();
