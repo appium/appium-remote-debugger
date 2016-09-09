@@ -139,6 +139,16 @@ describe('RemoteDebugger', () => {
 
       spy.calledTwice.should.be.true;
     });
+     it('should not connect to app if url is about:blank and ignoreAboutBlankUrl is passed true to selectApp', async () => {
+
+      let selectPromise = rd.selectApp({ignoreAboutBlankUrl: true});
+
+      try {
+        await selectPromise;
+      } catch (err) {
+        err.message.should.include('Could not connect to a valid app');
+      }
+    });
   }));
 
   describe('#selectPage', withConnectedServer(rds, (server) => {
