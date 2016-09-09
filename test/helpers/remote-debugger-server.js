@@ -152,7 +152,7 @@ class RemoteDebuggerServer {
             WIRTypeKey: 'WIRTypeWeb',
             WIRPageIdentifierKey: 1,
             WIRTitleKey: '',
-            WIRURLKey: ''
+            WIRURLKey: 'about:blank'
           }
         }
       }
@@ -237,7 +237,7 @@ class RemoteDebuggerServer {
             WIRTypeKey: 'WIRTypeWeb',
             WIRPageIdentifierKey: 1,
             WIRTitleKey: '',
-            WIRURLKey: ''
+            WIRURLKey: 'about:blank'
           }
         }
       }
