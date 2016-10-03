@@ -139,8 +139,7 @@ describe('RemoteDebugger', () => {
 
       spy.calledTwice.should.be.true;
     });
-     it('should not connect to app if url is about:blank and ignoreAboutBlankUrl is passed true to selectApp', async () => {
-
+    it('should not connect to app if url is about:blank and ignoreAboutBlankUrl is passed true to selectApp', async () => {
       let selectPromise = rd.selectApp({ignoreAboutBlankUrl: true});
 
       try {
