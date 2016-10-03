@@ -9,7 +9,7 @@ describe('getRemoteCommand', () => {
   let commands = ['setConnectionKey', 'connectToApp', 'setSenderKey',
                   'indicateWebView', 'sendJSCommand', 'callJSFunction',
                   'setUrl', 'enablePage', 'startTimeline', 'stopTimeline'];
-  for(let command of commands) {
+  for (let command of commands) {
     it(`should be able to retrieve ${command} command`, () => {
       let remoteCommand = getRemoteCommand(command, {});
       remoteCommand.should.be.an.instanceof(Object);
