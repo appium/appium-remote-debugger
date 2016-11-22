@@ -3,7 +3,8 @@ os: osx
 osx_image: xcode8
 language: node_js
 node_js:
-  - "4"
+  - "7"
   - "6"
+  - "4"
 after_success:
   - gulp coveralls
