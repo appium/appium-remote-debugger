@@ -33,9 +33,9 @@
     "bplist-parser": "^0.1.0",
     "bufferpack": "0.0.6",
     "lodash": "^4.2.1",
-    "node-uuid": "^1.4.3",
     "request-promise": "^1.0.2",
     "source-map-support": "^0.4.0",
+    "uuid": "^3.0.0",
     "ws": "^1.0.1"
   },
   "scripts": {
