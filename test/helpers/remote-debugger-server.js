@@ -281,6 +281,11 @@ class RemoteDebuggerServer {
         c.on('data', (data) => {
           let plist = bplistParse.parseBuffer(data.slice(4));
 
+          if (!plist[0].__selector) {
+            reject(new Error(`Unable to decipher plist: ${plist}`));
+            return;
+          }
+
           switch (plist[0].__selector) {
             case '_rpc_reportIdentifier:':
               this.handleReportIdentifier(plist[0]);
