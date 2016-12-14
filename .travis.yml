@@ -6,5 +6,7 @@ node_js:
   - "7"
   - "6"
   - "4"
+script:
+  - _FORCE_LOGS=1 gulp once
 after_success:
   - gulp coveralls
