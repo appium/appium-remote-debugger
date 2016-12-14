@@ -164,7 +164,6 @@ describe('RemoteDebugger', () => {
 
   describe('#checkPageIsReady', withConnectedServer(rds, (server) => {
     requireAppIdKey('checkPageIsReady', []);
-    requirePageIdKey('checkPageIsReady', []);
     confirmRpcSend('checkPageIsReady', []);
     it('should return true when server responds with complete', async () => {
       server.setDataResponseValue('complete');
