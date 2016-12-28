@@ -15,6 +15,14 @@ This is an event emitter, which emits a `RemoteDebugger.EVENT_PAGE_CHANGE` event
 
 The steps to using the `RemoteDebugger` involve instantiating an object, then running `connect` and `selectApp`. After this the instance will be listening for events from the server (i.e., the webview or browser).
 
+## Selenium "atoms"
+
+The remote debugger uses the standard [Selenium Atoms](https://github.com/SeleniumHQ/selenium/tree/master/javascript/atoms)
+to interact with web pages. These need to manually updated when necessary. To do
+so, simply update the branch in `Makefile` by modifying the `SELENIUM_BRANCH`
+variable. Then run `make`, test and create a pull request with the resulting
+changed atoms directory.
+
 
 ## Watch
 
