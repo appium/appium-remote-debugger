@@ -3,9 +3,9 @@
 import http from 'http';
 import Promise from 'bluebird';
 import ws from 'ws';
-import { getLogger } from 'appium-logger';
+import { logger } from 'appium-support';
 
-const log = getLogger('RemoteDebugger');
+const log = logger.getLogger('RemoteDebugger');
 let WebSocketServer = ws.Server;
 
 

@@ -5,9 +5,9 @@ import bplistCreate from 'bplist-creator';
 import bplistParse from 'bplist-parser';
 import bufferpack from 'bufferpack';
 import Promise from 'bluebird';
-import { getLogger } from 'appium-logger';
+import { logger } from 'appium-support';
 
-const log = getLogger('RemoteDebugger');
+const log = logger.getLogger('RemoteDebugger');
 
 
 const DEVICE_INFO = {
