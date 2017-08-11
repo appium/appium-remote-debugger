@@ -38,28 +38,33 @@
     "ws": "^1.1.1"
   },
   "scripts": {
-    "prepublish": "./node_modules/.bin/gulp prepublish",
-    "test": "./node_modules/.bin/gulp once",
-    "watch": "./node_modules/.bin/gulp",
+    "prepublish": "gulp prepublish",
+    "test": "gulp once",
+    "watch": "gulp watch",
+    "mocha": "mocha",
+    "e2e-test": "gulp e2e-test",
+    "coverage": "gulp coveralls",
+    "build": "gulp transpile",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
     "lint": "gulp eslint"
   },
   "pre-commit": [
     "precommit-msg",
-    "lint",
     "test"
   ],
   "devDependencies": {
-    "appium-gulp-plugins": "^1.3.12",
-    "babel-eslint": "^6.1.0",
+    "appium-gulp-plugins": "^2.1.4",
+    "babel-eslint": "^7.1.1",
     "chai": "^3.0.0",
     "chai-as-promised": "^5.1.0",
-    "eslint": "^2.13.1",
-    "eslint-config-appium": "^0.0.7",
+    "eslint": "^3.10.2",
+    "eslint-config-appium": "^2.0.1",
     "eslint-plugin-babel": "^3.3.0",
-    "eslint-plugin-import": "^1.9.2",
-    "eslint-plugin-mocha": "^3.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-mocha": "^4.7.0",
+    "eslint-plugin-promise": "^3.3.1",
     "gulp": "^3.9.0",
+    "mocha": "^3.5.0",
     "pre-commit": "^1.1.3",
     "sinon": "^1.15.4"
   }

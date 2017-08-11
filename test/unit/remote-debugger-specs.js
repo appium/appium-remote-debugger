@@ -95,7 +95,9 @@ describe('RemoteDebugger', () => {
 
   describe('#selectApp', withConnectedServer(rds, (server) => {
     confirmRpcSend('selectApp', []);
-    it('should be able to handle an app change event before selection', async () => {
+    it('should be able to handle an app change event before selection', async function () {
+      this.timeout(10000);
+
       let initialIdKey = rd.appIdKey;
       // change the app immediately
       server.changeApp(1, true);
