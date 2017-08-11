@@ -322,7 +322,7 @@ class RemoteDebuggerServer {
         if (this.client) {
           this.client.end();
         }
-        this.server.close((err) => {
+        this.server.close((err) => { // eslint-disable-line promise/prefer-await-to-callbacks
           resolve(`Stopped listening: ${err}`);
         });
       } else {

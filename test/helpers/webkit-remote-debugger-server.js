@@ -52,7 +52,7 @@ class WebKitRemoteDebuggerServer {
     if (!this.ws) {
       return new Promise((resolve) => {
         if (this.server) {
-          this.server.close((err) => {
+          this.server.close((err) => { // eslint-disable-line promise/prefer-await-to-callbacks
             resolve(`Stopped listening: ${err}`);
           });
         } else {
