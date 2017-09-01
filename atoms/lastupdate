@@ -1,7 +1,7 @@
-2016-12-27 14:57:09
+2017-08-31 10:21:04
 
-commit 1969d7507be7f3b55ae9d1c51c66cd39c1372280 (grafted, HEAD, tag: refs/tags/selenium-3.0.1)
-Author: Luke Inman-Semerau <luke.semerau@gmail.com>
-Date:   Tue Oct 18 09:39:36 2016 -0700
+commit a88d25fe6b71a9b200480374462078614f5319ac (grafted, HEAD, tag: refs/tags/selenium-3.5.3)
+Author: Simon Stewart <simon.m.stewart@gmail.com>
+Date:   Tue Aug 29 13:28:00 2017 +0100
 
-    updating changelog bumping java to 3.0.1
+    Update java changelog one last time
