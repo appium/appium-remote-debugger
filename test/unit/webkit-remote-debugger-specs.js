@@ -11,22 +11,22 @@ chai.should();
 chai.use(chaiAsPromised);
 
 
-describe('WebKitRemoteDebugger', () => {
+describe('WebKitRemoteDebugger', function () {
   let wrd = new WebKitRemoteDebugger({host: 'localhost', port: 1337});
 
-  describe('websocket methods', () => {
-    describe('#connect', () => {
+  describe('websocket methods', function () {
+    describe('#connect', function () {
       let server = new WebKitRemoteDebuggerServer();
-      it('should instantiate an rpc client', async () => {
+      it('should instantiate an rpc client', async function () {
         await server.start(true);
         await wrd.connect(1);
         wrd.rpcClient.should.exist;
         await server.stop();
       });
     });
-    describe('#disconnect', () => {
+    describe('#disconnect', function () {
       let server = new WebKitRemoteDebuggerServer();
-      it('should call close on websocket', async () => {
+      it('should call close on websocket', async function () {
         await server.start(true);
         await wrd.connect();
 
@@ -40,16 +40,16 @@ describe('WebKitRemoteDebugger', () => {
       });
     });
   });
-  describe('http methods', () => {
+  describe('http methods', function () {
     let server = new WebKitRemoteDebuggerServer();
-    beforeEach(async () => {
+    beforeEach(async function () {
       await server.start();
     });
-    afterEach(async () => {
+    afterEach(async function () {
       await server.stop();
     });
 
-    describe('#pageArrayFromJson', () => {
+    describe('#pageArrayFromJson', function () {
       let data = [
         {
           webSocketDebuggerUrl: 'webkit/url/app/42',
@@ -62,22 +62,22 @@ describe('WebKitRemoteDebugger', () => {
           url: '/path/to/other_page.html'
         }
       ];
-      beforeEach(async () => {
+      beforeEach(async function () {
         server.respondWith(data);
       });
 
-      it('should get a page array', async () => {
+      it('should get a page array', async function () {
         let r = await wrd.pageArrayFromJson();
         r.should.be.instanceof(Array);
         r.should.have.length(2);
       });
-      it('should correctly map webSocketDebuggerUrl to id', async () => {
+      it('should correctly map webSocketDebuggerUrl to id', async function () {
         let r = await wrd.pageArrayFromJson();
         _.map(r, 'id').should.eql(['42', '43']);
       });
     });
-    describe('#getJsonFromUrl', () => {
-      it('should get an object', async () => {
+    describe('#getJsonFromUrl', function () {
+      it('should get an object', async function () {
         server.respondWith({id: 42, type: 'fake'});
 
         let r = await wrd.getJsonFromUrl('localhost', 1337, '/json');
@@ -87,12 +87,12 @@ describe('WebKitRemoteDebugger', () => {
     });
   });
 
-  describe('utility methods', () => {
-    describe('#isConnected', () => {
-      it('should return false if there is no rpc client', () => {
+  describe('utility methods', function () {
+    describe('#isConnected', function () {
+      it('should return false if there is no rpc client', function () {
         wrd.isConnected().should.be.false;
       });
-      it('should return false if there is an rpc client that is not connected', () => {
+      it('should return false if there is an rpc client that is not connected', function () {
         let stub = sinon.stub();
         stub.returns(false);
         wrd.rpcClient = {
@@ -100,7 +100,7 @@ describe('WebKitRemoteDebugger', () => {
         };
         wrd.isConnected().should.be.false;
       });
-      it('should return true if there is an rpc client that is connected', () => {
+      it('should return true if there is an rpc client that is connected', function () {
         let stub = sinon.stub();
         stub.returns(true);
         wrd.rpcClient = {
