@@ -6,7 +6,7 @@ function withConnectedServer (rds, fn) {
   return () => {
     let server = new RemoteDebuggerServer();
 
-    beforeEach(async () => {
+    beforeEach(async function () {
       await server.start();
       let rd = rds[0];
       await rd.connect();
@@ -19,7 +19,7 @@ function withConnectedServer (rds, fn) {
       // so we don't wait around too much
       rd.pageLoadMs = 10;
     });
-    afterEach(async () => {
+    afterEach(async function () {
       await server.stop();
     });
     fn(server);
@@ -30,10 +30,10 @@ function withUnconnectedServer (fn) {
   return () => {
     let server = new RemoteDebuggerServer();
 
-    beforeEach(async () => {
+    beforeEach(async function () {
       await server.start();
     });
-    afterEach(async () => {
+    afterEach(async function () {
       await server.stop();
     });
     fn(server);

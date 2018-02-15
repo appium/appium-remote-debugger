@@ -9,9 +9,9 @@ let expect = chai.expect;
 chai.should();
 chai.use(chaiAsPromised);
 
-describe('helpers', () => {
-  describe('appInfoFromDict', () => {
-    it('should return the id and entry for a dict', () => {
+describe('helpers', function () {
+  describe('appInfoFromDict', function () {
+    it('should return the id and entry for a dict', function () {
       let dict = {
         WIRApplicationIdentifierKey: '42',
         WIRApplicationNameKey: 'App Name',
@@ -28,8 +28,8 @@ describe('helpers', () => {
       entry.hostId.should.equal(dict.WIRHostApplicationIdentifierKey);
     });
   });
-  describe('getDebuggerAppKey', () => {
-    it('should return the app key for the bundle', () => {
+  describe('getDebuggerAppKey', function () {
+    it('should return the app key for the bundle', function () {
       let appDict = {
         ['42']: {
           bundleId: 'io.appium.bundle'
@@ -37,7 +37,7 @@ describe('helpers', () => {
       };
       getDebuggerAppKey('io.appium.bundle', '8.3', appDict).should.equal('42');
     });
-    it('should return the app key for the bundle when proxied', () => {
+    it('should return the app key for the bundle when proxied', function () {
       let appDict = {
         ['42']: {
           bundleId: 'io.appium.bundle',
@@ -51,11 +51,11 @@ describe('helpers', () => {
       };
       getDebuggerAppKey('io.appium.bundle', '8.3', appDict).should.equal('43');
     });
-    it('should return undefined when there is no appropriate app', () => {
+    it('should return undefined when there is no appropriate app', function () {
       expect(getDebuggerAppKey('io.appium.bundle', '8.3', {})).to.not.exist;
     });
   });
-  describe('pageArrayFromDict', () => {
+  describe('pageArrayFromDict', function () {
     let basePageDict = {
       1: {
         WIRTitleKey: 'Appium/welcome',
@@ -65,11 +65,11 @@ describe('helpers', () => {
         WIRConnectionIdentifierKey: 'e777f792-c41e-4e5d-8722-68393af663b2'
       }
     };
-    it('should return a valid page array', () => {
+    it('should return a valid page array', function () {
       let pageArray = pageArrayFromDict(basePageDict);
       pageArray.should.have.length(1);
     });
-    it('should not count WIRTypeWeb entries', () => {
+    it('should not count WIRTypeWeb entries', function () {
       let pageDict = _.defaults({
         2: {
           WIRTypeKey: 'WIRTypeJavaScript'
@@ -79,11 +79,11 @@ describe('helpers', () => {
       pageArray.should.have.length(1);
     });
   });
-  describe('checkParams', () => {
-    it('should not return error when not missing parameters', () => {
+  describe('checkParams', function () {
+    it('should not return error when not missing parameters', function () {
       expect(checkParams({one: 'first', two: 'second', three: 'third'})).to.not.exist;
     });
-    it('should return error when parameter is missing', () => {
+    it('should return error when parameter is missing', function () {
       let errors = checkParams({one: 'first', two: null, three: 'third'});
       errors.should.have.length(1);
       errors[0].should.equal('two');

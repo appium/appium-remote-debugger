@@ -13,10 +13,10 @@ chai.should();
 chai.use(chaiAsPromised);
 
 
-describe('RemoteDebugger', () => {
+describe('RemoteDebugger', function () {
   let rd;
   let rds = [];
-  beforeEach(() => {
+  beforeEach(function () {
     let opts = {
       bundleId: APP_INFO['PID:42'].bundleId,
       platformVersion: '8.3',
@@ -29,7 +29,7 @@ describe('RemoteDebugger', () => {
   });
 
   function requireAppIdKey (fn, args) {
-    it('should fail if no app selected', async () => {
+    it('should fail if no app selected', async function () {
       // make sure there is no app id key (set during selectApp)
       rd.appIdKey = null;
 
@@ -37,7 +37,7 @@ describe('RemoteDebugger', () => {
     });
   }
   function requirePageIdKey (fn, args) {
-    it('should fail if no page selected', async () => {
+    it('should fail if no page selected', async function () {
       // make sure there is no page id key (set during selectPage)
       rd.pageIdKey = null;
 
@@ -45,33 +45,33 @@ describe('RemoteDebugger', () => {
     });
   }
   function confirmRpcSend (fn, args, num = 1) {
-    it('should send an rpc message', async () => {
+    it('should send an rpc message', async function () {
       let spy = sinon.spy(rd.rpcClient, 'send');
       await rd[fn](...args);
       spy.callCount.should.equal(num);
     });
   }
   function confirmRemoteDebuggerErrorHandling (server, fn, args, errText = 'remote debugger error') {
-    it('should handle error from remote debugger', async () => {
+    it('should handle error from remote debugger', async function () {
       server.setDataResponseError(errText);
       await rd[fn](...args).should.be.rejectedWith(errText);
     });
   }
 
-  describe('#connect', () => {
+  describe('#connect', function () {
     let server = new RemoteDebuggerServer();
 
-    beforeEach(async () => {
+    beforeEach(async function () {
       await server.start();
     });
-    afterEach(async () => {
+    afterEach(async function () {
       await server.stop();
     });
 
-    it('should return application information', async () => {
+    it('should return application information', async function () {
       (await rd.connect()).should.eql(APP_INFO);
     });
-    it('should set the connection key', async () => {
+    it('should set the connection key', async function () {
       let spy = sinon.spy(rd, 'setConnectionKey');
       await rd.connect();
       spy.calledOnce.should.be.true;
@@ -79,13 +79,13 @@ describe('RemoteDebugger', () => {
   });
 
   describe('#disconnect', withConnectedServer(rds, () => {
-    it('should disconnect from the rpc client', async () => {
+    it('should disconnect from the rpc client', async function () {
       let spy = sinon.spy(rd.rpcClient, 'disconnect');
       await rd.disconnect();
       spy.calledOnce.should.be.true;
       spy.restore();
     });
-    it('should emit an appropriate event', async () => {
+    it('should emit an appropriate event', async function () {
       let spy = sinon.spy();
       rd.on(RemoteDebugger.EVENT_DISCONNECT, spy);
       await rd.disconnect();
@@ -125,7 +125,7 @@ describe('RemoteDebugger', () => {
       rd.appIdKey.should.equal('PID:42');
       spy.calledOnce.should.be.true;
     });
-    it('should be able to handle an app change event during selection', async () => {
+    it('should be able to handle an app change event during selection', async function () {
       // change the app when the selectApp call gets in
       server.changeApp(1, false);
 
@@ -141,7 +141,7 @@ describe('RemoteDebugger', () => {
 
       spy.calledTwice.should.be.true;
     });
-    it('should not connect to app if url is about:blank and ignoreAboutBlankUrl is passed true to selectApp', async () => {
+    it('should not connect to app if url is about:blank and ignoreAboutBlankUrl is passed true to selectApp', async function () {
       let selectPromise = rd.selectApp({ignoreAboutBlankUrl: true});
 
       try {
@@ -167,12 +167,12 @@ describe('RemoteDebugger', () => {
   describe('#checkPageIsReady', withConnectedServer(rds, (server) => {
     requireAppIdKey('checkPageIsReady', []);
     confirmRpcSend('checkPageIsReady', []);
-    it('should return true when server responds with complete', async () => {
+    it('should return true when server responds with complete', async function () {
       server.setDataResponseValue('complete');
       let ready = await rd.checkPageIsReady();
       ready.should.be.true;
     });
-    it('should return false when server responds with loading', async () => {
+    it('should return false when server responds with loading', async function () {
       server.setDataResponseValue('loading');
       let ready = await rd.checkPageIsReady();
       ready.should.be.false;
@@ -182,7 +182,7 @@ describe('RemoteDebugger', () => {
 
   describe('#executeAtom', withConnectedServer(rds, (server) => {
     confirmRpcSend('executeAtom', ['find_element', [], []]);
-    it('should execute the atom', async () => {
+    it('should execute the atom', async function () {
       let sentElement = {ELEMENT: ':wdc:1435784377545'};
       server.setDataResponseValue(sentElement);
       let element = await rd.executeAtom('find_element', [], []);
@@ -192,18 +192,18 @@ describe('RemoteDebugger', () => {
   }));
 
   describe('timeline', withConnectedServer(rds, () => {
-    describe('#startTimeline', () => {
+    describe('#startTimeline', function () {
       let timelineCallback = sinon.spy();
       confirmRpcSend('startTimeline', [timelineCallback]);
     });
 
-    describe('#stopTimeline', () => {
+    describe('#stopTimeline', function () {
       confirmRpcSend('stopTimeline', []);
     });
   }));
 
   describe('#waitForFrameNavigated', withConnectedServer(rds, (server) => {
-    it('should work when the delay is cancelled but the server sends message', async () => {
+    it('should work when the delay is cancelled but the server sends message', async function () {
       let p = rd.waitForFrameNavigated();
       rd.navigationDelay.cancel();
 
@@ -214,7 +214,7 @@ describe('RemoteDebugger', () => {
       let source = await p;
       source.should.equal('remote-debugger');
     });
-    it('should timeout and finish when server does not send message', async () => {
+    it('should timeout and finish when server does not send message', async function () {
       let source = await rd.waitForFrameNavigated();
       source.should.equal('timeout');
     });
@@ -235,19 +235,19 @@ describe('RemoteDebugger', () => {
   }));
 
   describe('#pageLoad', withConnectedServer(rds, (server) => {
-    it('should call #checkPageIsReady', async () => {
+    it('should call #checkPageIsReady', async function () {
       let spy = sinon.spy(rd, 'checkPageIsReady');
       await rd.pageLoad();
       spy.calledOnce.should.be.true;
     });
-    it('should not call #checkPageIsReady if delay is cancelled', async () => {
+    it('should not call #checkPageIsReady if delay is cancelled', async function () {
       let spy = sinon.spy(rd, 'checkPageIsReady');
       let p = rd.pageLoad();
       rd.pageLoadDelay.cancel();
       await p;
       spy.called.should.be.false;
     });
-    it('should retry if page is not ready', async () => {
+    it('should retry if page is not ready', async function () {
       // give a long timeout so we can get the response from the server
       rd.pageLoadMs = 10000;
 
@@ -261,8 +261,8 @@ describe('RemoteDebugger', () => {
     });
   }));
 
-  describe('socket errors', async () => {
-    it('should handle socket connect error', async () => {
+  describe('socket errors', async function () {
+    it('should handle socket connect error', async function () {
       await rd.connect().should.be.rejected;
     });
   });

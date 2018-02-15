@@ -5,12 +5,12 @@ import chai from 'chai';
 
 chai.should();
 
-describe('getRemoteCommand', () => {
+describe('getRemoteCommand', function () {
   let commands = ['setConnectionKey', 'connectToApp', 'setSenderKey',
                   'indicateWebView', 'sendJSCommand', 'callJSFunction',
                   'setUrl', 'enablePage', 'startTimeline', 'stopTimeline'];
   for (let command of commands) {
-    it(`should be able to retrieve ${command} command`, () => {
+    it(`should be able to retrieve ${command} command`, function () {
       let remoteCommand = getRemoteCommand(command, {});
       remoteCommand.should.be.an.instanceof(Object);
       remoteCommand.__argument.should.exist;
