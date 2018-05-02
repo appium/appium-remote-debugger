@@ -3,4 +3,4 @@ build
 *.log
 coverage
 tmp
-package-lock.json
+package-lock.json*
