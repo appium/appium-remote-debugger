@@ -188,7 +188,7 @@ class RemoteDebuggerServer {
       result,
       id: plistData.id
     };
-    dataKey = new Buffer(JSON.stringify(dataKey));
+    dataKey = Buffer.from(JSON.stringify(dataKey));
     let data = {
       __selector: '_rpc_applicationSentData:',
       __argument: {
@@ -251,7 +251,7 @@ class RemoteDebuggerServer {
       result: {},
       id: 1
     };
-    dataKey = new Buffer(JSON.stringify(dataKey));
+    dataKey = Buffer.from(JSON.stringify(dataKey));
     let data = {
       __selector: '_rpc_applicationSentData:',
       __argument: {
