@@ -6,13 +6,16 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import _ from 'lodash';
 import sinon from 'sinon';
+import { MOCHA_TIMEOUT } from '../helpers/helpers';
+
 
 chai.should();
 chai.use(chaiAsPromised);
 
-
 describe('WebKitRemoteDebugger', function () {
-  let wrd = new WebKitRemoteDebugger({host: 'localhost', port: 1337});
+  this.timeout(MOCHA_TIMEOUT);
+
+  const wrd = new WebKitRemoteDebugger({host: 'localhost', port: 1337});
 
   describe('websocket methods', function () {
     describe('#connect', function () {
