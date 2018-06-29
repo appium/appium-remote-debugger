@@ -7,6 +7,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import Promise from 'bluebird';
+import { MOCHA_TIMEOUT } from '../helpers/helpers';
 
 
 chai.should();
@@ -14,6 +15,8 @@ chai.use(chaiAsPromised);
 
 
 describe('RemoteDebugger', function () {
+  this.timeout(MOCHA_TIMEOUT);
+
   let rd;
   let rds = [];
   beforeEach(function () {
