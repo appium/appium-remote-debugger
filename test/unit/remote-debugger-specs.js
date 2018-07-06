@@ -62,6 +62,8 @@ describe('RemoteDebugger', function () {
   }
 
   describe('#connect', function () {
+    this.retries(3);
+
     let server = new RemoteDebuggerServer();
 
     beforeEach(async function () {
@@ -72,7 +74,9 @@ describe('RemoteDebugger', function () {
     });
 
     it('should return application information', async function () {
+      let spy = sinon.spy(rd, 'setConnectionKey');
       (await rd.connect()).should.eql(APP_INFO);
+      spy.calledOnce.should.be.true;
     });
     it('should set the connection key', async function () {
       let spy = sinon.spy(rd, 'setConnectionKey');
