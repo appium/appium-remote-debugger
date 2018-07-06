@@ -10,6 +10,12 @@ A Node.js frontend for the Remote Debugger protocol used by Appium to connect to
 
 Issues for this repo are disabled. Log any issues at the [main Appium repo's issue tracker](https://github.com/appium/appium/issues).
 
+## Safari's version of the WebKit API
+
+Safari implements a wonky version of the WebKit API. It is not documented. But there
+is good documentation for the closely related API from Chrome DevTools, to be
+[found here](https://chromedevtools.github.io/devtools-protocol/);
+
 ## API
 
 This is an event emitter, which emits a `RemoteDebugger.EVENT_PAGE_CHANGE` event when there has been a change to the page. This should be caught and handled as the calling code wishes. It also emits a `RemoteDebugger.EVENT_DISCONNECT` event when the server disconnects the last application connected.
