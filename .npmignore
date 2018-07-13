@@ -2,3 +2,5 @@ node_modules
 *.log
 tmp
 coverage
+atoms_build_dir
+test
