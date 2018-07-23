@@ -35,7 +35,7 @@
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "source-map-support": "^0.5.5",
-    "uuid": "^3.0.1",
+    "uuid-js": "^0.7.5",
     "ws": "^6.0.0"
   },
   "scripts": {
