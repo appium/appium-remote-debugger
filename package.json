@@ -40,7 +40,7 @@
   },
   "scripts": {
     "prepublish": "gulp prepublish",
-    "clean": "rm -rf node_modules && npm install",
+    "clean": "rm -rf node_modules && rm -f package-lock.json && npm install",
     "test": "gulp once",
     "watch": "gulp watch",
     "mocha": "mocha",
