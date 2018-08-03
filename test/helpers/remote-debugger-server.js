@@ -164,7 +164,7 @@ class RemoteDebuggerServer {
     let plistData = JSON.parse(plist.__argument.WIRSocketDataKey.toString('utf8'));
 
     let result = {};
-    if (this.dataResponseValue.length > 0) {
+    if (this.dataResponseValue.length) {
       // add the response value
       result = {
         result: {
