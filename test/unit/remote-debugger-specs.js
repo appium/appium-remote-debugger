@@ -20,13 +20,14 @@ describe('RemoteDebugger', function () {
   let rd;
   let rds = [];
   beforeEach(function () {
-    let opts = {
+    const opts = {
       bundleId: APP_INFO['PID:42'].bundleId,
       platformVersion: '8.3',
       useNewSafari: true,
       pageLoadMs: 5000,
       port: 27754,
-      debuggerType: DEBUGGER_TYPES.webinspector};
+      debuggerType: DEBUGGER_TYPES.webinspector,
+    };
     rd = new RemoteDebugger(opts);
     rds[0] = rd;
   });
