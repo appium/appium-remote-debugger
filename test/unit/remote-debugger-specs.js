@@ -20,13 +20,14 @@ describe('RemoteDebugger', function () {
   let rd;
   let rds = [];
   beforeEach(function () {
-    let opts = {
+    const opts = {
       bundleId: APP_INFO['PID:42'].bundleId,
       platformVersion: '8.3',
       useNewSafari: true,
       pageLoadMs: 5000,
       port: 27754,
-      debuggerType: DEBUGGER_TYPES.webinspector};
+      debuggerType: DEBUGGER_TYPES.webinspector,
+    };
     rd = new RemoteDebugger(opts);
     rds[0] = rd;
   });
@@ -54,8 +55,11 @@ describe('RemoteDebugger', function () {
       spy.callCount.should.equal(num);
     });
   }
-  function confirmRemoteDebuggerErrorHandling (server, fn, args, errText = 'remote debugger error') {
+  function confirmRemoteDebuggerErrorHandling (server, fn, args, gc = false, errText = 'remote debugger error') {
     it('should handle error from remote debugger', async function () {
+      if (gc) {
+        server.setDataResponseValue('');
+      }
       server.setDataResponseError(errText);
       await rd[fn](...args).should.be.rejectedWith(errText);
     });
@@ -101,7 +105,7 @@ describe('RemoteDebugger', function () {
   }));
 
   describe('#selectApp', withConnectedServer(rds, (server) => {
-    confirmRpcSend('selectApp', []);
+    confirmRpcSend('selectApp', [], 1);
     it('should be able to handle an app change event before selection', async function () {
       this.timeout(10000);
 
@@ -160,42 +164,45 @@ describe('RemoteDebugger', function () {
   }));
 
   describe('#selectPage', withConnectedServer(rds, (server) => {
-    confirmRpcSend('selectPage', [1, 2, true], 3);
-    confirmRpcSend('selectPage', [1, 2, false], 4);
+    confirmRpcSend('selectPage', [1, 2, true], 4);
+    confirmRpcSend('selectPage', [1, 2, false], 6);
     confirmRemoteDebuggerErrorHandling(server, 'selectPage', [1, 2]);
   }));
 
   describe('#execute', withConnectedServer(rds, () => {
     requireAppIdKey('execute', []);
     requirePageIdKey('execute', []);
-    confirmRpcSend('execute', ['document.getElementsByTagName("html")[0].outerHTML']);
+    confirmRpcSend('execute', ['document.getElementsByTagName("html")[0].outerHTML'], 2);
   }));
 
   describe('#checkPageIsReady', withConnectedServer(rds, (server) => {
     requireAppIdKey('checkPageIsReady', []);
-    confirmRpcSend('checkPageIsReady', []);
+    confirmRpcSend('checkPageIsReady', [], 2);
     it('should return true when server responds with complete', async function () {
+      server.setDataResponseValue('');
       server.setDataResponseValue('complete');
       let ready = await rd.checkPageIsReady();
       ready.should.be.true;
     });
     it('should return false when server responds with loading', async function () {
+      server.setDataResponseValue('');
       server.setDataResponseValue('loading');
       let ready = await rd.checkPageIsReady();
       ready.should.be.false;
     });
-    confirmRemoteDebuggerErrorHandling(server, 'checkPageIsReady', []);
+    confirmRemoteDebuggerErrorHandling(server, 'checkPageIsReady', [], true);
   }));
 
   describe('#executeAtom', withConnectedServer(rds, (server) => {
-    confirmRpcSend('executeAtom', ['find_element', [], []]);
+    confirmRpcSend('executeAtom', ['find_element', [], []], 2);
     it('should execute the atom', async function () {
       let sentElement = {ELEMENT: ':wdc:1435784377545'};
+      server.setDataResponseValue('');
       server.setDataResponseValue(sentElement);
       let element = await rd.executeAtom('find_element', [], []);
       element.should.eql(sentElement);
     });
-    confirmRemoteDebuggerErrorHandling(server, 'executeAtom', ['find_element', [], []]);
+    confirmRemoteDebuggerErrorHandling(server, 'executeAtom', ['find_element', [], []], true);
   }));
 
   describe('timeline', withConnectedServer(rds, () => {
@@ -232,13 +239,13 @@ describe('RemoteDebugger', function () {
 
     requireAppIdKey('navToUrl', [url]);
     requirePageIdKey('navToUrl', [url]);
-    confirmRpcSend('navToUrl', [url], 2);
+    confirmRpcSend('navToUrl', [url], 3);
   }));
 
   describe('#callFunction', withConnectedServer(rds, () => {
     requireAppIdKey('callFunction', []);
     requirePageIdKey('callFunction', []);
-    confirmRpcSend('callFunction', []);
+    confirmRpcSend('callFunction', [], 2);
   }));
 
   describe('#pageLoad', withConnectedServer(rds, (server) => {
@@ -259,7 +266,9 @@ describe('RemoteDebugger', function () {
       rd.pageLoadMs = 10000;
 
       // make the server respond first with random status, then with complete
+      server.setDataResponseValue('');
       server.setDataResponseValue('loading');
+      server.setDataResponseValue('');
       server.setDataResponseValue('complete');
 
       let spy = sinon.spy(rd, 'checkPageIsReady');

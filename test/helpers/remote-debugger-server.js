@@ -164,16 +164,7 @@ class RemoteDebuggerServer {
     let plistData = JSON.parse(plist.__argument.WIRSocketDataKey.toString('utf8'));
 
     let result = {};
-    if (this.dataResponseError) {
-      result = {
-        result: {
-          type: 'string',
-          value: this.dataResponseError
-        },
-        wasThrown: true
-      };
-      this.dataResponseError = null;
-    } else if (this.dataResponseValue.length > 0) {
+    if (this.dataResponseValue.length) {
       // add the response value
       result = {
         result: {
@@ -182,6 +173,15 @@ class RemoteDebuggerServer {
         },
         wasThrown: false
       };
+    } else if (this.dataResponseError) {
+      result = {
+        result: {
+          type: 'string',
+          value: this.dataResponseError
+        },
+        wasThrown: true
+      };
+      this.dataResponseError = null;
     }
 
     let dataKey = {
