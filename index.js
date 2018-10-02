@@ -1,5 +1,8 @@
-import { RemoteDebugger, DEBUGGER_TYPES, REMOTE_DEBUGGER_PORT } from './lib/remote-debugger';
-import WebKitRemoteDebugger from './lib/webkit-remote-debugger';
+import * as rd from './lib/remote-debugger';
+import * as wrd from './lib/webkit-remote-debugger';
 
+
+const { RemoteDebugger, DEBUGGER_TYPES, REMOTE_DEBUGGER_PORT } = rd;
+const { WebKitRemoteDebugger } = wrd;
 
 export { RemoteDebugger, DEBUGGER_TYPES, REMOTE_DEBUGGER_PORT, WebKitRemoteDebugger };
