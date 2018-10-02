@@ -9,12 +9,17 @@ matrix:
       node_js: "8"
       env: COVERALLS=1
     - osx_image: xcode8.3
-      node_js: "6"
+      node_js: "10"
 
     - osx_image: xcode9.4
       node_js: "8"
     - osx_image: xcode9.4
-      node_js: "6"
+      node_js: "10"
+
+    - osx_image: xcode10
+      node_js: "8"
+    - osx_image: xcode10
+      node_js: "10"
 script:
   - npm test
 after_success:

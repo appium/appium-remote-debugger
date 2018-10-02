@@ -277,7 +277,7 @@ describe('RemoteDebugger', function () {
     });
   }));
 
-  describe('socket errors', async function () {
+  describe('socket errors', function () {
     it('should handle socket connect error', async function () {
       await rd.connect().should.be.rejected;
     });

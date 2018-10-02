@@ -65,7 +65,7 @@ describe('WebKitRemoteDebugger', function () {
           url: '/path/to/other_page.html'
         }
       ];
-      beforeEach(async function () {
+      beforeEach(function () {
         server.respondWith(data);
       });
 

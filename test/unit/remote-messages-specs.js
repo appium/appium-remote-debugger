@@ -10,9 +10,11 @@ chai.should();
 describe('getRemoteCommand', function () {
   this.timeout(MOCHA_TIMEOUT);
 
-  const commands = ['setConnectionKey', 'connectToApp', 'setSenderKey',
-                    'indicateWebView', 'sendJSCommand', 'callJSFunction',
-                    'setUrl', 'enablePage', 'startTimeline', 'stopTimeline'];
+  const commands = [
+    'setConnectionKey', 'connectToApp', 'setSenderKey', 'indicateWebView',
+    'sendJSCommand', 'callJSFunction', 'setUrl', 'enablePage', 'startTimeline',
+    'stopTimeline',
+  ];
   for (const command of commands) {
     it(`should be able to retrieve ${command} command`, function () {
       const remoteCommand = getRemoteCommand(command, {});

@@ -97,11 +97,11 @@ class RemoteDebuggerServer {
     };
 
     // add more
-    if (num > UPDATED_APP_INFO+1) {
+    if (num > UPDATED_APP_INFO + 1) {
       // we only have so many to give!
       num = UPDATED_APP_INFO + 1;
     }
-    for (let i = 0; i < num-1; i++) {
+    for (let i = 0; i < num - 1; i++) {
       let entry = UPDATED_APP_INFO[i];
       data.__argument.WIRApplicationDictionaryKey.push({[entry.id]: entry});
     }
@@ -202,7 +202,7 @@ class RemoteDebuggerServer {
 
   changeApp (num = 1, immediate = true) {
     if (immediate) {
-      if (num > UPDATED_APP_INFO.length-1) {
+      if (num > UPDATED_APP_INFO.length - 1) {
         // we only have a certain number of info to send
         num = UPDATED_APP_INFO.length - 1;
       }
@@ -210,12 +210,12 @@ class RemoteDebuggerServer {
         let data = {
           __selector: '_rpc_applicationConnected:',
           __argument: {
-            WIRApplicationIdentifierKey: UPDATED_APP_INFO[this.app-1].id,
-            WIRApplicationNameKey: UPDATED_APP_INFO[this.app-1].name,
-            WIRApplicationBundleIdentifierKey: UPDATED_APP_INFO[this.app-1].bundleId,
-            WIRIsApplicationProxyKey: UPDATED_APP_INFO[this.app-1].isProxy,
-            WIRHostApplicationIdentifierKey: UPDATED_APP_INFO[this.app-1].hostId,
-            WIRIsApplicationActiveKey: UPDATED_APP_INFO[this.app-1].isActive
+            WIRApplicationIdentifierKey: UPDATED_APP_INFO[this.app - 1].id,
+            WIRApplicationNameKey: UPDATED_APP_INFO[this.app - 1].name,
+            WIRApplicationBundleIdentifierKey: UPDATED_APP_INFO[this.app - 1].bundleId,
+            WIRIsApplicationProxyKey: UPDATED_APP_INFO[this.app - 1].isProxy,
+            WIRHostApplicationIdentifierKey: UPDATED_APP_INFO[this.app - 1].hostId,
+            WIRIsApplicationActiveKey: UPDATED_APP_INFO[this.app - 1].isActive
           }
         };
         this.send(data);
@@ -272,7 +272,7 @@ class RemoteDebuggerServer {
   }
 
   async start () {
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.server = net.createServer((c) => {
         this.client = c;
         c.on('end', () => {
@@ -317,7 +317,7 @@ class RemoteDebuggerServer {
   }
 
   async stop () {
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       if (this.server) {
         if (this.client) {
           this.client.end();

@@ -22,10 +22,17 @@
   "directories": {
     "lib": "lib"
   },
+  "files": [
+    "index.js",
+    "lib",
+    "build/index.js",
+    "build/lib",
+    "atoms"
+  ],
   "dependencies": {
+    "@babel/runtime": "^7.0.0",
     "appium-base-driver": "^3.0.0",
     "appium-support": "^2.4.0",
-    "babel-runtime": "=5.8.24",
     "bluebird": "^3.4.7",
     "bplist-creator": "0.0.7",
     "bplist-parser": "^0.1.0",
@@ -39,7 +46,7 @@
     "ws": "^6.0.0"
   },
   "scripts": {
-    "prepublish": "gulp prepublish",
+    "prepare": "gulp prepublish",
     "clean": "rm -rf node_modules && rm -f package-lock.json && npm install",
     "test": "gulp once",
     "watch": "gulp watch",
@@ -58,32 +65,22 @@
     "precommit-test"
   ],
   "devDependencies": {
-    "appium-gulp-plugins": "^2.4.0",
-    "babel-eslint": "^7.1.1",
+    "ajv": "^6.5.3",
+    "appium-gulp-plugins": "^3.1.0",
+    "babel-eslint": "^10.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^3.10.2",
-    "eslint-config-appium": "^2.1.0",
-    "eslint-plugin-babel": "^3.3.0",
+    "eslint": "^5.2.0",
+    "eslint-config-appium": "^3.1.0",
     "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-mocha": "^4.7.0",
-    "eslint-plugin-promise": "^3.3.1",
-    "gulp": "^3.9.1",
+    "eslint-plugin-mocha": "^5.0.0",
+    "eslint-plugin-promise": "^4.0.0",
+    "gulp": "^4.0.0",
     "mocha": "^5.1.1",
     "pre-commit": "^1.1.3",
     "sinon": "^6.0.0"
   },
   "greenkeeper": {
-    "ignore": [
-      "babel-eslint",
-      "babel-preset-env",
-      "eslint",
-      "eslint-plugin-babel",
-      "eslint-plugin-import",
-      "eslint-plugin-mocha",
-      "eslint-plugin-promise",
-      "gulp",
-      "babel-runtime"
-    ]
+    "ignore": []
   }
 }

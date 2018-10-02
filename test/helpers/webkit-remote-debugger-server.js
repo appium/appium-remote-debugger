@@ -24,7 +24,7 @@ class WebKitRemoteDebuggerServer {
   async start (ws = false) {
     if (!ws) {
       // just need a simple http server for non-websocket calls
-      return new Promise((resolve) => {
+      return await new Promise((resolve) => {
         this.server = http.createServer((req, res) => {
           res.writeHead(200, {'Content-Type': 'application/json'});
           if (this.nextResponse) {
@@ -50,7 +50,7 @@ class WebKitRemoteDebuggerServer {
   // stop one or both of the servers.
   async stop () {
     if (!this.ws) {
-      return new Promise((resolve) => {
+      return await new Promise((resolve) => {
         if (this.server) {
           this.server.close((err) => { // eslint-disable-line promise/prefer-await-to-callbacks
             resolve(`Stopped listening: ${err}`);
