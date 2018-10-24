@@ -284,6 +284,7 @@ class RemoteDebuggerServer {
             data = Buffer.concat([leftOverData, data]);
             leftOverData = null;
           }
+          log.debug('Received data');
 
           let plist;
           try {
@@ -314,7 +315,7 @@ class RemoteDebuggerServer {
               this.handleSocketData(plist[0]);
               break;
             case '_rpc_forwardIndicateWebView:':
-              reject(new Error(`NOT YET IMPLEMENTED: ${plist[0].__selector}`));
+              this.client.write(new Error(`NOT YET IMPLEMENTED: ${plist[0].__selector}`));
               break;
             default:
               this.client.write('do not compute');
