@@ -1,3 +1,3 @@
-const MOCHA_TIMEOUT = process.env.CI ? 30000 : 10000;
+const MOCHA_TIMEOUT = process.env.CI ? 60000 : 30000;
 
 export { MOCHA_TIMEOUT };

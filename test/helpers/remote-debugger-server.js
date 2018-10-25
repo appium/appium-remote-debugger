@@ -2,13 +2,13 @@
 
 import net from 'net';
 import bplistCreate from 'bplist-creator';
-import bplistParse from 'bplist-parser';
+import bplistParser from 'bplist-parser';
 import bufferpack from 'bufferpack';
 import Promise from 'bluebird';
 import { logger } from 'appium-support';
 
-const log = logger.getLogger('RemoteDebugger');
 
+const log = logger.getLogger('TestServer');
 
 const DEVICE_INFO = {
   name: 'iPhone Simulator',
@@ -272,6 +272,7 @@ class RemoteDebuggerServer {
   }
 
   async start () {
+    let leftOverData;
     return await new Promise((resolve, reject) => {
       this.server = net.createServer((c) => {
         this.client = c;
@@ -279,7 +280,21 @@ class RemoteDebuggerServer {
           log.debug('client disconnected');
         });
         c.on('data', (data) => {
-          let plist = bplistParse.parseBuffer(data.slice(4));
+          if (leftOverData) {
+            data = Buffer.concat([leftOverData, data]);
+            leftOverData = null;
+          }
+          log.debug('Received data');
+
+          let plist;
+          try {
+            plist = bplistParser.parseBuffer(data.slice(4));
+          } catch (err) {
+            log.info(`Unable to decipher plist: ${err.message}`);
+            log.info('Assuming just a chunk, waiting for more');
+            leftOverData = data;
+            return;
+          }
 
           if (!(plist[0] || {}).__selector) {
             reject(new Error(`Unable to decipher plist: ${plist}`));
@@ -300,7 +315,7 @@ class RemoteDebuggerServer {
               this.handleSocketData(plist[0]);
               break;
             case '_rpc_forwardIndicateWebView:':
-              reject(new Error(`NOT YET IMPLEMENTED: ${plist[0].__selector}`));
+              this.client.write(new Error(`NOT YET IMPLEMENTED: ${plist[0].__selector}`));
               break;
             default:
               this.client.write('do not compute');
