@@ -38,7 +38,7 @@
     "bplist-parser": "^0.1.0",
     "bufferpack": "0.0.6",
     "es6-error": "^4.1.1",
-    "lodash": "^4.2.1",
+    "lodash": "^4.17.11",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "source-map-support": "^0.5.5",
