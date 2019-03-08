@@ -1,7 +1,7 @@
 // transpile:main
 
 import http from 'http';
-import Promise from 'bluebird';
+import B from 'bluebird';
 import ws from 'ws';
 import { logger } from 'appium-support';
 
@@ -24,7 +24,7 @@ class WebKitRemoteDebuggerServer {
   async start (ws = false) {
     if (!ws) {
       // just need a simple http server for non-websocket calls
-      return await new Promise((resolve) => {
+      return await new B((resolve) => {
         this.server = http.createServer((req, res) => {
           res.writeHead(200, {'Content-Type': 'application/json'});
           if (this.nextResponse) {
@@ -41,7 +41,7 @@ class WebKitRemoteDebuggerServer {
       // need a fake websocket server
       // but it doesn't need to do anything but connect and disconnect
       this.ws = true;
-      return new Promise((resolve) => {
+      return new B((resolve) => {
         this.server = new WebSocketServer({host: 'localhost', port: 1337}, resolve);
       });
     }
@@ -50,7 +50,7 @@ class WebKitRemoteDebuggerServer {
   // stop one or both of the servers.
   async stop () {
     if (!this.ws) {
-      return await new Promise((resolve) => {
+      return await new B((resolve) => {
         if (this.server) {
           this.server.close((err) => { // eslint-disable-line promise/prefer-await-to-callbacks
             resolve(`Stopped listening: ${err}`);
@@ -62,7 +62,7 @@ class WebKitRemoteDebuggerServer {
     } else {
       // websocket server isn't asynchronous
       this.server.close();
-      return Promise.resolve();
+      return B.resolve();
     }
   }
 

@@ -6,7 +6,7 @@ import { withConnectedServer } from '../helpers/server-setup';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
-import Promise from 'bluebird';
+import B from 'bluebird';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
 
 
@@ -27,6 +27,7 @@ describe('RemoteDebugger', function () {
       pageLoadMs: 5000,
       port: 27754,
       debuggerType: DEBUGGER_TYPES.webinspector,
+      garbageCollectOnExecute: true,
     };
     rd = new RemoteDebugger(opts);
     rds[0] = rd;
@@ -122,7 +123,7 @@ describe('RemoteDebugger', function () {
         if (rd.appIdKey !== initialIdKey) {
           break;
         }
-        await Promise.delay(100);
+        await B.delay(100);
       }
 
       let spy = sinon.spy(rd.rpcClient, 'selectApp');
@@ -143,7 +144,7 @@ describe('RemoteDebugger', function () {
       let spy = sinon.spy(rd.rpcClient, 'selectApp');
       let selectPromise = rd.selectApp();
 
-      await Promise.delay(1000);
+      await B.delay(1000);
       server.sendPageInfoMessage('PID:44');
       server.sendPageInfoMessage('PID:42');
       server.sendPageInfoMessage('PID:46');
@@ -164,7 +165,7 @@ describe('RemoteDebugger', function () {
   }));
 
   describe('#selectPage', withConnectedServer(rds, (server) => {
-    confirmRpcSend('selectPage', [1, 2, true], 4);
+    confirmRpcSend('selectPage', [1, 2, true], 2);
     confirmRpcSend('selectPage', [1, 2, false], 6);
     confirmRemoteDebuggerErrorHandling(server, 'selectPage', [1, 2]);
   }));
