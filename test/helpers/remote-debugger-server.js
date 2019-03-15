@@ -4,7 +4,7 @@ import net from 'net';
 import bplistCreate from 'bplist-creator';
 import bplistParser from 'bplist-parser';
 import bufferpack from 'bufferpack';
-import Promise from 'bluebird';
+import B from 'bluebird';
 import { logger } from 'appium-support';
 
 
@@ -273,7 +273,7 @@ class RemoteDebuggerServer {
 
   async start () {
     let leftOverData;
-    return await new Promise((resolve, reject) => {
+    return await new B((resolve, reject) => {
       this.server = net.createServer((c) => {
         this.client = c;
         c.on('end', () => {
@@ -332,7 +332,7 @@ class RemoteDebuggerServer {
   }
 
   async stop () {
-    return await new Promise((resolve) => {
+    return await new B((resolve) => {
       if (this.server) {
         if (this.client) {
           this.client.end();
