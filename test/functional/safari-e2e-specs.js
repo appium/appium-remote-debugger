@@ -25,7 +25,7 @@ async function deleteDeviceWithRetry (udid) {
 }
 
 describe('Safari remote debugger', function () {
-  this.timeout(60000);
+  this.timeout(240000);
 
   let udid, sim;
   let address;
