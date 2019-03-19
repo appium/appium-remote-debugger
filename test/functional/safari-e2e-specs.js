@@ -1,4 +1,4 @@
-import { createDevice, deleteDevice, openUrl } from 'node-simctl';
+import { getDevices, createDevice, deleteDevice, openUrl } from 'node-simctl';
 import { getSimulator } from 'appium-ios-simulator';
 import { retryInterval } from 'asyncbox';
 import UUID from 'uuid-js';
@@ -12,11 +12,21 @@ import { startHttpServer, stopHttpServer, PAGE_TITLE } from './http-server';
 chai.should();
 chai.use(chaiAsPromised);
 
-const SIM_DEVICE_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${UUID.create().hex.toUpperCase()}`;
+const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${UUID.create().hex.toUpperCase()}`;
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 6';
 const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '12.1';
 
+async function getExistingSim (deviceName, platformVersion) {
+  const devices = await getDevices(platformVersion);
 
+  for (const device of _.values(devices)) {
+    if (device.name === deviceName) {
+      return await getSimulator(device.udid);
+    }
+  }
+
+  return null;
+}
 
 async function deleteDeviceWithRetry (udid) {
   try {
@@ -27,11 +37,16 @@ async function deleteDeviceWithRetry (udid) {
 describe('Safari remote debugger', function () {
   this.timeout(240000);
 
-  let udid, sim;
+  let sim;
+  let simCreated = false;
   let address;
   before(async function () {
-    udid = await createDevice(SIM_DEVICE_NAME, DEVICE_NAME, PLATFORM_VERSION);
-    sim = await getSimulator(udid);
+    sim = await getExistingSim(DEVICE_NAME, PLATFORM_VERSION);
+    if (!sim) {
+      const udid = await createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
+      sim = await getSimulator(udid);
+      simCreated = true;
+    }
     await sim.run();
 
     const port = await startHttpServer();
@@ -39,7 +54,9 @@ describe('Safari remote debugger', function () {
   });
   after(async function () {
     await sim.shutdown();
-    await deleteDeviceWithRetry(udid);
+    if (simCreated) {
+      await deleteDeviceWithRetry(sim.udid);
+    }
 
     stopHttpServer();
   });
@@ -56,7 +73,7 @@ describe('Safari remote debugger', function () {
       garbageCollectOnExecute: false,
     });
 
-    await openUrl(udid, address);
+    await openUrl(sim.udid, address);
   });
 
   async function connect (rd) {
