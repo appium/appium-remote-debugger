@@ -1,15 +1,37 @@
 os: osx
 language: node_js
+node_js: "8"
 env:
   global:
     - _FORCE_LOGS=1
-matrix:
+jobs:
   include:
-    - osx_image: xcode10
-      node_js: "8"
-    - osx_image: xcode10
-      node_js: "10"
+    - stage: tests
+      osx_image: xcode10.1
+      env:
+        - TEST=test
+        - COVERALLS=1
+        - _FORCE_LOGS=0
+
+    - stage:
+      osx_image: xcode9.4
+      env:
+        - PLATFORM_VERSION=11.4
+        - TEST=e2e-test
+
+    - stage:
+      osx_image: xcode10.1
+      env:
+        - PLATFORM_VERSION=12.1
+        - TEST=e2e-test
+
+    - stage:
+      osx_image: xcode10.2
+      env:
+        - PLATFORM_VERSION=12.2
+        - TEST=e2e-test
+
 script:
-  - npm test
+  - npm run $TEST
 after_success:
   - if [ -n "$COVERALLS" ]; then _FORCE_LOGS=0 npm run coverage; fi
