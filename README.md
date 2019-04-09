@@ -25,7 +25,7 @@ The steps to using the `RemoteDebugger` involve instantiating an object, then ru
 ## Selenium "atoms"
 
 The remote debugger uses the standard [Selenium Atoms](https://github.com/SeleniumHQ/selenium/tree/master/javascript/atoms)
-to interact with web pages. These need to manually updated when necessary. To do
+to interact with web pages. These need to be manually updated when necessary. To do
 so, simply update the branch in `Makefile` by modifying the `SELENIUM_BRANCH`
 variable. Then run `npm run build:atoms`, test and create a pull request with
 the resulting changed atoms directory.
