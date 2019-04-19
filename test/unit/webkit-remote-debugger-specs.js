@@ -15,7 +15,7 @@ chai.use(chaiAsPromised);
 describe('WebKitRemoteDebugger', function () {
   this.timeout(MOCHA_TIMEOUT);
 
-  const wrd = new WebKitRemoteDebugger({host: 'localhost', port: 1337});
+  const wrd = new WebKitRemoteDebugger({host: 'localhost', port: 1337, isSafari: true, platformVersion: '12.1'});
 
   describe('websocket methods', function () {
     describe('#connect', function () {
