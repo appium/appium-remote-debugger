@@ -32,7 +32,7 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "appium-base-driver": "^3.0.0",
-    "appium-support": "^2.4.0",
+    "appium-support": "^2.26.0",
     "bluebird": "^3.4.7",
     "bplist-creator": "0.0.7",
     "bplist-parser": "^0.1.0",
