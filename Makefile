@@ -1,6 +1,6 @@
 current_dir = $(shell pwd)
 
-SELENIUM_BRANCH = selenium-3.13.0
+SELENIUM_BRANCH = selenium-3.141.59
 
 DEFAULT: clone_selenium atoms
 

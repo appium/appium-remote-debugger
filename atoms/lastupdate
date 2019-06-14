@@ -1,7 +1,7 @@
-2018-07-12 14:13:04
+2019-06-14 09:09:45
 
-commit 2f0d2927acdd5007da37536ce7cacd3ff78f5731 (grafted, HEAD, tag: refs/tags/selenium-3.13.0)
-Author: Jim Evans <james.h.evans.jr@gmail.com>
-Date:   Mon Jun 25 08:16:37 2018 -0700
+commit e82be7d3584062a0d16af8d562d387e3d4855aa1 (grafted, HEAD, tag: refs/tags/selenium-3.141.59)
+Author: Simon Stewart <simon.m.stewart@gmail.com>
+Date:   Wed Nov 14 08:00:10 2018 +0000
 
-    Updating IE driver CHANGELOG and version resources for 3.13 release
+    Bump the java version and update changelogs
