@@ -1,5 +1,3 @@
-// transpile:mocha
-
 import { WebKitRemoteDebugger } from '../../index.js';
 import { WebKitRemoteDebuggerServer } from '../helpers/webkit-remote-debugger-server';
 import chai from 'chai';

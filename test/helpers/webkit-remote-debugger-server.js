@@ -1,5 +1,3 @@
-// transpile:main
-
 import http from 'http';
 import B from 'bluebird';
 import ws from 'ws';

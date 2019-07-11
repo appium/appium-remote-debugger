@@ -1,5 +1,3 @@
-// transpile:mocha
-
 import RemoteMessages from '../../lib/remote-messages';
 import chai from 'chai';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
