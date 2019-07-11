@@ -1,5 +1,3 @@
-// transpile:mocha
-
 import { pageArrayFromDict, checkParams, appInfoFromDict, getDebuggerAppKey } from '../../lib/helpers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';

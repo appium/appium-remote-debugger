@@ -1,5 +1,3 @@
-// transpile:mocha
-
 import { RemoteDebugger, DEBUGGER_TYPES } from '../../index.js';
 import { RemoteDebuggerServer, APP_INFO } from '../helpers/remote-debugger-server';
 import { withConnectedServer } from '../helpers/server-setup';

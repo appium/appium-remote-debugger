@@ -1,5 +1,3 @@
-// transpile:main
-
 import net from 'net';
 import bplistCreate from 'bplist-creator';
 import bplistParser from 'bplist-parser';
