@@ -5,7 +5,7 @@ import UUID from 'uuid-js';
 import _ from 'lodash';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { RemoteDebugger } from '../..';
+import { createRemoteDebugger } from '../..';
 import { startHttpServer, stopHttpServer, PAGE_TITLE } from './http-server';
 
 
@@ -63,7 +63,7 @@ describe('Safari remote debugger', function () {
 
   let rd;
   beforeEach(async function () {
-    rd = new RemoteDebugger({
+    rd = createRemoteDebugger({
       bundleId: 'com.apple.mobilesafari',
       isSafari: true,
       useNewSafari: true,
@@ -71,9 +71,12 @@ describe('Safari remote debugger', function () {
       platformVersion: PLATFORM_VERSION,
       socketPath: await sim.getWebInspectorSocket(),
       garbageCollectOnExecute: false,
-    });
+    }, false);
 
     await openUrl(sim.udid, address);
+  });
+  afterEach(async function () {
+    await rd.disconnect();
   });
 
   async function connect (rd) {

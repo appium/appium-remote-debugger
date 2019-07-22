@@ -1,8 +1,16 @@
-import * as rd from './lib/remote-debugger';
-import * as wrd from './lib/webkit-remote-debugger';
+import { RemoteDebugger, REMOTE_DEBUGGER_PORT } from './lib/remote-debugger';
+import RemoteDebuggerRealDevice from './lib/remote-debugger-real-device';
 
 
-const { RemoteDebugger, DEBUGGER_TYPES, REMOTE_DEBUGGER_PORT } = rd;
-const { WebKitRemoteDebugger } = wrd;
+function createRemoteDebugger (opts, realDevice = false) {
+  if (realDevice) {
+    return new RemoteDebuggerRealDevice(opts);
+  } else {
+    return new RemoteDebugger(opts);
+  }
+}
 
-export { RemoteDebugger, DEBUGGER_TYPES, REMOTE_DEBUGGER_PORT, WebKitRemoteDebugger };
+export {
+  createRemoteDebugger, RemoteDebugger, RemoteDebuggerRealDevice,
+  REMOTE_DEBUGGER_PORT,
+};

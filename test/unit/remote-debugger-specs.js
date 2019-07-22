@@ -1,4 +1,4 @@
-import { RemoteDebugger, DEBUGGER_TYPES } from '../../index.js';
+import { RemoteDebugger } from '../../index.js';
 import { RemoteDebuggerServer, APP_INFO } from '../helpers/remote-debugger-server';
 import { withConnectedServer } from '../helpers/server-setup';
 import chai from 'chai';
@@ -24,7 +24,6 @@ describe('RemoteDebugger', function () {
       useNewSafari: true,
       pageLoadMs: 5000,
       port: 27754,
-      debuggerType: DEBUGGER_TYPES.webinspector,
       garbageCollectOnExecute: true,
     };
     rd = new RemoteDebugger(opts);
