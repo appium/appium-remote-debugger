@@ -12,9 +12,12 @@ Issues for this repo are disabled. Log any issues at the [main Appium repo's iss
 
 ## Safari's version of the WebKit API
 
-Safari implements a wonky version of the WebKit API. It is not documented. But there
-is good documentation for the closely related API from Chrome DevTools, to be
-[found here](https://chromedevtools.github.io/devtools-protocol/);
+Safari implements a wonky version of the WebKit API. It is not documented. The
+JSON version of the protocol is documented in the WebKit source code, in
+[Source/JavaScriptCore/inspector/protocol/](https://github.com/WebKit/webkit/tree/master/Source/JavaScriptCore/inspector/protocol).
+
+There is good documentation for the closely related API from Chrome DevTools, to
+be [found here](https://chromedevtools.github.io/devtools-protocol/).
 
 ## API
 
