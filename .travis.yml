@@ -7,7 +7,7 @@ env:
 jobs:
   include:
     - stage: tests
-      osx_image: xcode10.1
+      osx_image: xcode10.2
       env:
         - TEST=test
         - COVERALLS=1
@@ -20,7 +20,7 @@ jobs:
         - TEST=e2e-test
 
     - stage:
-      osx_image: xcode10.1
+      osx_image: xcode10.2
       env:
         - PLATFORM_VERSION=12.1
         - TEST=e2e-test
@@ -29,6 +29,13 @@ jobs:
       osx_image: xcode10.2
       env:
         - PLATFORM_VERSION=12.2
+        - TEST=e2e-test
+
+    - stage:
+      osx_image: xcode11
+      env:
+        - PLATFORM_VERSION=13.0
+        - DEVICE_NAME="iPhone X"
         - TEST=e2e-test
 
 script:
