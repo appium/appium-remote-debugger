@@ -36,6 +36,7 @@ async function deleteDeviceWithRetry (udid) {
 
 describe('Safari remote debugger', function () {
   this.timeout(240000);
+  this.retries(2);
 
   let sim;
   let simCreated = false;
@@ -76,7 +77,9 @@ describe('Safari remote debugger', function () {
     await openUrl(sim.udid, address);
   });
   afterEach(async function () {
-    await rd.disconnect();
+    if (rd) {
+      await rd.disconnect();
+    }
   });
 
   async function connect (rd) {
