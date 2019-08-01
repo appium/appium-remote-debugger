@@ -80,6 +80,7 @@ describe('Safari remote debugger', function () {
     if (rd) {
       await rd.disconnect();
     }
+    rd = null;
   });
 
   async function connect (rd) {
