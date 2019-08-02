@@ -108,4 +108,18 @@ describe('Safari remote debugger', function () {
     const sum = await rd.executeAtom('execute_script', [script, []], []);
     sum.should.eql(2);
   });
+
+  it(`should be able to call 'selectApp' after already connecting to app`, async function () {
+    // this mimics the situation of getting all contexts multiple times
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    const script = 'return 1 + 1;';
+    const sum = await rd.executeAtom('execute_script', [script, []], []);
+    sum.should.eql(2);
+
+    await rd.selectApp(address);
+  });
 });
