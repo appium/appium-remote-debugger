@@ -1,6 +1,6 @@
 import { getDevices, createDevice, deleteDevice, openUrl } from 'node-simctl';
 import { getSimulator } from 'appium-ios-simulator';
-import { retryInterval } from 'asyncbox';
+import { retryInterval, retry } from 'asyncbox';
 import UUID from 'uuid-js';
 import _ from 'lodash';
 import chai from 'chai';
@@ -35,7 +35,7 @@ async function deleteDeviceWithRetry (udid) {
 }
 
 describe('Safari remote debugger', function () {
-  this.timeout(240000);
+  this.timeout(480000);
   this.retries(2);
 
   let sim;
@@ -48,7 +48,17 @@ describe('Safari remote debugger', function () {
       sim = await getSimulator(udid);
       simCreated = true;
     }
-    await sim.run();
+    // on certain system, particularly Xcode 11 on Travis, starting the sim fails
+    await retry(4, async function () {
+      try {
+        await sim.run({
+          startupTimeout: 60000,
+        });
+      } catch (err) {
+        await sim.shutdown();
+        throw err;
+      }
+    });
 
     const port = await startHttpServer();
     address = `http://localhost:${port}`;
