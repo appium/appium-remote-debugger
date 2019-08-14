@@ -4,3 +4,4 @@ build
 coverage
 tmp
 package-lock.json*
+.vscode
