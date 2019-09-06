@@ -7,6 +7,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createRemoteDebugger } from '../..';
 import { startHttpServer, stopHttpServer, PAGE_TITLE } from './http-server';
+import B from 'bluebird';
 
 
 chai.should();
@@ -36,7 +37,7 @@ async function deleteDeviceWithRetry (udid) {
 
 describe('Safari remote debugger', function () {
   this.timeout(480000);
-  // this.retries(2);
+  this.retries(2);
 
   let sim;
   let simCreated = false;
@@ -85,6 +86,8 @@ describe('Safari remote debugger', function () {
     }, false);
 
     await openUrl(sim.udid, address);
+    // pause a moment while Safari loads
+    await B.delay(2000);
   });
   afterEach(async function () {
     if (rd) {
