@@ -7,6 +7,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createRemoteDebugger } from '../..';
 import { startHttpServer, stopHttpServer, PAGE_TITLE } from './http-server';
+import B from 'bluebird';
 
 
 chai.should();
@@ -85,6 +86,8 @@ describe('Safari remote debugger', function () {
     }, false);
 
     await openUrl(sim.udid, address);
+    // pause a moment while Safari loads
+    await B.delay(2000);
   });
   afterEach(async function () {
     if (rd) {
@@ -117,6 +120,42 @@ describe('Safari remote debugger', function () {
     const script = 'return 1 + 1;';
     const sum = await rd.executeAtom('execute_script', [script, []], []);
     sum.should.eql(2);
+  });
+
+  describe('executeAtomAsync', function () {
+    const timeout = 1000;
+    it('should be able to execute an atom asynchronously', async function () {
+      await connect(rd);
+      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+      await rd.selectPage(appIdKey, pageIdKey);
+
+      const script = 'arguments[arguments.length - 1](123);';
+      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
+        .should.eventually.eql(123);
+    });
+
+    it('should bubble up JS errors', async function () {
+      await connect(rd);
+      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+      await rd.selectPage(appIdKey, pageIdKey);
+
+      const script = `arguments[arguments.length - 1](1--);`;
+      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
+        .should.eventually.be.rejectedWith(/operator applied to value that is not a reference/);
+    });
+
+    it('should timeout when callback is not invoked', async function () {
+      await connect(rd);
+      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+      await rd.selectPage(appIdKey, pageIdKey);
+
+      const script = 'return 1 + 2';
+      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
+        .should.eventually.be.rejectedWith(/Timed out waiting for/);
+    });
   });
 
   it(`should be able to call 'selectApp' after already connecting to app`, async function () {
