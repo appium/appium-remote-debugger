@@ -97,10 +97,13 @@ describe('Safari remote debugger', function () {
   });
 
   async function connect (rd) {
-    return await retryInterval(10, 1000, async function () {
-      const apps = await rd.connect();
-      _.isEmpty(apps).should.be.equal(false);
-      return apps;
+    await rd.connect();
+    return await retryInterval(30, 1000, async function () {
+      if (!_.isEmpty(rd.appDict)) {
+        return rd.appDict;
+      }
+      await rd.setConnectionKey();
+      throw new Error('No apps connected');
     });
   }
 
