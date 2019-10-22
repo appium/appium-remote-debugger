@@ -23,7 +23,7 @@ async function getSocket (udid) {
   return await sim.getWebInspectorSocket();
 }
 
-async function moveSocket (socket) {
+async function moveSocket (socket) { // eslint-disable-line no-unused-vars
   await exec('mv', [socket, `${socket}.original`]);
 }
 

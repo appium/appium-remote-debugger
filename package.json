@@ -52,7 +52,8 @@
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
     "precommit-test": "REPORTER=dot gulp once",
     "lint": "gulp lint",
-    "lint:fix": "gulp eslint --fix"
+    "lint:fix": "gulp eslint --fix",
+    "inspect-safari": "node build/bin/web_inspector_proxy.js"
   },
   "pre-commit": [
     "precommit-msg",
