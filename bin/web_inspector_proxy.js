@@ -1,23 +1,11 @@
 /* eslint-disable no-console */
 import { exec, SubProcess } from 'teen_process';
-import { plist } from 'appium-support';
+import { plist, util } from 'appium-support';
 import { asyncify } from 'asyncbox';
 import B from 'bluebird';
 import { getSimulator } from 'appium-ios-simulator';
 import _ from 'lodash';
 
-
-function logFullMessage (plist) {
-  // Buffers cannot be serialized in a readable way
-  const bufferToJSON = Buffer.prototype.toJSON;
-  delete Buffer.prototype.toJSON;
-  try {
-    console.log(JSON.stringify(plist, (k, v) => Buffer.isBuffer(v) ? v.toString('utf8') : v, 2));
-  } finally {
-    // restore the function, so as to not break further serialization
-    Buffer.prototype.toJSON = bufferToJSON;
-  }
-}
 
 async function getSocket (udid) {
   const sim = await getSimulator(udid);
@@ -61,7 +49,7 @@ function printRecord (lines) {
     const buf = Buffer.from(data);
     try {
       const doc = plist.parsePlist(buf);
-      logFullMessage(doc);
+      console.log(util.jsonStringify(doc));
     } catch (err) {
       if (err.message.includes('maxObjectCount exceeded')) {
         return str;
