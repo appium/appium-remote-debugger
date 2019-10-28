@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { exec, SubProcess } from 'teen_process';
 import { plist } from 'appium-support';
 import { asyncify } from 'asyncbox';
