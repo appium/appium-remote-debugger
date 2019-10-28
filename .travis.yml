@@ -32,6 +32,13 @@ jobs:
         - TEST=e2e-test
 
     - stage:
+      osx_image: xcode7.3
+      env:
+        - PLATFORM_VERSION=9.3
+        - DEVICE_NAME="iPhone 5s"
+        - TEST=e2e-test
+
+    - stage:
       osx_image: xcode11
       env:
         - PLATFORM_VERSION=13.0

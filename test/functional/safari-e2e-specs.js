@@ -111,7 +111,7 @@ describe('Safari remote debugger', function () {
     await connect(rd);
     const pageArray = await rd.selectApp(address);
     _.filter(pageArray, (page) => page.title === PAGE_TITLE)
-      .should.have.length(1);
+      .should.have.length.at.least(1);
   });
 
   it('should be able to execute an atom', async function () {
