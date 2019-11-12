@@ -83,6 +83,9 @@ describe('Safari remote debugger', function () {
       platformVersion: PLATFORM_VERSION,
       socketPath: await sim.getWebInspectorSocket(),
       garbageCollectOnExecute: false,
+      isSimulator: true,
+      logAllCommunication: true,
+      logAllCommunicationHexDump: false,
     }, false);
 
     await openUrl(sim.udid, address);

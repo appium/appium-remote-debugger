@@ -1,6 +1,8 @@
 os: osx
 language: node_js
 node_js: "10"
+cache:
+  npm: false
 env:
   global:
     - _FORCE_LOGS=1
@@ -45,6 +47,7 @@ jobs:
         - DEVICE_NAME="iPhone X"
         - TEST=e2e-test
 
+before_script: npm outdated || true
 script:
   - npm run $TEST
 after_success:
