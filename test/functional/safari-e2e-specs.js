@@ -177,4 +177,26 @@ describe('Safari remote debugger', function () {
 
     await rd.selectApp(address);
   });
+
+  it('should be able to get console logs from a remote page', async function () {
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    let lines = [];
+    rd.startConsole(function (line) {
+      lines.push(line);
+    });
+
+    await rd.navToUrl('https://google.com');
+
+    await rd.executeAtom('execute_script', [`console.log('hi from appium')`, []], []);
+
+    // wait for the asynchronous console event to come in
+    await retryInterval(50, 100, function () {
+      lines.length.should.be.at.least(1);
+      lines.filter((line) => line.text === 'hi from appium').length.should.eql(1);
+    });
+  });
 });
