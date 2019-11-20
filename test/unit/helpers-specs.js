@@ -37,7 +37,7 @@ describe('helpers', function () {
           bundleId: 'io.appium.bundle'
         }
       };
-      getDebuggerAppKey('io.appium.bundle', '8.3', appDict).should.equal('42');
+      getDebuggerAppKey('io.appium.bundle', appDict).should.equal('42');
     });
     it('should return the app key for the bundle when proxied', function () {
       let appDict = {
@@ -51,10 +51,10 @@ describe('helpers', function () {
           hostId: '42'
         }
       };
-      getDebuggerAppKey('io.appium.bundle', '8.3', appDict).should.equal('43');
+      getDebuggerAppKey('io.appium.bundle', appDict).should.equal('43');
     });
     it('should return undefined when there is no appropriate app', function () {
-      expect(getDebuggerAppKey('io.appium.bundle', '8.3', {})).to.not.exist;
+      expect(getDebuggerAppKey('io.appium.bundle', {})).to.not.exist;
     });
   });
   describe('pageArrayFromDict', function () {
