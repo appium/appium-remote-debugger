@@ -1,29 +1,24 @@
 import http from 'http';
 import B from 'bluebird';
 import { logger } from 'appium-support';
+import finalhandler from 'finalhandler';
+import serveStatic from 'serve-static';
+import path from 'path';
 
+
+const serve = serveStatic(path.resolve('test', 'functional', 'html'));
 
 const log = logger.getLogger('TestHttpServer');
 
 const PORT = 1234;
 
-const PAGE_TITLE = 'Remote debugger test page';
-const PAGE = `<html>
-  <head>
-    <title>${PAGE_TITLE}</title>
-  </head>
-  <body>
-    Tests for appium-remote-debugger
-  </body>
-</html>
-`;
-
 let server;
 
 async function startHttpServer (port = PORT) {
   // start a simple http server to serve pages (so no interwebs needed)
-  server = http.createServer(function requestHandler (request, response) {
-    response.end(PAGE);
+  server = http.createServer(function requestHandler (req, res) {
+    log.debug(`${req.method} ${req.url}`);
+    serve(req, res, finalhandler(req, res));
   });
 
   await (B.promisify(server.listen, {context: server}))(PORT);
@@ -38,4 +33,4 @@ function stopHttpServer () {
   }
 }
 
-export { startHttpServer, stopHttpServer, PAGE_TITLE };
+export { startHttpServer, stopHttpServer };
