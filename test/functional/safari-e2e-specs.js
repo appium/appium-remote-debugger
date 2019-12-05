@@ -162,6 +162,18 @@ describe('Safari remote debugger', function () {
       await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
         .should.eventually.be.rejectedWith(/Timed out waiting for/);
     });
+
+    it('should timeout when callback is not invoked and script timeout is 0ms', async function () {
+      await connect(rd);
+      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+      await rd.selectPage(appIdKey, pageIdKey);
+
+      const zero_timeout = 0;
+      const script = 'return 1 + 2';
+      await rd.executeAtomAsync('execute_async_script', [script, [], zero_timeout], [])
+        .should.eventually.be.rejectedWith(/Timed out waiting for/);
+    });
   });
 
   it(`should be able to call 'selectApp' after already connecting to app`, async function () {
