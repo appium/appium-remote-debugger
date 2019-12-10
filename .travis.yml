@@ -1,4 +1,5 @@
 os: osx
+osx_image: xcode10.2
 language: node_js
 node_js: "10"
 cache:
@@ -9,35 +10,19 @@ env:
 jobs:
   include:
     - stage: tests
-      osx_image: xcode10.2
       env:
         - TEST=test
         - COVERALLS=1
         - _FORCE_LOGS=0
 
     - stage:
-      osx_image: xcode9.4
       env:
         - PLATFORM_VERSION=11.4
         - TEST=e2e-test
 
     - stage:
-      osx_image: xcode10.2
-      env:
-        - PLATFORM_VERSION=12.1
-        - TEST=e2e-test
-
-    - stage:
-      osx_image: xcode10.2
       env:
         - PLATFORM_VERSION=12.2
-        - TEST=e2e-test
-
-    - stage:
-      osx_image: xcode7.3
-      env:
-        - PLATFORM_VERSION=9.3
-        - DEVICE_NAME="iPhone 5s"
         - TEST=e2e-test
 
     - stage:

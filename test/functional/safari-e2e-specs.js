@@ -6,7 +6,7 @@ import _ from 'lodash';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createRemoteDebugger } from '../..';
-import { startHttpServer, stopHttpServer, PAGE_TITLE } from './http-server';
+import { startHttpServer, stopHttpServer } from './http-server';
 import B from 'bluebird';
 
 
@@ -16,6 +16,8 @@ chai.use(chaiAsPromised);
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${UUID.create().hex.toUpperCase()}`;
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 6';
 const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '12.1';
+
+const PAGE_TITLE = 'Remote debugger test page';
 
 async function getExistingSim (deviceName, platformVersion) {
   const devices = await getDevices(platformVersion);
@@ -198,5 +200,40 @@ describe('Safari remote debugger', function () {
       lines.length.should.be.at.least(1);
       lines.filter((line) => line.text === 'hi from appium').length.should.eql(1);
     });
+  });
+
+  it('should be able to access the shadow DOM', async function () {
+    function shadowScript (text) {
+      return `return (function (elem) {
+  return (function() {
+    // element has a shadowRoot property
+    if (this.shadowRoot) {
+      return this.shadowRoot.querySelector('${text}')
+    }
+    // fall back to querying the element directly if not
+    return this.querySelector('${text}')
+  }).call(elem);
+}).apply(null, arguments)`;
+    }
+
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    await rd.navToUrl(`${address}/shadow-dom.html`);
+
+    // make sure the browser supports shadow DOM before running the test
+    const shadowDomSupported = await rd.executeAtom('execute_script', ['return !!document.head.createShadowRoot || !!document.head.attachShadow;'], []);
+    if (!shadowDomSupported) {
+      return this.skip();
+    }
+
+    await retryInterval(5, 500, async function () {
+      const el1 = await rd.executeAtom('find_element', ['class name', 'element', null], []);
+      const sEl1 = await rd.executeAtom('execute_script', [shadowScript('#shadowContent'), [el1]], []);
+      const sEl2 = await rd.executeAtom('execute_script', [shadowScript('#shadowSubContent'), [sEl1]], []);
+      await rd.executeAtom('get_text', [sEl2], []).should.eventually.eql('It is murky in here');
+    }).should.not.be.rejectedWith('Element is no longer attached to the DOM');
   });
 });
