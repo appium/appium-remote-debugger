@@ -13,8 +13,8 @@ describe('RemoteMessages', function () {
   describe('getRemoteCommand', function () {
     const commands = [
       'setConnectionKey', 'connectToApp', 'setSenderKey', 'indicateWebView',
-      'sendJSCommand', 'callJSFunction', 'setUrl', 'enablePage', 'startTimeline',
-      'stopTimeline',
+      'Runtime.evaluate', 'Runtime.callFunctionOn', 'Page.navigate', 'Page.enable', 'Timeline.start',
+      'Timeline.stop',
     ];
     for (const command of commands) {
       it(`should be able to retrieve ${command} command`, function () {
