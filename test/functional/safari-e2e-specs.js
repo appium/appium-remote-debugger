@@ -187,7 +187,7 @@ describe('Safari remote debugger', function () {
     await rd.selectPage(appIdKey, pageIdKey);
 
     let lines = [];
-    rd.startConsole(function (line) {
+    rd.startConsole(function (err, line) {
       lines.push(line);
     });
 
