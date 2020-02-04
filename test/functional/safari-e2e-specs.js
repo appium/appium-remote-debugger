@@ -187,7 +187,7 @@ describe('Safari remote debugger', function () {
     await rd.selectPage(appIdKey, pageIdKey);
 
     let lines = [];
-    rd.startConsole(function (err, line) {
+    rd.startConsole(function (err, line) { // eslint-disable-line promise/prefer-await-to-callbacks
       lines.push(line);
     });
 
