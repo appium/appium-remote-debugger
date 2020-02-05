@@ -164,6 +164,23 @@ describe('Safari remote debugger', function () {
       await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
         .should.eventually.be.rejectedWith(/Timed out waiting for/);
     });
+
+    it('should be able to execute asynchronously in frame', async function () {
+      await connect(rd);
+      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+      await rd.selectPage(appIdKey, pageIdKey);
+
+      // go to the frameset page
+      await rd.navToUrl(`${address}/frameset.html`);
+
+      // get the correct frame
+      const {WINDOW: frame} = await rd.executeAtom('frame_by_id_or_name', ['first'], []);
+
+      const script = `arguments[arguments.length - 1](document.getElementsByTagName('h1')[0].innerHTML);`;
+      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [frame])
+        .should.eventually.eql('Sub frame 1');
+    });
   });
 
   it(`should be able to call 'selectApp' after already connecting to app`, async function () {
