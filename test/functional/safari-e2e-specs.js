@@ -1,4 +1,4 @@
-import { getDevices, createDevice, deleteDevice, openUrl } from 'node-simctl';
+import Simctl from 'node-simctl';
 import { getSimulator } from 'appium-ios-simulator';
 import { retryInterval, retry } from 'asyncbox';
 import UUID from 'uuid-js';
@@ -7,7 +7,6 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createRemoteDebugger } from '../..';
 import { startHttpServer, stopHttpServer } from './http-server';
-import B from 'bluebird';
 
 
 chai.should();
@@ -20,7 +19,7 @@ const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '12.1';
 const PAGE_TITLE = 'Remote debugger test page';
 
 async function getExistingSim (deviceName, platformVersion) {
-  const devices = await getDevices(platformVersion);
+  const devices = await new Simctl().getDevices(platformVersion);
 
   for (const device of _.values(devices)) {
     if (device.name === deviceName) {
@@ -32,8 +31,9 @@ async function getExistingSim (deviceName, platformVersion) {
 }
 
 async function deleteDeviceWithRetry (udid) {
+  const simctl = new Simctl({udid});
   try {
-    await retryInterval(10, 1000, deleteDevice, udid);
+    await retryInterval(10, 1000, simctl.deleteDevice.bind(simctl));
   } catch (ign) {}
 }
 
@@ -47,7 +47,7 @@ describe('Safari remote debugger', function () {
   before(async function () {
     sim = await getExistingSim(DEVICE_NAME, PLATFORM_VERSION);
     if (!sim) {
-      const udid = await createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
+      const udid = await new Simctl().createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
       sim = await getSimulator(udid);
       simCreated = true;
     }
@@ -90,9 +90,7 @@ describe('Safari remote debugger', function () {
       logAllCommunicationHexDump: false,
     }, false);
 
-    await openUrl(sim.udid, address);
-    // pause a moment while Safari loads
-    await B.delay(2000);
+    await sim.openUrl(address);
   });
   afterEach(async function () {
     if (rd) {
