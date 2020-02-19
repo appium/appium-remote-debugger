@@ -71,6 +71,15 @@ describe('helpers', function () {
       let pageArray = pageArrayFromDict(basePageDict);
       pageArray.should.have.length(1);
     });
+    it('should return a valid page array with 13.4-style type key', function () {
+      const pageDict = _.defaults({
+        2: {
+          WIRTypeKey: 'WIRTypeWebPage'
+        }
+      }, basePageDict);
+      const pageArray = pageArrayFromDict(pageDict);
+      pageArray.should.have.length(2);
+    });
     it('should not count WIRTypeWeb entries', function () {
       let pageDict = _.defaults({
         2: {
