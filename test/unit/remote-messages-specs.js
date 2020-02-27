@@ -1,4 +1,4 @@
-import RemoteMessages from '../../lib/remote-messages';
+import RemoteMessages from '../../lib/rpc/remote-messages';
 import chai from 'chai';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
 
