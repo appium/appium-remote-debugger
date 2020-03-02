@@ -49,12 +49,14 @@
     "e2e-test": "gulp e2e-test",
     "coverage": "gulp coveralls",
     "build": "gulp transpile",
-    "build:atoms": "make",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
     "precommit-test": "REPORTER=dot gulp once",
     "lint": "gulp lint",
     "lint:fix": "gulp eslint --fix",
-    "inspect-safari": "node build/bin/web_inspector_proxy.js"
+    "inspect-safari": "node build/bin/web_inspector_proxy.js",
+    "build:atoms": "gulp atoms",
+    "build:atoms:import": "gulp atoms:import",
+    "build:selenium": "gulp selenium:clone"
   },
   "pre-commit": [
     "precommit-msg",
@@ -67,6 +69,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "eslint-config-appium": "^4.2.0",
+    "fancy-log": "^1.3.3",
     "finalhandler": "^1.1.2",
     "gulp": "^4.0.0",
     "mocha": "^7.0.1",
