@@ -56,3 +56,34 @@ is merged and published.
    }
    delete cache[key];
 ```
+
+
+### Circular reference handling
+
+Shadow DOM elements can be reported multiple times, which leads to an error
+for "recursive object" references.
+
+```diff
+--- a/javascript/atoms/inject.js
++++ b/javascript/atoms/inject.js
+@@ -100,6 +100,7 @@ bot.inject.WINDOW_KEY = 'WINDOW';
+  * @see https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol
+  */
+ bot.inject.wrapValue = function(value) {
++  var parentIsShadow = value instanceof ShadowRoot;
+   var _wrap = function(value, seen) {
+     switch (goog.typeOf(value)) {
+       case 'string':
+@@ -121,6 +122,11 @@ bot.inject.wrapValue = function(value) {
+         // a ton of compiler warnings.
+         value = /**@type {!Object}*/ (value);
+         if (seen.indexOf(value) >= 0) {
++          if (parentIsShadow) {
++            // elements get reported multiple times in shadow elements,
++            // so ignore reported circularity
++            return null;
++          }
+           throw new bot.Error(bot.ErrorCode.JAVASCRIPT_ERROR,
+             'Recursive object cannot be transferred');
+         }
+```
