@@ -1,7 +1,7 @@
 import Simctl from 'node-simctl';
 import { getSimulator } from 'appium-ios-simulator';
 import { retryInterval, retry } from 'asyncbox';
-import UUID from 'uuid-js';
+import { util } from 'appium-support';
 import _ from 'lodash';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -12,7 +12,7 @@ import { startHttpServer, stopHttpServer } from './http-server';
 chai.should();
 chai.use(chaiAsPromised);
 
-const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${UUID.create().hex.toUpperCase()}`;
+const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 6';
 const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '12.1';
 
