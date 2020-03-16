@@ -91,13 +91,11 @@ describe('helpers', function () {
     });
   });
   describe('checkParams', function () {
-    it('should not return error when not missing parameters', function () {
-      expect(checkParams({one: 'first', two: 'second', three: 'third'})).to.not.exist;
+    it('should not throw error when not missing parameters', function () {
+      checkParams({one: 'first', two: 'second', three: 'third'});
     });
-    it('should return error when parameter is missing', function () {
-      let errors = checkParams({one: 'first', two: null, three: 'third'});
-      errors.should.have.length(1);
-      errors[0].should.equal('two');
+    it('should throw error when parameter is missing', function () {
+      expect(() => checkParams({one: 'first', two: null, three: 'third'})).to.throw('Missing parameter: two');
     });
   });
 });
