@@ -1,4 +1,4 @@
-import { pageArrayFromDict, checkParams, appInfoFromDict, getDebuggerAppKey } from '../../lib/helpers';
+import { pageArrayFromDict, checkParams, appInfoFromDict, getDebuggerAppKey } from '../../lib/utils';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import _ from 'lodash';
@@ -9,7 +9,7 @@ const expect = chai.expect;
 chai.should();
 chai.use(chaiAsPromised);
 
-describe('helpers', function () {
+describe('utils', function () {
   this.timeout(MOCHA_TIMEOUT);
 
   describe('appInfoFromDict', function () {
