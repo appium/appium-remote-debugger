@@ -4,7 +4,6 @@
 [![Dependency Status](https://david-dm.org/appium/appium-remote-debugger.svg)](https://david-dm.org/appium/appium-remote-debugger)
 [![devDependency Status](https://david-dm.org/appium/appium-remote-debugger/dev-status.svg)](https://david-dm.org/appium/appium-remote-debugger#info=devDependencies)
 [![Coverage Status](https://coveralls.io/repos/appium/appium-remote-debugger/badge.svg?branch=master&service=github)](https://coveralls.io/github/appium/appium-remote-debugger?branch=master)
-[![Greenkeeper badge](https://badges.greenkeeper.io/appium/appium-remote-debugger.svg)](https://greenkeeper.io/)
 
 A Node.js frontend for the Remote Debugger protocol used by Appium to connect to iOS webviews and Safari. Written using ES6+.
 
