@@ -1,4 +1,4 @@
-import { getDevices, createDevice, deleteDevice, openUrl } from 'node-simctl';
+import Simctl from 'node-simctl';
 import { getSimulator } from 'appium-ios-simulator';
 import { retryInterval } from 'asyncbox';
 import UUID from 'uuid-js';
@@ -16,8 +16,10 @@ const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${UUID.create().hex
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 6';
 const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '12.1';
 
+const simctl = new Simctl();
+
 async function getExistingSim (deviceName, platformVersion) {
-  const devices = await getDevices(platformVersion);
+  const devices = await simctl.getDevices(platformVersion);
 
   for (const device of _.values(devices)) {
     if (device.name === deviceName) {
@@ -30,7 +32,7 @@ async function getExistingSim (deviceName, platformVersion) {
 
 async function deleteDeviceWithRetry (udid) {
   try {
-    await retryInterval(10, 1000, deleteDevice, udid);
+    await retryInterval(10, 1000, simctl.deleteDevice.bind(simctl), udid);
   } catch (ign) {}
 }
 
@@ -43,7 +45,7 @@ describe('Safari remote debugger', function () {
   before(async function () {
     sim = await getExistingSim(DEVICE_NAME, PLATFORM_VERSION);
     if (!sim) {
-      const udid = await createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
+      const udid = await simctl.createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
       sim = await getSimulator(udid);
       simCreated = true;
     }
@@ -73,7 +75,7 @@ describe('Safari remote debugger', function () {
       garbageCollectOnExecute: false,
     });
 
-    await openUrl(sim.udid, address);
+    await simctl.openUrl(sim.udid, address);
   });
 
   async function connect (rd) {
