@@ -47,9 +47,9 @@ describe('Safari remote debugger', function () {
     if (!sim) {
       const udid = await simctl.createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
       sim = await getSimulator(udid);
-      simctl.udid = udid;
       simCreated = true;
     }
+    simctl.udid = sim.udid;
     await sim.run();
 
     const port = await startHttpServer();
