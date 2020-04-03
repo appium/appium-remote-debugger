@@ -76,7 +76,7 @@ describe('Safari remote debugger', function () {
       garbageCollectOnExecute: false,
     });
 
-    await simctl.openUrl(sim.udid, address);
+    await simctl.openUrl(address);
   });
 
   async function connect (rd) {
