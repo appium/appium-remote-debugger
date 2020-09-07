@@ -32,7 +32,7 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "appium-base-driver": "^7.0.0",
-    "appium-ios-device": "^1.2.1",
+    "appium-ios-device": "^1.7.0",
     "appium-support": "^2.41.0",
     "async-lock": "^1.2.2",
     "asyncbox": "^2.6.0",
