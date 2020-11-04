@@ -30,7 +30,7 @@
     "atoms"
   ],
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.0",
     "@babel/runtime": "^7.0.0",
     "appium-base-driver": "^7.0.0",
     "appium-support": "^2.49.0",
