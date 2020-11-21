@@ -18,5 +18,4 @@ jobs:
       deviceName: ${{ parameters.deviceName }}
       vmImage: ${{ parameters.vmImage }}
       script: |
-        npm install --no-save mjpeg-consumer
         npx mocha --timeout 480000 --reporter mocha-multi-reporters --reporter-options configFile=$(Build.SourcesDirectory)/ci-jobs/mocha-config.json --recursive build/test/functional/ -g @skip-ci -i --exit
