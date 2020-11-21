@@ -7,6 +7,7 @@ parameters:
   skipTvOs: False
   tvosName: ''
   tvosDeviceName: ''
+  nodeVersion: 14.x
   launchWithIDB: false
   vmImage: 'macOS-10.15'
 jobs:
@@ -17,5 +18,6 @@ jobs:
       xcodeVersion: ${{ parameters.xcodeVersion }}
       deviceName: ${{ parameters.deviceName }}
       vmImage: ${{ parameters.vmImage }}
+      nodeVersion: ${{ parameters.nodeVersion }}
       script: |
         npx mocha --timeout 480000 --reporter mocha-multi-reporters --reporter-options configFile=$(Build.SourcesDirectory)/ci-jobs/mocha-config.json --recursive build/test/functional/ -g @skip-ci -i --exit

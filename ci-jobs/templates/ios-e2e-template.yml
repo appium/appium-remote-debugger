@@ -36,7 +36,7 @@ jobs:
       displayName: List Installed Runtimes
     - task: NodeTool@0
       inputs:
-        versionSpec: 12.x
+        versionSpec: ${{ parameters.nodeVersion }}
     - script: npm install
       displayName: Install node dependencies
     - script: export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin" && ${{ parameters.script }}
