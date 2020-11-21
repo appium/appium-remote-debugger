@@ -1,0 +1,27 @@
+# Pull request validation job
+variables:
+- name: SHOW_XCODE_LOG
+  value: true
+
+stages:
+- stage: Unit_Tests
+  jobs:
+  - template: ./templates/node-e2e-template.yml
+    parameters:
+      nodeVersion: 14.x
+- stage: Integration_Tests
+  jobs:
+  - template: ./templates/remote-debugger-e2e-template.yml
+    parameters:
+      name: iPhoneX_13_7
+      iosVersion: 13.7
+      xcodeVersion: 11.7
+      deviceName: "iPhone 11"
+      vmImage: 'macOS-10.15'
+  - template: ./templates/remote-debugger-e2e-template.yml
+    parameters:
+      name: iPhoneX_14_0
+      iosVersion: 14.2
+      xcodeVersion: 12.2
+      deviceName: "iPhone 11"
+      vmImage: 'macOS-10.15'

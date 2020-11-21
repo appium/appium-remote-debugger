@@ -1,0 +1,47 @@
+# https://docs.microsoft.com/azure/devops/pipelines/languages/android
+parameters:
+  script: ''
+  name: ios-e2e-test
+  dependsOn: ''
+  iosVersion: 13.3
+  xcodeVersion: 11.3.1
+  deviceName: 'iPhone X'
+  vmImage: 'macOS-10.15'
+
+jobs:
+  - job: ${{ parameters.name }}
+    variables:
+      PLATFORM_VERSION: ${{ parameters.iosVersion }}
+      DEVICE_NAME: ${{ parameters.deviceName }}
+      MOCHA_FILE: '${{ parameters.name }}-tests.xml'
+      CI: true
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+    steps:
+    - checkout: self
+    - bash: |
+        echo "Mocha output file: $MOCHA_FILE"
+        echo "Platform Version: $PLATFORM_VERSION"
+        echo "Device Name: $DEVICE_NAME"
+      displayName: Print Environment Variables
+    - script: ls /Applications/
+      displayName: List Installed Applications
+    - script: sudo xcode-select -s /Applications/Xcode_${{ parameters.xcodeVersion }}.app/Contents/Developer
+      displayName: Xcode Select ${{ parameters.xcodeVersion }}
+    - script: xcodebuild -version
+      displayName: Log Xcode Version
+    - script: xcrun simctl list
+      displayName: List Installed Simulators
+    - script: xcrun simctl list runtimes
+      displayName: List Installed Runtimes
+    - task: NodeTool@0
+      inputs:
+        versionSpec: ${{ parameters.nodeVersion }}
+    - script: npm install
+      displayName: Install node dependencies
+    - script: export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin" && ${{ parameters.script }}
+      displayName: Run functional tests
+    - task: PublishTestResults@2
+      condition: always()
+      inputs:
+        testResultsFiles: $(MOCHA_FILE)
