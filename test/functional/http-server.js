@@ -1,6 +1,6 @@
 import http from 'http';
 import B from 'bluebird';
-import { logger } from 'appium-support';
+import { logger } from '@appium/support';
 import finalhandler from 'finalhandler';
 import serveStatic from 'serve-static';
 import path from 'path';
