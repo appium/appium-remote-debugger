@@ -17,7 +17,7 @@ stages:
       iosVersion: 15.2
       xcodeVersion: 13.2.1
       deviceName: "iPhone 11 Pro"
-      vmImage: 'macOS-10.15'
+      vmImage: 'macOS-11.3'
   - template: ./templates/remote-debugger-e2e-template.yml
     parameters:
       name: iPhoneX_14_0
