@@ -30,7 +30,7 @@
     "atoms"
   ],
   "dependencies": {
-    "@appium/base-driver": "^8.5.3",
+    "@appium/base-driver": "^8.5.2",
     "@appium/support": "^2.55.3",
     "@babel/runtime": "^7.0.0",
     "appium-ios-device": "^2.0.0",
