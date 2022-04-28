@@ -1,8 +1,8 @@
 # appium-remote-debugger
 
-[![Build Status](https://travis-ci.org/appium/appium-remote-debugger.svg)](https://travis-ci.org/appium/appium-remote-debugger)
-[![Dependency Status](https://david-dm.org/appium/appium-remote-debugger.svg)](https://david-dm.org/appium/appium-remote-debugger)
-[![devDependency Status](https://david-dm.org/appium/appium-remote-debugger/dev-status.svg)](https://david-dm.org/appium/appium-remote-debugger#info=devDependencies)
+[![Build Status](https://dev.azure.com/AppiumCI/Appium%20CI/_apis/build/status/appium.appium-remote-debugger?branchName=master)](https://dev.azure.com/AppiumCI/Appium%20CI/_build/latest?definitionId=63&branchName=master)
+
+[![Release](https://github.com/appium/appium-remote-debugger/actions/workflows/publish.js.yml/badge.svg)](https://github.com/appium/appium-remote-debugger/actions/workflows/publish.js.yml)
 
 A Node.js frontend for the Remote Debugger protocol used by Appium to connect to iOS webviews and Safari. Written using ES6+.
 
