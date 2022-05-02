@@ -13,15 +13,15 @@ stages:
   jobs:
   - template: ./templates/remote-debugger-e2e-template.yml
     parameters:
-      name: iPhoneX_13_7
-      iosVersion: 13.7
-      xcodeVersion: 11.7
+      name: iPhoneX_15_2
+      iosVersion: 15.2
+      xcodeVersion: 13.2
       deviceName: "iPhone 11"
-      vmImage: 'macOS-10.15'
+      vmImage: 'macOS-11'
   - template: ./templates/remote-debugger-e2e-template.yml
     parameters:
-      name: iPhoneX_14_0
-      iosVersion: 14.2
-      xcodeVersion: 12.2
+      name: iPhoneX_14_5
+      iosVersion: 14.5
+      xcodeVersion: 12.5
       deviceName: "iPhone 11"
-      vmImage: 'macOS-10.15'
+      vmImage: 'macOS-11'
