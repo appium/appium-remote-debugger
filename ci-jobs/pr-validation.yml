@@ -16,12 +16,12 @@ stages:
       name: iPhoneX_15_2
       iosVersion: 15.2
       xcodeVersion: 13.2
-      deviceName: "iPhone Simulator"
+      deviceName: "iPhone 11"
       vmImage: 'macOS-11'
   - template: ./templates/remote-debugger-e2e-template.yml
     parameters:
       name: iPhoneX_14_5
       iosVersion: 14.4
       xcodeVersion: 12.5
-      deviceName: "iPhone Simulator"
+      deviceName: "iPhone 11"
       vmImage: 'macOS-11'
