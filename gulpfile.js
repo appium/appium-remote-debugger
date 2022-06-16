@@ -3,7 +3,7 @@
 const gulp = require('gulp');
 const boilerplate = require('@appium/gulp-plugins').boilerplate.use(gulp);
 const { exec, SubProcess } = require('teen_process');
-const { mkdirp, fs } = require('@appium/support');
+const fs = require('fs');
 const del = require('del');
 const path = require('path');
 const log = require('fancy-log');
@@ -39,7 +39,7 @@ boilerplate({
 
 gulp.task('selenium:mkdir', function seleniumMkdir () {
   log(`Creating '${TMP_DIRECTORY}'`);
-  return mkdirp(TMP_DIRECTORY);
+  return fs.promises.mkdir(TMP_DIRECTORY, { recursive: true });
 });
 
 gulp.task('selenium:clean', function seleniumClean () {
@@ -76,12 +76,14 @@ gulp.task('atoms:clean', function atomsClean () {
 
 gulp.task('atoms:mkdir', function atomsMkdir () {
   log(`Creating '${ATOMS_DIRECTORY}'`);
-  return mkdirp(ATOMS_DIRECTORY);
+  return fs.promises.mkdir(ATOMS_DIRECTORY, { recursive: true });
 });
 
 gulp.task('atoms:inject', function atomsInject () {
   log('Injecting build file into Selenium build');
-  return fs.copyFile(ATOMS_BUILD_DIRECTORY, `${SELENIUM_DIRECTORY}/javascript/${TEMP_BUILD_DIRECTORY_NAME}`);
+  return fs.promises.copyFile(
+    ATOMS_BUILD_DIRECTORY, `${SELENIUM_DIRECTORY}/javascript/${TEMP_BUILD_DIRECTORY_NAME}`
+  );
 });
 
 gulp.task('atoms:build:fragments', function atomsBuildFragments () {
@@ -146,7 +148,7 @@ gulp.task('atoms:copy', function atomsCopy () {
 gulp.task('atoms:timestamp', function atomsTimestamp () {
   return exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY})
     .then(function ({stdout}) { // eslint-disable-line promise/prefer-await-to-then
-      return fs.writeFile(LAST_UPDATE_FILE, `${new Date()}\n\n${stdout}`);
+      return fs.promises.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
     });
 });
 

@@ -30,8 +30,6 @@
     "atoms"
   ],
   "dependencies": {
-    "@appium/base-driver": "^8.5.2",
-    "@appium/support": "^2.55.3",
     "@babel/runtime": "^7.0.0",
     "appium-ios-device": "^2.0.0",
     "async-lock": "^1.2.2",
@@ -62,10 +60,14 @@
     "precommit-msg",
     "precommit-test"
   ],
+  "peerDependencies": {
+    "appium": "^2.0.0-beta.40"
+  },
   "devDependencies": {
     "@appium/gulp-plugins": "^7.0.0",
     "@appium/eslint-config-appium": "^6.0.0",
     "@semantic-release/git": "^10.0.1",
+    "appium": "^2.0.0-beta.40",
     "appium-ios-simulator": "^4.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
