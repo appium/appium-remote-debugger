@@ -37,7 +37,9 @@ jobs:
     - task: NodeTool@0
       inputs:
         versionSpec: ${{ parameters.nodeVersion }}
-    - script: npm install
+    - script: |
+        npm install -g appium@next
+        npm install
       displayName: Install node dependencies
     - script: export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin" && ${{ parameters.script }}
       displayName: Run functional tests

@@ -8,7 +8,7 @@ stages:
   jobs:
   - template: ./templates/node-e2e-template.yml
     parameters:
-      nodeVersion: 14.x
+      nodeVersion: 16.x
 - stage: Integration_Tests
   jobs:
   - template: ./templates/remote-debugger-e2e-template.yml

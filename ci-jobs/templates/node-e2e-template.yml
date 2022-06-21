@@ -12,7 +12,9 @@ jobs:
       inputs:
         versionSpec: ${{ parameters.nodeVersion }}
       displayName: Install Node ${{ parameters.nodeVersion }}
-    - script: npm install
+    - script: |
+        npm install -g appium@next
+        npm install
       displayName: Install node dependencies
     - script: npm test
       displayName: npm test
