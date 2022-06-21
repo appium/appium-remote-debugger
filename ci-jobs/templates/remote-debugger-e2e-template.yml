@@ -7,7 +7,7 @@ parameters:
   skipTvOs: False
   tvosName: ''
   tvosDeviceName: ''
-  nodeVersion: 14.x
+  nodeVersion: 16.x
   launchWithIDB: false
   vmImage: 'macOS-10.15'
 jobs:
