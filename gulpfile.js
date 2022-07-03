@@ -23,6 +23,26 @@ const TEMP_BUILD_DIRECTORY_NAME = 'appium-atoms-driver';
 
 const ATOMS_BUILD_TARGET = 'build_atoms';
 
+async function copyFolderRecursive(src, dest) {
+  const entries = await fs.promises.readdir(src, { withFileTypes: true });
+  try {
+    await fs.promises.access(dest, fs.constants.R_OK);
+  } catch (err) {
+    await fs.promises.mkdir(dest, { recursive: true });
+  }
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      await copyFolderRecursive(srcPath, destPath);
+    } else if (entry.isFile()) {
+      await fs.promises.copyFile(srcPath, destPath);
+    } else {
+      log(`Skip copying ${srcPath}`);
+    }
+  }
+}
+
 boilerplate({
   build: 'appium-remote-debugger',
   files: [
@@ -81,8 +101,8 @@ gulp.task('atoms:mkdir', function atomsMkdir () {
 
 gulp.task('atoms:inject', function atomsInject () {
   log('Injecting build file into Selenium build');
-  return fs.promises.copyFile(
-    ATOMS_BUILD_DIRECTORY, `${SELENIUM_DIRECTORY}/javascript/${TEMP_BUILD_DIRECTORY_NAME}`
+  return copyFolderRecursive(
+      ATOMS_BUILD_DIRECTORY, path.join(SELENIUM_DIRECTORY, 'javascript', TEMP_BUILD_DIRECTORY_NAME)
   );
 });
 
