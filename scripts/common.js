@@ -99,10 +99,10 @@ async function atomsBuildFragments () {
       let buffer = [];
       for (const word of line.split(' ')) {
         if (['at', 'as'].includes(word)) {
-        // output the buffer
-        log(buffer.join(' '));
-        // clear the buffer, and make the next line indented
-        buffer = [`  `];
+          // output the buffer
+          log(buffer.join(' '));
+          // clear the buffer, and make the next line indented
+          buffer = [`  `];
         }
         // add the word to the buffer
         buffer.push(word);
