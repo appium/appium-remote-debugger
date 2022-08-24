@@ -6,8 +6,6 @@
 
 A Node.js frontend for the Remote Debugger protocol used by Appium to connect to iOS webviews and Safari. Written using ES6+.
 
-Issues for this repo are disabled. Log any issues at the [main Appium repo's issue tracker](https://github.com/appium/appium/issues).
-
 ## Safari's version of the WebKit API
 
 Safari implements a wonky version of the WebKit API. It is not documented. The
@@ -35,19 +33,9 @@ One caveat is that there are some changes that are needed for Appium, that are
 not yet in the Selenium codebase. See the [atoms notes](./atoms-notes.md) for
 details.
 
-
-## Watch
-
-```
-npm run watch
-```
-
-```
-gulp watch
-```
-
 ## Test
 
 ```
 npm test
+npm e2e-test
 ```
