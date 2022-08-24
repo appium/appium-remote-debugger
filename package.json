@@ -37,9 +37,11 @@
     "async-lock": "^1.2.2",
     "asyncbox": "^2.6.0",
     "bluebird": "^3.4.7",
+    "fancy-log": "^2.0.0",
     "glob": "^8.0.3",
     "lodash": "^4.17.11",
-    "source-map-support": "^0.x"
+    "source-map-support": "^0.x",
+    "teen_process": "^2.0.0"
   },
   "scripts": {
     "build": "rm -rf build && babel --out-dir=build/lib lib && babel --out-dir=build index.js",

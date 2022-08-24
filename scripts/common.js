@@ -1,7 +1,6 @@
 const path = require('path');
 const log = require('fancy-log');
 const fs = require('fs');
-const del = require('del');
 const { exec, SubProcess } = require('teen_process');
 const glob = require('glob');
 const B = require('bluebird');
@@ -40,6 +39,28 @@ async function copyFolderRecursive(src, dest) {
   }
 }
 
+async function rmDir (dir) {
+  try {
+    await fs.promises.access(dir, fs.constants.R_OK);
+  } catch (e) {
+    return;
+  }
+
+  const files = await fs.promises.readdir(dir);
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    const isDirectory = (await fs.promises.stat(fullPath)).isDirectory();
+    if (['.', '..'].includes(file)) {
+      // pass these files
+    } else if (isDirectory) {
+      await rmDir(fullPath);
+    } else {
+      await fs.promises.unlink(fullPath);
+    }
+  }
+  await fs.promises.rmdir(dir);
+}
+
 async function seleniumMkdir () {
   log(`Creating '${TMP_DIRECTORY}'`);
   await fs.promises.mkdir(TMP_DIRECTORY, { recursive: true });
@@ -47,7 +68,7 @@ async function seleniumMkdir () {
 
 async function seleniumClean () {
   log(`Cleaning '${SELENIUM_DIRECTORY}'`);
-  await del([SELENIUM_DIRECTORY]);
+  await rmDir(SELENIUM_DIRECTORY);
 }
 
 export async function seleniumClone () {
@@ -65,7 +86,7 @@ export async function seleniumClone () {
 
 async function atomsCleanDir () {
   log(`Cleaning '${ATOMS_DIRECTORY}'`);
-  await del([ATOMS_DIRECTORY]);
+  await rmDir(ATOMS_DIRECTORY);
 }
 
 async function atomsClean () {
