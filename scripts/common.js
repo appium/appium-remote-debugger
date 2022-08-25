@@ -1,14 +1,9 @@
-'use strict';
-
-const gulp = require('gulp');
-const boilerplate = require('@appium/gulp-plugins').boilerplate.use(gulp);
-const { exec, SubProcess } = require('teen_process');
-const fs = require('fs');
-const del = require('del');
 const path = require('path');
 const log = require('fancy-log');
+const fs = require('fs');
+const { exec, SubProcess } = require('teen_process');
+const glob = require('glob');
 const B = require('bluebird');
-
 
 const SELENIUM_BRANCH = 'selenium-3.141.59';
 const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
@@ -22,6 +17,7 @@ const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
 const TEMP_BUILD_DIRECTORY_NAME = 'appium-atoms-driver';
 
 const ATOMS_BUILD_TARGET = 'build_atoms';
+
 
 async function copyFolderRecursive(src, dest) {
   const entries = await fs.promises.readdir(src, { withFileTypes: true });
@@ -43,70 +39,74 @@ async function copyFolderRecursive(src, dest) {
   }
 }
 
-boilerplate({
-  build: 'appium-remote-debugger',
-  files: [
-    '*.js', 'lib/**/*.js', 'bin/**/*.js', 'test/**/*.js',
-    '!gulpfile.js'
-  ],
-  yaml: {
-    files: [
-      '**/.*.yml', '**/*.yml', '**/.*.yaml', '**/*.yaml',
-      '!test/**', '!node_modules/**', '!**/node_modules/**', '!tmp/**'
-    ],
+async function rmDir (dir) {
+  try {
+    await fs.promises.access(dir, fs.constants.R_OK);
+  } catch (e) {
+    return;
   }
-});
 
-gulp.task('selenium:mkdir', function seleniumMkdir () {
+  const files = await fs.promises.readdir(dir);
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    const isDirectory = (await fs.promises.stat(fullPath)).isDirectory();
+    if (['.', '..'].includes(file)) {
+      // pass these files
+    } else if (isDirectory) {
+      await rmDir(fullPath);
+    } else {
+      await fs.promises.unlink(fullPath);
+    }
+  }
+  await fs.promises.rmdir(dir);
+}
+
+async function seleniumMkdir () {
   log(`Creating '${TMP_DIRECTORY}'`);
-  return fs.promises.mkdir(TMP_DIRECTORY, { recursive: true });
-});
+  await fs.promises.mkdir(TMP_DIRECTORY, { recursive: true });
+}
 
-gulp.task('selenium:clean', function seleniumClean () {
+async function seleniumClean () {
   log(`Cleaning '${SELENIUM_DIRECTORY}'`);
-  return del([
-    SELENIUM_DIRECTORY,
-  ]);
-});
+  await rmDir(SELENIUM_DIRECTORY);
+}
 
-gulp.task('selenium:clone', gulp.series('selenium:mkdir', 'selenium:clean', function seleniumClone () {
+export async function seleniumClone () {
+  await seleniumMkdir();
+  await seleniumClean();
   log(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
-  return exec('git', [
+  await exec('git', [
     'clone',
     `--branch=${SELENIUM_BRANCH}`,
     `--depth=1`,
     SELENIUM_GITHUB,
     SELENIUM_DIRECTORY,
   ]);
-}));
+}
 
-gulp.task('atoms:clean:dir', function atomsCleanDir () {
+async function atomsCleanDir () {
   log(`Cleaning '${ATOMS_DIRECTORY}'`);
-  return del([
-    ATOMS_DIRECTORY,
-  ]);
-});
+  await rmDir(ATOMS_DIRECTORY);
+}
 
-gulp.task('atoms:clean', function atomsClean () {
+async function atomsClean () {
   log('Building atoms');
-  return exec('./go', ['clean'], {
-    cwd: SELENIUM_DIRECTORY,
-  });
-});
+  await exec('./go', ['clean'], {cwd: SELENIUM_DIRECTORY});
+}
 
-gulp.task('atoms:mkdir', function atomsMkdir () {
+async function atomsMkdir () {
   log(`Creating '${ATOMS_DIRECTORY}'`);
-  return fs.promises.mkdir(ATOMS_DIRECTORY, { recursive: true });
-});
+  await fs.promises.mkdir(ATOMS_DIRECTORY, { recursive: true });
+}
 
-gulp.task('atoms:inject', function atomsInject () {
+async function atomsInject () {
   log('Injecting build file into Selenium build');
-  return copyFolderRecursive(
-      ATOMS_BUILD_DIRECTORY, path.join(SELENIUM_DIRECTORY, 'javascript', TEMP_BUILD_DIRECTORY_NAME)
+  await copyFolderRecursive(
+    ATOMS_BUILD_DIRECTORY, path.join(SELENIUM_DIRECTORY, 'javascript', TEMP_BUILD_DIRECTORY_NAME)
   );
-});
+};
 
-gulp.task('atoms:build:fragments', function atomsBuildFragments () {
+async function atomsBuildFragments () {
   const proc = new SubProcess('./go', [`//javascript/${TEMP_BUILD_DIRECTORY_NAME}:${ATOMS_BUILD_TARGET}`], {
     cwd: SELENIUM_DIRECTORY,
   });
@@ -136,7 +136,7 @@ gulp.task('atoms:build:fragments', function atomsBuildFragments () {
       log.error(line);
     }
   });
-  return new B(function promise (resolve, reject) {
+  await new B((resolve, reject) => {
     proc.on('exit', function exit (code, signal) {
       log(`Finished with code '${code}' and signal '${signal}'`);
       if (code === 0) {
@@ -147,31 +147,48 @@ gulp.task('atoms:build:fragments', function atomsBuildFragments () {
     });
     proc.start();
   });
-});
+}
 
-gulp.task('atoms:copy', function atomsCopy () {
-  return gulp
-    .src([
-      './build/javascript/atoms/fragments/*.js',
-      './build/javascript/webdriver/atoms/fragments/inject/*.js',
-      './build/javascript/appium-atoms-driver/*.js',
-      '!**/*_exports.js',
-      '!**/*_ie.js',
-      '!**/*_build_atoms.js',
-      '!**/*deps.js',
-    ], {
-      cwd: SELENIUM_DIRECTORY,
-    })
-    .pipe(gulp.dest(ATOMS_DIRECTORY));
-});
+async function atomsCopy () {
+  const doesPathMatch = (p) => {
+    const dirname = path.dirname(p);
+    if (![
+      'build/javascript/atoms/fragments',
+      'build/javascript/webdriver/atoms/fragments/inject',
+      'build/javascript/appium-atoms-driver'
+    ].some((x) => dirname.endsWith(x))) {
+      return false;
+    }
+    const filename = path.basename(p);
+    if (['_exports.js', '_ie.js', '_build_atoms.js', 'deps.js'].some((x) => filename.endsWith(x))) {
+      return false;
+    }
+    return true;
+  };
 
-gulp.task('atoms:timestamp', function atomsTimestamp () {
-  return exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY})
-    .then(function ({stdout}) { // eslint-disable-line promise/prefer-await-to-then
-      return fs.promises.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
-    });
-});
+  const filesToCopy = (await glob('**/*.js', {
+    absolute: true,
+    strict: false,
+    cwd: SELENIUM_DIRECTORY,
+  })).filter(doesPathMatch);
+  if (filesToCopy.length) {
+    await B.all(filesToCopy.map((p) => fs.promises.copyFile(
+      p, path.join(ATOMS_DIRECTORY, path.basename(p))
+    )));
+  }
+}
 
-gulp.task('atoms:import', gulp.series('atoms:clean:dir', 'atoms:clean', 'atoms:mkdir', 'atoms:inject', 'atoms:build:fragments', 'atoms:copy', 'atoms:timestamp'));
+async function atomsTimestamp () {
+  const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
+  await fs.promises.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
+}
 
-gulp.task('atoms', gulp.series('selenium:clone', 'atoms:import'));
+export async function importAtoms() {
+  await atomsCleanDir();
+  await atomsClean();
+  await atomsMkdir();
+  await atomsInject();
+  await atomsBuildFragments();
+  await atomsCopy();
+  await atomsTimestamp();
+}
