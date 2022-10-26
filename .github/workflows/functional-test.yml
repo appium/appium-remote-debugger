@@ -29,7 +29,8 @@ jobs:
     - run: xcrun simctl list
     - uses: actions/setup-node@v3
       with:
-        node-version: lts
+        node-version: lts/*
+        check-latest: true
     - run: npm install
     - run: |
         export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin"
