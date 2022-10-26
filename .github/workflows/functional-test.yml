@@ -4,16 +4,17 @@ on: [pull_request]
 
 jobs:
   e2e:
-    matrix:
-      include:
-      - os: macos-11
-        xcode: '13.2'
-        ios: '15.2'
-        device: iPhone 11
-      - os: macos-11
-        xcode: '12.5'
-        ios: '14.5'
-        device: iPhone 11
+    strategy:
+      matrix:
+        include:
+        - os: macos-11
+          xcode: '13.2'
+          ios: '15.2'
+          device: iPhone 11
+        - os: macos-11
+          xcode: '12.5'
+          ios: '14.5'
+          device: iPhone 11
     runs-on: ${{ matrix.os }}
     env:
       PLATFORM_VERSION: ${{ matrix.ios }}
