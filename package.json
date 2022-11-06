@@ -29,7 +29,8 @@
     "build/index.js",
     "build/lib",
     "scripts",
-    "atoms"
+    "atoms",
+    "CHANGELOG.md"
   ],
   "dependencies": {
     "@babel/runtime": "^7.0.0",
@@ -84,6 +85,7 @@
     "@babel/preset-env": "^7.18.10",
     "@babel/register": "^7.18.9",
     "@semantic-release/git": "^10.0.1",
+    "@semantic-release/changelog": "^6.0.1",
     "babel-plugin-source-map-support": "^2.2.0",
     "appium-ios-simulator": "^4.0.0",
     "chai": "^4.1.2",
