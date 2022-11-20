@@ -5,7 +5,7 @@ import { util } from 'appium/support';
 import _ from 'lodash';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { createRemoteDebugger } from '../..';
+import { createRemoteDebugger } from '../../index';
 import { startHttpServer, stopHttpServer } from './http-server';
 
 
