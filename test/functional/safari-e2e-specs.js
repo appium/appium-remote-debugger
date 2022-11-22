@@ -1,7 +1,7 @@
 import Simctl from 'node-simctl';
 import { getSimulator } from 'appium-ios-simulator';
 import { retryInterval, retry } from 'asyncbox';
-import { util } from 'appium/support';
+import { util } from '@appium/support';
 import _ from 'lodash';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
