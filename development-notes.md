@@ -33,3 +33,19 @@ to a file with the same name, but the added `.original` suffix.
 
 Running the utility again will use `socat` to catch the communication between
 the Safari Web Inspector and the simulator, and print it to standard output.
+
+## Example for a simulator
+
+```
+$ lsof -aUc launchd_sim # to find a path of com.apple.webinspectord_sim.socket.
+# e.g. "/private/tmp/com.apple.launchd.7J8c2aiVxG/com.apple.webinspectord_sim.socket" was found
+$ mv /private/tmp/com.apple.launchd.7J8c2aiVxG/com.apple.webinspectord_sim.socket /private/tmp/com.apple.launchd.7J8c2aiVxG/com.apple.webinspectord_sim.socket.original
+$ socat -t100 -x -v UNIX-LISTEN:/private/tmp/com.apple.launchd.7J8c2aiVxG/com.apple.webinspectord_sim.socket,mode=777,reuseaddr,fork UNIX-CONNECT:/private/tmp/com.apple.launchd.7J8c2aiVxG/com.apple.webinspectord_sim.socket.original
+# Open safari and its Web Inspector with a simulator's web page.
+# Then, the communication protocol appears
+```
+
+```
+$ npm run inspect-safari 8442C4CD-77B5-4764-A1F9-AABC7AD26209
+# Open Safari and its Web Inspector. Then, JSON formatted communication appeard.
+```
