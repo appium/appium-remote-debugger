@@ -47,7 +47,7 @@
     "teen_process": "^2.0.0"
   },
   "scripts": {
-    "build": "rm -rf build && babel --out-dir=build/lib lib && babel --out-dir=build index.js",
+    "build": "rm -rf build && babel --out-dir=build/lib lib && babel --out-dir=build index.js && babel --out-dir=build/bin bin",
     "dev": "npm run build -- --watch",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
