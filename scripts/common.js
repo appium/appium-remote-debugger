@@ -152,8 +152,6 @@ async function atomsBuildFragments () {
 
 async function atomsCopy () {
   const doesPathMatch = (p) => {
-    console.log(p);
-
     const dirname = path.dirname(p);
     if (![
       'build/javascript/atoms/fragments',
