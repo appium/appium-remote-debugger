@@ -25,7 +25,7 @@ The steps to using the `RemoteDebugger` involve instantiating an object, then ru
 
 The remote debugger uses the standard [Selenium Atoms](https://github.com/SeleniumHQ/selenium/tree/master/javascript/atoms)
 to interact with web pages. These need to be manually updated when necessary. To
-do so, simply update the branch in the `gulpfile`, by modifying the `SELENIUM_BRANCH`
+do so, simply update the branch in the `scripts/common.js`, by modifying the `SELENIUM_BRANCH`
 constant at the top of the file. Then run `npm run build:atoms`, test and create
 a pull request with the resulting changed atoms directory.
 
