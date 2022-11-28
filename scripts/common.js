@@ -8,7 +8,7 @@ const B = require('bluebird');
 const SELENIUM_BRANCH = 'selenium-3.141.59';
 const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
 
-const WORKING_ROOT_DIR = path.resolve(__dirname, '..', '..');
+const WORKING_ROOT_DIR = path.resolve(__dirname, '..');
 const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
 const SELENIUM_DIRECTORY = path.resolve(TMP_DIRECTORY, 'selenium');
 const ATOMS_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms');
@@ -72,7 +72,7 @@ async function seleniumClean () {
   await rmDir(SELENIUM_DIRECTORY);
 }
 
-export async function seleniumClone () {
+module.exports.seleniumClone = async function seleniumClone () {
   await seleniumMkdir();
   await seleniumClean();
   log(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
@@ -83,7 +83,7 @@ export async function seleniumClone () {
     SELENIUM_GITHUB,
     SELENIUM_DIRECTORY,
   ]);
-}
+};
 
 async function atomsCleanDir () {
   log(`Cleaning '${ATOMS_DIRECTORY}'`);
@@ -167,12 +167,11 @@ async function atomsCopy () {
     return true;
   };
 
-  const copyTarget = glob.sync('**/*.js', {
+  const filesToCopy = (await (B.promisify(glob)('**/*.js', {
     absolute: true,
     strict: false,
     cwd: SELENIUM_DIRECTORY,
-  });
-  const filesToCopy = copyTarget.filter(doesPathMatch);
+  }))).filter(doesPathMatch);
   if (filesToCopy.length) {
     await B.all(filesToCopy.map((p) => fs.promises.copyFile(
       p, path.join(ATOMS_DIRECTORY, path.basename(p))
@@ -185,7 +184,7 @@ async function atomsTimestamp () {
   await fs.promises.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
 }
 
-export async function importAtoms() {
+module.exports.importAtoms = async function importAtoms() {
   await atomsCleanDir();
   await atomsClean();
   await atomsMkdir();
@@ -193,4 +192,4 @@ export async function importAtoms() {
   await atomsBuildFragments();
   await atomsCopy();
   await atomsTimestamp();
-}
+};

@@ -57,9 +57,9 @@
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.js\"",
     "e2e-test": "mocha --exit --timeout 1m \"./test/functional/**/*-specs.js\"",
     "inspect-safari": "node build/bin/web_inspector_proxy.js",
-    "build:atoms": "babel --out-dir=build/scripts scripts && node build/scripts/build-atoms.js",
-    "build:atoms:import": "babel --out-dir=build/scripts scripts && node build/scripts/import-atoms.js",
-    "build:selenium": "babel --out-dir=build/scripts scripts && node build/scripts/build-selenium.js"
+    "build:atoms": "node scripts/build-atoms.js",
+    "build:atoms:import": "node scripts/import-atoms.js",
+    "build:selenium": "node scripts/build-selenium.js"
   },
   "pre-commit": [
     "precommit-msg",
