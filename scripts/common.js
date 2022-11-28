@@ -8,10 +8,11 @@ const B = require('bluebird');
 const SELENIUM_BRANCH = 'selenium-3.141.59';
 const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
 
-const TMP_DIRECTORY = path.resolve(__dirname, 'tmp');
+const WORKING_ROOT_DIR = path.resolve(__dirname, '..', '..');
+const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
 const SELENIUM_DIRECTORY = path.resolve(TMP_DIRECTORY, 'selenium');
-const ATOMS_DIRECTORY = path.resolve(__dirname, 'atoms');
-const ATOMS_BUILD_DIRECTORY = path.resolve(__dirname, 'atoms_build_dir');
+const ATOMS_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms');
+const ATOMS_BUILD_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms_build_dir');
 const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
 
 const TEMP_BUILD_DIRECTORY_NAME = 'appium-atoms-driver';
@@ -151,6 +152,8 @@ async function atomsBuildFragments () {
 
 async function atomsCopy () {
   const doesPathMatch = (p) => {
+    console.log(p);
+
     const dirname = path.dirname(p);
     if (![
       'build/javascript/atoms/fragments',
@@ -166,11 +169,12 @@ async function atomsCopy () {
     return true;
   };
 
-  const filesToCopy = (await glob('**/*.js', {
+  const copyTarget = glob.sync('**/*.js', {
     absolute: true,
     strict: false,
     cwd: SELENIUM_DIRECTORY,
-  })).filter(doesPathMatch);
+  });
+  const filesToCopy = copyTarget.filter(doesPathMatch);
   if (filesToCopy.length) {
     await B.all(filesToCopy.map((p) => fs.promises.copyFile(
       p, path.join(ATOMS_DIRECTORY, path.basename(p))
