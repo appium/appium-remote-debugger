@@ -1,3 +1,10 @@
+## [9.1.9](https://github.com/appium/appium-remote-debugger/compare/v9.1.8...v9.1.9) (2022-12-01)
+
+
+### Miscellaneous Chores
+
+* update releaserc ([#278](https://github.com/appium/appium-remote-debugger/issues/278)) ([f8e406b](https://github.com/appium/appium-remote-debugger/commit/f8e406bcfe6683d921952dd6153512c6e6b5afbd))
+
 ## [9.1.8](https://github.com/appium/appium-remote-debugger/compare/v9.1.7...v9.1.8) (2022-11-29)
 
 ## [9.1.7](https://github.com/appium/appium-remote-debugger/compare/v9.1.6...v9.1.7) (2022-11-28)
