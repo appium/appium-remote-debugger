@@ -1,3 +1,11 @@
+## [9.1.11](https://github.com/appium/appium-remote-debugger/compare/v9.1.10...v9.1.11) (2022-12-16)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump appium-ios-simulator from 4.2.1 to 5.0.1 ([#281](https://github.com/appium/appium-remote-debugger/issues/281)) ([c8018be](https://github.com/appium/appium-remote-debugger/commit/c8018bec84d47ec7340f5ddf61522fcb4fe59c67))
+* **deps:** bump @appium/base-driver from 8.7.3 to 9.0.0 ([#280](https://github.com/appium/appium-remote-debugger/issues/280)) ([c325b4b](https://github.com/appium/appium-remote-debugger/commit/c325b4b2a7624c765f4aa648b00804611e329357))
+
 ## [9.1.10](https://github.com/appium/appium-remote-debugger/compare/v9.1.9...v9.1.10) (2022-12-14)
 
 
