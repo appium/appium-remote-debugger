@@ -1,3 +1,10 @@
+## [9.1.13](https://github.com/appium/appium-remote-debugger/compare/v9.1.12...v9.1.13) (2023-02-27)
+
+
+### Miscellaneous Chores
+
+* add commands for Page ([#283](https://github.com/appium/appium-remote-debugger/issues/283)) ([042bd15](https://github.com/appium/appium-remote-debugger/commit/042bd15e718b401a73d449005b7df2959dd5fec9))
+
 ## [9.1.12](https://github.com/appium/appium-remote-debugger/compare/v9.1.11...v9.1.12) (2023-01-17)
 
 
