@@ -1,3 +1,10 @@
+## [9.1.14](https://github.com/appium/appium-remote-debugger/compare/v9.1.13...v9.1.14) (2023-03-03)
+
+
+### Miscellaneous Chores
+
+* Improve error messages on missing params ([#288](https://github.com/appium/appium-remote-debugger/issues/288)) ([a5fc3f0](https://github.com/appium/appium-remote-debugger/commit/a5fc3f0e43c62228f3098c139bd77cd372e461ae))
+
 ## [9.1.13](https://github.com/appium/appium-remote-debugger/compare/v9.1.12...v9.1.13) (2023-02-27)
 
 
