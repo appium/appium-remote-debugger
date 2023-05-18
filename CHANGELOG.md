@@ -1,3 +1,10 @@
+## [9.1.15](https://github.com/appium/appium-remote-debugger/compare/v9.1.14...v9.1.15) (2023-05-18)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump @appium/support from 3.1.11 to 4.0.0 ([#303](https://github.com/appium/appium-remote-debugger/issues/303)) ([40cb4ec](https://github.com/appium/appium-remote-debugger/commit/40cb4ec15d72d879d97e1f3051341ed3c9386d41))
+
 ## [9.1.14](https://github.com/appium/appium-remote-debugger/compare/v9.1.13...v9.1.14) (2023-03-03)
 
 
