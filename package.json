@@ -89,7 +89,7 @@
     "appium-ios-simulator": "^5.0.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "conventional-changelog-conventionalcommits": "^6.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.5.0",
     "finalhandler": "^1.1.2",
