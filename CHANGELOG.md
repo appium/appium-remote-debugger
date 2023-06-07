@@ -1,3 +1,10 @@
+## [9.1.16](https://github.com/appium/appium-remote-debugger/compare/v9.1.15...v9.1.16) (2023-06-07)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump conventional-changelog-conventionalcommits ([#307](https://github.com/appium/appium-remote-debugger/issues/307)) ([3ece7d7](https://github.com/appium/appium-remote-debugger/commit/3ece7d740df9a675ae9d8f9861d9b881bb078342))
+
 ## [9.1.15](https://github.com/appium/appium-remote-debugger/compare/v9.1.14...v9.1.15) (2023-05-18)
 
 
