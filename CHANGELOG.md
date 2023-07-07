@@ -1,3 +1,10 @@
+## [9.1.17](https://github.com/appium/appium-remote-debugger/compare/v9.1.16...v9.1.17) (2023-07-07)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump prettier from 2.8.8 to 3.0.0 ([#313](https://github.com/appium/appium-remote-debugger/issues/313)) ([9a07e14](https://github.com/appium/appium-remote-debugger/commit/9a07e147751c6a376a08fcd556f2b8cf7f16a3df))
+
 ## [9.1.16](https://github.com/appium/appium-remote-debugger/compare/v9.1.15...v9.1.16) (2023-06-07)
 
 
