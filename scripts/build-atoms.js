@@ -1,6 +1,5 @@
-const { importAtoms, seleniumClone } = require('./common.js');
+const { importAtoms } = require('./common.js');
 
 (async () => {
-  await seleniumClone();
-  await importAtoms();
+  await importAtoms(process.argv.includes('--clean'));
 })();

@@ -29,6 +29,11 @@ do so, simply update the branch in the `scripts/common.js`, by modifying the `SE
 constant at the top of the file. Then run `npm run build:atoms`, test and create
 a pull request with the resulting changed atoms directory.
 
+Note that to build the atoms it is required that you have the `bazel` tool installed. Selenium will
+also require that it be installed at a particular version relative to the version of Selenium that
+has been checked out by our build script. It is most convenient simply to install
+[`bazelisk`](https://github.com/bazelbuild/bazelisk) and have it available on your PATH.
+
 One caveat is that there are some changes that are needed for Appium, that are
 not yet in the Selenium codebase. See the [atoms notes](./atoms-notes.md) for
 details.

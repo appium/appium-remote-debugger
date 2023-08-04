@@ -13,8 +13,8 @@ chai.should();
 chai.use(chaiAsPromised);
 
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
-const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 6';
-const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '12.1';
+const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 14';
+const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '16.2';
 
 const PAGE_TITLE = 'Remote debugger test page';
 
@@ -124,8 +124,37 @@ describe('Safari remote debugger', function () {
     await rd.selectPage(appIdKey, pageIdKey);
 
     const script = 'return 1 + 1;';
-    const sum = await rd.executeAtom('execute_script', [script, []], []);
+    const sum = await rd.executeAtom('execute_script', [script, []]);
     sum.should.eql(2);
+  });
+
+  it('should be able to find an element', async function () {
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    const el = await rd.executeAtom('find_element_fragment', ['css selector', '#somediv']);
+    const text = await rd.executeAtom('get_text', [el]);
+    text.should.eql('This is in #somediv');
+  });
+
+  it('should be able to send text to an element and get attribute values', async function () {
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    const el = await rd.executeAtom('find_element_fragment', ['css selector', '#input']);
+    let text = await rd.executeAtom('get_text', [el]);
+    text.should.eql('');
+    await rd.executeAtom('type', [el, 'hello world']);
+
+    text = await rd.executeAtom('get_attribute_value', [el, 'value']);
+    text.should.eql('hello world');
+
+    // clean up page
+    await rd.executeAtom('execute_script', ['window.location.reload()']);
   });
 
   describe('executeAtomAsync', function () {
@@ -137,7 +166,7 @@ describe('Safari remote debugger', function () {
       await rd.selectPage(appIdKey, pageIdKey);
 
       const script = 'arguments[arguments.length - 1](123);';
-      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
+      await rd.executeAtomAsync('execute_async_script', [script, [], timeout])
         .should.eventually.eql(123);
     });
 
@@ -148,7 +177,7 @@ describe('Safari remote debugger', function () {
       await rd.selectPage(appIdKey, pageIdKey);
 
       const script = `arguments[arguments.length - 1](1--);`;
-      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
+      await rd.executeAtomAsync('execute_async_script', [script, [], timeout])
         .should.eventually.be.rejectedWith(/operator applied to value that is not a reference/);
     });
 
@@ -159,7 +188,7 @@ describe('Safari remote debugger', function () {
       await rd.selectPage(appIdKey, pageIdKey);
 
       const script = 'return 1 + 2';
-      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [])
+      await rd.executeAtomAsync('execute_async_script', [script, [], timeout])
         .should.eventually.be.rejectedWith(/Timed out waiting for/);
     });
 
@@ -173,11 +202,10 @@ describe('Safari remote debugger', function () {
       await rd.navToUrl(`${address}/frameset.html`);
 
       // get the correct frame
-      const {WINDOW: frame} = await rd.executeAtom('frame_by_id_or_name', ['first'], []);
-
+      const {WINDOW: frame} = await rd.executeAtom('frame_by_id_or_name', ['first']);
       const script = `arguments[arguments.length - 1](document.getElementsByTagName('h1')[0].innerHTML);`;
-      await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [frame])
-        .should.eventually.eql('Sub frame 1');
+      const res = await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [frame]);
+      res.should.eql('Sub frame 1');
     });
   });
 
@@ -189,7 +217,7 @@ describe('Safari remote debugger', function () {
     await rd.selectPage(appIdKey, pageIdKey);
 
     const script = 'return 1 + 1;';
-    const sum = await rd.executeAtom('execute_script', [script, []], []);
+    const sum = await rd.executeAtom('execute_script', [script, []]);
     sum.should.eql(2);
 
     await rd.selectApp(address);
@@ -208,7 +236,7 @@ describe('Safari remote debugger', function () {
 
     await rd.navToUrl('https://google.com');
 
-    await rd.executeAtom('execute_script', [`console.log('hi from appium')`, []], []);
+    await rd.executeAtom('execute_script', [`console.log('hi from appium')`, []]);
 
     // wait for the asynchronous console event to come in
     await retryInterval(50, 100, function () {
@@ -239,16 +267,16 @@ describe('Safari remote debugger', function () {
     await rd.navToUrl(`${address}/shadow-dom.html`);
 
     // make sure the browser supports shadow DOM before running the test
-    const shadowDomSupported = await rd.executeAtom('execute_script', ['return !!document.head.createShadowRoot || !!document.head.attachShadow;'], []);
+    const shadowDomSupported = await rd.executeAtom('execute_script', ['return !!document.head.createShadowRoot || !!document.head.attachShadow;']);
     if (!shadowDomSupported) {
       return this.skip();
     }
 
     await retryInterval(5, 500, async function () {
-      const el1 = await rd.executeAtom('find_element', ['class name', 'element', null], []);
-      const sEl1 = await rd.executeAtom('execute_script', [shadowScript('#shadowContent'), [el1]], []);
-      const sEl2 = await rd.executeAtom('execute_script', [shadowScript('#shadowSubContent'), [sEl1]], []);
-      await rd.executeAtom('get_text', [sEl2], []).should.eventually.eql('It is murky in here');
+      const el1 = await rd.executeAtom('find_element', ['class name', 'element', null]);
+      const sEl1 = await rd.executeAtom('execute_script', [shadowScript('#shadowContent'), [el1]]);
+      const sEl2 = await rd.executeAtom('execute_script', [shadowScript('#shadowSubContent'), [sEl1]]);
+      await rd.executeAtom('get_text', [sEl2]).should.eventually.eql('It is murky in here');
     }).should.not.be.rejectedWith('Element is no longer attached to the DOM');
   });
 });
