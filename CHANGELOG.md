@@ -1,3 +1,10 @@
+## [9.1.18](https://github.com/appium/appium-remote-debugger/compare/v9.1.17...v9.1.18) (2023-08-14)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump lint-staged from 13.3.0 to 14.0.0 ([#316](https://github.com/appium/appium-remote-debugger/issues/316)) ([28b877f](https://github.com/appium/appium-remote-debugger/commit/28b877fa63f7ba185b0ef4a83b23fe88fd3fbf8e))
+
 ## [9.1.17](https://github.com/appium/appium-remote-debugger/compare/v9.1.16...v9.1.17) (2023-07-07)
 
 
