@@ -1,44 +1,26 @@
 const path = require('path');
 const log = require('fancy-log');
 const fs = require('fs');
-const { exec, SubProcess } = require('teen_process');
-const glob = require('glob');
-const B = require('bluebird');
+const { exec } = require('teen_process');
+const { glob } = require('glob');
 
-const SELENIUM_BRANCH = 'selenium-3.141.59';
+const SELENIUM_BRANCH = 'selenium-4.11.0';
 const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
+
+const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
+const BAZEL_WD_ATOMS_INJECT_TARGET = '//javascript/webdriver/atoms/inject/...';
+const BAZEL_ATOMS_TARGET = '//javascript/atoms/...';
 
 const WORKING_ROOT_DIR = path.resolve(__dirname, '..');
 const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
 const SELENIUM_DIRECTORY = path.resolve(TMP_DIRECTORY, 'selenium');
+const BAZEL_OUT_BASEDIR = path.resolve(SELENIUM_DIRECTORY, 'bazel-out');
+const JS_RELATIVE_DIR = path.join('bin', 'javascript');
+const BAZEL_FRAGMENTS_DIR = path.join(JS_RELATIVE_DIR, 'atoms', 'fragments');
+const BAZEL_WD_ATOMS_DIR = path.join(JS_RELATIVE_DIR, 'webdriver', 'atoms');
+const BAZEL_WD_ATOMS_INJECT_DIR = path.join(BAZEL_WD_ATOMS_DIR, 'inject');
 const ATOMS_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms');
-const ATOMS_BUILD_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms_build_dir');
 const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
-
-const TEMP_BUILD_DIRECTORY_NAME = 'appium-atoms-driver';
-
-const ATOMS_BUILD_TARGET = 'build_atoms';
-
-
-async function copyFolderRecursive(src, dest) {
-  const entries = await fs.promises.readdir(src, { withFileTypes: true });
-  try {
-    await fs.promises.access(dest, fs.constants.R_OK);
-  } catch (err) {
-    await fs.promises.mkdir(dest, { recursive: true });
-  }
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    if (entry.isDirectory()) {
-      await copyFolderRecursive(srcPath, destPath);
-    } else if (entry.isFile()) {
-      await fs.promises.copyFile(srcPath, destPath);
-    } else {
-      log(`Skip copying ${srcPath}`);
-    }
-  }
-}
 
 async function rmDir (dir) {
   try {
@@ -92,7 +74,7 @@ async function atomsCleanDir () {
 
 async function atomsClean () {
   log('Building atoms');
-  await exec('./go', ['clean'], {cwd: SELENIUM_DIRECTORY});
+  await exec('bazel', ['clean'], {cwd: SELENIUM_DIRECTORY});
 }
 
 async function atomsMkdir () {
@@ -100,96 +82,74 @@ async function atomsMkdir () {
   await fs.promises.mkdir(ATOMS_DIRECTORY, { recursive: true });
 }
 
-async function atomsInject () {
-  log('Injecting build file into Selenium build');
-  await copyFolderRecursive(
-    ATOMS_BUILD_DIRECTORY, path.join(SELENIUM_DIRECTORY, 'javascript', TEMP_BUILD_DIRECTORY_NAME)
-  );
-};
-
-async function atomsBuildFragments () {
-  const proc = new SubProcess('./go', [`//javascript/${TEMP_BUILD_DIRECTORY_NAME}:${ATOMS_BUILD_TARGET}`], {
-    cwd: SELENIUM_DIRECTORY,
-  });
-  proc.on('lines-stdout', function linesStdout (lines) {
-    for (const line of lines) {
-      // clean up the output, which has long lines
-      // each 'fragment' of an atom produces two line of output
-      //    Generating export file for webdriver.atoms.inject.action.clear at build/javascript/webdriver/atoms/fragments/inject/clear_exports.js
-      //    Compiling //javascript/webdriver/atoms/fragments/inject:clear as build/javascript/webdriver/atoms/fragments/inject/clear.js
-      // so split each at either 'at' or 'as'
-      let buffer = [];
-      for (const word of line.split(' ')) {
-        if (['at', 'as'].includes(word)) {
-          // output the buffer
-          log(buffer.join(' '));
-          // clear the buffer, and make the next line indented
-          buffer = [`  `];
-        }
-        // add the word to the buffer
-        buffer.push(word);
-      }
-      log(buffer.join(' '));
-    }
-  });
-  proc.on('lines-stderr', function linesStderr (lines) {
-    for (const line of lines) {
-      log.error(line);
-    }
-  });
-  await new B((resolve, reject) => {
-    proc.on('exit', function exit (code, signal) {
-      log(`Finished with code '${code}' and signal '${signal}'`);
-      if (code === 0) {
-        return resolve(code);
-      } else {
-        return reject(code);
-      }
-    });
-    proc.start();
-  });
+async function getBazelOutDir () {
+  log(`Finding bazel output dir`);
+  const outDirMatch = '*-fastbuild';
+  const relativeDir = (await glob(outDirMatch, {cwd: BAZEL_OUT_BASEDIR}))[0];
+  if (!relativeDir) {
+    throw new Error(`Expected architecture-specific Bazel output directory was not found in ` +
+      `'${BAZEL_OUT_BASEDIR}'. We looked for something matching '${outDirMatch}`);
+  }
+  return path.resolve(BAZEL_OUT_BASEDIR, relativeDir);
 }
 
-async function atomsCopy () {
-  const doesPathMatch = (p) => {
-    const dirname = path.dirname(p);
-    if (![
-      'build/javascript/atoms/fragments',
-      'build/javascript/webdriver/atoms/fragments/inject',
-      'build/javascript/appium-atoms-driver'
-    ].some((x) => dirname.endsWith(x))) {
-      return false;
-    }
-    const filename = path.basename(p);
-    if (['_exports.js', '_ie.js', '_build_atoms.js', 'deps.js'].some((x) => filename.endsWith(x))) {
-      return false;
-    }
-    return true;
-  };
+async function atomsBuild () {
+  for (const target of [
+    BAZEL_ATOMS_TARGET,
+    BAZEL_WD_ATOMS_TARGET,
+    BAZEL_WD_ATOMS_INJECT_TARGET,
+  ]) {
+    log(`Running bazel build for ${target}`);
+    await exec('bazel', ['build', target], {cwd: SELENIUM_DIRECTORY});
+  }
+  log(`Bazel builds complete`);
+}
 
-  const filesToCopy = (await (B.promisify(glob)('**/*.js', {
+async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
+  log(`Copying any atoms found in ${atomsDir} to atoms dir`);
+  const filesToCopy = (await glob('**/*-ios.js', {
     absolute: true,
     strict: false,
-    cwd: SELENIUM_DIRECTORY,
-  }))).filter(doesPathMatch);
-  if (filesToCopy.length) {
-    await B.all(filesToCopy.map((p) => fs.promises.copyFile(
-      p, path.join(ATOMS_DIRECTORY, path.basename(p))
-    )));
+    cwd: atomsDir,
+  })).filter(fileFilter);
+  for (const file of filesToCopy) {
+    // convert - to _ for backwards compatibility with old atoms
+    const newFileName = path.basename(file).replace('-ios', '').replace(/-/g, '_');
+    const to = path.join(ATOMS_DIRECTORY, newFileName);
+    log(`Copying ${file} to ${to}`);
+    // delete an existing file if it was put here by an earlier run of the function, to enable
+    // overwriting
+    try {
+      await fs.promises.unlink(to);
+    } catch (err) {
+      if (!err.message.includes('ENOENT')) {
+        throw err;
+      }
+    }
+    await fs.promises.copyFile(file, to);
   }
 }
 
 async function atomsTimestamp () {
+  log(`Adding timestamp to atoms build dir`);
   const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
   await fs.promises.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
 }
 
-module.exports.importAtoms = async function importAtoms() {
+module.exports.importAtoms = async function importAtoms(shouldClean) {
   await atomsCleanDir();
-  await atomsClean();
+  if (shouldClean) {
+    await atomsClean();
+  }
   await atomsMkdir();
-  await atomsInject();
-  await atomsBuildFragments();
-  await atomsCopy();
+  await atomsBuild();
+  const bazelOutDir = await getBazelOutDir();
+  const atomsDir = path.resolve(bazelOutDir, BAZEL_WD_ATOMS_DIR);
+  const atomsInjectDir = path.resolve(bazelOutDir, BAZEL_WD_ATOMS_INJECT_DIR);
+  const fragmentsDir = path.resolve(bazelOutDir, BAZEL_FRAGMENTS_DIR);
+  await atomsCopyAtoms(fragmentsDir);
+  // copy fragments first and atoms later so atoms overwrite fragments
+  await atomsCopyAtoms(atomsDir);
+  await atomsCopyAtoms(atomsInjectDir);
   await atomsTimestamp();
 };

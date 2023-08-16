@@ -1,7 +1,9 @@
-Tue Mar 10 2020 15:06:01 GMT-0400 (Eastern Daylight Time)
+Tue Aug 15 2023 11:18:44 GMT-0700 (Pacific Daylight Time)
 
-commit e82be7d3584062a0d16af8d562d387e3d4855aa1 (grafted, HEAD, tag: refs/tags/selenium-3.141.59)
-Author: Simon Stewart <simon.m.stewart@gmail.com>
-Date:   Wed Nov 14 08:00:10 2018 +0000
+commit 040bc5406b3535e4087638b4a20b6d0544224639 (grafted, HEAD, tag: refs/tags/selenium-4.11.0)
+Author: Diego Molina <diemol@gmail.com>
+Date:   Mon Jul 31 20:57:23 2023 +0200
 
-    Bump the java version and update changelogs
+    Bumping versions to 4.11.0
+    
+    Selenium Manager binaries taken from https://github.com/SeleniumHQ/selenium/actions/runs/5717423581
