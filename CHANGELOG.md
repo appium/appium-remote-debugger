@@ -1,3 +1,10 @@
+## [10.0.1](https://github.com/appium/appium-remote-debugger/compare/v10.0.0...v10.0.1) (2023-08-24)
+
+
+### Bug Fixes
+
+* use correct timeline rpc name ([#317](https://github.com/appium/appium-remote-debugger/issues/317)) ([c69bd64](https://github.com/appium/appium-remote-debugger/commit/c69bd6484e4fd7ff5030e2e50d981c0fc1bbd80c)), closes [appium/appium#15685](https://github.com/appium/appium/issues/15685)
+
 ## [9.1.18](https://github.com/appium/appium-remote-debugger/compare/v9.1.17...v9.1.18) (2023-08-14)
 
 
