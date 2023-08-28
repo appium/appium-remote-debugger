@@ -55,7 +55,8 @@ describe('execute', function () {
         rpcClient: {
           send () {
             return {result: {objectId: 'fake-object-id'}};
-          }
+          },
+          isConnected: true,
         },
         waitForDom () { },
         pageLoading: true,
