@@ -1,3 +1,10 @@
+## [10.1.0](https://github.com/appium/appium-remote-debugger/compare/v10.0.3...v10.1.0) (2023-08-30)
+
+
+### Features
+
+* Switch babel to typescript ([#318](https://github.com/appium/appium-remote-debugger/issues/318)) ([f19984e](https://github.com/appium/appium-remote-debugger/commit/f19984e37471949057fbdf4333b816c8132fbc87)), closes [#319](https://github.com/appium/appium-remote-debugger/issues/319)
+
 ## [10.0.3](https://github.com/appium/appium-remote-debugger/compare/v10.0.2...v10.0.3) (2023-08-28)
 
 
