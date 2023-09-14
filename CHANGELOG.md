@@ -1,3 +1,10 @@
+## [10.1.1](https://github.com/appium/appium-remote-debugger/compare/v10.1.0...v10.1.1) (2023-09-14)
+
+
+### Miscellaneous Chores
+
+* Update tests ([f9c2822](https://github.com/appium/appium-remote-debugger/commit/f9c2822afaff6265d1051629f3afe3553bda30e9))
+
 ## [10.1.0](https://github.com/appium/appium-remote-debugger/compare/v10.0.3...v10.1.0) (2023-08-30)
 
 
