@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { exec, SubProcess } from 'teen_process';
+import { SubProcess } from 'teen_process';
 import { plist, util } from '@appium/support';
 import { asyncify } from 'asyncbox';
 import B from 'bluebird';
@@ -10,10 +10,6 @@ import _ from 'lodash';
 async function getSocket (udid) {
   const sim = await getSimulator(udid);
   return await sim.getWebInspectorSocket();
-}
-
-async function moveSocket (socket) { // eslint-disable-line no-unused-vars
-  await exec('mv', [socket, `${socket}.original`]);
 }
 
 function printRecord (lines) {
@@ -103,7 +99,6 @@ async function main () {
   const udid = _.last(process.argv);
   const s = await getSocket(udid);
   console.log('Simulator web inspector socket:', s);
-  // await moveSocket(s);
   await startSoCat(s);
 }
 
