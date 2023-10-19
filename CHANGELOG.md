@@ -1,3 +1,13 @@
+## [10.1.2](https://github.com/appium/appium-remote-debugger/compare/v10.1.1...v10.1.2) (2023-10-19)
+
+
+### Miscellaneous Chores
+
+* Apply minor dependency version tunings ([#340](https://github.com/appium/appium-remote-debugger/issues/340)) ([77eb83f](https://github.com/appium/appium-remote-debugger/commit/77eb83ffaf3a0ab37b1fa543bf42d418cbd44262))
+* **deps-dev:** bump eslint-config-prettier from 8.10.0 to 9.0.0 ([#336](https://github.com/appium/appium-remote-debugger/issues/336)) ([2c3c677](https://github.com/appium/appium-remote-debugger/commit/2c3c6770eecaecdb749569c6e071a387a6a94406))
+* **deps-dev:** bump lint-staged from 14.0.1 to 15.0.2 ([#335](https://github.com/appium/appium-remote-debugger/issues/335)) ([962ee2b](https://github.com/appium/appium-remote-debugger/commit/962ee2bed6051715a61614fcc676dee34eaf40de))
+* **deps-dev:** bump sinon from 15.2.0 to 16.1.3 ([#337](https://github.com/appium/appium-remote-debugger/issues/337)) ([3213fba](https://github.com/appium/appium-remote-debugger/commit/3213fba13f454c753a3528dfed866011b7e2d712))
+
 ## [10.1.1](https://github.com/appium/appium-remote-debugger/compare/v10.1.0...v10.1.1) (2023-09-14)
 
 
