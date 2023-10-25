@@ -1,3 +1,10 @@
+## [10.1.4](https://github.com/appium/appium-remote-debugger/compare/v10.1.3...v10.1.4) (2023-10-25)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @typescript-eslint/eslint-plugin from 5.62.0 to 6.9.0 ([#342](https://github.com/appium/appium-remote-debugger/issues/342)) ([e705788](https://github.com/appium/appium-remote-debugger/commit/e7057886bcc48a15980c298493c1e753107b8514))
+
 ## [10.1.3](https://github.com/appium/appium-remote-debugger/compare/v10.1.2...v10.1.3) (2023-10-24)
 
 
