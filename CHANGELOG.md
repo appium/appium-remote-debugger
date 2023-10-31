@@ -1,3 +1,10 @@
+## [10.1.5](https://github.com/appium/appium-remote-debugger/compare/v10.1.4...v10.1.5) (2023-10-31)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump semantic-release from 21.1.2 to 22.0.6 ([#343](https://github.com/appium/appium-remote-debugger/issues/343)) ([0b9608d](https://github.com/appium/appium-remote-debugger/commit/0b9608de6bda071d57abfec0eab91bab96a9518e))
+
 ## [10.1.4](https://github.com/appium/appium-remote-debugger/compare/v10.1.3...v10.1.4) (2023-10-25)
 
 
