@@ -1,3 +1,10 @@
+## [10.1.6](https://github.com/appium/appium-remote-debugger/compare/v10.1.5...v10.1.6) (2023-11-01)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump asyncbox from 2.9.4 to 3.0.0 ([#344](https://github.com/appium/appium-remote-debugger/issues/344)) ([791d566](https://github.com/appium/appium-remote-debugger/commit/791d566970e7b3a26d3326428935c4636ff237ba))
+
 ## [10.1.5](https://github.com/appium/appium-remote-debugger/compare/v10.1.4...v10.1.5) (2023-10-31)
 
 
