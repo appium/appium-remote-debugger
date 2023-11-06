@@ -1,3 +1,10 @@
+## [10.1.7](https://github.com/appium/appium-remote-debugger/compare/v10.1.6...v10.1.7) (2023-11-06)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @types/sinon from 10.0.20 to 17.0.0 ([#345](https://github.com/appium/appium-remote-debugger/issues/345)) ([4d7a9b9](https://github.com/appium/appium-remote-debugger/commit/4d7a9b9fae324c6cad351344de4d43883272c929))
+
 ## [10.1.6](https://github.com/appium/appium-remote-debugger/compare/v10.1.5...v10.1.6) (2023-11-01)
 
 
