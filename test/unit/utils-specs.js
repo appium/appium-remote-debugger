@@ -75,8 +75,7 @@ describe('utils', function () {
       'com.apple.WebKit.WebContent',
       'process-com.apple.WebKit.WebContent',
       'process-SafariViewService',
-      'com.apple.SafariViewService',
-      '*'
+      'com.apple.SafariViewService'
     ];
     for (const webviewBundleId of webviewBundleIds) {
       it(`should return the app key of ${webviewBundleId}`, function () {
@@ -104,6 +103,17 @@ describe('utils', function () {
     });
     it('should return an empty array when there is no appropriate app', function () {
       expect(getPossibleDebuggerAppKeys('io.appium.bundle', {})).to.eql([]);
+    });
+    it('should return the all app keys when the bundlIds array includes a wildcard', function () {
+      const appDict = {
+        ['42']: {
+          bundleId: 'io.appium.bundle1'
+        },
+        ['43']: {
+          bundleId: 'io.appium.bundle2'
+        },
+      };
+      expect(getPossibleDebuggerAppKeys(['*'], appDict)).to.eql(['42', '43']);
     });
   });
   describe('pageArrayFromDict', function () {
