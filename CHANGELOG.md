@@ -1,3 +1,10 @@
+## [10.2.0](https://github.com/appium/appium-remote-debugger/compare/v10.1.7...v10.2.0) (2023-11-17)
+
+
+### Features
+
+* introduce a wildcard usage for additionalWebviewBundleIds to get webview contexts of other apps ([#346](https://github.com/appium/appium-remote-debugger/issues/346)) ([72ee224](https://github.com/appium/appium-remote-debugger/commit/72ee224ec2542e8e93354c6f533986223f2e84c7))
+
 ## [10.1.7](https://github.com/appium/appium-remote-debugger/compare/v10.1.6...v10.1.7) (2023-11-06)
 
 
