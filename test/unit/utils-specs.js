@@ -75,7 +75,8 @@ describe('utils', function () {
       'com.apple.WebKit.WebContent',
       'process-com.apple.WebKit.WebContent',
       'process-SafariViewService',
-      'com.apple.SafariViewService'
+      'com.apple.SafariViewService',
+      '*',
     ];
     for (const webviewBundleId of webviewBundleIds) {
       it(`should return the app key of ${webviewBundleId}`, function () {
