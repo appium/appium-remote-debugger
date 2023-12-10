@@ -7,11 +7,11 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: macos-13
+        - os: macos-13-arm64
           xcode: '15.0.1'
           ios: '17.0'
           device: iPhone 14
-        - os: macos-13
+        - os: macos-13-arm64
           xcode: '14.3.1'
           ios: '16.4'
           device: iPhone 14
