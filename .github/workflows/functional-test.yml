@@ -8,7 +8,7 @@ jobs:
       matrix:
         include:
         - os: macos-13
-          xcode: '15.0.1'
+          xcode: '15.1'
           ios: '17.2'
           device: iPhone 14
         - os: macos-13
