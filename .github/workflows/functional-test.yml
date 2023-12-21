@@ -9,7 +9,7 @@ jobs:
         include:
         - os: macos-13
           xcode: '15.0.1'
-          ios: '17.0'
+          ios: '17.2'
           device: iPhone 14
         - os: macos-13
           xcode: '14.3.1'
