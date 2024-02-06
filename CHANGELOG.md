@@ -1,3 +1,10 @@
+## [10.2.2](https://github.com/appium/appium-remote-debugger/compare/v10.2.1...v10.2.2) (2024-02-06)
+
+
+### Bug Fixes
+
+* Properly log retries count ([#354](https://github.com/appium/appium-remote-debugger/issues/354)) ([33f6155](https://github.com/appium/appium-remote-debugger/commit/33f61553617d7af6ea8dd221d0865dfd88e81a70))
+
 ## [10.2.1](https://github.com/appium/appium-remote-debugger/compare/v10.2.0...v10.2.1) (2024-01-16)
 
 
