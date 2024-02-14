@@ -13,8 +13,8 @@ chai.should();
 chai.use(chaiAsPromised);
 
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
-const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 14';
-const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '16.2';
+const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 15';
+const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '17.2';
 
 const PAGE_TITLE = 'Remote debugger test page';
 
@@ -81,7 +81,6 @@ describe('Safari remote debugger', function () {
       bundleId: 'com.apple.mobilesafari',
       isSafari: true,
       useNewSafari: true,
-      pageLoadMs: 1000,
       platformVersion: PLATFORM_VERSION,
       socketPath: await sim.getWebInspectorSocket(),
       garbageCollectOnExecute: false,
