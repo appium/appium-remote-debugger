@@ -1,3 +1,10 @@
+## [11.0.1](https://github.com/appium/appium-remote-debugger/compare/v11.0.0...v11.0.1) (2024-02-14)
+
+
+### Miscellaneous Chores
+
+* throw timeout error if Console.enable times out ([#359](https://github.com/appium/appium-remote-debugger/issues/359)) ([1ea7086](https://github.com/appium/appium-remote-debugger/commit/1ea70862feacd5cf997a633999fa9dce441c757c))
+
 ## [11.0.0](https://github.com/appium/appium-remote-debugger/compare/v10.2.2...v11.0.0) (2024-02-14)
 
 
