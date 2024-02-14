@@ -1,3 +1,10 @@
+## [11.0.2](https://github.com/appium/appium-remote-debugger/compare/v11.0.1...v11.0.2) (2024-02-14)
+
+
+### Bug Fixes
+
+* Only wait for Console.enable RPC response if page load finishes ([#360](https://github.com/appium/appium-remote-debugger/issues/360)) ([7b9a107](https://github.com/appium/appium-remote-debugger/commit/7b9a107016983a90c1505ed8958d19c545709969))
+
 ## [11.0.1](https://github.com/appium/appium-remote-debugger/compare/v11.0.0...v11.0.1) (2024-02-14)
 
 
