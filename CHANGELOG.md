@@ -1,3 +1,16 @@
+## [11.0.0](https://github.com/appium/appium-remote-debugger/compare/v10.2.2...v11.0.0) (2024-02-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Removed the pageUnload API
+* Removed the waitForFrameNavigated API
+* Removed the pageLoadVerifyHook argument from waitForDom and from navToUrl APIs
+
+### Features
+
+* Properly perform page readiness validation ([#356](https://github.com/appium/appium-remote-debugger/issues/356)) ([a2fbd5a](https://github.com/appium/appium-remote-debugger/commit/a2fbd5aab52f246755fbdbf64cfecf1b6dd5a949))
+
 ## [10.2.2](https://github.com/appium/appium-remote-debugger/compare/v10.2.1...v10.2.2) (2024-02-06)
 
 
