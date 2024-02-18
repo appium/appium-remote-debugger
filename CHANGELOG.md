@@ -1,3 +1,10 @@
+## [11.0.3](https://github.com/appium/appium-remote-debugger/compare/v11.0.2...v11.0.3) (2024-02-18)
+
+
+### Miscellaneous Chores
+
+* Perform URL validation ([#361](https://github.com/appium/appium-remote-debugger/issues/361)) ([5c2b926](https://github.com/appium/appium-remote-debugger/commit/5c2b9264604b82f599246610bf72f150fc972e43))
+
 ## [11.0.2](https://github.com/appium/appium-remote-debugger/compare/v11.0.1...v11.0.2) (2024-02-14)
 
 
