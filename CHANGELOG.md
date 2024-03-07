@@ -1,3 +1,10 @@
+## [11.0.4](https://github.com/appium/appium-remote-debugger/compare/v11.0.3...v11.0.4) (2024-03-07)
+
+
+### Miscellaneous Chores
+
+* bump typescript ([b734a4d](https://github.com/appium/appium-remote-debugger/commit/b734a4dc53e21cb6d6d07b67d14364440c478b81))
+
 ## [11.0.3](https://github.com/appium/appium-remote-debugger/compare/v11.0.2...v11.0.3) (2024-02-18)
 
 
