@@ -1,3 +1,10 @@
+## [11.0.5](https://github.com/appium/appium-remote-debugger/compare/v11.0.4...v11.0.5) (2024-03-22)
+
+
+### Bug Fixes
+
+* Select all available app ids for the given bundle name ([#368](https://github.com/appium/appium-remote-debugger/issues/368)) ([c4f02b7](https://github.com/appium/appium-remote-debugger/commit/c4f02b7e98477adfd4b426c7e5cc4973dbc9e73f))
+
 ## [11.0.4](https://github.com/appium/appium-remote-debugger/compare/v11.0.3...v11.0.4) (2024-03-07)
 
 
