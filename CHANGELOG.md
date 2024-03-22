@@ -1,3 +1,10 @@
+## [11.0.6](https://github.com/appium/appium-remote-debugger/compare/v11.0.5...v11.0.6) (2024-03-22)
+
+
+### Bug Fixes
+
+* Improve page load detection logic ([#369](https://github.com/appium/appium-remote-debugger/issues/369)) ([418093b](https://github.com/appium/appium-remote-debugger/commit/418093b257ce4f85527493fca045f53712823418))
+
 ## [11.0.5](https://github.com/appium/appium-remote-debugger/compare/v11.0.4...v11.0.5) (2024-03-22)
 
 
