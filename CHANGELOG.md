@@ -1,3 +1,10 @@
+## [11.0.7](https://github.com/appium/appium-remote-debugger/compare/v11.0.6...v11.0.7) (2024-03-27)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump appium-ios-simulator from 5.5.3 to 6.1.2 ([#372](https://github.com/appium/appium-remote-debugger/issues/372)) ([e20cbc3](https://github.com/appium/appium-remote-debugger/commit/e20cbc3aa8399b93ef1afd8174217907a2d2ff9b))
+
 ## [11.0.6](https://github.com/appium/appium-remote-debugger/compare/v11.0.5...v11.0.6) (2024-03-22)
 
 
