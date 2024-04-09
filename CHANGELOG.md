@@ -1,3 +1,10 @@
+## [11.0.8](https://github.com/appium/appium-remote-debugger/compare/v11.0.7...v11.0.8) (2024-04-09)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @typescript-eslint/parser from 6.21.0 to 7.6.0 ([#374](https://github.com/appium/appium-remote-debugger/issues/374)) ([ce01f8a](https://github.com/appium/appium-remote-debugger/commit/ce01f8ab99f275c3afa22ef9664c03d655114828))
+
 ## [11.0.7](https://github.com/appium/appium-remote-debugger/compare/v11.0.6...v11.0.7) (2024-03-27)
 
 
