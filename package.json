@@ -82,7 +82,7 @@
     "@types/sinon-chai": "^3.2.9",
     "@types/teen_process": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
-    "@typescript-eslint/parser": "^6.9.0",
+    "@typescript-eslint/parser": "^7.6.0",
     "appium-ios-simulator": "^6.1.2",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
