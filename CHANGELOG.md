@@ -1,3 +1,10 @@
+## [11.1.0](https://github.com/appium/appium-remote-debugger/compare/v11.0.9...v11.1.0) (2024-04-16)
+
+
+### Features
+
+* update atoms to selenium 4.19.0 basis ([#375](https://github.com/appium/appium-remote-debugger/issues/375)) ([cc5a084](https://github.com/appium/appium-remote-debugger/commit/cc5a084060c2e12d78092ca16e9b4e3d72cc0374))
+
 ## [11.0.9](https://github.com/appium/appium-remote-debugger/compare/v11.0.8...v11.0.9) (2024-04-09)
 
 
