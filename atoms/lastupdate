@@ -1,9 +1,42 @@
-Tue Apr 16 2024 00:40:48 GMT-0700 (Pacific Daylight Time)
+Tue Apr 16 2024 01:06:16 GMT-0700 (Pacific Daylight Time)
 
-commit 040bc5406b3535e4087638b4a20b6d0544224639 (grafted, HEAD, tag: refs/tags/selenium-4.11.0)
+commit 5f9cec8963b33a7708619d666a5ce0b2f6542c7d (grafted, HEAD, tag: refs/tags/selenium-4.19.0)
 Author: Diego Molina <diemol@gmail.com>
-Date:   Mon Jul 31 20:57:23 2023 +0200
+Date:   Wed Mar 27 15:54:24 2024 +0100
 
-    Bumping versions to 4.11.0
+    Release 4.19.0 (#13747)
     
-    Selenium Manager binaries taken from https://github.com/SeleniumHQ/selenium/actions/runs/5717423581
+    * update Rust version to 0.4.19
+    
+    * Rust Changelog
+    
+    * [build] Prepare for release of Selenium 4.19.0 (#13746)
+    
+    * Update supported versions for Chrome DevTools
+    
+    * Update selenium manager version
+    
+    * Update Maven Dependencies
+    
+    * Update authors file
+    
+    * FIX CHANGELOGS BEFORE MERGING!
+    
+    Update versions and change logs to release Selenium 4.19.0
+    
+    * [build] Adapting changelogs
+    
+    * [py] Setting python version to 4.19.0
+    
+    * Making format script happy
+    
+    ---------
+    
+    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>
+    Co-authored-by: Diego Molina <diemol@gmail.com>
+    Co-authored-by: Diego Molina <diemol@users.noreply.github.com>
+    
+    ---------
+    
+    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>
+    Co-authored-by: Selenium CI Bot <diemol+selenium-ci@gmail.com>
