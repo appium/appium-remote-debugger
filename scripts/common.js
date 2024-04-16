@@ -4,7 +4,7 @@ const fs = require('fs');
 const { exec } = require('teen_process');
 const { glob } = require('glob');
 
-const SELENIUM_BRANCH = 'selenium-4.19.0';
+const SELENIUM_BRANCH = 'selenium-4.11.0';
 const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
 
 const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
