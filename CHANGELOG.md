@@ -1,3 +1,10 @@
+## [11.1.1](https://github.com/appium/appium-remote-debugger/compare/v11.1.0...v11.1.1) (2024-04-19)
+
+
+### Miscellaneous Chores
+
+* update atoms-note ([b65caec](https://github.com/appium/appium-remote-debugger/commit/b65caec57946f21ee7bf54647efeff989e485b2f))
+
 ## [11.1.0](https://github.com/appium/appium-remote-debugger/compare/v11.0.9...v11.1.0) (2024-04-16)
 
 
