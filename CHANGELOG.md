@@ -1,3 +1,10 @@
+## [11.1.3](https://github.com/appium/appium-remote-debugger/compare/v11.1.2...v11.1.3) (2024-05-16)
+
+
+### Miscellaneous Chores
+
+* Update dev dependendies ([f99850a](https://github.com/appium/appium-remote-debugger/commit/f99850a0ad4f000a3361a09f762e95995d857abd))
+
 ## [11.1.2](https://github.com/appium/appium-remote-debugger/compare/v11.1.1...v11.1.2) (2024-05-16)
 
 
