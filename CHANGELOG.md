@@ -1,3 +1,9 @@
+## [11.1.4](https://github.com/appium/appium-remote-debugger/compare/v11.1.3...v11.1.4) (2024-06-04)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump semantic-release from 23.1.1 to 24.0.0 and conventional-changelog-conventionalcommits to 8.0.0 ([#380](https://github.com/appium/appium-remote-debugger/issues/380)) ([7577471](https://github.com/appium/appium-remote-debugger/commit/757747102e224133819deaaa4bc005851e73724b))
+
 ## [11.1.3](https://github.com/appium/appium-remote-debugger/compare/v11.1.2...v11.1.3) (2024-05-16)
 
 
