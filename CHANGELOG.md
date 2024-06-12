@@ -1,3 +1,9 @@
+## [11.1.5](https://github.com/appium/appium-remote-debugger/compare/v11.1.4...v11.1.5) (2024-06-12)
+
+### Miscellaneous Chores
+
+* **deps:** bump @appium/support from 4.5.0 to 5.0.3 ([#382](https://github.com/appium/appium-remote-debugger/issues/382)) ([e7b3766](https://github.com/appium/appium-remote-debugger/commit/e7b3766b9096c8fe2211ded3605a2064e72aae00))
+
 ## [11.1.4](https://github.com/appium/appium-remote-debugger/compare/v11.1.3...v11.1.4) (2024-06-04)
 
 ### Miscellaneous Chores
