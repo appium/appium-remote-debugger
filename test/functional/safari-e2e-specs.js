@@ -3,14 +3,8 @@ import { getSimulator } from 'appium-ios-simulator';
 import { retryInterval, retry } from 'asyncbox';
 import { util } from '@appium/support';
 import _ from 'lodash';
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import { createRemoteDebugger } from '../../index';
 import { startHttpServer, stopHttpServer } from './http-server';
-
-
-chai.should();
-chai.use(chaiAsPromised);
 
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 15';
@@ -41,10 +35,16 @@ describe('Safari remote debugger', function () {
   this.timeout(480000);
   this.retries(2);
 
+  let chai;
   let sim;
   let simCreated = false;
   let address;
   before(async function () {
+    chai = await import('chai');
+    const chaiAsPromised = await import('chai-as-promised');
+    chai.should();
+    chai.use(chaiAsPromised.default);
+
     sim = await getExistingSim(DEVICE_NAME, PLATFORM_VERSION);
     if (!sim) {
       const udid = await new Simctl().createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);

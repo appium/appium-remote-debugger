@@ -1,14 +1,16 @@
 import RemoteMessages from '../../lib/rpc/remote-messages';
-import chai from 'chai';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
-
-
-chai.should();
 
 describe('RemoteMessages', function () {
   this.timeout(MOCHA_TIMEOUT);
 
+  let chai;
   const remoteMessages = new RemoteMessages();
+
+  before(async function () {
+    chai = await import('chai');
+    chai.should();
+  })
 
   describe('getRemoteCommand', function () {
     const commands = [

@@ -1,18 +1,21 @@
 import {
   pageArrayFromDict, checkParams, appInfoFromDict, getDebuggerAppKey, getPossibleDebuggerAppKeys
 } from '../../lib/utils';
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import _ from 'lodash';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
 
-
-const expect = chai.expect;
-chai.should();
-chai.use(chaiAsPromised);
-
 describe('utils', function () {
   this.timeout(MOCHA_TIMEOUT);
+  let chai;
+  let expect;
+
+  before(async function () {
+    chai = await import('chai');
+    const chaiAsPromised = await import('chai-as-promised');
+    chai.should();
+    chai.use(chaiAsPromised.default);
+    expect = chai.expect;
+  })
 
   describe('appInfoFromDict', function () {
     it('should return the id and entry for a dict', function () {
