@@ -1,3 +1,9 @@
+## [11.2.0](https://github.com/appium/appium-remote-debugger/compare/v11.1.5...v11.2.0) (2024-06-19)
+
+### Features
+
+* add method to capture viewport ([#386](https://github.com/appium/appium-remote-debugger/issues/386)) ([f717ca5](https://github.com/appium/appium-remote-debugger/commit/f717ca5d49ed63fc256b11b3c1861d8dffd53140))
+
 ## [11.1.5](https://github.com/appium/appium-remote-debugger/compare/v11.1.4...v11.1.5) (2024-06-12)
 
 ### Miscellaneous Chores

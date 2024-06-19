@@ -208,6 +208,46 @@ describe('Safari remote debugger', function () {
     });
   });
 
+  it('capture full viewport', async function () {
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    let screenshot = await rd.captureScreenshot();
+    screenshot.startsWith('iVBOR').should.be.true;
+  });
+
+  it('capture rect on a viewport', async function () {
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    let screenshot = await rd.captureScreenshot({rect: {x: 0, y: 0, width: 100, height: 100}});
+    screenshot.startsWith('iVBOR').should.be.true;
+  });
+
+  it('capture full page', async function () {
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    let screenshot = await rd.captureScreenshot({coordinateSystem: 'Page'});
+    screenshot.startsWith('iVBOR').should.be.true;
+  });
+
+  it('capture rect on a page', async function () {
+    await connect(rd);
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    let screenshot = await rd.captureScreenshot({rect: {x: 0, y: 0, width: 100, height: 100}, coordinateSystem: 'Page'});
+    screenshot.startsWith('iVBOR').should.be.true;
+  });
+
   it(`should be able to call 'selectApp' after already connecting to app`, async function () {
     // this mimics the situation of getting all contexts multiple times
     await connect(rd);
