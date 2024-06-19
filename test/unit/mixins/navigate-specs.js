@@ -7,7 +7,7 @@ chai.use(chaiAsPromised);
 
 describe('navigate', function () {
   describe('isPageLoadingCompleted', function () {
-    const BUNDLE_ID = 'com.apple.mobilesafari'
+    const BUNDLE_ID = 'com.apple.mobilesafari';
 
     describe('default pageLoadStrategy', function () {
       it('with complete readyState', function () {
