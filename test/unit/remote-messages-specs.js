@@ -10,7 +10,7 @@ describe('RemoteMessages', function () {
   before(async function () {
     chai = await import('chai');
     chai.should();
-  })
+  });
 
   describe('getRemoteCommand', function () {
     const commands = [

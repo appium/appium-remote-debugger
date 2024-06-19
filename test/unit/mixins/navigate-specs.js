@@ -1,12 +1,12 @@
 import RemoteDebugger from '../../../lib/remote-debugger';
 
-describe('navigate', async function () {
+describe('navigate', function () {
   let chai;
 
   before(async function () {
     chai = await import('chai');
     chai.should();
-  })
+  });
 
   describe('isPageLoadingCompleted', function () {
     const BUNDLE_ID = 'com.apple.mobilesafari';

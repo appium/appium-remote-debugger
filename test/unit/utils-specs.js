@@ -15,7 +15,7 @@ describe('utils', function () {
     chai.should();
     chai.use(chaiAsPromised.default);
     expect = chai.expect;
-  })
+  });
 
   describe('appInfoFromDict', function () {
     it('should return the id and entry for a dict', function () {

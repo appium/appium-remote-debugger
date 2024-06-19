@@ -12,7 +12,7 @@ describe('rpc-client', function () {
     const chaiAsPromised = await import('chai-as-promised');
     chai.should();
     chai.use(chaiAsPromised.default);
-  })
+  });
 
   describe('.send', function () {
     it('should send RPC message to device', async function () {
