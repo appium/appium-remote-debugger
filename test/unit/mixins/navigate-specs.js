@@ -1,11 +1,13 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import RemoteDebugger from '../../../lib/remote-debugger';
 
-chai.should();
-chai.use(chaiAsPromised);
-
 describe('navigate', function () {
+  let chai;
+
+  before(async function () {
+    chai = await import('chai');
+    chai.should();
+  });
+
   describe('isPageLoadingCompleted', function () {
     const BUNDLE_ID = 'com.apple.mobilesafari';
 

@@ -1,16 +1,18 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import { MOCHA_TIMEOUT } from '../../helpers/helpers';
 import exec from '../../../lib/mixins/execute';
 import sinon from 'sinon';
 
 const { executeAtom, executeAtomAsync, callFunction, execute } = exec;
 
-chai.should();
-chai.use(chaiAsPromised);
-
 describe('execute', function () {
   this.timeout(MOCHA_TIMEOUT);
+
+  let chai;
+
+  before(async function () {
+    chai = await import('chai');
+    chai.should();
+  });
 
   describe('executeAtom', function () {
     it('should execute atom and call send event on rpc client', async function () {

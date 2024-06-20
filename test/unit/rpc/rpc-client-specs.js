@@ -1,14 +1,18 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import { MOCHA_TIMEOUT } from '../../helpers/helpers';
 import RpcClient from '../../../lib/rpc/rpc-client';
 
-chai.should();
-chai.use(chaiAsPromised);
-
 describe('rpc-client', function () {
   this.timeout(MOCHA_TIMEOUT);
+
+  let chai;
+
+  before(async function () {
+    chai = await import('chai');
+    const chaiAsPromised = await import('chai-as-promised');
+    chai.should();
+    chai.use(chaiAsPromised.default);
+  });
 
   describe('.send', function () {
     it('should send RPC message to device', async function () {
