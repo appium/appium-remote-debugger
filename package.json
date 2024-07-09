@@ -40,7 +40,7 @@
     "asyncbox": "^3.0.0",
     "bluebird": "^3.4.7",
     "fancy-log": "^2.0.0",
-    "glob": "^10.3.3",
+    "glob": "^11.0.0",
     "lodash": "^4.17.11",
     "source-map-support": "^0.x",
     "teen_process": "^2.0.0"
