@@ -1,3 +1,9 @@
+## [11.3.2](https://github.com/appium/appium-remote-debugger/compare/v11.3.1...v11.3.2) (2024-07-09)
+
+### Miscellaneous Chores
+
+* Remove extra import ([1a9cfe2](https://github.com/appium/appium-remote-debugger/commit/1a9cfe24c3321312ade04ef15f30aa72327b2ae1))
+
 ## [11.3.1](https://github.com/appium/appium-remote-debugger/compare/v11.3.0...v11.3.1) (2024-06-20)
 
 ### Miscellaneous Chores
