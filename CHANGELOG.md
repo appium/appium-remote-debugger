@@ -1,3 +1,9 @@
+## [11.4.1](https://github.com/appium/appium-remote-debugger/compare/v11.4.0...v11.4.1) (2024-07-24)
+
+### Miscellaneous Chores
+
+* Publish missing methods types ([#390](https://github.com/appium/appium-remote-debugger/issues/390)) ([4ed8f35](https://github.com/appium/appium-remote-debugger/commit/4ed8f3501c5656269c7a47721f538dca72508f6c))
+
 ## [11.4.0](https://github.com/appium/appium-remote-debugger/compare/v11.3.2...v11.4.0) (2024-07-24)
 
 ### Features
