@@ -1,3 +1,9 @@
+## [11.4.2](https://github.com/appium/appium-remote-debugger/compare/v11.4.1...v11.4.2) (2024-07-24)
+
+### Miscellaneous Chores
+
+* More type fixes ([#391](https://github.com/appium/appium-remote-debugger/issues/391)) ([08aaf8a](https://github.com/appium/appium-remote-debugger/commit/08aaf8acc12f896d8a16dc96077c6576d477c77e))
+
 ## [11.4.1](https://github.com/appium/appium-remote-debugger/compare/v11.4.0...v11.4.1) (2024-07-24)
 
 ### Miscellaneous Chores
