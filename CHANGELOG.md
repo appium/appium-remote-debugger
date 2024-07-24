@@ -1,3 +1,9 @@
+## [11.4.0](https://github.com/appium/appium-remote-debugger/compare/v11.3.2...v11.4.0) (2024-07-24)
+
+### Features
+
+* Export type declarations ([#389](https://github.com/appium/appium-remote-debugger/issues/389)) ([d86b7a4](https://github.com/appium/appium-remote-debugger/commit/d86b7a48a824dea6ddcd21566a6f38f97092c475))
+
 ## [11.3.2](https://github.com/appium/appium-remote-debugger/compare/v11.3.1...v11.3.2) (2024-07-09)
 
 ### Miscellaneous Chores
