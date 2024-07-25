@@ -1,3 +1,9 @@
+## [11.5.3](https://github.com/appium/appium-remote-debugger/compare/v11.5.2...v11.5.3) (2024-07-25)
+
+### Bug Fixes
+
+* getCookie types ([fe6bef2](https://github.com/appium/appium-remote-debugger/commit/fe6bef22fc539ce0dd7cd99adea7fd9363221776))
+
 ## [11.5.2](https://github.com/appium/appium-remote-debugger/compare/v11.5.1...v11.5.2) (2024-07-25)
 
 ### Bug Fixes
