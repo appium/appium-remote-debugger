@@ -1,3 +1,9 @@
+## [11.5.2](https://github.com/appium/appium-remote-debugger/compare/v11.5.1...v11.5.2) (2024-07-25)
+
+### Bug Fixes
+
+* setCookie types ([1af49b8](https://github.com/appium/appium-remote-debugger/commit/1af49b85f9c913eb9a764287310337e86ca5b94d))
+
 ## [11.5.1](https://github.com/appium/appium-remote-debugger/compare/v11.5.0...v11.5.1) (2024-07-25)
 
 ### Bug Fixes
