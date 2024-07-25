@@ -1,3 +1,9 @@
+## [11.5.1](https://github.com/appium/appium-remote-debugger/compare/v11.5.0...v11.5.1) (2024-07-25)
+
+### Bug Fixes
+
+* Returned types for cookies ([13c8f15](https://github.com/appium/appium-remote-debugger/commit/13c8f152901b568ed93ada9b8c7c1a98b08709d4))
+
 ## [11.5.0](https://github.com/appium/appium-remote-debugger/compare/v11.4.2...v11.5.0) (2024-07-25)
 
 ### Features
