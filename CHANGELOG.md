@@ -1,3 +1,9 @@
+## [11.5.0](https://github.com/appium/appium-remote-debugger/compare/v11.4.2...v11.5.0) (2024-07-25)
+
+### Features
+
+* Refactor mixins and improve their typing ([#392](https://github.com/appium/appium-remote-debugger/issues/392)) ([d1fda80](https://github.com/appium/appium-remote-debugger/commit/d1fda8080afaafe4880c36e008bfd248d039965a))
+
 ## [11.4.2](https://github.com/appium/appium-remote-debugger/compare/v11.4.1...v11.4.2) (2024-07-24)
 
 ### Miscellaneous Chores
