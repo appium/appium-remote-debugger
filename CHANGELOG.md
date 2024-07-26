@@ -1,3 +1,9 @@
+## [11.5.4](https://github.com/appium/appium-remote-debugger/compare/v11.5.3...v11.5.4) (2024-07-26)
+
+### Miscellaneous Chores
+
+* Improve typing on RpcClient ([#393](https://github.com/appium/appium-remote-debugger/issues/393)) ([3a15572](https://github.com/appium/appium-remote-debugger/commit/3a15572aced7d3dde0dff9d9cdefd68a60a78648))
+
 ## [11.5.3](https://github.com/appium/appium-remote-debugger/compare/v11.5.2...v11.5.3) (2024-07-25)
 
 ### Bug Fixes
