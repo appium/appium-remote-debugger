@@ -27,6 +27,11 @@ jobs:
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
     - run: xcrun simctl list
+    - name: Prepare iOS simulator
+      uses: futureware-tech/simulator-action@v3
+      with:
+        model: "${{ matrix.device }}"
+        os_version: "${{ matrix.ios }}"
     - uses: actions/setup-node@v3
       with:
         node-version: lts/*
