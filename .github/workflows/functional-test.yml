@@ -26,19 +26,17 @@ jobs:
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
-    - run: |
-        xcrun simctl list
-        open -Fn "$(xcode-select -p)/Applications/Simulator.app"
-    - name: Prepare iOS simulator
-      uses: futureware-tech/simulator-action@v3
-      with:
-        model: "${{ matrix.device }}"
-        os_version: "${{ matrix.ios }}"
-        shutdown_after_job: false
+    - run: xcrun simctl list
     - uses: actions/setup-node@v3
       with:
         node-version: lts/*
         check-latest: true
+    - name: Prepare iOS simulator
+      run: |
+        open -Fn "$(xcode-select -p)/Applications/Simulator.app"
+        udid=$(xcrun simctl list devices available -j | \
+          node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).filter(({name}) => name === '$DEVICE_NAME').map(({udid}) => udid)[0]")
+        xcrun simctl bootstatus $udid -b
     - run: npm install
     - run: |
         export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin"
