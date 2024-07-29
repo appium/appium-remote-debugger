@@ -32,6 +32,7 @@ jobs:
       with:
         model: "${{ matrix.device }}"
         os_version: "${{ matrix.ios }}"
+        shutdown_after_job: false
     - uses: actions/setup-node@v3
       with:
         node-version: lts/*
