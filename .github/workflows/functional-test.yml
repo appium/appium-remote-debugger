@@ -35,7 +35,7 @@ jobs:
       run: |
         open -Fn "$(xcode-select -p)/Applications/Simulator.app"
         udid=$(xcrun simctl list devices available -j | \
-          node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).filter(({name}) => name === '$DEVICE_NAME').map(({udid}) => udid)[0]")
+          node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).find(({name}) => name === '$DEVICE_NAME').udid")
         xcrun simctl bootstatus $udid -b
     - run: npm install
     - run: |
