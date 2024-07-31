@@ -94,7 +94,7 @@ describe('Safari remote debugger', function () {
 
     await sim.openUrl(address);
 
-    await rd.connect(process.env.CI ? 300000 : 5000);
+    await rd.connect(process.env.CI ? 180000 : 5000);
     if (_.isEmpty(rd.appDict)) {
       throw new Error('The remote debugger did not return any connected applications');
     }
