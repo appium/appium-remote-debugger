@@ -1,4 +1,4 @@
-import { StringRecord } from '@appium/types';
+import type { StringRecord } from '@appium/types';
 import type B from 'bluebird';
 
 export interface DeferredPromise {
