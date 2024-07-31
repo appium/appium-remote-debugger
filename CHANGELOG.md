@@ -1,3 +1,9 @@
+## [11.5.7](https://github.com/appium/appium-remote-debugger/compare/v11.5.6...v11.5.7) (2024-07-31)
+
+### Bug Fixes
+
+* Add missing await ([#396](https://github.com/appium/appium-remote-debugger/issues/396)) ([b213787](https://github.com/appium/appium-remote-debugger/commit/b213787ec9cac767c8a3a3474f5e7f7393eeeb4c))
+
 ## [11.5.6](https://github.com/appium/appium-remote-debugger/compare/v11.5.5...v11.5.6) (2024-07-31)
 
 ### Miscellaneous Chores
