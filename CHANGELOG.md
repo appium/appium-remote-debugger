@@ -1,3 +1,9 @@
+## [11.5.5](https://github.com/appium/appium-remote-debugger/compare/v11.5.4...v11.5.5) (2024-07-31)
+
+### Bug Fixes
+
+* Tune page array retrieval ([#395](https://github.com/appium/appium-remote-debugger/issues/395)) ([8bb5ce3](https://github.com/appium/appium-remote-debugger/commit/8bb5ce397a0d1f642558e7012db5e6916157079e))
+
 ## [11.5.4](https://github.com/appium/appium-remote-debugger/compare/v11.5.3...v11.5.4) (2024-07-26)
 
 ### Miscellaneous Chores
