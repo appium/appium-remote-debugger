@@ -7,8 +7,8 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: macos-14
-          xcode: '15.1'
+        - os: macos-13
+          xcode: '15.2'
           ios: '17.2'
           device: iPhone 15
         - os: macos-13
@@ -37,7 +37,7 @@ jobs:
         udid=$(xcrun simctl list devices available -j | \
           node -p "Object.entries(JSON.parse(fs.readFileSync(0)).devices).filter((x) => x[0].includes('$PLATFORM_VERSION'.replace('.', '-'))).reduce((acc, x) => [...acc, ...x[1]], []).find(({name}) => name === '$DEVICE_NAME').udid")
         xcrun simctl bootstatus $udid -b
-        xcrun simctl openurl $udid "https://google.com"
+        xcrun simctl openurl $udid "https://google.com" &
     - run: npm install
     - run: |
         export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin"
