@@ -73,7 +73,7 @@
     "@types/bluebird": "^3.5.38",
     "@types/lodash": "^4.14.196",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^20.4.7",
+    "@types/node": "^22.0.0",
     "@types/teen_process": "^2.0.0",
     "appium-ios-simulator": "^6.1.2",
     "chai": "^5.1.1",
