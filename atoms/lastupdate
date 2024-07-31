@@ -1,42 +1,7 @@
-Tue Apr 16 2024 01:06:16 GMT-0700 (Pacific Daylight Time)
+Thu Jun 13 2024 01:06:56 GMT-0700 (Pacific Daylight Time)
 
-commit 5f9cec8963b33a7708619d666a5ce0b2f6542c7d (grafted, HEAD, tag: refs/tags/selenium-4.19.0)
-Author: Diego Molina <diemol@gmail.com>
-Date:   Wed Mar 27 15:54:24 2024 +0100
+commit 9a6104393aa159cfdc679f6df2d6718979419fdf (grafted, HEAD -> refs/heads/trunk, refs/remotes/origin/trunk, refs/remotes/origin/HEAD)
+Author: Boni García <boni.garcia@uc3m.es>
+Date:   Thu Jun 13 10:02:08 2024 +0200
 
-    Release 4.19.0 (#13747)
-    
-    * update Rust version to 0.4.19
-    
-    * Rust Changelog
-    
-    * [build] Prepare for release of Selenium 4.19.0 (#13746)
-    
-    * Update supported versions for Chrome DevTools
-    
-    * Update selenium manager version
-    
-    * Update Maven Dependencies
-    
-    * Update authors file
-    
-    * FIX CHANGELOGS BEFORE MERGING!
-    
-    Update versions and change logs to release Selenium 4.19.0
-    
-    * [build] Adapting changelogs
-    
-    * [py] Setting python version to 4.19.0
-    
-    * Making format script happy
-    
-    ---------
-    
-    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>
-    Co-authored-by: Diego Molina <diemol@gmail.com>
-    Co-authored-by: Diego Molina <diemol@users.noreply.github.com>
-    
-    ---------
-    
-    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>
-    Co-authored-by: Selenium CI Bot <diemol+selenium-ci@gmail.com>
+    [rust] Restore assert driver and browser in config test
