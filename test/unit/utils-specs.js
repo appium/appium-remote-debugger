@@ -1,5 +1,5 @@
 import {
-  pageArrayFromDict, checkParams, appInfoFromDict, getDebuggerAppKey, getPossibleDebuggerAppKeys
+  pageArrayFromDict, checkParams, appInfoFromDict
 } from '../../lib/utils';
 import _ from 'lodash';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
@@ -11,9 +11,7 @@ describe('utils', function () {
 
   before(async function () {
     chai = await import('chai');
-    const chaiAsPromised = await import('chai-as-promised');
     chai.should();
-    chai.use(chaiAsPromised.default);
     expect = chai.expect;
   });
 
@@ -33,91 +31,6 @@ describe('utils', function () {
       entry.bundleId.should.equal(dict.WIRApplicationBundleIdentifierKey);
       entry.isProxy.should.equal(dict.WIRIsApplicationProxyKey === 'true');
       entry.hostId.should.equal(dict.WIRHostApplicationIdentifierKey);
-    });
-  });
-  describe('getDebuggerAppKey', function () {
-    it('should return the app key for the bundle', function () {
-      let appDict = {
-        ['42']: {
-          bundleId: 'io.appium.bundle'
-        }
-      };
-      getDebuggerAppKey('io.appium.bundle', appDict).should.equal('42');
-    });
-    it('should return the app key for the bundle when proxied', function () {
-      let appDict = {
-        ['42']: {
-          bundleId: 'io.appium.bundle',
-          isProxy: false
-        },
-        ['43']: {
-          bundleId: 'io.appium.proxied.bundle',
-          isProxy: true,
-          hostId: '42'
-        }
-      };
-      getDebuggerAppKey('io.appium.bundle', appDict).should.equal('43');
-    });
-    it('should return undefined when there is no appropriate app', function () {
-      expect(getDebuggerAppKey('io.appium.bundle', {})).to.not.exist;
-    });
-  });
-  describe('getPossibleDebuggerAppKeys', function () {
-    it('should return the app key of the specified bundleIds', function () {
-      const appDict = {
-        ['42']: {
-          bundleId: 'io.appium.bundle1'
-        },
-        ['43']: {
-          bundleId: 'io.appium.bundle2'
-        },
-      };
-      expect(getPossibleDebuggerAppKeys(['io.appium.bundle1'], appDict)).to.eql(['42']);
-    });
-    const webviewBundleIds = [
-      'com.apple.WebKit.WebContent',
-      'process-com.apple.WebKit.WebContent',
-      'process-SafariViewService',
-      'com.apple.SafariViewService',
-      '*',
-    ];
-    for (const webviewBundleId of webviewBundleIds) {
-      it(`should return the app key of ${webviewBundleId}`, function () {
-        const appDict = {
-          ['42']: {
-            bundleId: webviewBundleId
-          }
-        };
-        expect(getPossibleDebuggerAppKeys([], appDict)).to.eql(['42']);
-      });
-    }
-    it('should return the app key for the bundleIds when proxied', function () {
-      const appDict = {
-        ['42']: {
-          bundleId: 'io.appium.bundle',
-          isProxy: false
-        },
-        ['43']: {
-          bundleId: 'io.appium.proxied.bundle',
-          isProxy: true,
-          hostId: '42'
-        }
-      };
-      expect(getPossibleDebuggerAppKeys(['io.appium.bundle'], appDict)).to.eql(['42', '43']);
-    });
-    it('should return an empty array when there is no appropriate app', function () {
-      expect(getPossibleDebuggerAppKeys('io.appium.bundle', {})).to.eql([]);
-    });
-    it('should return the all app keys when the bundlIds array includes a wildcard', function () {
-      const appDict = {
-        ['42']: {
-          bundleId: 'io.appium.bundle1'
-        },
-        ['43']: {
-          bundleId: 'io.appium.bundle2'
-        },
-      };
-      expect(getPossibleDebuggerAppKeys(['*'], appDict)).to.eql(['42', '43']);
     });
   });
   describe('pageArrayFromDict', function () {
