@@ -1,3 +1,9 @@
+## [11.5.8](https://github.com/appium/appium-remote-debugger/compare/v11.5.7...v11.5.8) (2024-08-01)
+
+### Miscellaneous Chores
+
+* Improve various type declarations ([#397](https://github.com/appium/appium-remote-debugger/issues/397)) ([93ed417](https://github.com/appium/appium-remote-debugger/commit/93ed41750c46d3b1ba28e992bd38e241b73ded71))
+
 ## [11.5.7](https://github.com/appium/appium-remote-debugger/compare/v11.5.6...v11.5.7) (2024-07-31)
 
 ### Bug Fixes
