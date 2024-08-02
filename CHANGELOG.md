@@ -1,3 +1,9 @@
+## [11.5.9](https://github.com/appium/appium-remote-debugger/compare/v11.5.8...v11.5.9) (2024-08-02)
+
+### Miscellaneous Chores
+
+* Replace fancy-log dependency with appium logger ([#398](https://github.com/appium/appium-remote-debugger/issues/398)) ([0abefda](https://github.com/appium/appium-remote-debugger/commit/0abefda18cfcaa0c535b8bf3e982ad67ca5c3bc3))
+
 ## [11.5.8](https://github.com/appium/appium-remote-debugger/compare/v11.5.7...v11.5.8) (2024-08-01)
 
 ### Miscellaneous Chores
