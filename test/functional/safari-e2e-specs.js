@@ -84,7 +84,7 @@ describe('Safari remote debugger', function () {
       logAllCommunicationHexDump: false,
     }, false);
 
-    await retry(2, async () => await sim.openUrl(address));
+    await retry(15, async () => await sim.openUrl(address));
     await retry(2, async () => {
       await rd.connect(60000);
       if (_.isEmpty(rd.appDict)) {
