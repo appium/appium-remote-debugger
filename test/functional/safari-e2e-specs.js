@@ -32,7 +32,7 @@ async function deleteDeviceWithRetry (udid) {
 }
 
 describe('Safari remote debugger', function () {
-  this.timeout(480000);
+  this.timeout(610000);
   this.retries(2);
 
   let chai;
@@ -42,6 +42,8 @@ describe('Safari remote debugger', function () {
   /** @type {string} */
   let address;
   before(async function () {
+    const portPromise = startHttpServer();
+
     chai = await import('chai');
     const chaiAsPromised = await import('chai-as-promised');
     chai.should();
@@ -53,20 +55,10 @@ describe('Safari remote debugger', function () {
       sim = await getSimulator(udid);
       simCreated = true;
     }
-    // on certain system, particularly Xcode 11 on Travis, starting the sim fails
-    await retry(4, async function () {
-      try {
-        await sim.run({
-          startupTimeout: 60000,
-        });
-      } catch (err) {
-        await sim.shutdown();
-        throw err;
-      }
+    await sim.run({
+      startupTimeout: process.env.CI ? 600000 : 120000,
     });
-
-    const port = await startHttpServer();
-    address = `http://localhost:${port}`;
+    address = `http://localhost:${await portPromise}`;
   });
   after(async function () {
     await sim.shutdown();
@@ -92,12 +84,15 @@ describe('Safari remote debugger', function () {
       logAllCommunicationHexDump: false,
     }, false);
 
-    await sim.openUrl(address);
-
-    await rd.connect(process.env.CI ? 180000 : 5000);
-    if (_.isEmpty(rd.appDict)) {
-      throw new Error('The remote debugger did not return any connected applications');
-    }
+    const maxRetries = process.env.CI ? 10 : 2;
+    await retry(maxRetries, async () => await sim.openUrl(address));
+    await retry(maxRetries, async () => {
+      await rd.connect(60000);
+      if (_.isEmpty(rd.appDict)) {
+        await rd.disconnect();
+        throw new Error('The remote debugger did not return any connected applications');
+      }
+    });
   });
   afterEach(async function () {
     await rd?.disconnect();

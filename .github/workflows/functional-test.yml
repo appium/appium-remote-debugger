@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: macos-13
+        - os: macos-14
           xcode: '15.2'
           ios: '17.2'
           device: iPhone 15
@@ -20,6 +20,8 @@ jobs:
       PLATFORM_VERSION: ${{ matrix.ios }}
       XCODE_VERSION: ${{ matrix.xcode }}
       DEVICE_NAME: ${{ matrix.device }}
+      _LOG_TIMESTAMP: 1
+      _FORCE_LOGS: 1
       CI: true
     steps:
     - uses: actions/checkout@v3
@@ -39,6 +41,4 @@ jobs:
         xcrun simctl bootstatus $udid -b
         xcrun simctl openurl $udid "https://google.com" &
     - run: npm install
-    - run: |
-        export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin"
-        _FORCE_LOGS=1 npm run e2e-test
+    - run: npm run e2e-test
