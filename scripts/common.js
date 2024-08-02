@@ -1,8 +1,10 @@
 const path = require('path');
-const log = require('fancy-log');
+const {logger} = require('@appium/support');
 const fs = require('fs');
 const { exec } = require('teen_process');
 const { glob } = require('glob');
+
+const log = logger.getLogger('Atoms');
 
 const SELENIUM_BRANCH = 'selenium-4.19.0';
 const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
