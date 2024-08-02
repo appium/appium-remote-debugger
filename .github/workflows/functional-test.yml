@@ -20,6 +20,8 @@ jobs:
       PLATFORM_VERSION: ${{ matrix.ios }}
       XCODE_VERSION: ${{ matrix.xcode }}
       DEVICE_NAME: ${{ matrix.device }}
+      _LOG_TIMESTAMP: 1
+      _FORCE_LOGS: 1
       CI: true
     steps:
     - uses: actions/checkout@v3
