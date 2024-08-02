@@ -41,6 +41,4 @@ jobs:
         xcrun simctl bootstatus $udid -b
         xcrun simctl openurl $udid "https://google.com" &
     - run: npm install
-    - run: |
-        export PATH="${PATH}:$(python -c 'import site; print(site.USER_BASE)')/bin"
-        _FORCE_LOGS=1 npm run e2e-test
+    - run: npm run e2e-test
