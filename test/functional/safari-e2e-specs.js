@@ -87,8 +87,7 @@ describe('Safari remote debugger', function () {
     const maxRetries = process.env.CI ? 10 : 2;
     await retry(maxRetries, async () => await sim.openUrl(address));
     await retry(maxRetries, async () => {
-      await rd.connect(60000);
-      if (_.isEmpty(rd.appDict)) {
+      if (_.isEmpty(await rd.connect(60000))) {
         await rd.disconnect();
         throw new Error('The remote debugger did not return any connected applications');
       }

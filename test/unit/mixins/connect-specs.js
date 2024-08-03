@@ -23,7 +23,7 @@ describe('connect', function () {
 
   describe('getPossibleDebuggerAppKeys', function () {
     it('should return the app key of the specified bundleIds', function () {
-      rd.appDict = {
+      rd._appDict = {
         ['42']: {
           bundleId: 'io.appium.bundle1'
         },
@@ -42,7 +42,7 @@ describe('connect', function () {
     ];
     for (const webviewBundleId of webviewBundleIds) {
       it(`should return the app key of ${webviewBundleId}`, function () {
-        rd.appDict = {
+        rd._appDict = {
           ['42']: {
             bundleId: webviewBundleId
           }
@@ -51,7 +51,7 @@ describe('connect', function () {
       });
     }
     it('should return the app key for the bundleIds when proxied', function () {
-      rd.appDict = {
+      rd._appDict = {
         ['42']: {
           bundleId: 'io.appium.bundle',
           isProxy: false
@@ -65,11 +65,11 @@ describe('connect', function () {
       expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle'])).to.eql(['42', '43']);
     });
     it('should return an empty array when there is no appropriate app', function () {
-      rd.appDict = {};
+      rd._appDict = {};
       expect(getPossibleDebuggerAppKeys.bind(rd)('io.appium.bundle')).to.eql([]);
     });
     it('should return the all app keys when the bundlIds array includes a wildcard', function () {
-      rd.appDict = {
+      rd._appDict = {
         ['42']: {
           bundleId: 'io.appium.bundle1'
         },

@@ -15,16 +15,16 @@ describe('execute', function () {
   describe('executeAtom', function () {
     it('should execute atom and call send event on rpc client', async function () {
       const ctx = {
-        appIdKey: 'appId',
-        pageIdKey: 'pageId',
+        _appIdKey: 'appId',
+        _pageIdKey: 'pageId',
         log: {debug: () => {}},
         execute,
-        rpcClient: {
+        _rpcClient: {
           isConnected: true,
           send: () => ({hello: 'world'}),
         },
       };
-      ctx.requireRpcClient = () => ctx.rpcClient;
+      ctx.requireRpcClient = () => ctx._rpcClient;
       const res = await executeAtom.call(ctx, 'find_element', ['css selector', '#id', {ELEMENT: 'foo'}]);
       res.should.eql({hello: 'world'});
     });
@@ -32,17 +32,17 @@ describe('execute', function () {
   describe('.executeAtomAsync', function () {
     it('calls rpcClient.send', async function () {
       const ctx = {
-        appIdKey: 'appId',
-        pageIdKey: 'pageId',
+        _appIdKey: 'appId',
+        _pageIdKey: 'pageId',
         log: {debug: () => {}},
         execute,
-        rpcClient: {
+        _rpcClient: {
           isConnected: true,
           send: () => ({result: {objectId: 'fake-object-id'}}),
         },
       };
-      ctx.requireRpcClient = () => ctx.rpcClient;
-      const sendSpy = sinon.spy(ctx.rpcClient, 'send');
+      ctx.requireRpcClient = () => ctx._rpcClient;
+      const sendSpy = sinon.spy(ctx._rpcClient, 'send');
       await executeAtomAsync.call(ctx, 'find_element', ['a', 'b', 'c'], ['frame-1'], ['frame-2']);
       const callArgs = sendSpy.firstCall.args;
       callArgs[0].should.equal('Runtime.evaluate');
@@ -52,22 +52,22 @@ describe('execute', function () {
   describe('.callFunction', function () {
     it('call rpcClient.send', async function () {
       const ctx = {
-        appIdKey: 'fakeAppId',
-        pageIdKey: 'fakePageId',
+        _appIdKey: 'fakeAppId',
+        _pageIdKey: 'fakePageId',
         log: {debug: () => {}},
-        garbageCollectOnExecute: true,
+        _garbageCollectOnExecute: true,
         garbageCollect () { },
-        rpcClient: {
+        _rpcClient: {
           send () {
             return {result: {objectId: 'fake-object-id'}};
           },
           isConnected: true,
         },
         waitForDom () { },
-        pageLoading: true,
+        _pageLoading: true,
       };
-      ctx.requireRpcClient = () => ctx.rpcClient;
-      const sendSpy = sinon.spy(ctx.rpcClient, 'send');
+      ctx.requireRpcClient = () => ctx._rpcClient;
+      const sendSpy = sinon.spy(ctx._rpcClient, 'send');
       await callFunction.call(ctx, 'fake-object-id', 'fake_function', ['a', 'b', 'c']);
       sendSpy.firstCall.args[0].should.equal('Runtime.callFunctionOn');
       sendSpy.firstCall.args[1].should.eql({
