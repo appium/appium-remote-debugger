@@ -2,7 +2,7 @@ import RemoteDebugger from './remote-debugger';
 import { RpcClientRealDevice } from './rpc';
 import type { RemoteDebuggerRealDeviceOptions } from './types';
 
-export default class RemoteDebuggerRealDevice extends RemoteDebugger {
+export class RemoteDebuggerRealDevice extends RemoteDebugger {
   private readonly _udid: string;
 
   constructor (opts: RemoteDebuggerRealDeviceOptions) {
@@ -24,3 +24,5 @@ export default class RemoteDebuggerRealDevice extends RemoteDebugger {
     });
   }
 }
+
+export default RemoteDebuggerRealDevice;
