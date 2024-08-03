@@ -22,8 +22,6 @@ import type B from 'bluebird';
 
 
 export const REMOTE_DEBUGGER_PORT = 27753;
-/* How many milliseconds to wait for webkit to return a response before timing out */
-export const RPC_RESPONSE_TIMEOUT_MS = 5000;
 const PAGE_READY_TIMEOUT_MS = 5000;
 const { version: MODULE_VERSION } = getModuleProperties();
 
