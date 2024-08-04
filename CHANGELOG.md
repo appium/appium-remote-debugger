@@ -1,3 +1,48 @@
+## [12.0.0](https://github.com/appium/appium-remote-debugger/compare/v11.5.9...v12.0.0) (2024-08-04)
+
+### ⚠ BREAKING CHANGES
+
+* The following class properties have been renamed (got a leading underscore) and made protected:
+skippedApps
+clientEventListeners
+appDict
+appIdKey
+pageIdKey
+connectedDrivers
+currentState
+pageLoadDelay
+rpcClient
+pageLoading
+navigatingToPage
+pageLoadStrategy
+bundleId
+additionalBundleIds
+platformVersion
+isSafari
+includeSafari
+useNewSafari
+pageLoadMs
+garbageCollectOnExecute
+host
+port
+socketPath
+remoteDebugProxy
+pageReadyTimeout
+logAllCommunication
+logAllCommunicationHexDump
+socketChunkSize
+webInspectorMaxFrameLength
+fullPageInitialization
+udid
+* The following class methods have been made private:
+searchForApp
+searchForPage
+* Remove the unused RPC_RESPONSE_TIMEOUT_MS export
+
+### Features
+
+* Rewrite the RemoteDebugger class into typescript ([#400](https://github.com/appium/appium-remote-debugger/issues/400)) ([ef277b3](https://github.com/appium/appium-remote-debugger/commit/ef277b3991c57ed34740d946bab1c3505674adec))
+
 ## [11.5.9](https://github.com/appium/appium-remote-debugger/compare/v11.5.8...v11.5.9) (2024-08-02)
 
 ### Miscellaneous Chores
