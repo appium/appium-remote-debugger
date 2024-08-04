@@ -23,7 +23,7 @@ describe('connect', function () {
 
   describe('getDebuggerAppKey', function () {
     it('should return the app key for the bundle', function () {
-      rd.appDict = {
+      rd._appDict = {
         ['42']: {
           bundleId: 'io.appium.bundle'
         }
@@ -31,7 +31,7 @@ describe('connect', function () {
       getDebuggerAppKey.bind(rd)('io.appium.bundle').should.equal('42');
     });
     it('should return the app key for the bundle when proxied', function () {
-      rd.appDict = {
+      rd._appDict = {
         ['42']: {
           bundleId: 'io.appium.bundle',
           isProxy: false
@@ -45,7 +45,7 @@ describe('connect', function () {
       getDebuggerAppKey.bind(rd)('io.appium.bundle').should.equal('43');
     });
     it('should return undefined when there is no appropriate app', function () {
-      rd.appDict = {};
+      rd._appDict = {};
       expect(getDebuggerAppKey.bind(rd)('io.appium.bundle')).to.not.exist;
     });
   });
