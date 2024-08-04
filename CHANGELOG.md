@@ -1,3 +1,9 @@
+## [12.0.1](https://github.com/appium/appium-remote-debugger/compare/v12.0.0...v12.0.1) (2024-08-04)
+
+### Bug Fixes
+
+* Properly handle protected accessors from mixin methods ([#401](https://github.com/appium/appium-remote-debugger/issues/401)) ([f47f6af](https://github.com/appium/appium-remote-debugger/commit/f47f6af3d73ec0566fdca769d23bcac12f045607))
+
 ## [12.0.0](https://github.com/appium/appium-remote-debugger/compare/v11.5.9...v12.0.0) (2024-08-04)
 
 ### ⚠ BREAKING CHANGES
