@@ -34,11 +34,12 @@ export class RemoteDebugger extends EventEmitter {
   protected _pageIdKey: string | number | null | undefined;
   protected _connectedDrivers: StringRecord[] | undefined;
   protected _currentState: string | undefined;
-  protected _pageLoadDelay: B<void>;
+  protected _pageLoadDelay: B<void> | undefined;
   protected _rpcClient: RpcClient | null;
   protected _pageLoading: boolean;
   protected _navigatingToPage: boolean;
   protected _allowNavigationWithoutReload: boolean;
+  protected _pageLoadMs: number | undefined;
   protected readonly _pageLoadStrategy: string | undefined;
   protected readonly _log: AppiumLogger;
   protected readonly _bundleId: string | undefined;
@@ -47,7 +48,6 @@ export class RemoteDebugger extends EventEmitter {
   protected readonly _isSafari: boolean;
   protected readonly _includeSafari: boolean;
   protected readonly _useNewSafari: boolean;
-  protected readonly _pageLoadMs: number | undefined;
   protected readonly _garbageCollectOnExecute: boolean;
   protected readonly _host: string | undefined;
   protected readonly _port: number | undefined;
@@ -163,6 +163,8 @@ export class RemoteDebugger extends EventEmitter {
 
     this._pageLoadStrategy = pageLoadStrategy;
     this._skippedApps = [];
+
+    this.setup();
   }
 
   get log(): AppiumLogger {
@@ -241,6 +243,18 @@ export class RemoteDebugger extends EventEmitter {
 
   get currentState (): string | undefined {
     return this._currentState;
+  }
+
+  get connectedDrivers (): StringRecord[] | undefined {
+    return this._connectedDrivers;
+  }
+
+  get pageLoadMs (): number {
+    return this._pageLoadMs ?? navigationMixins.DEFAULT_PAGE_READINESS_TIMEOUT_MS;
+  }
+
+  set pageLoadMs (value: number) {
+    this._pageLoadMs = value;
   }
 }
 
