@@ -141,6 +141,7 @@ export class RemoteDebugger extends EventEmitter {
     this._includeSafari = includeSafari;
     this._useNewSafari = useNewSafari;
     this._pageLoadMs = pageLoadMs;
+    this._allowNavigationWithoutReload = false;
     this.log.debug(`useNewSafari --> ${this._useNewSafari}`);
 
     this._garbageCollectOnExecute = garbageCollectOnExecute;
@@ -188,7 +189,9 @@ export class RemoteDebugger extends EventEmitter {
     this._pageIdKey = null;
     this._pageLoading = false;
     this._navigatingToPage = false;
-    this._allowNavigationWithoutReload = false;
+    this._currentState = undefined;
+    this._connectedDrivers = undefined;
+    this._pageLoadDelay = undefined;
 
     this._rpcClient = null;
     this._clientEventListeners = {};
