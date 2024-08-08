@@ -1,3 +1,9 @@
+## [12.0.2](https://github.com/appium/appium-remote-debugger/compare/v12.0.1...v12.0.2) (2024-08-08)
+
+### Bug Fixes
+
+* Start page status monitoring on page change event as well ([#402](https://github.com/appium/appium-remote-debugger/issues/402)) ([8f71d19](https://github.com/appium/appium-remote-debugger/commit/8f71d19405fc54e4a04c4863623b766f217917d4))
+
 ## [12.0.1](https://github.com/appium/appium-remote-debugger/compare/v12.0.0...v12.0.1) (2024-08-04)
 
 ### Bug Fixes
