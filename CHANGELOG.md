@@ -1,3 +1,9 @@
+## [12.0.4](https://github.com/appium/appium-remote-debugger/compare/v12.0.3...v12.0.4) (2024-08-08)
+
+### Miscellaneous Chores
+
+* Tune log messages ([fa0a862](https://github.com/appium/appium-remote-debugger/commit/fa0a862f33edcfe987b601a598a062e5426218c7))
+
 ## [12.0.3](https://github.com/appium/appium-remote-debugger/compare/v12.0.2...v12.0.3) (2024-08-08)
 
 ### Bug Fixes
