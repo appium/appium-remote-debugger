@@ -1,9 +1,6 @@
 import { RemoteDebugger, REMOTE_DEBUGGER_PORT } from './lib/remote-debugger';
 import { RemoteDebuggerRealDevice } from './lib/remote-debugger-real-device';
-import type {
-  RemoteDebuggerRealDeviceOptions,
-  RemoteDebuggerOptions,
-} from './lib/types';
+import type { RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions } from './lib/types';
 
 export function createRemoteDebugger<T extends boolean> (
   opts: T extends true ? RemoteDebuggerRealDeviceOptions : RemoteDebuggerOptions,
@@ -16,3 +13,4 @@ export function createRemoteDebugger<T extends boolean> (
 }
 
 export { RemoteDebugger, RemoteDebuggerRealDevice, REMOTE_DEBUGGER_PORT };
+export type { RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions };
