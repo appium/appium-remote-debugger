@@ -1,3 +1,9 @@
+## [12.0.3](https://github.com/appium/appium-remote-debugger/compare/v12.0.2...v12.0.3) (2024-08-08)
+
+### Bug Fixes
+
+* Make index typed ([#403](https://github.com/appium/appium-remote-debugger/issues/403)) ([04dafea](https://github.com/appium/appium-remote-debugger/commit/04dafea83f237f2ee1e0f425718ef941f852da9e))
+
 ## [12.0.2](https://github.com/appium/appium-remote-debugger/compare/v12.0.1...v12.0.2) (2024-08-08)
 
 ### Bug Fixes
