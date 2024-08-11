@@ -236,6 +236,13 @@ export class RemoteDebugger extends EventEmitter {
     return !!this._rpcClient?.isConnected;
   }
 
+  // Only use this getter to read the appDict value.
+  // Any changes to it don't mutate the original property
+  // because the getter always returns the copy of it
+  get appDict(): AppDict {
+    return _.cloneDeep(this._appDict);
+  }
+
   set allowNavigationWithoutReload (allow: boolean) {
     this._allowNavigationWithoutReload = allow;
   }
