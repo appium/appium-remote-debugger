@@ -1,3 +1,9 @@
+## [12.1.0](https://github.com/appium/appium-remote-debugger/compare/v12.0.4...v12.1.0) (2024-08-11)
+
+### Features
+
+* Expose appDict ([#405](https://github.com/appium/appium-remote-debugger/issues/405)) ([1ec4be5](https://github.com/appium/appium-remote-debugger/commit/1ec4be5f0657a9d233cb258a3bc3001a67b6888b))
+
 ## [12.0.4](https://github.com/appium/appium-remote-debugger/compare/v12.0.3...v12.0.4) (2024-08-08)
 
 ### Miscellaneous Chores
