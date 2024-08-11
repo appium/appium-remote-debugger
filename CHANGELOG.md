@@ -1,3 +1,9 @@
+## [12.1.1](https://github.com/appium/appium-remote-debugger/compare/v12.1.0...v12.1.1) (2024-08-11)
+
+### Bug Fixes
+
+* Only try to select Safari if it is enabled for automation ([#404](https://github.com/appium/appium-remote-debugger/issues/404)) ([4621589](https://github.com/appium/appium-remote-debugger/commit/462158987f54ac44048c2b46d589f251f1487279))
+
 ## [12.1.0](https://github.com/appium/appium-remote-debugger/compare/v12.0.4...v12.1.0) (2024-08-11)
 
 ### Features
