@@ -1,3 +1,9 @@
+## [12.1.3](https://github.com/appium/appium-remote-debugger/compare/v12.1.2...v12.1.3) (2024-12-03)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump mocha from 10.8.2 to 11.0.1 ([#407](https://github.com/appium/appium-remote-debugger/issues/407)) ([4f9c6ae](https://github.com/appium/appium-remote-debugger/commit/4f9c6ae01a4425d17c182fd44efaec7004ca911a))
+
 ## [12.1.2](https://github.com/appium/appium-remote-debugger/compare/v12.1.1...v12.1.2) (2024-09-13)
 
 ### Miscellaneous Chores
