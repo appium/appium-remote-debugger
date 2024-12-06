@@ -1,3 +1,9 @@
+## [12.1.4](https://github.com/appium/appium-remote-debugger/compare/v12.1.3...v12.1.4) (2024-12-06)
+
+### Miscellaneous Chores
+
+* **deps:** bump @appium/support from 5.1.8 to 6.0.0 ([#408](https://github.com/appium/appium-remote-debugger/issues/408)) ([3b7e773](https://github.com/appium/appium-remote-debugger/commit/3b7e7739b62334462cbe3b8f8d6a8f767e16a687))
+
 ## [12.1.3](https://github.com/appium/appium-remote-debugger/compare/v12.1.2...v12.1.3) (2024-12-03)
 
 ### Miscellaneous Chores
