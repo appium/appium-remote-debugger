@@ -1,4 +1,4 @@
-import Simctl from 'node-simctl';
+import { Simctl } from 'node-simctl';
 import { getSimulator } from 'appium-ios-simulator';
 import { retryInterval, retry } from 'asyncbox';
 import { util } from '@appium/support';
@@ -28,7 +28,7 @@ async function deleteDeviceWithRetry (udid) {
   const simctl = new Simctl({udid});
   try {
     await retryInterval(10, 1000, simctl.deleteDevice.bind(simctl));
-  } catch (ign) {}
+  } catch {}
 }
 
 describe('Safari remote debugger', function () {

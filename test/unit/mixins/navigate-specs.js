@@ -1,4 +1,4 @@
-import RemoteDebugger from '../../../lib/remote-debugger';
+import { RemoteDebugger } from '../../../lib/remote-debugger';
 
 describe('navigate', function () {
   let chai;

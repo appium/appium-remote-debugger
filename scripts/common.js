@@ -27,7 +27,7 @@ const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
 async function rmDir (dir) {
   try {
     await fs.promises.access(dir, fs.constants.R_OK);
-  } catch (e) {
+  } catch {
     return;
   }
 

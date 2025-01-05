@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import { MOCHA_TIMEOUT } from '../../helpers/helpers';
-import RpcClient from '../../../lib/rpc/rpc-client';
+import { RpcClient } from '../../../lib/rpc/rpc-client';
 
 describe('rpc-client', function () {
   this.timeout(MOCHA_TIMEOUT);
