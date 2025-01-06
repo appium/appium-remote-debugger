@@ -1,4 +1,4 @@
-import RemoteMessages from '../../lib/rpc/remote-messages';
+import { RemoteMessages } from '../../lib/rpc/remote-messages';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
 
 describe('RemoteMessages', function () {

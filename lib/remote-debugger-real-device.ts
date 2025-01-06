@@ -1,4 +1,4 @@
-import RemoteDebugger from './remote-debugger';
+import { RemoteDebugger } from './remote-debugger';
 import { RpcClientRealDevice } from './rpc';
 import type { RemoteDebuggerRealDeviceOptions } from './types';
 

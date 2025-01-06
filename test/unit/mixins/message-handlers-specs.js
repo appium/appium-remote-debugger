@@ -2,7 +2,7 @@ import {
   getDebuggerAppKey
 } from '../../../lib/mixins/message-handlers';
 import { MOCHA_TIMEOUT } from '../../helpers/helpers';
-import RemoteDebugger from '../../../lib/remote-debugger';
+import { RemoteDebugger } from '../../../lib/remote-debugger';
 
 describe('connect', function () {
   this.timeout(MOCHA_TIMEOUT);
