@@ -1,3 +1,9 @@
+## [12.1.6](https://github.com/appium/appium-remote-debugger/compare/v12.1.5...v12.1.6) (2025-02-25)
+
+### Bug Fixes
+
+* Properly handle wildcard while selecting apps ([#411](https://github.com/appium/appium-remote-debugger/issues/411)) ([a6571a8](https://github.com/appium/appium-remote-debugger/commit/a6571a83daa51f94c9f17c02a3f120370642f704))
+
 ## [12.1.5](https://github.com/appium/appium-remote-debugger/compare/v12.1.4...v12.1.5) (2025-01-06)
 
 ### Miscellaneous Chores
