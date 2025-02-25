@@ -30,15 +30,18 @@ describe('connect', function () {
         ['43']: {
           bundleId: 'io.appium.bundle2'
         },
+        ['44']: {
+          bundleId: 'io.appium.bundle3'
+        },
       };
-      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1'])).to.eql(['42']);
+      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1', 'io.appium.bundle2']))
+        .to.eql(['42', '43']);
     });
     const webviewBundleIds = [
       'com.apple.WebKit.WebContent',
       'process-com.apple.WebKit.WebContent',
       'process-SafariViewService',
       'com.apple.SafariViewService',
-      '*',
     ];
     for (const webviewBundleId of webviewBundleIds) {
       it(`should return the app key of ${webviewBundleId}`, function () {
