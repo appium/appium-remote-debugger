@@ -1,42 +1,7 @@
-Tue Apr 16 2024 01:06:16 GMT-0700 (Pacific Daylight Time)
+Fri Feb 28 2025 23:25:55 GMT-0800 (Pacific Standard Time)
 
-commit 5f9cec8963b33a7708619d666a5ce0b2f6542c7d (grafted, HEAD, tag: refs/tags/selenium-4.19.0)
-Author: Diego Molina <diemol@gmail.com>
-Date:   Wed Mar 27 15:54:24 2024 +0100
+commit d3a1e6e5259a27a010aab54e1612743feabe8a32 (grafted, HEAD -> refs/heads/Issue_12549_FixAtomsGenerationLowdash, refs/remotes/origin/Issue_12549_FixAtomsGenerationLowdash)
+Author: ahalbrock <halbrock@gmail.com>
+Date:   Fri Feb 28 11:04:34 2025 -0500
 
-    Release 4.19.0 (#13747)
-    
-    * update Rust version to 0.4.19
-    
-    * Rust Changelog
-    
-    * [build] Prepare for release of Selenium 4.19.0 (#13746)
-    
-    * Update supported versions for Chrome DevTools
-    
-    * Update selenium manager version
-    
-    * Update Maven Dependencies
-    
-    * Update authors file
-    
-    * FIX CHANGELOGS BEFORE MERGING!
-    
-    Update versions and change logs to release Selenium 4.19.0
-    
-    * [build] Adapting changelogs
-    
-    * [py] Setting python version to 4.19.0
-    
-    * Making format script happy
-    
-    ---------
-    
-    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>
-    Co-authored-by: Diego Molina <diemol@gmail.com>
-    Co-authored-by: Diego Molina <diemol@users.noreply.github.com>
-    
-    ---------
-    
-    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>
-    Co-authored-by: Selenium CI Bot <diemol+selenium-ci@gmail.com>
+    Merge branch 'trunk' into Issue_12549_FixAtomsGenerationLowdash

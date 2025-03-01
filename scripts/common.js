@@ -6,8 +6,8 @@ const { glob } = require('glob');
 
 const log = logger.getLogger('Atoms');
 
-const SELENIUM_BRANCH = 'selenium-4.19.0';
-const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
+const SELENIUM_BRANCH = 'Issue_12549_FixAtomsGenerationLowdash';
+const SELENIUM_GITHUB = 'https://github.com/ahalbrock/selenium.git';
 
 const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
 const BAZEL_WD_ATOMS_INJECT_TARGET = '//javascript/webdriver/atoms/inject/...';
@@ -47,19 +47,19 @@ async function rmDir (dir) {
 }
 
 async function seleniumMkdir () {
-  log(`Creating '${TMP_DIRECTORY}'`);
+  log.info(`Creating '${TMP_DIRECTORY}'`);
   await fs.promises.mkdir(TMP_DIRECTORY, { recursive: true });
 }
 
 async function seleniumClean () {
-  log(`Cleaning '${SELENIUM_DIRECTORY}'`);
+  log.info(`Cleaning '${SELENIUM_DIRECTORY}'`);
   await rmDir(SELENIUM_DIRECTORY);
 }
 
 module.exports.seleniumClone = async function seleniumClone () {
   await seleniumMkdir();
   await seleniumClean();
-  log(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
+  log.info(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
   await exec('git', [
     'clone',
     `--branch=${SELENIUM_BRANCH}`,
@@ -70,22 +70,22 @@ module.exports.seleniumClone = async function seleniumClone () {
 };
 
 async function atomsCleanDir () {
-  log(`Cleaning '${ATOMS_DIRECTORY}'`);
+  log.info(`Cleaning '${ATOMS_DIRECTORY}'`);
   await rmDir(ATOMS_DIRECTORY);
 }
 
 async function atomsClean () {
-  log('Building atoms');
+  log.info('Building atoms');
   await exec('bazel', ['clean'], {cwd: SELENIUM_DIRECTORY});
 }
 
 async function atomsMkdir () {
-  log(`Creating '${ATOMS_DIRECTORY}'`);
+  log.info(`Creating '${ATOMS_DIRECTORY}'`);
   await fs.promises.mkdir(ATOMS_DIRECTORY, { recursive: true });
 }
 
 async function getBazelOutDir () {
-  log(`Finding bazel output dir`);
+  log.info(`Finding bazel output dir`);
   const outDirMatch = '*-fastbuild';
   const relativeDir = (await glob(outDirMatch, {cwd: BAZEL_OUT_BASEDIR}))[0];
   if (!relativeDir) {
@@ -101,14 +101,14 @@ async function atomsBuild () {
     BAZEL_WD_ATOMS_TARGET,
     BAZEL_WD_ATOMS_INJECT_TARGET,
   ]) {
-    log(`Running bazel build for ${target}`);
+    log.info(`Running bazel build for ${target}`);
     await exec('bazel', ['build', target], {cwd: SELENIUM_DIRECTORY});
   }
-  log(`Bazel builds complete`);
+  log.info(`Bazel builds complete`);
 }
 
 async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
-  log(`Copying any atoms found in ${atomsDir} to atoms dir`);
+  log.info(`Copying any atoms found in ${atomsDir} to atoms dir`);
   const filesToCopy = (await glob('**/*-ios.js', {
     absolute: true,
     strict: false,
@@ -118,7 +118,7 @@ async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
     // convert - to _ for backwards compatibility with old atoms
     const newFileName = path.basename(file).replace('-ios', '').replace(/-/g, '_');
     const to = path.join(ATOMS_DIRECTORY, newFileName);
-    log(`Copying ${file} to ${to}`);
+    log.info(`Copying ${file} to ${to}`);
     // delete an existing file if it was put here by an earlier run of the function, to enable
     // overwriting
     try {
@@ -133,7 +133,7 @@ async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
 }
 
 async function atomsTimestamp () {
-  log(`Adding timestamp to atoms build dir`);
+  log.info(`Adding timestamp to atoms build dir`);
   const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
   await fs.promises.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
 }
