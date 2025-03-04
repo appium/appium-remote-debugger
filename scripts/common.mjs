@@ -13,7 +13,7 @@ const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
 const BAZEL_WD_ATOMS_INJECT_TARGET = '//javascript/webdriver/atoms/inject/...';
 const BAZEL_ATOMS_TARGET = '//javascript/atoms/...';
 
-const WORKING_ROOT_DIR = path.resolve(fileURLToPath(import.meta.url), '..');
+const WORKING_ROOT_DIR = path.resolve(fileURLToPath(import.meta.url), '..', '..');
 const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
 const SELENIUM_DIRECTORY = path.resolve(TMP_DIRECTORY, 'selenium');
 const BAZEL_OUT_BASEDIR = path.resolve(SELENIUM_DIRECTORY, 'bazel-out');
