@@ -56,7 +56,7 @@ async function checkBazel() {
   try {
     result = await exec('bazel', ['--version']);
   } catch (e) {
-    err = e;
+    err = e.stderr || e.message;
   }
   if (err || result.stderr) {
     throw new Error(`Please setup Bazel ${bazelVersion} runtime environment by following https://bazel.build/install. ` +
