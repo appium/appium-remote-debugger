@@ -6,9 +6,9 @@ export function createRemoteDebugger<T extends boolean> (
   opts: T extends true ? RemoteDebuggerRealDeviceOptions : RemoteDebuggerOptions,
   realDevice: T
 ): T extends true ? RemoteDebuggerRealDevice : RemoteDebugger {
-  // @ts-ignore TS does not understand that
   return realDevice
     ? new RemoteDebuggerRealDevice(opts as RemoteDebuggerRealDeviceOptions)
+    // @ts-ignore TS does not understand that
     : new RemoteDebugger(opts);
 }
 

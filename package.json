@@ -55,8 +55,8 @@
     "e2e-test": "mocha --exit --timeout 1m \"./test/functional/**/*-specs.js\"",
     "inspect-safari": "node build/bin/web_inspector_proxy.js",
     "build:atoms": "npm run build:selenium && npm run build:atoms:import",
-    "build:atoms:import": "node scripts/build-atoms.js",
-    "build:selenium": "node scripts/build-selenium.js"
+    "build:atoms:import": "node scripts/build-atoms.mjs",
+    "build:selenium": "node scripts/build-selenium.mjs"
   },
   "prettier": {
     "bracketSpacing": false,
