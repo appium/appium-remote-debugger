@@ -141,15 +141,14 @@ async function atomsBuild () {
 /**
  * Copy atoms in bazel built result to 'atoms' in this repository's main 'atoms' place.
  * @param {string} atomsDir
- * @param {Function} fileFilter
  */
-async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
+async function atomsCopyAtoms (atomsDir) {
   log.info(`Copying any atoms found in ${atomsDir} to atoms dir`);
   const filesToCopy = (await glob('**/*-ios.js', {
     absolute: true,
     strict: false,
     cwd: atomsDir,
-  })).filter(fileFilter);
+  }));
   for (const file of filesToCopy) {
     // convert - to _ for backwards compatibility with old atoms
     const newFileName = path.basename(file).replace('-ios', '').replace(/-/g, '_');
