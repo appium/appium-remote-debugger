@@ -6,8 +6,8 @@ import { exec } from 'teen_process';
 
 const log = logger.getLogger('Atoms');
 
-const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'Issue_12549_FixAtomsGenerationLowdash';
-const SELENIUM_GITHUB = process.env.SELENIUM_GITHUB || 'https://github.com/ahalbrock/selenium.git';
+const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'selenium-4.19.0';
+const SELENIUM_GITHUB = process.env.SELENIUM_GITHUB || 'https://github.com/SeleniumHQ/selenium.git';
 
 const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
 const BAZEL_WD_ATOMS_INJECT_TARGET = '//javascript/webdriver/atoms/inject/...';
@@ -17,6 +17,7 @@ const WORKING_ROOT_DIR = path.resolve(fileURLToPath(import.meta.url), '..', '..'
 const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
 const SELENIUM_DIRECTORY = path.resolve(TMP_DIRECTORY, 'selenium');
 const BAZEL_OUT_BASEDIR = path.resolve(SELENIUM_DIRECTORY, 'bazel-out');
+const BAZEL_VERSION = path.resolve(SELENIUM_DIRECTORY, '.bazelversion');
 const JS_RELATIVE_DIR = path.join('bin', 'javascript');
 const BAZEL_FRAGMENTS_DIR = path.join(JS_RELATIVE_DIR, 'atoms', 'fragments');
 const BAZEL_WD_ATOMS_DIR = path.join(JS_RELATIVE_DIR, 'webdriver', 'atoms');
@@ -46,6 +47,23 @@ export async function seleniumClone () {
     SELENIUM_DIRECTORY,
   ]);
 };
+
+async function checkBazel() {
+  log.info('Checking required Bazel version');
+  const bazelVersion = (await fs.readFile(BAZEL_VERSION, 'utf8')).trim();
+  const {stdout, stderr} = await exec('bazel', ['--version']);
+  if (stderr) {
+    throw new Error(`Please setup Bazel ${bazelVersion} runtime environment. ` +
+      `Current environment got ${stderr} with 'bazel --version' call.`);
+  }
+  // e.g. "bazel 7.4.1"
+  const currentBazelVersion = stdout.trim().split(' ')[1];
+  if (currentBazelVersion !== bazelVersion) {
+    throw new Error(`Please setup Bazel ${bazelVersion} runtime environment. ` +
+      `Current available version is ${currentBazelVersion}`);
+  }
+  log.info(`Bazel ${bazelVersion} will be used to build atoms.`);
+}
 
 async function atomsCleanDir () {
   log.info(`Cleaning '${ATOMS_DIRECTORY}'`);
@@ -117,6 +135,7 @@ async function atomsTimestamp () {
 }
 
 export async function importAtoms(shouldClean) {
+  await checkBazel();
   await atomsCleanDir();
   if (shouldClean) {
     await atomsClean();
