@@ -51,13 +51,18 @@ export async function seleniumClone () {
 async function checkBazel() {
   log.info('Checking required Bazel version');
   const bazelVersion = (await fs.readFile(BAZEL_VERSION, 'utf8')).trim();
-  const {stdout, stderr} = await exec('bazel', ['--version']);
-  if (stderr) {
+  let result;
+  try {
+    result = await exec('bazel', ['--version']);
+  } catch (e) {
+    throw new Error(`Bazel version check with 'bazel --version' got an error: ${e}`);
+  }
+  if (result.stderr) {
     throw new Error(`Please setup Bazel ${bazelVersion} runtime environment. ` +
-      `Current environment got ${stderr} with 'bazel --version' call.`);
+      `Current environment got ${result.stderr} with 'bazel --version' call.`);
   }
   // e.g. "bazel 7.4.1"
-  const currentBazelVersion = stdout.trim().split(' ')[1];
+  const currentBazelVersion = result.stdout.trim().split(' ')[1];
   if (currentBazelVersion !== bazelVersion) {
     throw new Error(`Please setup Bazel ${bazelVersion} runtime environment. ` +
       `Current available version is ${currentBazelVersion}`);
