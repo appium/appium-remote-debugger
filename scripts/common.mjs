@@ -141,7 +141,7 @@ async function atomsBuild () {
 /**
  * Copy atoms in bazel built result to 'atoms' in this repository's main 'atoms' place.
  * @param {string} atomsDir
- * @param {string} fileFilter
+ * @param {Function} fileFilter
  */
 async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
   log.info(`Copying any atoms found in ${atomsDir} to atoms dir`);
