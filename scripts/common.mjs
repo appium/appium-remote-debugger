@@ -1,19 +1,19 @@
-const path = require('path');
-const {logger} = require('@appium/support');
-const fs = require('fs');
-const { exec } = require('teen_process');
-const { glob } = require('glob');
+import { fs, logger } from '@appium/support';
+import { glob } from 'glob';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { exec } from 'teen_process';
 
 const log = logger.getLogger('Atoms');
 
-const SELENIUM_BRANCH = 'selenium-4.19.0';
-const SELENIUM_GITHUB = 'https://github.com/SeleniumHQ/selenium.git';
+const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'Issue_12549_FixAtomsGenerationLowdash';
+const SELENIUM_GITHUB = process.env.SELENIUM_GITHUB || 'https://github.com/ahalbrock/selenium.git';
 
 const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
 const BAZEL_WD_ATOMS_INJECT_TARGET = '//javascript/webdriver/atoms/inject/...';
 const BAZEL_ATOMS_TARGET = '//javascript/atoms/...';
 
-const WORKING_ROOT_DIR = path.resolve(__dirname, '..');
+const WORKING_ROOT_DIR = path.resolve(fileURLToPath(import.meta.url), '..');
 const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
 const SELENIUM_DIRECTORY = path.resolve(TMP_DIRECTORY, 'selenium');
 const BAZEL_OUT_BASEDIR = path.resolve(SELENIUM_DIRECTORY, 'bazel-out');
@@ -24,36 +24,14 @@ const BAZEL_WD_ATOMS_INJECT_DIR = path.join(BAZEL_WD_ATOMS_DIR, 'inject');
 const ATOMS_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms');
 const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
 
-async function rmDir (dir) {
-  try {
-    await fs.promises.access(dir, fs.constants.R_OK);
-  } catch {
-    return;
-  }
-
-  const files = await fs.promises.readdir(dir);
-  for (const file of files) {
-    const fullPath = path.join(dir, file);
-    const isDirectory = (await fs.promises.stat(fullPath)).isDirectory();
-    if (['.', '..'].includes(file)) {
-      // pass these files
-    } else if (isDirectory) {
-      await rmDir(fullPath);
-    } else {
-      await fs.promises.unlink(fullPath);
-    }
-  }
-  await fs.promises.rmdir(dir);
-}
-
 async function seleniumMkdir () {
   log.info(`Creating '${TMP_DIRECTORY}'`);
-  await fs.promises.mkdir(TMP_DIRECTORY, { recursive: true });
+  await fs.mkdir(TMP_DIRECTORY, { recursive: true });
 }
 
 async function seleniumClean () {
   log.info(`Cleaning '${SELENIUM_DIRECTORY}'`);
-  await rmDir(SELENIUM_DIRECTORY);
+  await fs.rimraf(SELENIUM_DIRECTORY);
 }
 
 export async function seleniumClone () {
@@ -71,7 +49,7 @@ export async function seleniumClone () {
 
 async function atomsCleanDir () {
   log.info(`Cleaning '${ATOMS_DIRECTORY}'`);
-  await rmDir(ATOMS_DIRECTORY);
+  await fs.rimraf(ATOMS_DIRECTORY);
 }
 
 async function atomsClean () {
@@ -81,7 +59,7 @@ async function atomsClean () {
 
 async function atomsMkdir () {
   log.info(`Creating '${ATOMS_DIRECTORY}'`);
-  await fs.promises.mkdir(ATOMS_DIRECTORY, { recursive: true });
+  await fs.mkdir(ATOMS_DIRECTORY, { recursive: true });
 }
 
 async function getBazelOutDir () {
@@ -122,20 +100,20 @@ async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
     // delete an existing file if it was put here by an earlier run of the function, to enable
     // overwriting
     try {
-      await fs.promises.unlink(to);
+      await fs.unlink(to);
     } catch (err) {
       if (!err.message.includes('ENOENT')) {
         throw err;
       }
     }
-    await fs.promises.copyFile(file, to);
+    await fs.copyFile(file, to);
   }
 }
 
 async function atomsTimestamp () {
   log.info(`Adding timestamp to atoms build dir`);
   const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
-  await fs.promises.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
+  await fs.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
 }
 
 export async function importAtoms(shouldClean) {
