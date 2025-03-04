@@ -1,3 +1,9 @@
+## [12.1.7](https://github.com/appium/appium-remote-debugger/compare/v12.1.6...v12.1.7) (2025-03-04)
+
+### Bug Fixes
+
+* fix atom building script ([#413](https://github.com/appium/appium-remote-debugger/issues/413)) ([adb6f15](https://github.com/appium/appium-remote-debugger/commit/adb6f15912cc8b1943ca502a8b88ac4347793237))
+
 ## [12.1.6](https://github.com/appium/appium-remote-debugger/compare/v12.1.5...v12.1.6) (2025-02-25)
 
 ### Bug Fixes
