@@ -52,14 +52,15 @@ async function checkBazel() {
   log.info('Checking required Bazel version');
   const bazelVersion = (await fs.readFile(BAZEL_VERSION, 'utf8')).trim();
   let result;
+  let err;
   try {
     result = await exec('bazel', ['--version']);
   } catch (e) {
-    throw new Error(`Bazel version check with 'bazel --version' got an error: ${e}`);
+    err = e;
   }
-  if (result.stderr) {
-    throw new Error(`Please setup Bazel ${bazelVersion} runtime environment. ` +
-      `Current environment got ${result.stderr} with 'bazel --version' call.`);
+  if (err || result.stderr) {
+    throw new Error(`Please setup Bazel ${bazelVersion} runtime environment by following https://bazel.build/install. ` +
+      `Original error: ${err || result.stderr}`);
   }
   // e.g. "bazel 7.4.1"
   const currentBazelVersion = result.stdout.trim().split(' ')[1];
