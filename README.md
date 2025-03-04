@@ -28,7 +28,7 @@ constant at the top of the file and commit them to explicitly leaves the latest 
 Then run `npm run build:atoms`, test and create a pull request with the resulting changed atoms directory.
 
 You can set `SELENIUM_GITHUB` and `SELENIUM_BRANCH` environment variables with the npm command to
-customize the target repository and the target branch.
+customize the target repository and build them temporary.
 
 Note that to build the atoms it is required that you have the `bazel` tool installed. Selenium will
 also require that it be installed at a particular version relative to the version of Selenium that

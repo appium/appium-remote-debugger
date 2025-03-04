@@ -25,25 +25,16 @@ const BAZEL_WD_ATOMS_INJECT_DIR = path.join(BAZEL_WD_ATOMS_DIR, 'inject');
 const ATOMS_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms');
 const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
 
-/**
- * Create a temporary directory to clone selenium repository to build atoms in.
- */
 async function seleniumMkdir () {
   log.info(`Creating '${TMP_DIRECTORY}'`);
   await fs.mkdir(TMP_DIRECTORY, { recursive: true });
 }
 
-/**
- * Remove entire the temporary selenium directory on the machine local.
- */
 async function seleniumClean () {
   log.info(`Cleaning '${SELENIUM_DIRECTORY}'`);
   await fs.rimraf(SELENIUM_DIRECTORY);
 }
 
-/**
- * Clone the target selenium repository and branch into the temporary directory.
- */
 export async function seleniumClone () {
   await seleniumMkdir();
   await seleniumClean();
@@ -57,10 +48,6 @@ export async function seleniumClone () {
   ]);
 };
 
-/**
- * Check bazel version if current available bazel version on the host machine
- * is good for the target selenium repository's required version.
- */
 async function checkBazel() {
   log.info('Checking required Bazel version');
   const bazelVersion = (await fs.readFile(BAZEL_VERSION, 'utf8')).trim();
@@ -84,34 +71,21 @@ async function checkBazel() {
   log.info(`Bazel ${bazelVersion} will be used to build atoms.`);
 }
 
-/**
- * Remove contents in 'atoms'.
- */
 async function atomsCleanDir () {
   log.info(`Cleaning '${ATOMS_DIRECTORY}'`);
   await fs.rimraf(ATOMS_DIRECTORY);
 }
 
-/**
- * Run bazel clean command.
- */
 async function atomsClean () {
   log.info('Building atoms');
   await exec('bazel', ['clean'], {cwd: SELENIUM_DIRECTORY});
 }
 
-/**
- * Create a directory for atoms.
- */
 async function atomsMkdir () {
   log.info(`Creating '${ATOMS_DIRECTORY}'`);
   await fs.mkdir(ATOMS_DIRECTORY, { recursive: true });
 }
 
-/**
- * Return the path to bazel built result.
- * @returns {Promise<string>}
- */
 async function getBazelOutDir () {
   log.info(`Finding bazel output dir`);
   const outDirMatch = '*-fastbuild';
@@ -123,9 +97,6 @@ async function getBazelOutDir () {
   return path.resolve(BAZEL_OUT_BASEDIR, relativeDir);
 }
 
-/**
- * Build atoms with bazel command.
- */
 async function atomsBuild () {
   for (const target of [
     BAZEL_ATOMS_TARGET,
@@ -138,11 +109,6 @@ async function atomsBuild () {
   log.info(`Bazel builds complete`);
 }
 
-/**
- * Copy atoms in bazel built result to 'atoms' in this repository's main 'atoms' place.
- * @param {string} atomsDir
- * @param {string} fileFilter
- */
 async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
   log.info(`Copying any atoms found in ${atomsDir} to atoms dir`);
   const filesToCopy = (await glob('**/*-ios.js', {
@@ -155,14 +121,19 @@ async function atomsCopyAtoms (atomsDir, fileFilter = () => true) {
     const newFileName = path.basename(file).replace('-ios', '').replace(/-/g, '_');
     const to = path.join(ATOMS_DIRECTORY, newFileName);
     log.info(`Copying ${file} to ${to}`);
-    await fs.rimraf(to);
+    // delete an existing file if it was put here by an earlier run of the function, to enable
+    // overwriting
+    try {
+      await fs.unlink(to);
+    } catch (err) {
+      if (!err.message.includes('ENOENT')) {
+        throw err;
+      }
+    }
     await fs.copyFile(file, to);
   }
 }
 
-/**
- * leave timestamp to log when atom build occurred.
- */
 async function atomsTimestamp () {
   log.info(`Adding timestamp to atoms build dir`);
   const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
