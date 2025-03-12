@@ -15,10 +15,6 @@ jobs:
           xcode: '16.2'
           ios: '18.2'
           device: iPhone 16
-        - os: macos-14
-          xcode: '15.0.1'
-          ios: '17.0'
-          device: iPhone 15
       fail-fast: false
     runs-on: ${{ matrix.os }}
     env:
