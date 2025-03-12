@@ -58,7 +58,7 @@ describe('Safari remote debugger', function () {
     await sim.run({
       startupTimeout: process.env.CI ? 600000 : 120000,
     });
-    address = `http://localhost:${await portPromise}`;
+    address = `http://127.0.0.1:${await portPromise}`;
   });
   after(async function () {
     await sim.shutdown();
