@@ -1,7 +1,20 @@
-Tue Mar 04 2025 19:16:57 GMT-0800 (Pacific Standard Time)
+Tue Mar 11 2025 23:28:51 GMT-0700 (Pacific Daylight Time)
 
-commit 5423ce2ac54a0127da4a34726bc92defbd25eea1 (grafted, HEAD -> refs/heads/Issue_12549_FixAtomsGenerationLowdash, refs/remotes/origin/Issue_12549_FixAtomsGenerationLowdash)
-Author: ahalbrock <halbrock@gmail.com>
-Date:   Tue Mar 4 20:00:36 2025 -0500
+commit 9b1e83ce6409086413b1cd7ffe6da502ac9d11f1 (grafted, HEAD -> refs/heads/trunk, tag: refs/tags/nightly, refs/remotes/origin/trunk, refs/remotes/origin/HEAD)
+Author: Adam Halbrock <halbrock@gmail.com>
+Date:   Tue Mar 11 14:36:50 2025 -0400
 
-    Updated exported symbol to relate to selenium for namespacing purposes, updating single quotes to to double for linting check.
+    Issue 12549 fix atoms generation lowdash (#15247)
+    
+    * Updating the atom frament bazel file so that "_" is not used as the exported function, also passing in entire window so that all pieces should have access to what they need.
+    
+    * Added the exported function name to the string substitution list.  Atoms build now.
+    
+    * Properly adding the exported function variable to the wrapper.
+    
+    * Updated exported symbol to relate to selenium for namespacing purposes, updating single quotes to to double for linting check.
+    
+    ---------
+    
+    Co-authored-by: Sri Harsha <12621691+harsha509@users.noreply.github.com>
+    Co-authored-by: David Burns <david.burns@theautomatedtester.co.uk>
