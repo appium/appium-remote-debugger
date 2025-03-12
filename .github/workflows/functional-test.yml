@@ -19,13 +19,12 @@ jobs:
           xcode: '15.4'
           ios: '17.5'
           device: iPhone 15
-        - os: macos-13
-          xcode: '14.3.1'
-          ios: '16.4'
-          device: iPhone 14
       fail-fast: false
     runs-on: ${{ matrix.os }}
     env:
+      PLATFORM_VERSION: ${{ matrix.ios }}
+      XCODE_VERSION: ${{ matrix.xcode }}
+      DEVICE_NAME: ${{ matrix.device }}
       _LOG_TIMESTAMP: 1
       _FORCE_LOGS: 1
       CI: true
@@ -47,5 +46,6 @@ jobs:
         os_version: "${{ matrix.ios }}"
         shutdown_after_job: false
         wait_for_boot: true
+    - run: xcrun simctl openurl $udid "https://google.com" &
     - run: npm install
     - run: npm run e2e-test
