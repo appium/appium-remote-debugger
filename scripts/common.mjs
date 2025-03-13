@@ -6,7 +6,7 @@ import { exec } from 'teen_process';
 
 const log = logger.getLogger('Atoms');
 
-const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'selenium-4.19.0';
+const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'trunk'; // the hash is '9b1e83ce6409086413b1cd7ffe6da502ac9d11f1'
 const SELENIUM_GITHUB = process.env.SELENIUM_GITHUB || 'https://github.com/SeleniumHQ/selenium.git';
 
 const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
