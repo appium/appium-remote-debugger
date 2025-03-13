@@ -1,3 +1,9 @@
+## [12.2.0](https://github.com/appium/appium-remote-debugger/compare/v12.1.8...v12.2.0) (2025-03-13)
+
+### Features
+
+* build with latest atoms ([#412](https://github.com/appium/appium-remote-debugger/issues/412)) ([60474d8](https://github.com/appium/appium-remote-debugger/commit/60474d841b62e8c8d2ccd262569cbf9ec8b17d3b))
+
 ## [12.1.8](https://github.com/appium/appium-remote-debugger/compare/v12.1.7...v12.1.8) (2025-03-04)
 
 ### Miscellaneous Chores
