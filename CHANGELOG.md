@@ -1,3 +1,9 @@
+## [12.2.2](https://github.com/appium/appium-remote-debugger/compare/v12.2.1...v12.2.2) (2025-03-28)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump serve-static from 1.16.2 to 2.2.0 ([#418](https://github.com/appium/appium-remote-debugger/issues/418)) ([a143bfc](https://github.com/appium/appium-remote-debugger/commit/a143bfc8b977bab42a23858fd32b44c984a31c96))
+
 ## [12.2.1](https://github.com/appium/appium-remote-debugger/compare/v12.2.0...v12.2.1) (2025-03-25)
 
 ### Miscellaneous Chores
