@@ -1,3 +1,9 @@
+## [12.2.3](https://github.com/appium/appium-remote-debugger/compare/v12.2.2...v12.2.3) (2025-05-21)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump conventional-changelog-conventionalcommits ([#421](https://github.com/appium/appium-remote-debugger/issues/421)) ([b2e41a7](https://github.com/appium/appium-remote-debugger/commit/b2e41a77db613111b6a48019c66b81d452abc4ef))
+
 ## [12.2.2](https://github.com/appium/appium-remote-debugger/compare/v12.2.1...v12.2.2) (2025-03-28)
 
 ### Miscellaneous Chores
