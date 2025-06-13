@@ -1,3 +1,9 @@
+## [12.2.5](https://github.com/appium/appium-remote-debugger/compare/v12.2.4...v12.2.5) (2025-06-13)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump sinon from 20.0.0 to 21.0.0 ([#423](https://github.com/appium/appium-remote-debugger/issues/423)) ([1339caa](https://github.com/appium/appium-remote-debugger/commit/1339caa190fa8950136ca5e08e607f13dae98996))
+
 ## [12.2.4](https://github.com/appium/appium-remote-debugger/compare/v12.2.3...v12.2.4) (2025-06-10)
 
 ### Miscellaneous Chores
