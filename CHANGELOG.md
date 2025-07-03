@@ -1,3 +1,9 @@
+## [12.2.7](https://github.com/appium/appium-remote-debugger/compare/v12.2.6...v12.2.7) (2025-07-03)
+
+### Bug Fixes
+
+* Tune page initialization ([#426](https://github.com/appium/appium-remote-debugger/issues/426)) ([4c946be](https://github.com/appium/appium-remote-debugger/commit/4c946be43d85e55578d78e6877a7fcb362c4cd39))
+
 ## [12.2.6](https://github.com/appium/appium-remote-debugger/compare/v12.2.5...v12.2.6) (2025-07-03)
 
 ### Bug Fixes
