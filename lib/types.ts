@@ -85,14 +85,15 @@ export type AppIdKey = string | number;
 export type PageIdKey = string | number;
 
 export interface RemoteCommandOpts {
-  appIdKey: AppIdKey;
-  pageIdKey: PageIdKey;
-  id: string;
+  appIdKey?: AppIdKey;
+  pageIdKey?: PageIdKey;
+  id?: string;
   connId?: string;
   senderId?: string;
   targetId?: string;
   bundleId?: string;
   enabled?: boolean;
+  [key: string]: any;
 }
 
 export interface ProtocolCommandOpts {
