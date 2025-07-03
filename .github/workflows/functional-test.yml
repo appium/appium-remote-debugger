@@ -34,7 +34,9 @@ jobs:
       with:
         node-version: lts/*
         check-latest: true
-    - name: Prepare iOS simulator
+    - name: Start iOS Simulator UI
+      run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
+    - name: Boot iOS Simulator
       id: prepareSimulator
       uses: futureware-tech/simulator-action@v4
       with:
