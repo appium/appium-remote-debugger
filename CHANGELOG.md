@@ -1,3 +1,9 @@
+## [12.2.6](https://github.com/appium/appium-remote-debugger/compare/v12.2.5...v12.2.6) (2025-07-03)
+
+### Bug Fixes
+
+* Wait for target before enabling inspector features ([#425](https://github.com/appium/appium-remote-debugger/issues/425)) ([9c0e1d9](https://github.com/appium/appium-remote-debugger/commit/9c0e1d99784af90aa1498707bea601e04efafcd2))
+
 ## [12.2.5](https://github.com/appium/appium-remote-debugger/compare/v12.2.4...v12.2.5) (2025-06-13)
 
 ### Miscellaneous Chores
