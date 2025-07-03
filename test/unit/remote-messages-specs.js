@@ -20,7 +20,14 @@ describe('RemoteMessages', function () {
     ];
     for (const command of commands) {
       it(`should be able to retrieve ${command} command`, function () {
-        const remoteCommand = remoteMessages.getRemoteCommand(command, {});
+        const remoteCommand = remoteMessages.getRemoteCommand(command, {
+          id: 'test-id',
+          connId: 'test-conn-id',
+          appIdKey: 'test-app-id',
+          pageIdKey: 'test-page-id',
+          senderId: 'test-sender-id',
+          bundleId: 'test.bundle.id',
+        });
         remoteCommand.should.be.an.instanceof(Object);
         remoteCommand.__argument.should.exist;
         remoteCommand.__selector.should.exist;

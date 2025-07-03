@@ -19,7 +19,7 @@ export interface AppInfo {
 }
 
 export interface AppPage {
-  appIdKey: string;
+  appIdKey: AppIdKey;
   pageDict: Page;
 }
 
@@ -80,3 +80,28 @@ interface RemoteDebuggerRealDeviceSpecificOptions {
 }
 
 export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions & RemoteDebuggerOptions;
+
+export type AppIdKey = string | number;
+export type PageIdKey = string | number;
+
+export interface RemoteCommandOpts {
+  appIdKey: AppIdKey;
+  pageIdKey: PageIdKey;
+  id: string;
+  connId?: string;
+  senderId?: string;
+  targetId?: string;
+  bundleId?: string;
+  enabled?: boolean;
+}
+
+export interface ProtocolCommandOpts {
+  id: string;
+  method: string;
+  params: StringRecord;
+}
+
+export interface RemoteCommand {
+  __argument: StringRecord;
+  __selector: string;
+}

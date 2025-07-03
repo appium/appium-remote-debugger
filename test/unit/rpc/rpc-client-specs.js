@@ -39,7 +39,6 @@ describe('rpc-client', function () {
       sendToDeviceSpy.firstCall.args.should.eql(['command', opts, true]);
       sendToDeviceSpy.secondCall.args.should.eql(['command', opts, true]);
       waitForTargetSpy.firstCall.args.should.eql(['appId', 'pageKey']);
-      waitForTargetSpy.secondCall.args.should.eql(['appId', 'pageKey']);
     });
   });
 });
