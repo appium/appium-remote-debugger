@@ -32,35 +32,35 @@ export class RemoteDebugger extends EventEmitter {
   protected _skippedApps: string[];
   protected _clientEventListeners: StringRecord<EventListener[]>;
   protected _appDict: AppDict;
-  protected _appIdKey: AppIdKey | null | undefined;
-  protected _pageIdKey: PageIdKey | null | undefined;
-  protected _connectedDrivers: StringRecord[] | undefined;
-  protected _currentState: string | undefined;
-  protected _pageLoadDelay: B<void> | undefined;
+  protected _appIdKey?: AppIdKey;
+  protected _pageIdKey?: PageIdKey;
+  protected _connectedDrivers?: StringRecord[];
+  protected _currentState?: string;
+  protected _pageLoadDelay?: B<void>;
   protected _rpcClient: RpcClient | null;
   protected _pageLoading: boolean;
   protected _navigatingToPage: boolean;
   protected _allowNavigationWithoutReload: boolean;
-  protected _pageLoadMs: number | undefined;
-  protected readonly _pageLoadStrategy: string | undefined;
+  protected _pageLoadMs?: number;
+  protected readonly _pageLoadStrategy?: string;
   protected readonly _log: AppiumLogger;
-  protected readonly _bundleId: string | undefined;
-  protected readonly _additionalBundleIds: string[] | undefined;
-  protected readonly _platformVersion: string | undefined;
+  protected readonly _bundleId?: string;
+  protected readonly _additionalBundleIds?: string[];
+  protected readonly _platformVersion?: string;
   protected readonly _isSafari: boolean;
   protected readonly _includeSafari: boolean;
   protected readonly _useNewSafari: boolean;
   protected readonly _garbageCollectOnExecute: boolean;
-  protected readonly _host: string | undefined;
-  protected readonly _port: number | undefined;
-  protected readonly _socketPath: string | undefined;
-  protected readonly _remoteDebugProxy: any | undefined;
+  protected readonly _host?: string;
+  protected readonly _port?: number;
+  protected readonly _socketPath?: string;
+  protected readonly _remoteDebugProxy?: any;
   protected readonly _pageReadyTimeout: number;
   protected readonly _logAllCommunication: boolean;
   protected readonly _logAllCommunicationHexDump: boolean;
-  protected readonly _socketChunkSize: number | undefined;
-  protected readonly _webInspectorMaxFrameLength: number | undefined;
-  protected readonly _fullPageInitialization: boolean | undefined;
+  protected readonly _socketChunkSize?: number;
+  protected readonly _webInspectorMaxFrameLength?: number;
+  protected readonly _fullPageInitialization?: boolean;
 
   // events
   static readonly EVENT_PAGE_CHANGE: string;
@@ -187,8 +187,8 @@ export class RemoteDebugger extends EventEmitter {
   setup (): void {
     // app handling configuration
     this._appDict = {};
-    this._appIdKey = null;
-    this._pageIdKey = null;
+    this._appIdKey = undefined;
+    this._pageIdKey = undefined;
     this._pageLoading = false;
     this._navigatingToPage = false;
     this._currentState = undefined;
@@ -203,8 +203,8 @@ export class RemoteDebugger extends EventEmitter {
     this.log.debug('Cleaning up listeners');
 
     this._appDict = {};
-    this._appIdKey = null;
-    this._pageIdKey = null;
+    this._appIdKey = undefined;
+    this._pageIdKey = undefined;
     this._pageLoading = false;
 
     this._rpcClient = null;
