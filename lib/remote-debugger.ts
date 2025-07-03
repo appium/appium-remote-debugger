@@ -14,7 +14,9 @@ import _ from 'lodash';
 import type {
   RemoteDebuggerOptions,
   AppDict,
-  EventListener
+  EventListener,
+  PageIdKey,
+  AppIdKey,
 } from './types';
 import type { AppiumLogger, StringRecord } from '@appium/types';
 import type { RpcClient } from './rpc/rpc-client';
@@ -30,8 +32,8 @@ export class RemoteDebugger extends EventEmitter {
   protected _skippedApps: string[];
   protected _clientEventListeners: StringRecord<EventListener[]>;
   protected _appDict: AppDict;
-  protected _appIdKey: string | null | undefined;
-  protected _pageIdKey: string | number | null | undefined;
+  protected _appIdKey: AppIdKey | null | undefined;
+  protected _pageIdKey: PageIdKey | null | undefined;
   protected _connectedDrivers: StringRecord[] | undefined;
   protected _currentState: string | undefined;
   protected _pageLoadDelay: B<void> | undefined;
