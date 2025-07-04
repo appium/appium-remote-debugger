@@ -1,3 +1,9 @@
+## [12.2.8](https://github.com/appium/appium-remote-debugger/compare/v12.2.7...v12.2.8) (2025-07-04)
+
+### Bug Fixes
+
+* Update event listener typedefs ([#427](https://github.com/appium/appium-remote-debugger/issues/427)) ([2e8c292](https://github.com/appium/appium-remote-debugger/commit/2e8c2927230310cd3ff42de4ce8e2fb484b0b61d))
+
 ## [12.2.7](https://github.com/appium/appium-remote-debugger/compare/v12.2.6...v12.2.7) (2025-07-03)
 
 ### Bug Fixes
