@@ -7,8 +7,8 @@ import { createRemoteDebugger } from '../../index';
 import { startHttpServer, stopHttpServer } from './http-server';
 
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
-const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 15';
-const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '17.2';
+const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 16';
+const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '18.5';
 
 const PAGE_TITLE = 'Remote debugger test page';
 
@@ -84,7 +84,7 @@ describe('Safari remote debugger', function () {
       logAllCommunicationHexDump: false,
     }, false);
 
-    const maxRetries = process.env.CI ? 10 : 2;
+    const maxRetries = process.env.CI ? 10 : 5;
     await retry(maxRetries, async () => await sim.openUrl(address));
     await retry(maxRetries, async () => {
       if (_.isEmpty(await rd.connect(60000))) {
@@ -186,6 +186,26 @@ describe('Safari remote debugger', function () {
       const script = `arguments[arguments.length - 1](document.getElementsByTagName('h1')[0].innerHTML);`;
       const res = await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [frame]);
       res.should.eql('Sub frame 1');
+    });
+  });
+
+  it('should be able to monitor network events', async function () {
+    const networkEvents = [];
+    // eslint-disable-next-line promise/prefer-await-to-callbacks
+    rd.startNetwork((err, event) => {
+      if (event) {
+        networkEvents.push(event);
+      }
+    });
+
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+
+    await rd.navToUrl(`${address}/frameset.html`);
+
+    await retryInterval(50, 100, function () {
+      networkEvents.length.should.be.at.least(1);
     });
   });
 
