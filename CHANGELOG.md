@@ -1,3 +1,9 @@
+## [12.2.9](https://github.com/appium/appium-remote-debugger/compare/v12.2.8...v12.2.9) (2025-07-05)
+
+### Bug Fixes
+
+* Tune error handling in debugger responses ([#428](https://github.com/appium/appium-remote-debugger/issues/428)) ([984c937](https://github.com/appium/appium-remote-debugger/commit/984c937cc32e81596fed3c6889eb543cec931091))
+
 ## [12.2.8](https://github.com/appium/appium-remote-debugger/compare/v12.2.7...v12.2.8) (2025-07-04)
 
 ### Bug Fixes
