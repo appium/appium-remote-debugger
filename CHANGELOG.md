@@ -1,3 +1,9 @@
+## [12.2.10](https://github.com/appium/appium-remote-debugger/compare/v12.2.9...v12.2.10) (2025-07-05)
+
+### Bug Fixes
+
+* Improve errors handling in data messages ([#429](https://github.com/appium/appium-remote-debugger/issues/429)) ([7479e6e](https://github.com/appium/appium-remote-debugger/commit/7479e6e50995a2341bbd23f0d71f2dbc89acd536))
+
 ## [12.2.9](https://github.com/appium/appium-remote-debugger/compare/v12.2.8...v12.2.9) (2025-07-05)
 
 ### Bug Fixes
