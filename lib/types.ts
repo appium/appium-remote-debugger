@@ -83,6 +83,7 @@ export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOp
 
 export type AppIdKey = string | number;
 export type PageIdKey = string | number;
+export type TargetId = string;
 
 export interface RemoteCommandOpts {
   appIdKey?: AppIdKey;
@@ -90,7 +91,7 @@ export interface RemoteCommandOpts {
   id?: string;
   connId?: string;
   senderId?: string;
-  targetId?: string;
+  targetId?: TargetId;
   bundleId?: string;
   enabled?: boolean;
   [key: string]: any;
@@ -102,7 +103,36 @@ export interface ProtocolCommandOpts {
   params: StringRecord;
 }
 
-export interface RemoteCommand {
-  __argument: StringRecord;
+type SocketDataKey = Buffer | StringRecord;
+
+interface RemoteCommandArgument<T extends SocketDataKey> {
+  WIRSocketDataKey?: T;
+  WIRConnectionIdentifierKey?: string;
+  WIRSenderKey?: string;
+  WIRApplicationIdentifierKey?: AppIdKey;
+  WIRPageIdentifierKey?: PageIdKey;
+  WIRMessageDataTypeKey?: string;
+  WIRDestinationKey?: string;
+  WIRMessageDataKey?: string;
+  [key: string]: any;
+}
+
+interface RemoteCommandTemplated<T extends SocketDataKey> {
+  __argument: RemoteCommandArgument<T>;
   __selector: string;
+}
+
+export type RawRemoteCommand = RemoteCommandTemplated<StringRecord>;
+export type RemoteCommand = RemoteCommandTemplated<Buffer>;
+
+export interface TargetInfo {
+  targetId: string;
+  type: 'page' | 'service-worker' | 'worker';
+  isProvisional: boolean;
+  isPaused: boolean;
+}
+
+export interface ProvisionalTargetInfo {
+  oldTargetId: string;
+  newTargetId: string;
 }
