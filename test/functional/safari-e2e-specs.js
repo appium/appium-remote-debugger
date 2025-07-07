@@ -36,6 +36,8 @@ describe('Safari remote debugger', function () {
   this.retries(2);
 
   let chai;
+  /** @type {Chai.ExpectStatic} */
+  let expect;
   /** @type {import('appium-ios-simulator').Simulator} */
   let sim;
   let simCreated = false;
@@ -48,6 +50,7 @@ describe('Safari remote debugger', function () {
     const chaiAsPromised = await import('chai-as-promised');
     chai.should();
     chai.use(chaiAsPromised.default);
+    expect = chai.expect;
 
     sim = await getExistingSim(DEVICE_NAME, PLATFORM_VERSION);
     if (!sim) {
@@ -189,7 +192,7 @@ describe('Safari remote debugger', function () {
     });
   });
 
-  it.only('should be able to monitor network events', async function () {
+  it('should be able to monitor network events', async function () {
     const networkEvents = [];
     // eslint-disable-next-line promise/prefer-await-to-callbacks
     rd.startNetwork((err, event, method) => {
@@ -208,9 +211,8 @@ describe('Safari remote debugger', function () {
 
     await retryInterval(50, 100, function () {
       networkEvents.length.should.be.at.least(1);
+      expect(networkEvents.find((req) => req?.url === 'https://github.com/')).to.exist;
     });
-
-    console.log('Network events:', JSON.stringify(networkEvents)); // eslint-disable-line no-console
   });
 
   it('capture full viewport', async function () {
