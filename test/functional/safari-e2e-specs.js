@@ -211,7 +211,7 @@ describe('Safari remote debugger', function () {
 
     await retryInterval(50, 100, function () {
       networkEvents.length.should.be.at.least(1);
-      expect(networkEvents.find((req) => req?.url === 'https://github.com/')).to.exist;
+      expect(networkEvents.find(({event}) => event?.request?.url === 'https://github.com/')).to.exist;
     });
   });
 
