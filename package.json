@@ -37,6 +37,7 @@
     "@appium/support": "^6.0.0",
     "appium-ios-device": "^2.0.0",
     "asyncbox": "^3.0.0",
+    "async-lock": "^1.4.1",
     "bluebird": "^3.4.7",
     "glob": "^10.3.3",
     "lodash": "^4.17.11",
