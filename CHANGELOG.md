@@ -1,3 +1,13 @@
+## [13.0.0](https://github.com/appium/appium-remote-debugger/compare/v12.2.10...v13.0.0) (2025-07-10)
+
+### ⚠ BREAKING CHANGES
+
+* Removed the obsolete ON_TARGET_PROVISIONED_EVENT exported constant
+
+### Code Refactoring
+
+* Introduce pauseOnStart for targets creation ([#430](https://github.com/appium/appium-remote-debugger/issues/430)) ([92668b4](https://github.com/appium/appium-remote-debugger/commit/92668b4f288991e624efa4a479f2f25bdec2c7f9))
+
 ## [12.2.10](https://github.com/appium/appium-remote-debugger/compare/v12.2.9...v12.2.10) (2025-07-05)
 
 ### Bug Fixes
