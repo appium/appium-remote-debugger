@@ -101,6 +101,12 @@ describe('Safari remote debugger', function () {
     rd = null;
   });
 
+  async function selectTestPage() {
+    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
+    await rd.selectPage(appIdKey, pageIdKey);
+  }
+
   it('should be able to connect and get app', async function () {
     const pageArray = await rd.selectApp(address);
     _.filter(pageArray, (page) => page.title === PAGE_TITLE)
@@ -108,9 +114,7 @@ describe('Safari remote debugger', function () {
   });
 
   it('should be able to execute an atom', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    await selectTestPage();
 
     const script = 'return 1 + 1;';
     const sum = await rd.executeAtom('execute_script', [script, []]);
@@ -118,9 +122,7 @@ describe('Safari remote debugger', function () {
   });
 
   it('should be able to find an element', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    await selectTestPage();
 
     const el = await rd.executeAtom('find_element_fragment', ['css selector', '#somediv']);
     const text = await rd.executeAtom('get_text', [el]);
@@ -128,10 +130,9 @@ describe('Safari remote debugger', function () {
   });
 
   it('should be able to send text to an element and get attribute values', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    await selectTestPage();
 
+    (await rd.isJavascriptExecutionBlocked()).should.equal(false);
     const el = await rd.executeAtom('find_element_fragment', ['css selector', '#input']);
     let text = await rd.executeAtom('get_text', [el]);
     text.should.eql('');
@@ -146,10 +147,9 @@ describe('Safari remote debugger', function () {
 
   describe('executeAtomAsync', function () {
     const timeout = 1000;
+
     it('should be able to execute an atom asynchronously', async function () {
-      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-      await rd.selectPage(appIdKey, pageIdKey);
+      await selectTestPage();
 
       const script = 'arguments[arguments.length - 1](123);';
       await rd.executeAtomAsync('execute_async_script', [script, [], timeout])
@@ -157,9 +157,7 @@ describe('Safari remote debugger', function () {
     });
 
     it('should bubble up JS errors', async function () {
-      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-      await rd.selectPage(appIdKey, pageIdKey);
+      await selectTestPage();
 
       const script = `arguments[arguments.length - 1](1--);`;
       await rd.executeAtomAsync('execute_async_script', [script, [], timeout])
@@ -167,9 +165,7 @@ describe('Safari remote debugger', function () {
     });
 
     it('should timeout when callback is not invoked', async function () {
-      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-      await rd.selectPage(appIdKey, pageIdKey);
+      await selectTestPage();
 
       const script = 'return 1 + 2';
       await rd.executeAtomAsync('execute_async_script', [script, [], timeout])
@@ -177,9 +173,7 @@ describe('Safari remote debugger', function () {
     });
 
     it('should be able to execute asynchronously in frame', async function () {
-      const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-      const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-      await rd.selectPage(appIdKey, pageIdKey);
+      await selectTestPage();
 
       // go to the frameset page
       await rd.navToUrl(`${address}/frameset.html`);
@@ -201,9 +195,7 @@ describe('Safari remote debugger', function () {
       }
     });
 
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    await selectTestPage();
 
     await rd.navToUrl(`https://github.com`);
 
@@ -215,47 +207,46 @@ describe('Safari remote debugger', function () {
     });
   });
 
-  it('capture full viewport', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+  describe('capture', function () {
+    it('full viewport', async function () {
+      await selectTestPage();
 
-    let screenshot = await rd.captureScreenshot();
-    screenshot.startsWith('iVBOR').should.be.true;
-  });
+      let screenshot = await rd.captureScreenshot();
+      screenshot.startsWith('iVBOR').should.be.true;
+    });
 
-  it('capture rect on a viewport', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    it('rect on a viewport', async function () {
+      await selectTestPage();
 
-    let screenshot = await rd.captureScreenshot({rect: {x: 0, y: 0, width: 100, height: 100}});
-    screenshot.startsWith('iVBOR').should.be.true;
-  });
+      let screenshot = await rd.captureScreenshot({
+        rect: {x: 0, y: 0, width: 100, height: 100}
+      });
+      screenshot.startsWith('iVBOR').should.be.true;
+    });
 
-  it('capture full page', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    it('full page', async function () {
+      await selectTestPage();
 
-    let screenshot = await rd.captureScreenshot({coordinateSystem: 'Page'});
-    screenshot.startsWith('iVBOR').should.be.true;
-  });
+      let screenshot = await rd.captureScreenshot({
+        coordinateSystem: 'Page'
+      });
+      screenshot.startsWith('iVBOR').should.be.true;
+    });
 
-  it('capture rect on a page', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    it('rect on a page', async function () {
+      await selectTestPage();
 
-    let screenshot = await rd.captureScreenshot({rect: {x: 0, y: 0, width: 100, height: 100}, coordinateSystem: 'Page'});
-    screenshot.startsWith('iVBOR').should.be.true;
+      let screenshot = await rd.captureScreenshot({
+        rect: {x: 0, y: 0, width: 100, height: 100},
+        coordinateSystem: 'Page'
+      });
+      screenshot.startsWith('iVBOR').should.be.true;
+    });
   });
 
   it(`should be able to call 'selectApp' after already connecting to app`, async function () {
     // this mimics the situation of getting all contexts multiple times
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    await selectTestPage();
 
     const script = 'return 1 + 1;';
     const sum = await rd.executeAtom('execute_script', [script, []]);
@@ -265,9 +256,7 @@ describe('Safari remote debugger', function () {
   });
 
   it('should be able to get console logs from a remote page', async function () {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    await selectTestPage();
 
     let lines = [];
     rd.startConsole(function (err, line) { // eslint-disable-line promise/prefer-await-to-callbacks
@@ -299,9 +288,7 @@ describe('Safari remote debugger', function () {
 }).apply(null, arguments)`;
     }
 
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
-    const [appIdKey, pageIdKey] = page.id.split('.').map((id) => parseInt(id, 10));
-    await rd.selectPage(appIdKey, pageIdKey);
+    await selectTestPage();
 
     await rd.navToUrl(`${address}/shadow-dom.html`);
 

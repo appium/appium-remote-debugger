@@ -96,6 +96,7 @@ export class RemoteDebugger extends EventEmitter {
   stopTimeline = miscellaneousMixins.stopTimeline;
   overrideUserAgent = miscellaneousMixins.overrideUserAgent;
   garbageCollect = miscellaneousMixins.garbageCollect;
+  isJavascriptExecutionBlocked = miscellaneousMixins.isJavascriptExecutionBlocked;
 
   // Callbacks
   onPageChange = messageHandlerMixins.onPageChange;
