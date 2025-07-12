@@ -1,3 +1,9 @@
+## [13.1.0](https://github.com/appium/appium-remote-debugger/compare/v13.0.0...v13.1.0) (2025-07-12)
+
+### Features
+
+* Add a helper method to verify if javascript execution is blocked ([#431](https://github.com/appium/appium-remote-debugger/issues/431)) ([5c9ea37](https://github.com/appium/appium-remote-debugger/commit/5c9ea3710b186f258759e4e8c38f6a2183316b78))
+
 ## [13.0.0](https://github.com/appium/appium-remote-debugger/compare/v12.2.10...v13.0.0) (2025-07-10)
 
 ### ⚠ BREAKING CHANGES
