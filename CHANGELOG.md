@@ -1,3 +1,9 @@
+## [13.1.1](https://github.com/appium/appium-remote-debugger/compare/v13.1.0...v13.1.1) (2025-08-04)
+
+### Miscellaneous Chores
+
+* bump appium-ios-device to 2.9.0 ([#432](https://github.com/appium/appium-remote-debugger/issues/432)) ([2ab211b](https://github.com/appium/appium-remote-debugger/commit/2ab211b3b8509fbe7ec8aa7f2c99edac0bc58a1d))
+
 ## [13.1.0](https://github.com/appium/appium-remote-debugger/compare/v13.0.0...v13.1.0) (2025-07-12)
 
 ### Features
