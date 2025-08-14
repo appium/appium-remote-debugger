@@ -44,6 +44,6 @@ jobs:
         os_version: "${{ matrix.ios }}"
         shutdown_after_job: false
         wait_for_boot: true
-    - run: xcrun simctl openurl booted "https://google.com" &
+    - run: nohup xcrun simctl openurl booted "https://google.com" &
     - run: npm install
     - run: npm run e2e-test
