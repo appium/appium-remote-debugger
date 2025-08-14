@@ -12,9 +12,9 @@ jobs:
       matrix:
         include:
         - os: macos-15
-          xcode: '16.2'
-          ios: '18.2'
-          device: iPhone 16
+          xcode: '16.4'
+          ios: '18.5'
+          device: 'iPhone 16'
       fail-fast: false
     runs-on: ${{ matrix.os }}
     env:
