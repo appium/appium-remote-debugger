@@ -21,6 +21,7 @@ export class RemoteDebuggerRealDevice extends RemoteDebugger {
       socketChunkSize: this._socketChunkSize,
       webInspectorMaxFrameLength: this._webInspectorMaxFrameLength,
       udid: this._udid,
+      pageLoadTimeoutMs: this._pageLoadMs,
     });
   }
 }
