@@ -1,3 +1,9 @@
+## [13.1.2](https://github.com/appium/appium-remote-debugger/compare/v13.1.1...v13.1.2) (2025-08-15)
+
+### Miscellaneous Chores
+
+* Bump the default timeout for the target creation event ([#433](https://github.com/appium/appium-remote-debugger/issues/433)) ([1204613](https://github.com/appium/appium-remote-debugger/commit/120461359bcf69a7534ee0f21a575aacb44a02a0))
+
 ## [13.1.1](https://github.com/appium/appium-remote-debugger/compare/v13.1.0...v13.1.1) (2025-08-04)
 
 ### Miscellaneous Chores
