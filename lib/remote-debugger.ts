@@ -232,6 +232,7 @@ export class RemoteDebugger extends EventEmitter {
       logAllCommunicationHexDump: this._logAllCommunicationHexDump,
       fullPageInitialization: this._fullPageInitialization,
       webInspectorMaxFrameLength: this._webInspectorMaxFrameLength,
+      pageLoadTimeoutMs: this._pageLoadMs,
     });
   }
 
