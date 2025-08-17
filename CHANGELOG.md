@@ -1,3 +1,9 @@
+## [14.0.1](https://github.com/appium/appium-remote-debugger/compare/v14.0.0...v14.0.1) (2025-08-17)
+
+### Miscellaneous Chores
+
+* **deps:** bump glob from 10.4.5 to 11.0.3 ([#424](https://github.com/appium/appium-remote-debugger/issues/424)) ([44b2d30](https://github.com/appium/appium-remote-debugger/commit/44b2d30e794c2d43e274c44c2c2e797303841897))
+
 ## [14.0.0](https://github.com/appium/appium-remote-debugger/compare/v13.1.2...v14.0.0) (2025-08-17)
 
 ### ⚠ BREAKING CHANGES
