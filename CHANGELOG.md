@@ -1,3 +1,15 @@
+## [14.0.0](https://github.com/appium/appium-remote-debugger/compare/v13.1.2...v14.0.0) (2025-08-17)
+
+### ⚠ BREAKING CHANGES
+
+* Required Node.js version has been bumped to ^20.19.0 || ^22.12.0 || >=24.0.0
+* Required npm version has been bumped to >=10
+* Required base driver version has been bumped to >=10.0.0-rc.1
+
+### Features
+
+* Update server compatibility ([#434](https://github.com/appium/appium-remote-debugger/issues/434)) ([e1ca8cc](https://github.com/appium/appium-remote-debugger/commit/e1ca8cc5ba238d68d0c73cd187e03cdbbcfdb25e))
+
 ## [13.1.2](https://github.com/appium/appium-remote-debugger/compare/v13.1.1...v13.1.2) (2025-08-15)
 
 ### Miscellaneous Chores
