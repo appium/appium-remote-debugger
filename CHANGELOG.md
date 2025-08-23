@@ -1,3 +1,9 @@
+## [14.0.2](https://github.com/appium/appium-remote-debugger/compare/v14.0.1...v14.0.2) (2025-08-23)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump chai from 5.3.2 to 6.0.0 ([#435](https://github.com/appium/appium-remote-debugger/issues/435)) ([48c3c1a](https://github.com/appium/appium-remote-debugger/commit/48c3c1a32c93a84bc635ced3ba0c4be2488d1381))
+
 ## [14.0.1](https://github.com/appium/appium-remote-debugger/compare/v14.0.0...v14.0.1) (2025-08-17)
 
 ### Miscellaneous Chores
