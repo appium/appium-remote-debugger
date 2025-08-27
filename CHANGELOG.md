@@ -1,3 +1,9 @@
+## [14.0.3](https://github.com/appium/appium-remote-debugger/compare/v14.0.2...v14.0.3) (2025-08-27)
+
+### Bug Fixes
+
+* Apply initialisation lock per app ([#436](https://github.com/appium/appium-remote-debugger/issues/436)) ([fd8a341](https://github.com/appium/appium-remote-debugger/commit/fd8a341d9a7b59acc758a3f37b09e2cc73f2c84a))
+
 ## [14.0.2](https://github.com/appium/appium-remote-debugger/compare/v14.0.1...v14.0.2) (2025-08-23)
 
 ### Miscellaneous Chores
