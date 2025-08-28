@@ -1,3 +1,9 @@
+## [14.0.4](https://github.com/appium/appium-remote-debugger/compare/v14.0.3...v14.0.4) (2025-08-28)
+
+### Bug Fixes
+
+* Avoid deadlocks ([#437](https://github.com/appium/appium-remote-debugger/issues/437)) ([6634146](https://github.com/appium/appium-remote-debugger/commit/66341464459dc60bfd96d6e97e13aa63ad7c0205))
+
 ## [14.0.3](https://github.com/appium/appium-remote-debugger/compare/v14.0.2...v14.0.3) (2025-08-27)
 
 ### Bug Fixes
