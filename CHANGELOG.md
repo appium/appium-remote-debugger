@@ -1,3 +1,9 @@
+## [14.0.5](https://github.com/appium/appium-remote-debugger/compare/v14.0.4...v14.0.5) (2025-08-29)
+
+### Bug Fixes
+
+* Update page initialization logic to avoid conflicts ([#438](https://github.com/appium/appium-remote-debugger/issues/438)) ([cb03aa3](https://github.com/appium/appium-remote-debugger/commit/cb03aa394b3df07db70e5cdbd0efd00f96430a78))
+
 ## [14.0.4](https://github.com/appium/appium-remote-debugger/compare/v14.0.3...v14.0.4) (2025-08-28)
 
 ### Bug Fixes
