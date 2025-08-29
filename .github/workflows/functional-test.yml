@@ -12,7 +12,7 @@ jobs:
       matrix:
         include:
         - os: macos-15
-          xcode: '26.0'
+          xcode: '26.0-beta'
           ios: '26.0'
           device: 'iPhone 16'
         - os: macos-15
