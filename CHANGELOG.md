@@ -1,3 +1,18 @@
+## [15.0.0](https://github.com/appium/appium-remote-debugger/compare/v14.0.5...v15.0.0) (2025-09-06)
+
+### ⚠ BREAKING CHANGES
+
+* Changed constructor signature of RemoteMessages class. It does not accept any arguments now
+* Removed the obsolete isTargetBased getter and setter from RemoteMessages class instances
+* Removed the obsolete needsTarget getter and isTargetBased property from RpcClient class instances
+* Removed the obsolete isTargetBased getter and setter from RpcClient class instances
+* Changed constructor signature of RpcMessageHandler class. It does not accept any arguments now
+* Removed the obsolete isTargetBased getter and setter from RpcMessageHandler class instances
+
+### Features
+
+* Drop the obsolete non-target based communication protocol support ([#440](https://github.com/appium/appium-remote-debugger/issues/440)) ([e70e7fe](https://github.com/appium/appium-remote-debugger/commit/e70e7fe20b73b8a9ff293d54a55708a5984437e3))
+
 ## [14.0.5](https://github.com/appium/appium-remote-debugger/compare/v14.0.4...v14.0.5) (2025-08-29)
 
 ### Bug Fixes
