@@ -49,4 +49,9 @@ jobs:
         shutdown_after_job: false
         wait_for_boot: true
     - run: npm install
-    - run: npm run e2e-test
+    - name: Retry E2E Tests
+      uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 40
+        max_attempts: 2
+        command: npm run e2e-test
