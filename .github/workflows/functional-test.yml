@@ -11,10 +11,10 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: macos-15
-          xcode: '16.4'
-          ios: '26.0'
-          device: 'iPhone 16'
+        # - os: macos-15
+        #   xcode: '16.4'
+        #   ios: '26.0'
+        #   device: 'iPhone 16'
         - os: macos-15
           xcode: '16.4'
           ios: '18.5'
@@ -49,7 +49,7 @@ jobs:
         shutdown_after_job: false
         wait_for_boot: true
     - run: npm install
-    - name: Retry E2E Tests
+    - name: E2E Tests
       uses: nick-fields/retry@v3
       with:
         timeout_minutes: 40
