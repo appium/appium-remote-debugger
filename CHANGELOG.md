@@ -1,3 +1,9 @@
+## [15.0.1](https://github.com/appium/appium-remote-debugger/compare/v15.0.0...v15.0.1) (2025-09-07)
+
+### Bug Fixes
+
+* Combine page initialization and readiness checks ([#441](https://github.com/appium/appium-remote-debugger/issues/441)) ([c2bc662](https://github.com/appium/appium-remote-debugger/commit/c2bc66236d3349af05d247a8c11fece538ba51d8))
+
 ## [15.0.0](https://github.com/appium/appium-remote-debugger/compare/v14.0.5...v15.0.0) (2025-09-06)
 
 ### ⚠ BREAKING CHANGES
