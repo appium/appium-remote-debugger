@@ -78,7 +78,6 @@ describe('Safari remote debugger', function () {
     rd = createRemoteDebugger({
       bundleId: 'com.apple.mobilesafari',
       isSafari: true,
-      useNewSafari: true,
       platformVersion: PLATFORM_VERSION,
       socketPath: await sim.getWebInspectorSocket(),
       garbageCollectOnExecute: false,

@@ -49,7 +49,6 @@ export class RemoteDebugger extends EventEmitter {
   protected readonly _platformVersion?: string;
   protected readonly _isSafari: boolean;
   protected readonly _includeSafari: boolean;
-  protected readonly _useNewSafari: boolean;
   protected readonly _garbageCollectOnExecute: boolean;
   protected readonly _host?: string;
   protected readonly _port?: number;
@@ -120,7 +119,6 @@ export class RemoteDebugger extends EventEmitter {
       platformVersion,
       isSafari = true,
       includeSafari = false,
-      useNewSafari = false,
       pageLoadMs,
       host,
       port = REMOTE_DEBUGGER_PORT,
@@ -142,10 +140,8 @@ export class RemoteDebugger extends EventEmitter {
     this._platformVersion = platformVersion;
     this._isSafari = isSafari;
     this._includeSafari = includeSafari;
-    this._useNewSafari = useNewSafari;
     this._pageLoadMs = pageLoadMs;
     this._allowNavigationWithoutReload = false;
-    this.log.debug(`useNewSafari --> ${this._useNewSafari}`);
 
     this._garbageCollectOnExecute = garbageCollectOnExecute;
 
