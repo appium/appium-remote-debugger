@@ -22,7 +22,7 @@ describe('execute', function () {
         _rpcClient: {
           isConnected: true,
           send: () => ({hello: 'world'}),
-          waitForPageInitialization: async () => {},
+          waitForPage: async () => {},
         },
       };
       ctx.requireRpcClient = () => ctx._rpcClient;
@@ -40,7 +40,7 @@ describe('execute', function () {
         _rpcClient: {
           isConnected: true,
           send: () => ({result: {objectId: 'fake-object-id'}}),
-          waitForPageInitialization: async () => {},
+          waitForPage: async () => {},
         },
       };
       ctx.requireRpcClient = () => ctx._rpcClient;
@@ -64,7 +64,7 @@ describe('execute', function () {
             return {result: {objectId: 'fake-object-id'}};
           },
           isConnected: true,
-          waitForPageInitialization: async () => {},
+          waitForPage: async () => {},
         },
         waitForDom () { },
         _pageLoading: true,
