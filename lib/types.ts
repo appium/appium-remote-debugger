@@ -49,7 +49,7 @@ export interface RemoteDebuggerOptions {
   platformVersion?: string;
   isSafari?: boolean;
   includeSafari?: boolean;
-  /** for web inspector, whether this is a new Safari instance */
+  /** @deprecated - deprecated for removal, not used anywhere */
   useNewSafari?: boolean;
   /** the time, in ms, that should be waited for page loading */
   pageLoadMs?: number;
