@@ -1,3 +1,9 @@
+## [15.0.2](https://github.com/appium/appium-remote-debugger/compare/v15.0.1...v15.0.2) (2025-09-16)
+
+### Bug Fixes
+
+* Introduce locking upon page selection ([#442](https://github.com/appium/appium-remote-debugger/issues/442)) ([88ca6ec](https://github.com/appium/appium-remote-debugger/commit/88ca6ecacfbe48eb0e4be594644c122ec466ca67))
+
 ## [15.0.1](https://github.com/appium/appium-remote-debugger/compare/v15.0.0...v15.0.1) (2025-09-07)
 
 ### Bug Fixes
