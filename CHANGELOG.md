@@ -1,3 +1,9 @@
+## [15.0.3](https://github.com/appium/appium-remote-debugger/compare/v15.0.2...v15.0.3) (2025-10-03)
+
+### Bug Fixes
+
+* Do not wait for existing targets ([#444](https://github.com/appium/appium-remote-debugger/issues/444)) ([f14558a](https://github.com/appium/appium-remote-debugger/commit/f14558aad74f558948d0bdfbf1d4850da4d66dc5))
+
 ## [15.0.2](https://github.com/appium/appium-remote-debugger/compare/v15.0.1...v15.0.2) (2025-09-16)
 
 ### Bug Fixes
