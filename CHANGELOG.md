@@ -1,3 +1,9 @@
+## [15.1.0](https://github.com/appium/appium-remote-debugger/compare/v15.0.3...v15.1.0) (2025-10-04)
+
+### Features
+
+* Add targetCreationTimeoutMs option ([#445](https://github.com/appium/appium-remote-debugger/issues/445)) ([6051f64](https://github.com/appium/appium-remote-debugger/commit/6051f642fbe9b70208b30d2afc8f0651c8e94ee6))
+
 ## [15.0.3](https://github.com/appium/appium-remote-debugger/compare/v15.0.2...v15.0.3) (2025-10-03)
 
 ### Bug Fixes
