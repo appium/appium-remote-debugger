@@ -1,11 +1,4 @@
 import type { StringRecord, AppiumLogger } from '@appium/types';
-import type B from 'bluebird';
-
-export interface DeferredPromise {
-  promise: B<any>;
-  resolve: (...args: any[]) => void;
-  reject: (err?: Error) => void;
-}
 
 export interface AppInfo {
   id: string;
@@ -31,7 +24,7 @@ export interface App {
 export interface Page {
   url: string;
   title: string;
-  id: number | string;
+  id: PageIdKey;
   isKey: boolean;
   bundleId?: string;
 }
@@ -71,6 +64,11 @@ export interface RemoteDebuggerOptions {
   /** size, in bytes, of chunks of data sent to Web Inspector (real device only) */
   socketChunkSize?: number;
   fullPageInitialization?: boolean;
+  /**
+   * How long to wait until a new target is created for a page.
+   * Usually, it happens almost instantly, but on slow CI environments this might take some minutes.
+   */
+  targetCreationTimeoutMs?: number;
   pageLoadStrategy?: string;
   log?: AppiumLogger;
 }

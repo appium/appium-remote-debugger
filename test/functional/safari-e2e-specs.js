@@ -85,6 +85,7 @@ describe('Safari remote debugger', function () {
       logAllCommunication: true,
       logAllCommunicationHexDump: false,
       pageReadyTimeout: 30000,
+      targetCreationTimeoutMs: process.env.CI ? 10 * 1000 * 60 : 60000,
     }, false);
 
     const maxRetries = process.env.CI ? 10 : 5;
