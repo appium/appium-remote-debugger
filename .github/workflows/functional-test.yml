@@ -11,10 +11,10 @@ jobs:
     strategy:
       matrix:
         include:
-        # - os: macos-15
-        #   xcode: '16.4'
-        #   ios: '26.0'
-        #   device: 'iPhone 16'
+        - os: macos-26
+          xcode: '26.0'
+          ios: '26.0'
+          device: 'iPhone 17'
         - os: macos-15
           xcode: '16.4'
           ios: '18.5'
