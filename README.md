@@ -43,5 +43,5 @@ details.
 
 ```
 npm test
-npm e2e-test
+npm run e2e-test
 ```
