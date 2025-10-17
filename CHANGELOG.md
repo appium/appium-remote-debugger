@@ -1,3 +1,9 @@
+## [15.1.1](https://github.com/appium/appium-remote-debugger/compare/v15.1.0...v15.1.1) (2025-10-17)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump semantic-release from 24.2.9 to 25.0.0 ([#448](https://github.com/appium/appium-remote-debugger/issues/448)) ([2bd343d](https://github.com/appium/appium-remote-debugger/commit/2bd343d72377dc86fc492217905b0786ec936652))
+
 ## [15.1.0](https://github.com/appium/appium-remote-debugger/compare/v15.0.3...v15.1.0) (2025-10-04)
 
 ### Features
