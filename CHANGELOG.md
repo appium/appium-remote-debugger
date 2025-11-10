@@ -1,3 +1,9 @@
+## [15.2.0](https://github.com/appium/appium-remote-debugger/compare/v15.1.1...v15.2.0) (2025-11-10)
+
+### Features
+
+* ignore frame target type for Target domain ([#449](https://github.com/appium/appium-remote-debugger/issues/449)) ([931081d](https://github.com/appium/appium-remote-debugger/commit/931081dd34363126b86ceca11a3843ac70f1560b))
+
 ## [15.1.1](https://github.com/appium/appium-remote-debugger/compare/v15.1.0...v15.1.1) (2025-10-17)
 
 ### Miscellaneous Chores
