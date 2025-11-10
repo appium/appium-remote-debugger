@@ -125,7 +125,8 @@ export type RemoteCommand = RemoteCommandTemplated<Buffer>;
 
 
 /**
- * Target types
+ * Target types.
+ * 'frame' was added since iOS 26.2 beta.
  * https://github.com/WebKit/WebKit/blob/06f8ad1a5a66f9ffaa33696a5b9fba4f4c65070b/Source/JavaScriptCore/inspector/protocol/Target.json#L12
  */
 export type TargetType = 'page' | 'service-worker' | 'worker' | 'frame';
