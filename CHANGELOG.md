@@ -1,3 +1,9 @@
+## [15.2.1](https://github.com/appium/appium-remote-debugger/compare/v15.2.0...v15.2.1) (2025-11-11)
+
+### Miscellaneous Chores
+
+* Skip all Target.targetCreated events where type is not 'page' ([#450](https://github.com/appium/appium-remote-debugger/issues/450)) ([bbd6562](https://github.com/appium/appium-remote-debugger/commit/bbd656236d87dac91fe31349c0a5673d411337b1))
+
 ## [15.2.0](https://github.com/appium/appium-remote-debugger/compare/v15.1.1...v15.2.0) (2025-11-10)
 
 ### Features
