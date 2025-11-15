@@ -1,3 +1,9 @@
+## [15.2.2](https://github.com/appium/appium-remote-debugger/compare/v15.2.1...v15.2.2) (2025-11-15)
+
+### Miscellaneous Chores
+
+* publish via trusted publisher ([#451](https://github.com/appium/appium-remote-debugger/issues/451)) ([6029458](https://github.com/appium/appium-remote-debugger/commit/6029458f16d25569e5fe50bfa7f59f9f7870d9c9))
+
 ## [15.2.1](https://github.com/appium/appium-remote-debugger/compare/v15.2.0...v15.2.1) (2025-11-11)
 
 ### Miscellaneous Chores
