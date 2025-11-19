@@ -1,3 +1,9 @@
+## [15.2.3](https://github.com/appium/appium-remote-debugger/compare/v15.2.2...v15.2.3) (2025-11-19)
+
+### Miscellaneous Chores
+
+* **deps:** bump glob from 11.1.0 to 12.0.0 ([#453](https://github.com/appium/appium-remote-debugger/issues/453)) ([f8abf71](https://github.com/appium/appium-remote-debugger/commit/f8abf7101845b64ac2ed96d8d12fd004fd7b9eb5))
+
 ## [15.2.2](https://github.com/appium/appium-remote-debugger/compare/v15.2.1...v15.2.2) (2025-11-15)
 
 ### Miscellaneous Chores
