@@ -1,3 +1,18 @@
+## [15.2.5](https://github.com/appium/appium-remote-debugger/compare/v15.2.4...v15.2.5) (2025-11-25)
+
+### ⚠ BREAKING CHANGES
+
+* **deps-dev:** The minimum supported Xcode version is set to 14
+
+Bumps [appium-ios-simulator](https://github.com/appium/appium-ios-simulator) from 7.0.3 to 8.0.0.
+- [Release notes](https://github.com/appium/appium-ios-simulator/releases)
+- [Changelog](https://github.com/appium/appium-ios-simulator/blob/master/CHANGELOG.md)
+- [Commits](https://github.com/appium/appium-ios-simulator/compare/v7.0.3...v8.0.0)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump appium-ios-simulator from 7.0.3 to 8.0.0 ([#455](https://github.com/appium/appium-remote-debugger/issues/455)) ([4b278a3](https://github.com/appium/appium-remote-debugger/commit/4b278a316ffb0ce113a17a9df2670f6890958376))
+
 ## [15.2.4](https://github.com/appium/appium-remote-debugger/compare/v15.2.3...v15.2.4) (2025-11-21)
 
 ### Miscellaneous Chores
