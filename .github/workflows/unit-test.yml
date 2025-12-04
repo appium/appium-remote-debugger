@@ -8,7 +8,7 @@ jobs:
 
   test:
     needs:
-    - prepare_matrix
+    - node_matrix
     strategy:
       matrix:
         node-version: ${{ fromJSON(needs.node_matrix.outputs.versions) }}
