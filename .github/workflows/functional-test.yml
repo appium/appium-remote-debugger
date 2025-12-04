@@ -34,7 +34,7 @@ jobs:
       with:
         xcode-version: ${{ matrix.xcode }}
     - run: xcrun simctl list
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v6
       with:
         node-version: lts/*
         check-latest: true
