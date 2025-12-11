@@ -1,3 +1,9 @@
+## [15.2.6](https://github.com/appium/appium-remote-debugger/compare/v15.2.5...v15.2.6) (2025-12-11)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @types/node from 24.10.3 to 25.0.0 ([#459](https://github.com/appium/appium-remote-debugger/issues/459)) ([2c23f04](https://github.com/appium/appium-remote-debugger/commit/2c23f0428d4a23e86358ada9f58a64c36976338e))
+
 ## [15.2.5](https://github.com/appium/appium-remote-debugger/compare/v15.2.4...v15.2.5) (2025-11-25)
 
 ### ⚠ BREAKING CHANGES
