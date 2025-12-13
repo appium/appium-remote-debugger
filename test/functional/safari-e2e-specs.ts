@@ -8,12 +8,13 @@ import { startHttpServer, stopHttpServer } from './http-server';
 import { RemoteDebugger } from '../../lib/remote-debugger';
 import { expect, use } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import { StringRecord } from '@appium/types';
 
 use(chaiAsPromised);
 
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
-const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 16';
-const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '18.5';
+const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 17';
+const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '26.0';
 
 const PAGE_TITLE = 'Remote debugger test page';
 
@@ -185,11 +186,10 @@ describe('Safari remote debugger', function () {
   });
 
   it('should be able to monitor network events', async function () {
-    const networkEvents: Array<{event: any; method: string}> = [];
-    // eslint-disable-next-line promise/prefer-await-to-callbacks
-    rd.startNetwork((err, event) => {
-      if (event && (event as any).method) {
-        networkEvents.push({event, method: (event as any).method});
+    const networkEvents: {event: StringRecord; method: string}[] = [];
+    rd.startNetwork((_err?: Error, event?: StringRecord, method?: string) => {
+      if (event && method) {
+        networkEvents.push({event, method});
       }
     });
 
