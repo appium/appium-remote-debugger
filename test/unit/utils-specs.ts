@@ -3,38 +3,31 @@ import {
 } from '../../lib/utils';
 import _ from 'lodash';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
+import { expect } from 'chai';
 
 describe('utils', function () {
   this.timeout(MOCHA_TIMEOUT);
-  let chai;
-  let expect;
-
-  before(async function () {
-    chai = await import('chai');
-    chai.should();
-    expect = chai.expect;
-  });
 
   describe('appInfoFromDict', function () {
     it('should return the id and entry for a dict', function () {
-      let dict = {
+      const dict = {
         WIRApplicationIdentifierKey: '42',
         WIRApplicationNameKey: 'App Name',
         WIRApplicationBundleIdentifierKey: 'app.name',
         WIRIsApplicationProxyKey: 'false',
         WIRHostApplicationIdentifierKey: '43'
       };
-      let [id, entry] = appInfoFromDict(dict);
-      id.should.equal(dict.WIRApplicationIdentifierKey);
-      entry.id.should.equal(dict.WIRApplicationIdentifierKey);
-      entry.name.should.equal(dict.WIRApplicationNameKey);
-      entry.bundleId.should.equal(dict.WIRApplicationBundleIdentifierKey);
-      entry.isProxy.should.equal(dict.WIRIsApplicationProxyKey === 'true');
-      entry.hostId.should.equal(dict.WIRHostApplicationIdentifierKey);
+      const [id, entry] = appInfoFromDict(dict);
+      expect(id).to.equal(dict.WIRApplicationIdentifierKey);
+      expect(entry.id).to.equal(dict.WIRApplicationIdentifierKey);
+      expect(entry.name).to.equal(dict.WIRApplicationNameKey);
+      expect(entry.bundleId).to.equal(dict.WIRApplicationBundleIdentifierKey);
+      expect(entry.isProxy).to.equal(dict.WIRIsApplicationProxyKey === 'true');
+      expect(entry.hostId).to.equal(dict.WIRHostApplicationIdentifierKey);
     });
   });
   describe('pageArrayFromDict', function () {
-    let basePageDict = {
+    const basePageDict = {
       1: {
         WIRTitleKey: 'Appium/welcome',
         WIRTypeKey: 'WIRTypeWeb',
@@ -44,8 +37,8 @@ describe('utils', function () {
       }
     };
     it('should return a valid page array', function () {
-      let pageArray = pageArrayFromDict(basePageDict);
-      pageArray.should.have.length(1);
+      const pageArray = pageArrayFromDict(basePageDict);
+      expect(pageArray).to.have.length(1);
     });
     it('should return a valid page array with 13.4-style type key', function () {
       const pageDict = _.defaults({
@@ -54,16 +47,16 @@ describe('utils', function () {
         }
       }, basePageDict);
       const pageArray = pageArrayFromDict(pageDict);
-      pageArray.should.have.length(2);
+      expect(pageArray).to.have.length(2);
     });
     it('should not count WIRTypeWeb entries', function () {
-      let pageDict = _.defaults({
+      const pageDict = _.defaults({
         2: {
           WIRTypeKey: 'WIRTypeJavaScript'
         }
       }, basePageDict);
-      let pageArray = pageArrayFromDict(pageDict);
-      pageArray.should.have.length(1);
+      const pageArray = pageArrayFromDict(pageDict);
+      expect(pageArray).to.have.length(1);
     });
   });
   describe('checkParams', function () {
@@ -75,3 +68,4 @@ describe('utils', function () {
     });
   });
 });
+

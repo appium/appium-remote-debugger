@@ -31,7 +31,7 @@ export interface Page {
 
 export type AppDict = StringRecord<AppInfo>;
 
-export type EventListener = (error?: Error, event?: StringRecord) => any;
+export type EventListener = (error?: Error, event?: StringRecord, method?: string) => any;
 
 export interface RemoteDebuggerOptions {
   /** id of the app being connected to */

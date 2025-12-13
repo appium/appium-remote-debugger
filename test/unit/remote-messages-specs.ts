@@ -1,16 +1,11 @@
 import { RemoteMessages } from '../../lib/rpc/remote-messages';
 import { MOCHA_TIMEOUT } from '../helpers/helpers';
+import { expect } from 'chai';
 
 describe('RemoteMessages', function () {
   this.timeout(MOCHA_TIMEOUT);
 
-  let chai;
   const remoteMessages = new RemoteMessages();
-
-  before(async function () {
-    chai = await import('chai');
-    chai.should();
-  });
 
   describe('getRemoteCommand', function () {
     const commands = [
@@ -28,10 +23,11 @@ describe('RemoteMessages', function () {
           senderId: 'test-sender-id',
           bundleId: 'test.bundle.id',
         });
-        remoteCommand.should.be.an.instanceof(Object);
-        remoteCommand.__argument.should.exist;
-        remoteCommand.__selector.should.exist;
+        expect(remoteCommand).to.be.an.instanceof(Object);
+        expect(remoteCommand.__argument).to.exist;
+        expect(remoteCommand.__selector).to.exist;
       });
     }
   });
 });
+
