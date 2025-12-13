@@ -41,7 +41,6 @@
     "bluebird": "^3.4.7",
     "glob": "^13.0.0",
     "lodash": "^4.17.11",
-    "source-map-support": "^0.x",
     "teen_process": "^3.0.0"
   },
   "scripts": {
