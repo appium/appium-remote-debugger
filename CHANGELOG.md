@@ -1,3 +1,9 @@
+## [15.2.7](https://github.com/appium/appium-remote-debugger/compare/v15.2.6...v15.2.7) (2025-12-13)
+
+### Miscellaneous Chores
+
+* **deps:** remove source-map-support ([#460](https://github.com/appium/appium-remote-debugger/issues/460)) ([9e97f2b](https://github.com/appium/appium-remote-debugger/commit/9e97f2bafcf2950f907121d53533685b93969a1c))
+
 ## [15.2.6](https://github.com/appium/appium-remote-debugger/compare/v15.2.5...v15.2.6) (2025-12-11)
 
 ### Miscellaneous Chores
