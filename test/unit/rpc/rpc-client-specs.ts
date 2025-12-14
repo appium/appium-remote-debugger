@@ -1,18 +1,13 @@
 import sinon from 'sinon';
 import { MOCHA_TIMEOUT } from '../../helpers/helpers';
 import { RpcClient } from '../../../lib/rpc/rpc-client';
+import { expect, use } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+
+use(chaiAsPromised);
 
 describe('rpc-client', function () {
   this.timeout(MOCHA_TIMEOUT);
-
-  let chai;
-
-  before(async function () {
-    chai = await import('chai');
-    const chaiAsPromised = await import('chai-as-promised');
-    chai.should();
-    chai.use(chaiAsPromised.default);
-  });
 
   describe('.send', function () {
     it('should send RPC message to device', async function () {
@@ -35,10 +30,11 @@ describe('rpc-client', function () {
       const waitForTargetSpy = sinon.spy(mockRpcClient, 'waitForTarget');
       const opts = {appIdKey: 'appId', pageIdKey: 'pageKey'};
       const res = await send.call(mockRpcClient, 'command', opts, true);
-      res.should.eql('success');
-      sendToDeviceSpy.firstCall.args.should.eql(['command', opts, true]);
-      sendToDeviceSpy.secondCall.args.should.eql(['command', opts, true]);
-      waitForTargetSpy.firstCall.args.should.eql(['appId', 'pageKey']);
+      expect(res).to.eql('success');
+      expect(sendToDeviceSpy.firstCall.args).to.eql(['command', opts, true]);
+      expect(sendToDeviceSpy.secondCall.args).to.eql(['command', opts, true]);
+      expect(waitForTargetSpy.firstCall.args).to.eql(['appId', 'pageKey']);
     });
   });
 });
+
