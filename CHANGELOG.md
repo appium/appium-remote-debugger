@@ -1,3 +1,9 @@
+## [15.2.9](https://github.com/appium/appium-remote-debugger/compare/v15.2.8...v15.2.9) (2025-12-22)
+
+### Miscellaneous Chores
+
+* bump teen_process ([#463](https://github.com/appium/appium-remote-debugger/issues/463)) ([ae30d12](https://github.com/appium/appium-remote-debugger/commit/ae30d128bcd6f62c5730e7f14bf39061aac07711))
+
 ## [15.2.8](https://github.com/appium/appium-remote-debugger/compare/v15.2.7...v15.2.8) (2025-12-18)
 
 ### Miscellaneous Chores
