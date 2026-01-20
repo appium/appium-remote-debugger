@@ -13,6 +13,8 @@ import {
   getPageIdKey,
   setNavigatingToPage,
 } from './property-accessors';
+import type { RemoteDebugger } from '../remote-debugger';
+import type { AppIdKey, PageIdKey } from '../types';
 
 export const DEFAULT_PAGE_READINESS_TIMEOUT_MS = 20 * 1000;
 const PAGE_READINESS_CHECK_INTERVAL_MS = 50;
@@ -27,32 +29,34 @@ const PAGE_LOAD_STRATEGY = Object.freeze({
 });
 
 /**
- * @this {RemoteDebugger}
- * @returns {void}
+ * Emits a frame detached event when a frame is detached from the page.
+ * This is typically called by the RPC client when receiving a Page.frameDetached event.
  */
-export function frameDetached () {
+export function frameDetached(this: RemoteDebugger): void {
   this.emit(events.EVENT_FRAMES_DETACHED);
 }
 
 /**
- * @this {RemoteDebugger}
- * @returns {void}
+ * Cancels the current page load operation by unregistering from page readiness
+ * notifications and canceling any pending page load delay.
  */
-export function cancelPageLoad () {
+export function cancelPageLoad(this: RemoteDebugger): void {
   this.log.debug('Unregistering from page readiness notifications');
   setPageLoading(this, false);
   getPageLoadDelay(this)?.cancel();
 }
 
 /**
- * Return if current readState can be handles as page load completes
- * for the given page load strategy.
+ * Determines if the current readyState indicates that page loading is completed
+ * based on the configured page load strategy.
  *
- * @this {RemoteDebugger}
- * @param {string} readyState
- * @returns {boolean}
+ * @param readyState - The document readyState value ('loading', 'interactive', or 'complete').
+ * @returns True if the page load is considered complete for the current strategy:
+ *          - 'eager': returns true when readyState is not 'loading'
+ *          - 'none': always returns true
+ *          - 'normal' (default): returns true only when readyState is 'complete'
  */
-export function isPageLoadingCompleted (readyState) {
+export function isPageLoadingCompleted(this: RemoteDebugger, readyState: string): boolean {
   const pageLoadStrategy = _.toLower(getPageLoadStartegy(this));
   switch (pageLoadStrategy) {
     case PAGE_LOAD_STRATEGY.EAGER:
@@ -67,11 +71,14 @@ export function isPageLoadingCompleted (readyState) {
 }
 
 /**
- * @this {RemoteDebugger}
- * @param {timing.Timer?} [startPageLoadTimer]
- * @returns {Promise<void>}
+ * Waits for the DOM to be ready by periodically checking the page readiness state.
+ * Uses exponential backoff for retry intervals and respects the configured page load
+ * strategy and timeout settings.
+ *
+ * @param startPageLoadTimer - Optional timer instance to use for tracking elapsed time.
+ *                             If not provided, a new timer will be created and started.
  */
-export async function waitForDom (startPageLoadTimer) {
+export async function waitForDom(this: RemoteDebugger, startPageLoadTimer?: timing.Timer): Promise<void> {
   const readinessTimeoutMs = this.pageLoadMs;
   this.log.debug(`Waiting up to ${readinessTimeoutMs}ms for the page to be ready`);
   const timer = startPageLoadTimer ?? new timing.Timer().start();
@@ -79,7 +86,6 @@ export async function waitForDom (startPageLoadTimer) {
   let isPageLoading = true;
   setPageLoading(this, true);
   setPageLoadDelay(this, util.cancellableDelay(readinessTimeoutMs));
-  /** @type {B<void>} */
   const pageReadinessPromise = B.resolve((async () => {
     let retry = 0;
     while (isPageLoading) {
@@ -118,7 +124,6 @@ export async function waitForDom (startPageLoadTimer) {
       retry++;
     }
   })());
-  /** @type {B<void>} */
   const cancellationPromise = B.resolve((async () => {
     try {
       await getPageLoadDelay(this);
@@ -135,11 +140,15 @@ export async function waitForDom (startPageLoadTimer) {
 }
 
 /**
- * @this {RemoteDebugger}
- * @param {number} [timeoutMs]
- * @returns {Promise<boolean>}
+ * Checks if the current page is ready by executing a JavaScript command to
+ * retrieve the document readyState and evaluating it against the page load strategy.
+ *
+ * @param timeoutMs - Optional timeout in milliseconds for the readyState check.
+ *                    If not provided, uses the configured page ready timeout.
+ * @returns A promise that resolves to true if the page is ready according to
+ *          the page load strategy, false otherwise or if the check times out.
  */
-export async function checkPageIsReady (timeoutMs) {
+export async function checkPageIsReady(this: RemoteDebugger, timeoutMs?: number): Promise<boolean> {
   const readyCmd = 'document.readyState;';
   const actualTimeoutMs = timeoutMs ?? getPageReadyTimeout(this);
   try {
@@ -152,7 +161,7 @@ export async function checkPageIsReady (timeoutMs) {
       })
     );
     return this.isPageLoadingCompleted(readyState);
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof BTimeoutError) {
       this.log.debug(`Page readiness check timed out after ${actualTimeoutMs}ms`);
     } else {
@@ -163,11 +172,14 @@ export async function checkPageIsReady (timeoutMs) {
 }
 
 /**
- * @this {RemoteDebugger}
- * @param {string} url
- * @returns {Promise<void>}
+ * Navigates to a new URL and waits for the page to be ready.
+ * Validates the URL format, waits for the page to be available, sends the navigation
+ * command, and monitors for the Page.loadEventFired event or timeout.
+ *
+ * @param url - The URL to navigate to. Must be a valid URL format.
+ * @throws TypeError if the provided URL is not a valid URL format.
  */
-export async function navToUrl (url) {
+export async function navToUrl(this: RemoteDebugger, url: string): Promise<void> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),
@@ -183,22 +195,18 @@ export async function navToUrl (url) {
   this.log.debug(`Navigating to new URL: '${url}'`);
   setNavigatingToPage(this, true);
   await rpcClient.waitForPage(
-    /** @type {import('../types').AppIdKey} */ (appIdKey),
-    /** @type {import('../types').PageIdKey} */ (pageIdKey)
+    appIdKey as AppIdKey,
+    pageIdKey as PageIdKey
   );
   const readinessTimeoutMs = this.pageLoadMs;
-  /** @type {(() => void)|undefined} */
-  let onPageLoaded;
-  /** @type {NodeJS.Timeout|undefined|null} */
-  let onPageLoadedTimeout;
+  let onPageLoaded: (() => void) | undefined;
+  let onPageLoadedTimeout: NodeJS.Timeout | undefined | null;
   setPageLoadDelay(this, util.cancellableDelay(readinessTimeoutMs));
   setPageLoading(this, true);
   let isPageLoading = true;
-  // /** @type {Promise<void>|null} */
   const start = new timing.Timer().start();
 
-  /** @type {B<void>} */
-  const pageReadinessPromise = new B((resolve) => {
+  const pageReadinessPromise = new B<void>((resolve) => {
     onPageLoadedTimeout = setTimeout(() => {
       if (isPageLoading) {
         isPageLoading = false;
@@ -231,7 +239,6 @@ export async function navToUrl (url) {
       pageIdKey,
     });
   });
-  /** @type {B<void>} */
   const cancellationPromise = B.resolve((async () => {
     try {
       await getPageLoadDelay(this);
@@ -254,7 +261,3 @@ export async function navToUrl (url) {
     }
   }
 }
-
-/**
- * @typedef {import('../remote-debugger').RemoteDebugger} RemoteDebugger
- */
