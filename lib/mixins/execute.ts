@@ -14,37 +14,55 @@ import {
   getPageIdKey,
   getGarbageCollectOnExecute,
 } from './property-accessors';
+import type { RemoteDebugger } from '../remote-debugger';
+import type { AppIdKey, PageIdKey } from '../types';
 
 /* How many milliseconds to wait for webkit to return a response before timing out */
 const RPC_RESPONSE_TIMEOUT_MS = 5000;
 
 /**
- * Execute a Selenium atom in Safari
+ * Executes a Selenium atom in Safari by generating the atom script and
+ * executing it in the page context.
  *
- * @this {RemoteDebugger}
- * @param {string} atom Name of Selenium atom (see atoms/ directory)
- * @param {any[]} args Arguments passed to the atom
- * @param {string[]} frames
- * @returns {Promise<any>} The result received from the atom
+ * @param atom - Name of the Selenium atom to execute (see atoms/ directory).
+ * @param args - Arguments to pass to the atom function. Defaults to empty array.
+ * @param frames - Frame context array for frame-specific execution. Defaults to empty array.
+ * @returns A promise that resolves to the result received from the atom execution.
  */
-export async function executeAtom (atom, args = [], frames = []) {
+export async function executeAtom(
+  this: RemoteDebugger,
+  atom: string,
+  args: any[] = [],
+  frames: string[] = []
+): Promise<any> {
   this.log.debug(`Executing atom '${atom}' with 'args=${JSON.stringify(args)}; frames=${frames}'`);
   const script = await getScriptForAtom(atom, args, frames);
   const value = await this.execute(script);
-  this.log.debug(`Received result for atom '${atom}' execution: ${_.truncate(simpleStringify(value), {length: RESPONSE_LOG_LENGTH})}`);
+  this.log.debug(`Received result for atom '${atom}' execution: ${_.truncate(simpleStringify(value), {
+    length: RESPONSE_LOG_LENGTH
+  })}`);
   return value;
 }
 
 /**
- * @this {RemoteDebugger}
- * @param {string} atom
- * @param {any[]} [args]
- * @param {string[]} [frames]
- * @returns {Promise<any>}
+ * Executes a Selenium atom asynchronously by creating a Promise in the page context
+ * and waiting for the atom to resolve it. Falls back to polling if Runtime.awaitPromise
+ * is not available.
+ *
+ * @param atom - Name of the Selenium atom to execute (see atoms/ directory).
+ * @param args - Arguments to pass to the atom function. Defaults to empty array.
+ *               If args[2] is provided, it will be used as the timeout in milliseconds.
+ * @param frames - Frame context array for frame-specific execution. Defaults to empty array.
+ * @returns A promise that resolves to the result received from the atom execution.
  */
-export async function executeAtomAsync (atom, args = [], frames = []) {
+export async function executeAtomAsync(
+  this: RemoteDebugger,
+  atom: string,
+  args: any[] = [],
+  frames: string[] = []
+): Promise<any> {
   // helper to send directly to the web inspector
-  const evaluate = async (method, opts) => await this.requireRpcClient(true).send(method, Object.assign({
+  const evaluate = async (method: string, opts: any) => await this.requireRpcClient(true).send(method, Object.assign({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),
     returnByValue: false,
@@ -76,7 +94,7 @@ export async function executeAtomAsync (atom, args = [], frames = []) {
   await this.execute(await getScriptForAtom(atom, args, frames, asyncCallBack));
 
   // wait for the promise to be resolved
-  let res;
+  let res: any;
   const subcommandTimeout = 1000; // timeout on individual commands
   try {
     res = await evaluate('Runtime.awaitPromise', {
@@ -85,7 +103,7 @@ export async function executeAtomAsync (atom, args = [], frames = []) {
       generatePreview: true,
       saveResult: true,
     });
-  } catch (err) {
+  } catch (err: any) {
     if (!err.message.includes(`'Runtime.awaitPromise' was not found`)) {
       throw err;
     }
@@ -127,13 +145,16 @@ export async function executeAtomAsync (atom, args = [], frames = []) {
 }
 
 /**
- * @this {RemoteDebugger}
- * @param {string} command
- * @param {boolean} [override] - Deprecated and unused
- * @returns {Promise<any>}
+ * Executes a JavaScript command in the page context and returns the result.
+ * Optionally performs garbage collection before execution if configured.
+ *
+ * @param command - The JavaScript command string to execute.
+ * @param override - Deprecated and unused parameter.
+ * @returns A promise that resolves to the result of the JavaScript evaluation,
+ *          converted to a usable format.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function execute (command, override) {
+export async function execute(this: RemoteDebugger, command: string, override?: boolean): Promise<any> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),
@@ -145,8 +166,8 @@ export async function execute (command, override) {
 
   const rpcClient = this.requireRpcClient(true);
   await rpcClient.waitForPage(
-    /** @type {import('../types').AppIdKey} */ (appIdKey),
-    /** @type {import('../types').PageIdKey} */ (pageIdKey)
+    appIdKey as AppIdKey,
+    pageIdKey as PageIdKey
   );
   this.log.debug(`Sending javascript command: '${_.truncate(command, {length: 50})}'`);
   const res = await rpcClient.send('Runtime.evaluate', {
@@ -159,12 +180,21 @@ export async function execute (command, override) {
 }
 
 /**
- * @this {RemoteDebugger}
- * @param {string} objectId
- * @param {any} fn
- * @param {any[]} [args]
+ * Calls a JavaScript function on a remote object identified by objectId.
+ * Optionally performs garbage collection before execution if configured.
+ *
+ * @param objectId - The object identifier of the remote object to call the function on.
+ * @param fn - The function declaration string to execute on the object.
+ * @param args - Optional array of arguments to pass to the function.
+ * @returns A promise that resolves to the result of the function call,
+ *          converted to a usable format.
  */
-export async function callFunction (objectId, fn, args) {
+export async function callFunction(
+  this: RemoteDebugger,
+  objectId: string,
+  fn: string,
+  args?: any[]
+): Promise<any> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),
@@ -186,7 +216,3 @@ export async function callFunction (objectId, fn, args) {
 
   return convertJavascriptEvaluationResult(res);
 }
-
-/**
- * @typedef {import('../remote-debugger').RemoteDebugger} RemoteDebugger
- */
