@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import defaultLog from './logger';
+import { log as defaultLog } from './logger';
 import { RpcClientSimulator } from './rpc';
 import { getModuleProperties } from './utils';
 import * as connectMixins from './mixins/connect';
