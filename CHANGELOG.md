@@ -1,3 +1,9 @@
+## [15.2.11](https://github.com/appium/appium-remote-debugger/compare/v15.2.10...v15.2.11) (2026-01-21)
+
+### Miscellaneous Chores
+
+* Migrate the rest of mixins to typescript ([#465](https://github.com/appium/appium-remote-debugger/issues/465)) ([1588bf9](https://github.com/appium/appium-remote-debugger/commit/1588bf90c85ac165f563353cacd03e6b85efd66b))
+
 ## [15.2.10](https://github.com/appium/appium-remote-debugger/compare/v15.2.9...v15.2.10) (2026-01-20)
 
 ### Miscellaneous Chores
