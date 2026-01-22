@@ -1,3 +1,9 @@
+## [15.2.13](https://github.com/appium/appium-remote-debugger/compare/v15.2.12...v15.2.13) (2026-01-22)
+
+### Miscellaneous Chores
+
+* Migrate various modules to typescript ([#468](https://github.com/appium/appium-remote-debugger/issues/468)) ([ff96233](https://github.com/appium/appium-remote-debugger/commit/ff96233dda3d76f4894d8a2e36dfaef99457933c))
+
 ## [15.2.12](https://github.com/appium/appium-remote-debugger/compare/v15.2.11...v15.2.12) (2026-01-21)
 
 ### Miscellaneous Chores
