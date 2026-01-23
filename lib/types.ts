@@ -83,6 +83,10 @@ export type AppIdKey = string | number;
 export type PageIdKey = string | number;
 export type TargetId = string;
 
+export interface RemoteCommandId {
+  id: string;
+}
+
 export interface RemoteCommandOpts {
   appIdKey?: AppIdKey;
   pageIdKey?: PageIdKey;
