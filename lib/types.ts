@@ -79,6 +79,23 @@ interface RemoteDebuggerRealDeviceSpecificOptions {
 
 export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions & RemoteDebuggerOptions;
 
+/**
+ * Options for configuring an RpcClient instance.
+ */
+export interface RpcClientOptions {
+  bundleId?: string;
+  platformVersion?: string;
+  isSafari?: boolean;
+  logAllCommunication?: boolean;
+  logAllCommunicationHexDump?: boolean;
+  webInspectorMaxFrameLength?: number;
+  socketChunkSize?: number;
+  fullPageInitialization?: boolean;
+  pageLoadTimeoutMs?: number;
+  udid?: string;
+  targetCreationTimeoutMs?: number;
+}
+
 export type AppIdKey = string | number;
 export type PageIdKey = string | number;
 export type TargetId = string;

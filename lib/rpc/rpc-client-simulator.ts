@@ -4,27 +4,36 @@ import B from 'bluebird';
 import net from 'net';
 import { RpcClient } from './rpc-client';
 import { services } from 'appium-ios-device';
+import type { RpcClientOptions, RemoteCommand } from '../types';
 
+/**
+ * Options specific to RpcClientSimulator.
+ */
+export interface RpcClientSimulatorOptions {
+  socketPath?: string;
+  host?: string;
+  port?: number;
+  messageProxy?: any;
+}
+
+/**
+ * RPC client implementation for iOS simulators.
+ * Extends RpcClient to provide simulator-specific connection handling
+ * via TCP sockets or Unix domain sockets.
+ */
 export class RpcClientSimulator extends RpcClient {
-  /** @type {string|undefined} */
-  host;
-
-  /** @type {number|undefined} */
-  port;
-
-  /** @type {any} */
-  messageProxy;
-
-  /** @type {import('node:net').Socket|null} */
-  socket;
-
-  /** @type {string|undefined} */
-  socketPath;
+  protected readonly host?: string;
+  protected port?: number;
+  protected readonly messageProxy?: any;
+  protected socket: net.Socket | null;
+  protected readonly socketPath?: string;
+  protected service?: any;
 
   /**
-   * @param {import('./rpc-client').RpcClientOptions & RpcClientSimulatorOptions} [opts={}]
+   * @param opts - Options for configuring the RPC client, including
+   *                simulator-specific options like socketPath, host, and port.
    */
-  constructor (opts = {}) {
+  constructor(opts: RpcClientOptions & RpcClientSimulatorOptions = {}) {
     super(opts);
 
     const {
@@ -44,9 +53,10 @@ export class RpcClientSimulator extends RpcClient {
   }
 
   /**
-   * @override
+   * Connects to the Web Inspector service on an iOS simulator.
+   * Supports both Unix domain sockets and TCP connections, with optional proxy support.
    */
-  async connect () {
+  async connect(): Promise<void> {
     // create socket and handle its messages
     if (this.socketPath) {
       if (this.messageProxy) {
@@ -57,10 +67,11 @@ export class RpcClientSimulator extends RpcClient {
         // Forward the actual socketPath to the proxy
         this.socket.once('connect', () => {
           log.debug(`Forwarding the actual web inspector socket to the proxy: '${this.socketPath}'`);
-          // @ts-ignore socket must be efined here
-          this.socket.write(JSON.stringify({
-            socketPath: this.socketPath
-          }));
+          if (this.socket) {
+            this.socket.write(JSON.stringify({
+              socketPath: this.socketPath
+            }));
+          }
         });
 
       } else {
@@ -77,7 +88,11 @@ export class RpcClientSimulator extends RpcClient {
       // tcp socket
       log.debug(`Connecting to remote debugger ${this.messageProxy ? 'via proxy ' : ''}through TCP: ${this.host}:${this.port}`);
       this.socket = new net.Socket();
-      this.socket.connect(/** @type {number} */ (this.port), /** @type {String} */ (this.host));
+      if (this.port && this.host) {
+        this.socket.connect(this.port, this.host);
+      } else {
+        throw new Error('Both port and host must be defined for TCP connection');
+      }
     }
 
     this.socket.setNoDelay(true);
@@ -103,16 +118,17 @@ export class RpcClientSimulator extends RpcClient {
     this.service.listenMessage(this.receive.bind(this));
 
     // connect the socket
-    return await new B((resolve, reject) => {
+    return await new B<void>((resolve, reject) => {
       // only resolve this function when we are actually connected
-      // @ts-ignore socket must be defined here
+      if (!this.socket) {
+        return reject(new Error('Socket was not created'));
+      }
       this.socket.on('connect', () => {
         log.debug(`Debugger socket connected`);
         this.isConnected = true;
 
         resolve();
       });
-      // @ts-ignore socket must be defined here
       this.socket.on('error', (err) => {
         if (this.isConnected) {
           log.error(`Socket error: ${err.message}`);
@@ -126,28 +142,32 @@ export class RpcClientSimulator extends RpcClient {
   }
 
   /**
-   * @override
+   * Disconnects from the Web Inspector service on the simulator.
+   * Closes the socket and service connection, and cleans up resources.
    */
-  async disconnect () {
+  async disconnect(): Promise<void> {
     if (!this.isConnected) {
       return;
     }
 
     log.debug('Disconnecting from remote debugger');
     await super.disconnect();
-    this.service.close();
+    this.service?.close();
     this.isConnected = false;
   }
 
   /**
-   * @override
+   * Sends a command message to the Web Inspector service via the socket.
+   * Handles socket errors and ensures the socket is available before sending.
+   *
+   * @param cmd - The command to send to the simulator.
    */
-  async sendMessage (cmd) {
-    let onSocketError;
+  async sendMessage(cmd: RemoteCommand): Promise<void> {
+    let onSocketError: ((err: Error) => void) | undefined;
 
-    return await new B((resolve, reject) => {
+    return await new B<void>((resolve, reject) => {
       // handle socket problems
-      onSocketError = (err) => {
+      onSocketError = (err: Error) => {
         log.error(`Socket error: ${err.message}`);
 
         // the connection was refused, so reject the connect promise
@@ -160,22 +180,26 @@ export class RpcClientSimulator extends RpcClient {
         );
       }
       this.socket.on('error', onSocketError);
-      this.service.sendMessage(cmd);
+      this.service?.sendMessage(cmd);
       resolve();
     })
     .finally(() => {
       // remove this listener, so we don't exhaust the system
       try {
-        // @ts-ignore socket must be defined
-        this.socket.removeListener('error', onSocketError);
+        if (this.socket && onSocketError) {
+          this.socket.removeListener('error', onSocketError);
+        }
       } catch {}
     });
   }
 
   /**
-   * @override
+   * Receives data from the Web Inspector service and handles it.
+   * Converts Buffer data to strings for certain message keys.
+   *
+   * @param data - The data received from the service.
    */
-  async receive (data) {
+  async receive(data: any): Promise<void> {
     if (!this.isConnected) {
       return;
     }
@@ -189,17 +213,6 @@ export class RpcClientSimulator extends RpcClient {
         data[key] = data[key].toString('utf8');
       }
     }
-    // @ts-ignore messageHandler must be defined
-    await this.messageHandler.handleMessage(data);
+    await this.messageHandler?.handleMessage(data);
   }
 }
-
-export default RpcClientSimulator;
-
-/**
- * @typedef {Object} RpcClientSimulatorOptions
- * @property {string} [socketPath]
- * @property {string} [host='::1']
- * @property {number} [port]
- * @property {any} [messageProxy]
- */
