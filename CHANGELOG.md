@@ -1,3 +1,9 @@
+## [15.2.14](https://github.com/appium/appium-remote-debugger/compare/v15.2.13...v15.2.14) (2026-01-24)
+
+### Miscellaneous Chores
+
+* Migrate RPC helpers to typescript ([#471](https://github.com/appium/appium-remote-debugger/issues/471)) ([8da661f](https://github.com/appium/appium-remote-debugger/commit/8da661fe6554b5d7b862408fd24d1ce40873f30c))
+
 ## [15.2.13](https://github.com/appium/appium-remote-debugger/compare/v15.2.12...v15.2.13) (2026-01-22)
 
 ### Miscellaneous Chores
