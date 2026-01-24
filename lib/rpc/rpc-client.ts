@@ -19,6 +19,7 @@ import type {
   RemoteCommand,
   RawRemoteCommand,
   RpcClientOptions,
+  RemoteCommandId,
 } from '../types';
 
 const DATA_LOG_LENGTH = {length: 200};
@@ -73,8 +74,8 @@ interface PageReadinessDetector {
  * page initialization. Subclasses must implement device-specific connection logic.
  */
 export class RpcClient {
-  protected messageHandler?: RpcMessageHandler;
-  protected readonly remoteMessages?: RemoteMessages;
+  protected readonly messageHandler: RpcMessageHandler;
+  protected readonly remoteMessages: RemoteMessages;
   protected connected: boolean;
   protected readonly isSafari: boolean;
   protected readonly connId: string;
@@ -89,12 +90,12 @@ export class RpcClient {
   protected readonly bundleId?: string;
   protected readonly pageLoadTimeoutMs?: number;
   protected readonly platformVersion: string;
-  protected _contexts: number[];
-  protected _targets: AppToTargetsMap;
+  protected readonly _contexts: number[];
+  protected readonly _targets: AppToTargetsMap;
   protected readonly _targetSubscriptions: EventEmitter;
   protected _pendingTargetNotification?: PendingPageTargetDetails;
   protected readonly _targetCreationTimeoutMs: number;
-  protected _provisionedPages: Set<PageIdKey>;
+  protected readonly _provisionedPages: Set<PageIdKey>;
   protected readonly _pageSelectionLock: AsyncLock;
   protected readonly _pageSelectionMonitor: EventEmitter;
 
@@ -252,7 +253,7 @@ export class RpcClient {
    * @returns This instance for method chaining.
    */
   on(event: string, listener: (...args: any[]) => void): this {
-    this.messageHandler?.on(event, listener);
+    this.messageHandler.on(event, listener);
     return this;
   }
 
@@ -268,7 +269,7 @@ export class RpcClient {
    * @returns This instance for method chaining.
    */
   once(event: string, listener: (...args: any[]) => void): this {
-    this.messageHandler?.once(event, listener);
+    this.messageHandler.once(event, listener);
     return this;
   }
 
@@ -282,7 +283,7 @@ export class RpcClient {
    * @returns This instance for method chaining.
    */
   off(event: string, listener: (...args: any[]) => void): this {
-    this.messageHandler?.off(event, listener);
+    this.messageHandler.off(event, listener);
     return this;
   }
 
@@ -388,7 +389,7 @@ export class RpcClient {
       // for target-base communication, everything is wrapped up
       const wrapperMsgId = this.msgId++;
       // acknowledge wrapper message
-      this.messageHandler?.on(wrapperMsgId.toString(), function (err: Error | null) {
+      this.messageHandler.on(wrapperMsgId.toString(), function (err: Error | null) {
         if (err) {
           reject(err);
         }
@@ -399,7 +400,7 @@ export class RpcClient {
       const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
 
       // retrieve the correct command to send
-      const fullOpts: RemoteCommandOpts & { id: string } = _.defaults({
+      const fullOpts: RemoteCommandOpts & RemoteCommandId = _.defaults({
         connId: this.connId,
         senderId: this.senderId,
         targetId,
@@ -407,9 +408,6 @@ export class RpcClient {
       }, opts);
       let cmd: RawRemoteCommand;
       try {
-        if (!this.remoteMessages) {
-          return reject(new Error('remoteMessages is not initialized'));
-        }
         cmd = this.remoteMessages.getRemoteCommand(command, fullOpts);
       } catch (err: any) {
         log.error(err);
@@ -426,7 +424,8 @@ export class RpcClient {
         // make sure the message being sent has all the information that is needed
         const socketData = cmd.__argument.WIRSocketDataKey as StringRecord;
         if (_.isNil(socketData.id)) {
-          socketData.id = wrapperMsgId.toString();
+          // ! This must be a number
+          socketData.id = wrapperMsgId;
         }
         finalCommand.__argument.WIRSocketDataKey = Buffer.from(JSON.stringify(socketData));
       }
@@ -436,7 +435,7 @@ export class RpcClient {
         // the promise will be resolved as soon as the socket has been sent
         messageHandled = false;
         // do not log receipts
-        this.messageHandler?.once(msgId.toString(), (err: Error | null) => {
+        this.messageHandler.once(msgId.toString(), (err: Error | null) => {
           if (err) {
             // we are not waiting for this, and if it errors it is most likely
             // a protocol change. Log and check during testing
@@ -450,7 +449,7 @@ export class RpcClient {
             reject(err);
           }
         });
-      } else if (this.messageHandler?.listenerCount(cmd.__selector)) {
+      } else if (this.messageHandler.listenerCount(cmd.__selector)) {
         this.messageHandler.prependOnceListener(cmd.__selector, (err: Error | null, ...args: any[]) => {
           if (err) {
             return reject(err);
@@ -459,7 +458,7 @@ export class RpcClient {
           resolve(args);
         });
       } else if (hasSocketData) {
-        this.messageHandler?.once(msgId.toString(), (err: Error | null, value: any) => {
+        this.messageHandler.once(msgId.toString(), (err: Error | null, value: any) => {
           if (err) {
             return reject(new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`));
           }
@@ -503,7 +502,7 @@ export class RpcClient {
    * Disconnects from the remote debugger and cleans up event listeners.
    */
   async disconnect(): Promise<void> {
-    this.messageHandler?.removeAllListeners();
+    this.messageHandler.removeAllListeners();
   }
 
   /**
@@ -614,7 +613,7 @@ export class RpcClient {
 
     log.debug(`Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`);
     if (_.has(this.targets[appIdKey], pageIdKey)) {
-      const existingTarget = this.targets[appIdKey][pageIdKey] as TargetId | undefined;
+      const existingTarget = this.targets[appIdKey][pageIdKey] as TargetId;
       log.debug(
         `There is already a target for this app and page ('${existingTarget}'). ` +
         `This might cause problems`
@@ -715,10 +714,7 @@ export class RpcClient {
       // we do not know the page, so go through and find the existing target
       const appTargetsMap = this.targets[app];
       for (const [page, targetId] of _.toPairs(appTargetsMap)) {
-        if (page === 'lock' || page === 'provisional') {
-          continue;
-        }
-        if ((targetId as TargetId) === oldTargetId) {
+        if (targetId === oldTargetId) {
           log.debug(
             `Found provisional target for app '${app}'. ` +
             `Old target: '${oldTargetId}', new target: '${newTargetId}'. Updating`
@@ -738,10 +734,7 @@ export class RpcClient {
     // if there is no waiting provisional target, just get rid of the existing one
     const targets = this.targets[app];
     for (const [page, targetId] of _.toPairs(targets)) {
-      if (page === 'lock' || page === 'provisional') {
-        continue;
-      }
-      if ((targetId as TargetId) === targetInfo.targetId) {
+      if (targetId === targetInfo.targetId) {
         delete targets[page];
         return;
       }
@@ -1024,7 +1017,7 @@ export class RpcClient {
 
         reject(new Error(NEW_APP_CONNECTED_ERROR));
       };
-      this.messageHandler?.prependOnceListener('_rpc_applicationConnected:', onAppChange);
+      this.messageHandler.prependOnceListener('_rpc_applicationConnected:', onAppChange);
 
       // do the actual connecting to the app
       (async () => {
@@ -1041,7 +1034,7 @@ export class RpcClient {
           log.warn(`Unable to connect to the app: ${err.message}`);
           reject(err);
         } finally {
-          this.messageHandler?.off('_rpc_applicationConnected:', onAppChange);
+          this.messageHandler.off('_rpc_applicationConnected:', onAppChange);
         }
       })();
     });
@@ -1192,12 +1185,10 @@ export class RpcClient {
     appId: AppIdKey,
     targetInfo: TargetInfo
   ): PendingPageTargetDetails | undefined {
-    const logInfo = (message: string): undefined => {
-      log.info(
+    const logInfo = (message: string): undefined =>
+      void log.info(
         `Skipping 'Target.targetCreated' event ${message} for app '${appId}': ${JSON.stringify(targetInfo)}`
       );
-      return undefined;
-    };
     if (!this._pendingTargetNotification) {
       return logInfo('with no pending request');
     }

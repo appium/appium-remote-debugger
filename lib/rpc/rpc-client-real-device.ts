@@ -14,7 +14,7 @@ export class RpcClientRealDevice extends RpcClient {
    * Connects to the Web Inspector service on a real iOS device.
    * Starts the Web Inspector service and sets up message listening.
    */
-  async connect(): Promise<void> {
+  override async connect(): Promise<void> {
     this.service = await services.startWebInspectorService(this.udid, {
       osVersion: this.platformVersion,
       isSimulator: false,
@@ -32,7 +32,7 @@ export class RpcClientRealDevice extends RpcClient {
    * Disconnects from the Web Inspector service on the real device.
    * Closes the service connection and cleans up resources.
    */
-  async disconnect(): Promise<void> {
+  override async disconnect(): Promise<void> {
     if (!this.isConnected) {
       return;
     }
@@ -48,8 +48,11 @@ export class RpcClientRealDevice extends RpcClient {
    *
    * @param cmd - The command to send to the device.
    */
-  async sendMessage(cmd: RemoteCommand): Promise<void> {
-    this.service?.sendMessage(cmd);
+  override async sendMessage(cmd: RemoteCommand): Promise<void> {
+    if (!this.service) {
+      throw new Error('RPC service is not initialized. Is the client connected?');
+    }
+    this.service.sendMessage(cmd);
   }
 
   /**
@@ -57,10 +60,9 @@ export class RpcClientRealDevice extends RpcClient {
    *
    * @param data - The data received from the service.
    */
-  async receive(data: any): Promise<void> {
-    if (!this.isConnected) {
-      return;
+  override async receive(data: any): Promise<void> {
+    if (this.isConnected) {
+      await this.messageHandler.handleMessage(data);
     }
-    await this.messageHandler?.handleMessage(data);
   }
 }

@@ -96,6 +96,16 @@ export interface RpcClientOptions {
   targetCreationTimeoutMs?: number;
 }
 
+/**
+ * Options specific to RpcClientSimulator.
+ */
+export interface RpcClientSimulatorOptions {
+  socketPath?: string;
+  host?: string;
+  port?: number;
+  messageProxy?: any;
+}
+
 export type AppIdKey = string | number;
 export type PageIdKey = string | number;
 export type TargetId = string;
