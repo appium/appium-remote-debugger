@@ -423,7 +423,7 @@ export class RpcClient {
       if (hasSocketData) {
         // make sure the message being sent has all the information that is needed
         const socketData = cmd.__argument.WIRSocketDataKey as StringRecord;
-        if (_.isNil(socketData.id)) {
+        if (!_.isInteger(socketData.id)) {
           // ! This must be a number
           socketData.id = wrapperMsgId;
         }

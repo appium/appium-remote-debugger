@@ -155,7 +155,7 @@ export class RemoteMessages {
     const realParams = {
       targetId,
       message: JSON.stringify({
-        id,
+        id: parseInt(id, 10),
         method,
         params: Object.assign({
           objectGroup: OBJECT_GROUP,
@@ -198,7 +198,7 @@ export class RemoteMessages {
     const realParams = {
       targetId,
       message: JSON.stringify({
-        id,
+        id: parseInt(id, 10),
         method,
         params,
       }),
@@ -233,7 +233,7 @@ export class RemoteMessages {
     const plist = {
       __argument: {
         WIRSocketDataKey: {
-          id,
+          id: parseInt(id, 10),
           method,
           params,
         },
