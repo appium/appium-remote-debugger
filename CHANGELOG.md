@@ -1,3 +1,9 @@
+## [15.3.0](https://github.com/appium/appium-remote-debugger/compare/v15.2.14...v15.3.0) (2026-01-24)
+
+### Features
+
+* Migrate RPC clients to typescript ([#472](https://github.com/appium/appium-remote-debugger/issues/472)) ([81f3aab](https://github.com/appium/appium-remote-debugger/commit/81f3aabb73257c87ae24261e00614e6d530662d0))
+
 ## [15.2.14](https://github.com/appium/appium-remote-debugger/compare/v15.2.13...v15.2.14) (2026-01-24)
 
 ### Miscellaneous Chores
