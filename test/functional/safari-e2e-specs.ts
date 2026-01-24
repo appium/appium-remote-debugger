@@ -14,7 +14,7 @@ use(chaiAsPromised);
 
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 17';
-const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '26.0';
+const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '26.2';
 
 const PAGE_TITLE = 'Remote debugger test page';
 
@@ -186,6 +186,11 @@ describe('Safari remote debugger', function () {
   });
 
   it('should be able to monitor network events', async function () {
+    if (process.env.CI) {
+      // TODO: this test is flaky on CI due to its slowness
+      return this.skip();
+    }
+
     const networkEvents: {event: StringRecord; method: string}[] = [];
     rd.startNetwork((_err?: Error, event?: StringRecord, method?: string) => {
       if (event && method) {

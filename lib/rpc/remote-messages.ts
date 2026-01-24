@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { getProtocolCommand } from '../protocol';
-
+import type { RawRemoteCommand, RemoteCommandOpts, ProtocolCommandOpts, AppIdKey, PageIdKey, RemoteCommandId } from '../types';
 
 const OBJECT_GROUP = 'console';
 
@@ -10,7 +10,7 @@ const DIRECT_COMMAND = 'getDirectCommand';
 
 // mapping of commands to the function for getting the command
 // defaults to `getMinimalCommand`, so no need to have those listed here
-const COMMANDS = /** @type {const} */ ({
+const COMMANDS = {
   'Page.getCookies': FULL_COMMAND,
   'Page.navigate': FULL_COMMAND,
 
@@ -24,17 +24,23 @@ const COMMANDS = /** @type {const} */ ({
 
   'Timeline.start': FULL_COMMAND,
   'Timeline.stop': FULL_COMMAND,
-});
+} as const;
 
+type CommandBuilderFunction = typeof MINIMAL_COMMAND | typeof FULL_COMMAND | typeof DIRECT_COMMAND;
+
+/**
+ * Generates remote commands for communicating with the Web Inspector.
+ * Provides methods for creating various types of commands including connection
+ * setup, application management, and protocol commands.
+ */
 export class RemoteMessages {
-  // #region Connection functions
-
   /**
+   * Creates a command to set the connection key for the Web Inspector session.
    *
-   * @param {string} connId
-   * @returns {import('../types').RawRemoteCommand}
+   * @param connId - The connection identifier.
+   * @returns A RawRemoteCommand for setting the connection key.
    */
-  setConnectionKey (connId) {
+  setConnectionKey(connId: string): RawRemoteCommand {
     return {
       __argument: {
         WIRConnectionIdentifierKey: connId
@@ -44,12 +50,13 @@ export class RemoteMessages {
   }
 
   /**
+   * Creates a command to connect to a specific application.
    *
-   * @param {string} connId
-   * @param {import('../types').AppIdKey} appIdKey
-   * @returns {import('../types').RawRemoteCommand}
+   * @param connId - The connection identifier.
+   * @param appIdKey - The application identifier key.
+   * @returns A RawRemoteCommand for connecting to the application.
    */
-  connectToApp (connId, appIdKey) {
+  connectToApp(connId: string, appIdKey: AppIdKey): RawRemoteCommand {
     return {
       __argument: {
         WIRConnectionIdentifierKey: connId,
@@ -60,14 +67,15 @@ export class RemoteMessages {
   }
 
   /**
+   * Creates a command to set the sender key for message routing.
    *
-   * @param {string} connId
-   * @param {string} senderId
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} [pageIdKey]
-   * @returns {import('../types').RawRemoteCommand}
+   * @param connId - The connection identifier.
+   * @param senderId - The sender identifier.
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - Optional page identifier key.
+   * @returns A RawRemoteCommand for setting the sender key.
    */
-  setSenderKey (connId, senderId, appIdKey, pageIdKey) {
+  setSenderKey(connId: string, senderId: string, appIdKey: AppIdKey, pageIdKey?: PageIdKey): RawRemoteCommand {
     return {
       __argument: {
         WIRApplicationIdentifierKey: appIdKey,
@@ -81,14 +89,15 @@ export class RemoteMessages {
   }
 
   /**
+   * Creates a command to indicate web view status.
    *
-   * @param {string} connId
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} [pageIdKey]
-   * @param {boolean} [enabled]
-   * @returns {import('../types').RawRemoteCommand}
+   * @param connId - The connection identifier.
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - Optional page identifier key.
+   * @param enabled - Whether the web view indication is enabled. Defaults to true if not provided.
+   * @returns A RawRemoteCommand for indicating web view status.
    */
-  indicateWebView (connId, appIdKey, pageIdKey, enabled) {
+  indicateWebView(connId: string, appIdKey: AppIdKey, pageIdKey?: PageIdKey, enabled?: boolean): RawRemoteCommand {
     return {
       __argument: {
         WIRApplicationIdentifierKey: appIdKey,
@@ -101,11 +110,12 @@ export class RemoteMessages {
   }
 
   /**
+   * Creates a command to launch an application.
    *
-   * @param {string} bundleId
-   * @returns {import('../types').RawRemoteCommand}
+   * @param bundleId - The bundle identifier of the application to launch.
+   * @returns A RawRemoteCommand for launching the application.
    */
-  launchApplication (bundleId) {
+  launchApplication(bundleId: string): RawRemoteCommand {
     return {
       __argument: {
         WIRApplicationBundleIdentifierKey: bundleId
@@ -115,11 +125,13 @@ export class RemoteMessages {
   }
 
   /**
+   * Creates a full command with all default parameters included.
+   * This includes objectGroup, includeCommandLineAPI, and other runtime options.
    *
-   * @param {import('../types').RemoteCommandOpts & import('../types').ProtocolCommandOpts} opts
-   * @returns {import('../types').RawRemoteCommand}
+   * @param opts - Options combining RemoteCommandOpts and ProtocolCommandOpts.
+   * @returns A RawRemoteCommand with full parameter set.
    */
-  getFullCommand (opts) {
+  getFullCommand(opts: RemoteCommandOpts & ProtocolCommandOpts): RawRemoteCommand {
     const {
       method,
       params,
@@ -169,16 +181,17 @@ export class RemoteMessages {
       },
       __selector: '_rpc_forwardSocketData:',
     };
-    // @ts-ignore This is ok
-    return _.omitBy(plist, _.isNil);
+    return _.omitBy(plist, _.isNil) as RawRemoteCommand;
   }
 
   /**
+   * Creates a minimal command with only the essential parameters.
+   * This is the default command type for most operations.
    *
-   * @param {import('../types').RemoteCommandOpts & import('../types').ProtocolCommandOpts} opts
-   * @returns {import('../types').RawRemoteCommand}
+   * @param opts - Options combining RemoteCommandOpts and ProtocolCommandOpts.
+   * @returns A RawRemoteCommand with minimal parameter set.
    */
-  getMinimalCommand (opts) {
+  getMinimalCommand(opts: RemoteCommandOpts & ProtocolCommandOpts): RawRemoteCommand {
     const {method, params, connId, senderId, appIdKey, pageIdKey, targetId, id} = opts;
 
     const realMethod = 'Target.sendMessageToTarget';
@@ -204,16 +217,17 @@ export class RemoteMessages {
       },
       __selector: '_rpc_forwardSocketData:'
     };
-    // @ts-ignore This is ok
-    return _.omitBy(plist, _.isNil);
+    return _.omitBy(plist, _.isNil) as RawRemoteCommand;
   }
 
   /**
+   * Creates a direct command that bypasses the Target.sendMessageToTarget wrapper.
+   * Used for certain Target domain commands.
    *
-   * @param {import('../types').RemoteCommandOpts & import('../types').ProtocolCommandOpts} opts
-   * @returns {import('../types').RawRemoteCommand}
+   * @param opts - Options combining RemoteCommandOpts and ProtocolCommandOpts.
+   * @returns A RawRemoteCommand for direct protocol communication.
    */
-  getDirectCommand (opts) {
+  getDirectCommand(opts: RemoteCommandOpts & ProtocolCommandOpts): RawRemoteCommand {
     const {method, params, connId, senderId, appIdKey, pageIdKey, id} = opts;
 
     const plist = {
@@ -230,17 +244,19 @@ export class RemoteMessages {
       },
       __selector: '_rpc_forwardSocketData:'
     };
-    // @ts-ignore This is ok
-    return _.omitBy(plist, _.isNil);
+    return _.omitBy(plist, _.isNil) as RawRemoteCommand;
   }
 
   /**
+   * Gets a remote command based on the command name and options.
+   * Handles both Safari Web Inspector commands and WebKit protocol commands.
    *
-   * @param {string} command
-   * @param {import('../types').RemoteCommandOpts} opts
-   * @returns {import('../types').RawRemoteCommand}
+   * @param command - The command name (e.g., 'setConnectionKey', 'Page.navigate').
+   * @param opts - Options for the command.
+   * @returns A RawRemoteCommand appropriate for the given command.
+   * @throws Error if required parameters are missing for specific commands.
    */
-  getRemoteCommand (command, opts) {
+  getRemoteCommand(command: string, opts: RemoteCommandOpts & RemoteCommandId): RawRemoteCommand {
     const {
       id,
       connId,
@@ -280,9 +296,9 @@ export class RemoteMessages {
     }
 
     // deal with WebKit commands
-    const builderFunction = COMMANDS[command] || MINIMAL_COMMAND;
+    const builderFunction = (COMMANDS[command as keyof typeof COMMANDS] || MINIMAL_COMMAND) as CommandBuilderFunction;
     const commonOpts = getProtocolCommand(
-      /** @type {string} */ (id),
+      id,
       command,
       opts,
       isDirectCommand(command),
@@ -296,17 +312,15 @@ export class RemoteMessages {
       targetId,
     });
   }
-
-  // #endregion
 }
 
 /**
+ * Checks if a command should use the direct command format.
+ * Direct commands bypass the Target.sendMessageToTarget wrapper.
  *
- * @param {string} command
- * @returns {boolean}
+ * @param command - The command name to check.
+ * @returns True if the command should use direct format, false otherwise.
  */
-export function isDirectCommand (command) {
-  return COMMANDS[command] === DIRECT_COMMAND;
+export function isDirectCommand(command: string): boolean {
+  return COMMANDS[command as keyof typeof COMMANDS] === DIRECT_COMMAND;
 }
-
-export default RemoteMessages;

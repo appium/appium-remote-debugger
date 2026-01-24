@@ -1,7 +1,10 @@
+import type { StringRecord } from '@appium/types';
+import type { RemoteCommandOpts, ProtocolCommandOpts } from '../types';
+
 const OBJECT_GROUP = 'console';
 
 // See https://github.com/WebKit/webkit/tree/master/Source/JavaScriptCore/inspector/protocol
-const COMMANDS = /** @type {const} */ ({
+const COMMANDS = {
   // https://github.com/WebKit/WebKit/blob/main/Source/JavaScriptCore/inspector/protocol/Animation.json
   //#region ANIMATION DOMAIN
   'Animation.enable': [], // Enables Canvas domain events
@@ -196,28 +199,39 @@ const COMMANDS = /** @type {const} */ ({
   'Worker.initialized': ['workerId'],
   'Worker.sendMessageToWorker': ['workerId', 'message']
   //#endregion
-});
+} as const;
 
 /**
+ * Generates a protocol command object based on the command name and options.
+ * Extracts only the parameters that are defined for the specific command in the
+ * WebKit Inspector protocol specification.
  *
- * @param {string} id
- * @param {string} method
- * @param {import('../types').RemoteCommandOpts} opts
- * @param {boolean} [direct=false] - if set to false then the resulting command params
- * will be patched with default values
- * @returns {import('../types').ProtocolCommandOpts}
+ * @param id - The command identifier.
+ * @param method - The protocol method name (e.g., 'Page.navigate', 'Runtime.evaluate').
+ * @param opts - Options containing parameters for the command.
+ * @param direct - If false (default), the resulting command params will be patched
+ *                 with default values (objectGroup, includeCommandLineAPI, etc.).
+ *                 If true, only the specified parameters are included.
+ * @returns A ProtocolCommandOpts object with id, method, and params.
+ * @throws Error if the command method is unknown.
  */
-export function getProtocolCommand (id, method, opts, direct = false) {
-  const paramNames = COMMANDS[method];
+export function getProtocolCommand(
+  id: string,
+  method: string,
+  opts: RemoteCommandOpts,
+  direct: boolean = false
+): ProtocolCommandOpts {
+  const paramNames = COMMANDS[method as keyof typeof COMMANDS];
   if (!paramNames) {
     throw new Error(`Unknown command: '${method}'`);
   }
 
-  const params = paramNames.reduce(function (params, name) {
-    params[name] = opts[name];
-    return params;
-  }, {});
-  const result = {
+  const params: StringRecord = (paramNames as readonly string[])
+    .reduce(function (acc: StringRecord, name: string) {
+      acc[name] = opts[name];
+      return acc;
+    }, {} as StringRecord);
+  const result: ProtocolCommandOpts = {
     id,
     method,
     params,
@@ -235,5 +249,3 @@ export function getProtocolCommand (id, method, opts, direct = false) {
   }
   return result;
 }
-
-export default getProtocolCommand;

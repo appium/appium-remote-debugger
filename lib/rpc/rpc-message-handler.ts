@@ -1,21 +1,42 @@
+import { EventEmitter } from 'node:events';
 import { log } from '../logger';
 import _ from 'lodash';
 import { util } from '@appium/support';
-import EventEmitters from 'events';
+import type { StringRecord } from '@appium/types';
 
+/**
+ * Represents a data message from the Web Inspector.
+ */
+interface DataMessage {
+  id?: string;
+  method: string;
+  params: StringRecord;
+  result: any;
+  error?: string | DataErrorMessage;
+}
 
-export default class RpcMessageHandler extends EventEmitters {
-  constructor () {
-    super();
-  }
+/**
+ * Represents an error message structure in a data message.
+ */
+interface DataErrorMessage {
+  message: string;
+  code: number;
+  data: any;
+}
 
+/**
+ * Handles messages from the Web Inspector and dispatches them as events.
+ * Extends EventEmitter to provide event-based message handling.
+ */
+export default class RpcMessageHandler extends EventEmitter {
   /**
-   * Handle a message from the Web Inspector.
+   * Handles a message from the Web Inspector by parsing the selector
+   * and emitting appropriate events.
    *
-   * @param {import('@appium/types').StringRecord} plist
-   * @returns {Promise<void>}
+   * @param plist - The plist message from the Web Inspector containing
+   *                __selector and __argument properties.
    */
-  async handleMessage (plist) {
+  async handleMessage(plist: StringRecord): Promise<void> {
     const selector = plist.__selector;
     if (!selector) {
       log.debug('Got an invalid plist');
@@ -70,35 +91,41 @@ export default class RpcMessageHandler extends EventEmitters {
   }
 
   /**
-   * Parse the data key from the plist.
+   * Parses the data key from a plist message.
+   * The data key is a JSON string that needs to be parsed.
    *
-   * @param {import('@appium/types').StringRecord} plist
-   * @returns {DataMessage}
-   * @throws {Error} if the data key cannot be parsed
+   * @param plist - The plist message containing the data key.
+   * @returns The parsed DataMessage object.
+   * @throws Error if the data key cannot be parsed.
    */
-  parseDataKey (plist) {
+  private parseDataKey(plist: StringRecord): DataMessage {
     try {
       return JSON.parse(plist.__argument.WIRMessageDataKey.toString('utf8'));
-    } catch (err) {
+    } catch (err: any) {
       log.error(`Unparseable message data: ${_.truncate(JSON.stringify(plist), {length: 100})}`);
       throw new Error(`Unable to parse message data: ${err.message}`);
     }
   }
 
   /**
-   * Dispatch a data message.
+   * Dispatches a data message by emitting events.
+   * If msgId is provided, emits a message-specific event.
+   * Otherwise, emits method-based events with appropriate argument mapping.
    *
-   * @param {string} msgId If not empty then the following event is going to be emitted:
-   * - <msgId, error, result>
-   * If empty then the following event is going to be emitted:
-   * - <name, error, ..args>
-   * @param {string | undefined} method
-   * @param {import('@appium/types').StringRecord | undefined} params
-   * @param {any} result
-   * @param {Error | undefined} error
-   * @returns {Promise<void>}
+   * @param msgId - If not empty, emits an event with this ID: <msgId, error, result>.
+   *                If empty, emits method-based events: <name, error, ...args>.
+   * @param method - The method name from the data message.
+   * @param params - The parameters from the data message.
+   * @param result - The result from the data message.
+   * @param error - Any error that occurred during message processing.
    */
-  async dispatchDataMessage (msgId, method, params, result, error) {
+  private async dispatchDataMessage(
+    msgId: string,
+    method: string | undefined,
+    params: StringRecord | undefined,
+    result: any,
+    error: Error | undefined
+  ): Promise<void> {
     if (msgId) {
       if (this.listenerCount(msgId)) {
         if (_.has(result?.result, 'value')) {
@@ -114,22 +141,20 @@ export default class RpcMessageHandler extends EventEmitters {
       return;
     }
 
-    /** @type {any[]} */
-    const eventNames = [method];
-    /** @type {any[]} */
-    let args = [params];
+    const eventNames: string[] = method ? [method] : [];
+    let args: any[] = [params];
 
     // some events have different names, or the arguments are mapped from the
     // parameters received
     switch (method) {
       case 'Page.frameStoppedLoading':
         eventNames.push('Page.frameNavigated');
-      case 'Page.frameNavigated': // eslint-disable-line no-fallthrough
+      // eslint-disable-next-line no-fallthrough
+      case 'Page.frameNavigated':
         args = [`'${method}' event`];
         break;
       case 'Timeline.eventRecorded':
-        // @ts-ignore This is fine for the given method
-        args = [params || params.record];
+        args = [params || (params as any)?.record];
         break;
       case 'Console.messageAdded':
         args = [params?.message];
@@ -142,13 +167,13 @@ export default class RpcMessageHandler extends EventEmitters {
         break;
     }
 
-    if (_.startsWith(method, 'Network.')) {
+    if (method && _.startsWith(method, 'Network.')) {
       // aggregate Network events, and add original method name to the arguments
       eventNames.push('NetworkEvent');
       args.push(method);
     }
-    if (_.startsWith(method, 'Console.')) {
-      // aggregate Network events, and add original method name to the arguments
+    if (method && _.startsWith(method, 'Console.')) {
+      // aggregate Console events, and add original method name to the arguments
       eventNames.push('ConsoleEvent');
       args.push(method);
     }
@@ -159,12 +184,12 @@ export default class RpcMessageHandler extends EventEmitters {
   }
 
   /**
-   * Handle a data message from the Web Inspector.
+   * Handles a data message from the Web Inspector by parsing it and
+   * dispatching appropriate events based on the message type.
    *
-   * @param {import('@appium/types').StringRecord} plist
-   * @returns {Promise<void>}
+   * @param plist - The plist message from the Web Inspector.
    */
-  async handleDataMessage (plist) {
+  private async handleDataMessage(plist: StringRecord): Promise<void> {
     const dataKey = this.parseDataKey(plist);
     let msgId = (dataKey.id || '').toString();
     let result = dataKey.result;
@@ -172,7 +197,7 @@ export default class RpcMessageHandler extends EventEmitters {
     let method = dataKey.method;
     let params = dataKey.params;
 
-    const parseError = () => {
+    const parseError = (): Error | undefined => {
       const defaultMessage = 'Error occurred in handling data message';
       if (result?.wasThrown) {
         const message = (result?.result?.value || result?.result?.description)
@@ -182,10 +207,10 @@ export default class RpcMessageHandler extends EventEmitters {
       }
       if (dataKey.error) {
         if (_.isPlainObject(dataKey.error)) {
-          const dataKeyError = /** @type {DataErrorMessage} */ (dataKey.error);
-          let error = new Error(defaultMessage);
+          const dataKeyError = dataKey.error as DataErrorMessage;
+          const error = new Error(defaultMessage);
           for (const key of Object.keys(dataKeyError)) {
-            error[key] = dataKeyError[key];
+            (error as any)[key] = dataKeyError[key as keyof DataErrorMessage];
           }
           return error;
         }
@@ -213,9 +238,9 @@ export default class RpcMessageHandler extends EventEmitters {
             method = message.method;
             result = message.result || message;
             params = result.params;
-          } catch (err) {
+          } catch (err: any) {
             // if this happens then some aspect of the protocol is missing to us
-            // so print the entire message to get visibiity into what is going on
+            // so print the entire message to get visibility into what is going on
             log.error(`Unexpected message format from Web Inspector: ${util.jsonStringify(plist, null)}`);
             throw err;
           }
@@ -227,22 +252,6 @@ export default class RpcMessageHandler extends EventEmitters {
       default: {
         await this.dispatchDataMessage(msgId, method, params, result, parseError());
       }
-    } // switch
-  } // function
+    }
+  }
 }
-
-/**
- * @typedef {Object} DataMessage
- * @property {string} [id]
- * @property {string} method
- * @property {import('@appium/types').StringRecord} params
- * @property {any} result
- * @property {string | DataErrorMessage} [error]
- */
-
-/**
- * @typedef {Object} DataErrorMessage
- * @property {string} message
- * @property {number} code
- * @property {any} data
- */
