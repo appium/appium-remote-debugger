@@ -8,6 +8,19 @@ import { util, timing } from '@appium/support';
 import { EventEmitter } from 'node:events';
 import AsyncLock from 'async-lock';
 import { convertJavascriptEvaluationResult } from '../utils';
+import type { StringRecord } from '@appium/types';
+import type {
+  AppIdKey,
+  PageIdKey,
+  TargetId,
+  TargetInfo,
+  ProvisionalTargetInfo,
+  RemoteCommandOpts,
+  RemoteCommand,
+  RawRemoteCommand,
+  RpcClientOptions,
+  RemoteCommandId,
+} from '../types';
 
 const DATA_LOG_LENGTH = {length: 200};
 const MIN_WAIT_FOR_TARGET_TIMEOUT_MS = 30000;
@@ -24,76 +37,72 @@ export const NEW_APP_CONNECTED_ERROR = 'New application has connected';
 export const EMPTY_PAGE_DICTIONARY_ERROR = 'Empty page dictionary received';
 const ON_PAGE_INITIALIZED_EVENT = 'onPageInitialized';
 
+/**
+ * Details about a pending page target notification.
+ */
+interface PendingPageTargetDetails {
+  appIdKey: AppIdKey;
+  pageIdKey: PageIdKey;
+  pageReadinessDetector?: PageReadinessDetector;
+}
 
+/**
+ * Pages to targets mapping with optional provisional target info and lock.
+ */
+interface PagesToTargets {
+  [key: string]: TargetId | ProvisionalTargetInfo | AsyncLock | undefined;
+  provisional?: ProvisionalTargetInfo;
+  lock: AsyncLock;
+}
+
+/**
+ * Mapping of application IDs to their pages and targets.
+ */
+type AppToTargetsMap = Record<AppIdKey, PagesToTargets>;
+
+/**
+ * Detector for determining when a page is ready.
+ */
+interface PageReadinessDetector {
+  timeoutMs: number;
+  readinessDetector: (readyState: string) => boolean;
+}
+
+/**
+ * Base class for RPC clients that communicate with the Web Inspector.
+ * Provides functionality for managing targets, sending commands, and handling
+ * page initialization. Subclasses must implement device-specific connection logic.
+ */
 export class RpcClient {
-  /** @type {RpcMessageHandler|undefined} */
-  messageHandler;
-
-  /** @type {RemoteMessages|undefined} */
-  remoteMessages;
-
-  /** @type {boolean} */
-  connected;
-
-  /** @type {boolean} */
-  isSafari;
-
-  /** @type {string} */
-  connId;
-
-  /** @type {string} */
-  senderId;
-
-  /** @type {number} */
-  msgId;
-
-  /** @type {string|undefined} */
-  udid;
-
-  /** @type {boolean|undefined} */
-  logAllCommunication;
-
-  /** @type {boolean|undefined} */
-  logAllCommunicationHexDump;
-
-  /** @type {number|undefined} */
-  socketChunkSize;
-
-  /** @type {number|undefined} */
-  webInspectorMaxFrameLength;
-
-  /** @type {boolean|undefined} */
-  fullPageInitialization;
-
-  /** @type {string|undefined} */
-  bundleId;
-
-  /** @type {number | undefined} */
-  pageLoadTimeoutMs;
-
-  /** @type {string} */
-  platformVersion;
-
-  /** @type {string[]} */
-  _contexts;
-
-  /** @type {AppToTargetsMap} */
-  _targets;
-
-  /** @type {EventEmitter} */
-  _targetSubscriptions;
-
-  /** @type {PendingPageTargetDetails | undefined} */
-  _pendingTargetNotification;
-
-  /** @type {number} */
-  _targetCreationTimeoutMs;
+  protected readonly messageHandler: RpcMessageHandler;
+  protected readonly remoteMessages: RemoteMessages;
+  protected connected: boolean;
+  protected readonly isSafari: boolean;
+  protected readonly connId: string;
+  protected readonly senderId: string;
+  protected msgId: number;
+  protected readonly udid?: string;
+  protected readonly logAllCommunication?: boolean;
+  protected readonly logAllCommunicationHexDump?: boolean;
+  protected readonly socketChunkSize?: number;
+  protected readonly webInspectorMaxFrameLength?: number;
+  protected readonly fullPageInitialization?: boolean;
+  protected readonly bundleId?: string;
+  protected readonly pageLoadTimeoutMs?: number;
+  protected readonly platformVersion: string;
+  protected readonly _contexts: number[];
+  protected readonly _targets: AppToTargetsMap;
+  protected readonly _targetSubscriptions: EventEmitter;
+  protected _pendingTargetNotification?: PendingPageTargetDetails;
+  protected readonly _targetCreationTimeoutMs: number;
+  protected readonly _provisionedPages: Set<PageIdKey>;
+  protected readonly _pageSelectionLock: AsyncLock;
+  protected readonly _pageSelectionMonitor: EventEmitter;
 
   /**
-   *
-   * @param {RpcClientOptions} [opts={}]
+   * @param opts - Options for configuring the RPC client.
    */
-  constructor (opts = {}) {
+  constructor(opts: RpcClientOptions = {}) {
     const {
       bundleId,
       platformVersion = '',
@@ -110,7 +119,7 @@ export class RpcClient {
 
     this.isSafari = isSafari;
 
-    this.isConnected = false;
+    this.connected = false;
     this.connId = util.uuidV4();
     this.senderId = util.uuidV4();
     this.msgId = 0;
@@ -148,82 +157,147 @@ export class RpcClient {
   }
 
   /**
-   * @returns {string[]}
+   * Gets the list of execution context IDs.
+   *
+   * @returns Array of execution context IDs.
    */
-  get contexts () {
+  get contexts(): number[] {
     return this._contexts;
   }
 
   /**
-   * @returns {AppToTargetsMap}
+   * Gets the mapping of applications to their pages and targets.
+   *
+   * @returns The targets mapping structure.
    */
-  get targets () {
+  get targets(): AppToTargetsMap {
     return this._targets;
   }
 
   /**
-   * @returns {boolean}
+   * Gets whether the client is currently connected.
+   *
+   * @returns True if connected, false otherwise.
    */
-  get isConnected () {
+  get isConnected(): boolean {
     return this.connected;
   }
 
   /**
-   * @param {boolean} connected
+   * Sets the connection status.
+   *
+   * @param connected - The connection status to set.
    */
-  set isConnected (connected) {
+  set isConnected(connected: boolean) {
     this.connected = !!connected;
   }
 
   /**
-   * @returns {EventEmitter}
+   * Gets the event emitter for target subscriptions.
+   *
+   * @returns The target subscriptions event emitter.
    */
-  get targetSubscriptions() {
+  get targetSubscriptions(): EventEmitter {
     return this._targetSubscriptions;
   }
 
   /**
+   * Registers an event listener on the message handler.
    *
-   * @param {string} event
-   * @param {Function} listener
-   * @returns {this}
+   * Supported events include:
+   *
+   * **RPC-level events:**
+   * - `_rpc_reportSetup:` - Emitted when the debugger setup is reported
+   * - `_rpc_reportConnectedApplicationList:` - Emitted when the list of connected applications is reported
+   * - `_rpc_forwardGetListing:` - Emitted when an application sends a page listing
+   * - `_rpc_applicationConnected:` - Emitted when a new application connects
+   * - `_rpc_applicationDisconnected:` - Emitted when an application disconnects
+   * - `_rpc_applicationUpdated:` - Emitted when an application is updated
+   * - `_rpc_reportConnectedDriverList:` - Emitted when the list of connected drivers is reported
+   * - `_rpc_reportCurrentState:` - Emitted when the current state is reported
+   *
+   * **Target events:**
+   * - `Target.targetCreated` - Emitted when a new target is created (args: error, appIdKey, targetInfo)
+   * - `Target.targetDestroyed` - Emitted when a target is destroyed (args: error, appIdKey, targetInfo)
+   * - `Target.didCommitProvisionalTarget` - Emitted when a provisional target commits (args: error, appIdKey, provisionalTargetInfo)
+   *
+   * **Page events:**
+   * - `Page.frameStoppedLoading` - Emitted when a frame stops loading
+   * - `Page.frameNavigated` - Emitted when a frame navigates
+   * - `Page.frameDetached` - Emitted when a frame is detached
+   * - `Page.loadEventFired` - Emitted when the page load event fires
+   *
+   * **Runtime events:**
+   * - `Runtime.executionContextCreated` - Emitted when an execution context is created (args: error, context)
+   *
+   * **Console events:**
+   * - `Console.messageAdded` - Emitted when a console message is added (args: error, message)
+   * - `Console.messageRepeatCountUpdated` - Emitted when a console message repeat count is updated
+   * - `ConsoleEvent` - Aggregate event for all Console.* events (args: error, params, methodName)
+   *
+   * **Network events:**
+   * - `NetworkEvent` - Aggregate event for all Network.* events (args: error, params, methodName)
+   *
+   * **Timeline events:**
+   * - `Timeline.eventRecorded` - Emitted when a timeline event is recorded (args: error, record)
+   *
+   * **Heap events:**
+   * - `Heap.garbageCollected` - Emitted when garbage collection occurs
+   *
+   * **Message ID events:**
+   * - Any numeric string (message ID) - Emitted for command responses (args: error, result)
+   *
+   * @param event - The event name to listen for.
+   * @param listener - The listener function to call when the event is emitted.
+   *                  The listener receives (error, ...args) where error may be null/undefined.
+   * @returns This instance for method chaining.
    */
-  on (event, listener) {
-    // @ts-ignore messageHandler must be defined here
+  on(event: string, listener: (...args: any[]) => void): this {
     this.messageHandler.on(event, listener);
     return this;
   }
 
   /**
+   * Registers a one-time event listener on the message handler.
+   * The listener will be automatically removed after being called once.
    *
-   * @param {string} event
-   * @param {Function} listener
-   * @returns {this}
+   * See {@link RpcClient.on} for a list of supported events.
+   *
+   * @param event - The event name to listen for.
+   * @param listener - The listener function to call when the event is emitted.
+   *                  The listener receives (error, ...args) where error may be null/undefined.
+   * @returns This instance for method chaining.
    */
-  once (event, listener) {
-    // @ts-ignore messageHandler must be defined here
+  once(event: string, listener: (...args: any[]) => void): this {
     this.messageHandler.once(event, listener);
     return this;
   }
 
   /**
-   * @param {string} event
-   * @param {Function} listener
-   * @returns {this}
+   * Removes an event listener from the message handler.
+   *
+   * See {@link RpcClient.on} for a list of supported events.
+   *
+   * @param event - The event name to stop listening for.
+   * @param listener - The listener function to remove.
+   * @returns This instance for method chaining.
    */
-  off (event, listener) {
-    // @ts-ignore messageHandler must be defined here
+  off(event: string, listener: (...args: any[]) => void): this {
     this.messageHandler.off(event, listener);
     return this;
   }
 
   /**
+   * Waits for a target to be created for the specified app and page.
+   * If the target already exists, returns it immediately. Otherwise,
+   * waits up to the configured timeout for the target to be created.
    *
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} pageIdKey
-   * @returns {Promise<import('../types').TargetId | undefined>}
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @returns A promise that resolves to the target ID if found, undefined otherwise.
+   * @throws Error if no target is found after the timeout.
    */
-  async waitForTarget (appIdKey, pageIdKey) {
+  async waitForTarget(appIdKey: AppIdKey, pageIdKey: PageIdKey): Promise<TargetId | undefined> {
     let target = this.getTarget(appIdKey, pageIdKey);
     if (target) {
       log.debug(
@@ -247,7 +321,7 @@ export class RpcClient {
         intervalMs: WAIT_FOR_TARGET_INTERVAL_MS,
       });
       return target;
-    } catch (err) {
+    } catch (err: any) {
       if (!err.message.includes('Condition unmet')) {
         throw err;
       }
@@ -258,17 +332,20 @@ export class RpcClient {
   }
 
   /**
+   * Sends a command to the remote debugger with automatic retry logic
+   * for target-related errors. Handles cases where targets are not yet
+   * available or not supported.
    *
-   * @param {string} command
-   * @param {import('../types').RemoteCommandOpts} opts
-   * @param {boolean} [waitForResponse=true]
-   * @returns {Promise<any>}
+   * @param command - The command name to send.
+   * @param opts - Options for the command.
+   * @param waitForResponse - Whether to wait for a response. Defaults to true.
+   * @returns A promise that resolves to the command result or options.
    */
-  async send (command, opts, waitForResponse = true) {
+  async send(command: string, opts: RemoteCommandOpts, waitForResponse: boolean = true): Promise<any> {
     const timer = new timing.Timer().start();
     try {
       return await this.sendToDevice(command, opts, waitForResponse);
-    } catch (err) {
+    } catch (err: any) {
       const {
         appIdKey,
         pageIdKey
@@ -277,7 +354,7 @@ export class RpcClient {
       if (messageLc.includes(NO_TARGET_SUPPORTED_ERROR)) {
         return await this.sendToDevice(command, opts, waitForResponse);
       } else if (appIdKey && NO_TARGET_PRESENT_YET_ERRORS.some((error) => messageLc.includes(error))) {
-        await this.waitForTarget(appIdKey, /** @type {import('../types').PageIdKey} */ (pageIdKey));
+        await this.waitForTarget(appIdKey, pageIdKey as PageIdKey);
         return await this.sendToDevice(command, opts, waitForResponse);
       }
       throw err;
@@ -287,16 +364,23 @@ export class RpcClient {
   }
 
   /**
+   * Sends a command directly to the device, handling message routing,
+   * response waiting, and error handling.
    *
-   * @template {boolean} TWaitForResponse
-   * @param {string} command
-   * @param {import('../types').RemoteCommandOpts} opts
-   * @param {TWaitForResponse} [waitForResponse=true]
-   * @returns {Promise<TWaitForResponse extends true ? import('../types').RemoteCommandOpts : any>}
+   * @template TWaitForResponse - Whether to wait for a response.
+   * @param command - The command name to send.
+   * @param opts - Options for the command.
+   * @param waitForResponse - Whether to wait for a response. Defaults to true.
+   * @returns A promise that resolves based on waitForResponse:
+   *          - If true: resolves to the response value
+   *          - If false: resolves to the full options object
    */
-  // @ts-ignore Compiler issue
-  async sendToDevice (command, opts, waitForResponse = true) {
-    return await new B(async (resolve, reject) => {
+  async sendToDevice<TWaitForResponse extends boolean = true>(
+    command: string,
+    opts: RemoteCommandOpts,
+    waitForResponse: TWaitForResponse = true as TWaitForResponse
+  ): Promise<TWaitForResponse extends true ? any : RemoteCommandOpts> {
+    return await new B<any>(async (resolve, reject) => {
       // promise to be resolved whenever remote debugger
       // replies to our request
 
@@ -305,8 +389,7 @@ export class RpcClient {
       // for target-base communication, everything is wrapped up
       const wrapperMsgId = this.msgId++;
       // acknowledge wrapper message
-      // @ts-ignore messageHandler must be defined
-      this.messageHandler.on(wrapperMsgId.toString(), function (err) {
+      this.messageHandler.on(wrapperMsgId.toString(), function (err: Error | null) {
         if (err) {
           reject(err);
         }
@@ -317,38 +400,34 @@ export class RpcClient {
       const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
 
       // retrieve the correct command to send
-      /** @type {import('../types').RemoteCommandOpts} */
-      const fullOpts = _.defaults({
+      const fullOpts: RemoteCommandOpts & RemoteCommandId = _.defaults({
         connId: this.connId,
         senderId: this.senderId,
         targetId,
-        id: msgId,
+        id: msgId.toString(),
       }, opts);
-      /** @type {import('../types').RawRemoteCommand} */
-      let cmd;
+      let cmd: RawRemoteCommand;
       try {
-        // @ts-ignore remoteMessages must be defined
         cmd = this.remoteMessages.getRemoteCommand(command, fullOpts);
-      } catch (err) {
+      } catch (err: any) {
         log.error(err);
         return reject(err);
       }
 
-      /** @type {import('../types').RemoteCommand} */
-      const finalCommand = {
-        __argument: _.omit(cmd.__argument, ['WIRSocketDataKey']),
+      const finalCommand: RemoteCommand = {
+        __argument: _.omit(cmd.__argument, ['WIRSocketDataKey']) as any,
         __selector: cmd.__selector,
       };
 
       const hasSocketData = _.isPlainObject(cmd.__argument?.WIRSocketDataKey);
       if (hasSocketData) {
         // make sure the message being sent has all the information that is needed
-        // @ts-ignore We have asserted it's a plain object above
-        if (_.isNil(cmd.__argument.WIRSocketDataKey.id)) {
-          // @ts-ignore We have already asserted it's a plain object above
-          cmd.__argument.WIRSocketDataKey.id = wrapperMsgId;
+        const socketData = cmd.__argument.WIRSocketDataKey as StringRecord;
+        if (!_.isInteger(socketData.id)) {
+          // ! This must be a number
+          socketData.id = wrapperMsgId;
         }
-        finalCommand.__argument.WIRSocketDataKey = Buffer.from(JSON.stringify(cmd.__argument.WIRSocketDataKey));
+        finalCommand.__argument.WIRSocketDataKey = Buffer.from(JSON.stringify(socketData));
       }
 
       let messageHandled = true;
@@ -356,8 +435,7 @@ export class RpcClient {
         // the promise will be resolved as soon as the socket has been sent
         messageHandled = false;
         // do not log receipts
-        // @ts-ignore messageHandler must be defined
-        this.messageHandler.once(msgId.toString(), (err) => {
+        this.messageHandler.once(msgId.toString(), (err: Error | null) => {
           if (err) {
             // we are not waiting for this, and if it errors it is most likely
             // a protocol change. Log and check during testing
@@ -366,27 +444,23 @@ export class RpcClient {
               _.truncate(JSON.stringify(err), DATA_LOG_LENGTH)
             );
             // reject, though it is very rare that this will be triggered, since
-            // the promise is resolved directlty after send. On the off chance,
+            // the promise is resolved directly after send. On the off chance,
             // though, it will alert of a protocol change.
             reject(err);
           }
         });
-      // @ts-ignore messageHandler must be defined
-      } else if (this.messageHandler.listeners(cmd.__selector).length) {
-        // @ts-ignore messageHandler must be defined
-        this.messageHandler.prependOnceListener(cmd.__selector, (err, ...args) => {
+      } else if (this.messageHandler.listenerCount(cmd.__selector)) {
+        this.messageHandler.prependOnceListener(cmd.__selector, (err: Error | null, ...args: any[]) => {
           if (err) {
             return reject(err);
           }
           log.debug(`Received response from send (id: ${msgId}): '${_.truncate(JSON.stringify(args), DATA_LOG_LENGTH)}'`);
-          // @ts-ignore This is ok
           resolve(args);
         });
       } else if (hasSocketData) {
-        // @ts-ignore messageHandler must be defined
-        this.messageHandler.once(msgId.toString(), (err, value) => {
+        this.messageHandler.once(msgId.toString(), (err: Error | null, value: any) => {
           if (err) {
-            return reject(new Error(`Remote debugger error with code '${err.code}': ${err.message}`));
+            return reject(new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`));
           }
           log.debug(`Received data response from send (id: ${msgId}): '${_.truncate(JSON.stringify(value), DATA_LOG_LENGTH)}'`);
           resolve(value);
@@ -407,8 +481,7 @@ export class RpcClient {
         if (!messageHandled) {
           // There are no handlers waiting for a response before resolving,
           // and no errors sending the message over the socket, so resolve
-          // @ts-ignore This is ok
-          resolve(fullOpts);
+          resolve(fullOpts as any);
         }
       } catch (err) {
         return reject(err);
@@ -416,40 +489,53 @@ export class RpcClient {
     });
   }
 
-  async connect () {
+  /**
+   * Connects to the remote debugger. Must be implemented by subclasses.
+   *
+   * @throws Error indicating that subclasses must implement this method.
+   */
+  async connect(): Promise<void> {
     throw new Error(`Sub-classes need to implement a 'connect' function`);
   }
 
-  async disconnect () {
-    this.messageHandler?.removeAllListeners();
+  /**
+   * Disconnects from the remote debugger and cleans up event listeners.
+   */
+  async disconnect(): Promise<void> {
+    this.messageHandler.removeAllListeners();
   }
 
   /**
-   * @param {import('../types').RemoteCommand} command
-   * @returns {Promise<void>}
+   * Sends a message to the device. Must be implemented by subclasses.
+   *
+   * @param _command - The command to send.
+   * @throws Error indicating that subclasses must implement this method.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async sendMessage (command) {
+  async sendMessage(_command: RemoteCommand): Promise<void> {
     throw new Error(`Sub-classes need to implement a 'sendMessage' function`);
   }
 
   /**
-   * @param {any} data
-   * @returns {Promise<void>}
+   * Receives data from the device. Must be implemented by subclasses.
+   *
+   * @param _data - The data received from the device.
+   * @throws Error indicating that subclasses must implement this method.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async receive (data) {
+  async receive(_data: any): Promise<void> {
     throw new Error(`Sub-classes need to implement a 'receive' function`);
   }
 
   /**
+   * Handles the creation of a new target for an application and page.
+   * Initializes the page and waits for readiness if configured.
    *
-   * @param {Error | undefined} err
-   * @param {import('../types').AppIdKey} app
-   * @param {import('../types').TargetInfo} targetInfo
-   * @returns {Promise<void>}
+   * @param err - Error if one occurred, undefined otherwise.
+   * @param app - The application identifier key.
+   * @param targetInfo - Information about the created target.
    */
-  async addTarget (err, app, targetInfo) {
+  async addTarget(err: Error | undefined, app: AppIdKey, targetInfo: TargetInfo): Promise<void> {
     if (_.isNil(targetInfo?.targetId)) {
       log.info(`Received 'Target.targetCreated' event for app '${app}' with no target. Skipping`);
       return;
@@ -468,11 +554,11 @@ export class RpcClient {
     if (!_.isPlainObject(this.targets[appIdKey])) {
       this.targets[appIdKey] = {
         lock: new AsyncLock({maxOccupationTime: this._targetCreationTimeoutMs}),
-      };
+      } as PagesToTargets;
     }
     const timer = new timing.Timer().start();
 
-    const adjustPageReadinessDetector = () => {
+    const adjustPageReadinessDetector = (): PageReadinessDetector | undefined => {
       if (!pageReadinessDetector) {
         return;
       }
@@ -516,7 +602,7 @@ export class RpcClient {
             );
           }
         });
-      } catch (e) {
+      } catch (e: any) {
         log.warn(
           `Cannot complete the initialization of the provisional target '${targetInfo.targetId}' ` +
           `after ${timer.getDuration().asMilliSeconds}ms: ${e.message}`
@@ -527,8 +613,9 @@ export class RpcClient {
 
     log.debug(`Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`);
     if (_.has(this.targets[appIdKey], pageIdKey)) {
+      const existingTarget = this.targets[appIdKey][pageIdKey] as TargetId;
       log.debug(
-        `There is already a target for this app and page ('${this.targets[appIdKey][pageIdKey]}'). ` +
+        `There is already a target for this app and page ('${existingTarget}'). ` +
         `This might cause problems`
       );
     }
@@ -540,7 +627,7 @@ export class RpcClient {
         appIdKey,
         pageIdKey,
       });
-    } catch (e) {
+    } catch (e: any) {
       log.debug(
         `Cannot setup pause on start for app '${appIdKey}' and page '${pageIdKey}': ${e.message}`
       );
@@ -567,7 +654,7 @@ export class RpcClient {
           );
         }
       });
-    } catch (e) {
+    } catch (e: any) {
       log.warn(e.message);
     } finally {
       // Target creation is happening after provisioning,
@@ -578,13 +665,13 @@ export class RpcClient {
   }
 
   /**
+   * Handles updates to provisional targets when they commit.
    *
-   * @param {Error | undefined} err
-   * @param {import('../types').AppIdKey} app
-   * @param {import('../types').ProvisionalTargetInfo} targetInfo
-   * @returns {Promise<void>}
+   * @param err - Error if one occurred, undefined otherwise.
+   * @param app - The application identifier key.
+   * @param targetInfo - Information about the provisional target update.
    */
-  async updateTarget (err, app, targetInfo) {
+  async updateTarget(err: Error | undefined, app: AppIdKey, targetInfo: ProvisionalTargetInfo): Promise<void> {
     const {
       oldTargetId,
       newTargetId,
@@ -605,13 +692,13 @@ export class RpcClient {
   }
 
   /**
+   * Handles the destruction of a target, including cleanup of provisional targets.
    *
-   * @param {Error | undefined} err
-   * @param {import('../types').AppIdKey} app
-   * @param {import('../types').TargetInfo} targetInfo
-   * @returns {Promise<void>}
+   * @param err - Error if one occurred, undefined otherwise.
+   * @param app - The application identifier key.
+   * @param targetInfo - Information about the destroyed target.
    */
-  async removeTarget (err, app, targetInfo) {
+  async removeTarget(err: Error | undefined, app: AppIdKey, targetInfo: TargetInfo): Promise<void> {
     if (_.isNil(targetInfo?.targetId)) {
       log.debug(`Received 'Target.targetDestroyed' event with no target. Skipping`);
       return;
@@ -656,24 +743,34 @@ export class RpcClient {
   }
 
   /**
-   * @param {import('../types').AppIdKey} [appIdKey]
-   * @param {import('../types').PageIdKey} [pageIdKey]
-   * @returns {string | undefined}
+   * Gets the target ID for a specific app and page combination.
+   *
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @returns The target ID if found, undefined otherwise.
    */
-  getTarget (appIdKey, pageIdKey) {
+  getTarget(appIdKey?: AppIdKey, pageIdKey?: PageIdKey): TargetId | undefined {
     if (!appIdKey || !pageIdKey) {
       return;
     }
-    return this.targets[appIdKey]?.[pageIdKey];
+    const target = this.targets[appIdKey]?.[pageIdKey];
+    return target && typeof target === 'string' ? target : undefined;
   }
 
   /**
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} pageIdKey
-   * @param {PageReadinessDetector} [pageReadinessDetector]
-   * @returns {Promise<void>}
+   * Selects a page within an application, setting up the Web Inspector session
+   * and waiting for the page to be initialized. Mimics the steps that Desktop
+   * Safari uses to initialize a Web Inspector session.
+   *
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @param pageReadinessDetector - Optional detector for determining when the page is ready.
    */
-  async selectPage (appIdKey, pageIdKey, pageReadinessDetector) {
+  async selectPage(
+    appIdKey: AppIdKey,
+    pageIdKey: PageIdKey,
+    pageReadinessDetector?: PageReadinessDetector
+  ): Promise<void> {
     await this._pageSelectionLock.acquire(toPageSelectionKey(appIdKey, pageIdKey), async () => {
       this._pendingTargetNotification = {appIdKey, pageIdKey, pageReadinessDetector};
       this._provisionedPages.clear();
@@ -710,10 +807,10 @@ export class RpcClient {
       log.debug(
         `Waiting up to ${msLeft}ms for page '${pageIdKey}' of app '${appIdKey}' to be selected`
       );
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         const onPageInitialized = (
-          /** @type {import("../types").AppIdKey} */ notifiedAppIdKey,
-          /** @type {import("../types").PageIdKey} */ notifiedPageIdKey
+          notifiedAppIdKey: AppIdKey,
+          notifiedPageIdKey: PageIdKey
         ) => {
           const timeoutHandler = setTimeout(() => {
             this._pageSelectionMonitor.off(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
@@ -721,7 +818,7 @@ export class RpcClient {
               `Page '${pageIdKey}' for app '${appIdKey}' has not been selected ` +
               `within ${timer.getDuration().asMilliSeconds}ms. Continuing anyway`
             );
-            resolve(false);
+            resolve();
           }, msLeft);
 
           if (notifiedAppIdKey === appIdKey && notifiedPageIdKey === pageIdKey) {
@@ -730,7 +827,7 @@ export class RpcClient {
             log.debug(
               `Selected the page ${pageIdKey}@${appIdKey} after ${timer.getDuration().asMilliSeconds}ms`
             );
-            resolve(true);
+            resolve();
           } else {
             log.debug(
               `Got notified that page ${notifiedPageIdKey}@${notifiedAppIdKey} is initialized, ` +
@@ -745,16 +842,22 @@ export class RpcClient {
   }
 
   /**
-   * Mimic every step that Desktop Safari Develop tools uses to initialize a
-   * Web Inspector session
+   * Initializes a page by enabling various Web Inspector domains.
+   * Can perform either simple or full initialization based on configuration.
+   * Mimics the steps that Desktop Safari Develop tools uses to initialize
+   * a Web Inspector session.
    *
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} pageIdKey
-   * @param {import('../types').TargetId} [targetId]
-   * @returns {Promise<boolean>}
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @param targetId - Optional target ID. If not provided, will be retrieved from the targets map.
+   * @returns A promise that resolves to true if initialization succeeded, false otherwise.
    */
-  async _initializePage (appIdKey, pageIdKey, targetId) {
-    const sendOpts = {
+  private async _initializePage(
+    appIdKey: AppIdKey,
+    pageIdKey: PageIdKey,
+    targetId?: TargetId
+  ): Promise<boolean> {
+    const sendOpts: RemoteCommandOpts = {
       appIdKey,
       pageIdKey,
       targetId,
@@ -778,7 +881,7 @@ export class RpcClient {
       ]) {
         try {
           await this.send(domain, sendOpts);
-        } catch (err) {
+        } catch (err: any) {
           log.info(`Cannot enable domain '${domain}' during initialization: ${err.message}`);
           if (MISSING_TARGET_ERROR_PATTERN.test(err.message)) {
             return false;
@@ -793,7 +896,7 @@ export class RpcClient {
     }
 
     // The sequence of commands here is important
-    const domainsToOptsMap = {
+    const domainsToOptsMap: Record<string, RemoteCommandOpts> = {
       'Inspector.enable': sendOpts,
       'Page.enable': sendOpts,
       'Runtime.enable': sendOpts,
@@ -855,13 +958,13 @@ export class RpcClient {
       try {
         const res = await this.send(domain, opts);
         if (domain === 'Console.getLoggingChannels') {
-          for (const source of (res?.channels || []).map((/** @type {{ source: any; }} */ entry) => entry.source)) {
+          for (const source of (res?.channels || []).map((entry: { source: any }) => entry.source)) {
             try {
               await this.send('Console.setLoggingChannelLevel', Object.assign({
                 source,
                 level: 'verbose',
               }, sendOpts));
-            } catch (err) {
+            } catch (err: any) {
               log.info(`Cannot set logging channel level for '${source}': ${err.message}`);
               if (MISSING_TARGET_ERROR_PATTERN.test(err.message)) {
                 return false;
@@ -869,7 +972,7 @@ export class RpcClient {
             }
           }
         }
-      } catch (err) {
+      } catch (err: any) {
         log.info(`Cannot enable domain '${domain}' during full initialization: ${err.message}`);
         if (MISSING_TARGET_ERROR_PATTERN.test(err.message)) {
           return false;
@@ -884,16 +987,20 @@ export class RpcClient {
   }
 
   /**
+   * Connects to a specific application and returns its page dictionary.
    *
-   * @param {import('../types').AppIdKey} appIdKey
-   * @returns {Promise<[string, Record<string, any>]>}
+   * @param appIdKey - The application identifier key to connect to.
+   * @returns A promise that resolves to a tuple containing the connected app ID key
+   *          and the page dictionary.
+   * @throws Error if a new application connects during the process or if the page
+   *               dictionary is empty.
    */
-  async selectApp (appIdKey) {
-    return await new B((resolve, reject) => {
+  async selectApp(appIdKey: AppIdKey): Promise<[string, StringRecord]> {
+    return await new B<[string, StringRecord]>((resolve, reject) => {
       // local callback, temporarily added as callback to
       // `_rpc_applicationConnected:` remote debugger response
       // to handle the initial connection
-      const onAppChange = (err, dict) => {
+      const onAppChange = (err: Error | null, dict: StringRecord) => {
         if (err) {
           return reject(err);
         }
@@ -910,7 +1017,7 @@ export class RpcClient {
 
         reject(new Error(NEW_APP_CONNECTED_ERROR));
       };
-      this.messageHandler?.prependOnceListener('_rpc_applicationConnected:', onAppChange);
+      this.messageHandler.prependOnceListener('_rpc_applicationConnected:', onAppChange);
 
       // do the actual connecting to the app
       (async () => {
@@ -923,22 +1030,23 @@ export class RpcClient {
           } else {
             resolve([connectedAppIdKey, pageDict]);
           }
-        } catch (err) {
+        } catch (err: any) {
           log.warn(`Unable to connect to the app: ${err.message}`);
           reject(err);
         } finally {
-          this.messageHandler?.off('_rpc_applicationConnected:', onAppChange);
+          this.messageHandler.off('_rpc_applicationConnected:', onAppChange);
         }
       })();
     });
   }
 
   /**
+   * Handles execution context creation events by storing the context ID.
    *
-   * @param {Error?} err
-   * @param {Record<string, any>} context
+   * @param err - Error if one occurred, undefined otherwise.
+   * @param context - The execution context information.
    */
-  onExecutionContextCreated (err, context) {
+  onExecutionContextCreated(err: Error | undefined, context: { id: number }): void {
     // { id: 2, isPageContext: true, name: '', frameId: '0.1' }
     // right now we have no way to map contexts to apps/pages
     // so just store
@@ -946,31 +1054,33 @@ export class RpcClient {
   }
 
   /**
-   * @returns {void}
+   * Handles garbage collection events by logging them.
+   * Garbage collection can affect operation timing.
    */
-  onGarbageCollected () {
-    // just want to log that this is happening, as it can affect opertion
+  onGarbageCollected(): void {
+    // just want to log that this is happening, as it can affect operation
     log.debug(`Web Inspector garbage collected`);
   }
 
   /**
+   * Handles script parsing events by logging script information.
    *
-   * @param {Error?} err
-   * @param {Record<string, any>} scriptInfo
+   * @param err - Error if one occurred, undefined otherwise.
+   * @param scriptInfo - Information about the parsed script.
    */
-  onScriptParsed (err, scriptInfo) {
+  onScriptParsed(err: Error | undefined, scriptInfo: StringRecord): void {
     // { scriptId: '13', url: '', startLine: 0, startColumn: 0, endLine: 82, endColumn: 3 }
     log.debug(`Script parsed: ${JSON.stringify(scriptInfo)}`);
   }
 
   /**
+   * Resumes a paused target.
    *
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} pageIdKey
-   * @param {import('../types').TargetId} targetId
-   * @returns {Promise<void>}
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @param targetId - The target ID to resume.
    */
-  async _resumeTarget (appIdKey, pageIdKey, targetId) {
+  private async _resumeTarget(appIdKey: AppIdKey, pageIdKey: PageIdKey, targetId: TargetId): Promise<void> {
     try {
       await this.send('Target.resume', {
         appIdKey,
@@ -978,20 +1088,26 @@ export class RpcClient {
         targetId,
       });
       log.debug(`Successfully resumed the target ${targetId}@${appIdKey}`);
-    } catch (e) {
+    } catch (e: any) {
       log.warn(`Could not resume the target ${targetId}@${appIdKey}: ${e.message}`);
     }
   }
 
   /**
+   * Waits for a page to be ready by periodically checking the document readyState.
+   * Uses the provided readiness detector to determine when the page is ready.
    *
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} pageIdKey
-   * @param {import('../types').TargetId} targetId
-   * @param {PageReadinessDetector} [pageReadinessDetector]
-   * @returns {Promise<void>}
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @param targetId - The target ID.
+   * @param pageReadinessDetector - The detector for determining page readiness.
    */
-  async _waitForPageReadiness(appIdKey, pageIdKey, targetId, pageReadinessDetector) {
+  private async _waitForPageReadiness(
+    appIdKey: AppIdKey,
+    pageIdKey: PageIdKey,
+    targetId: TargetId,
+    pageReadinessDetector?: PageReadinessDetector
+  ): Promise<void> {
     if (!pageReadinessDetector) {
       return;
     }
@@ -999,8 +1115,7 @@ export class RpcClient {
     log.debug(`Waiting up to ${pageReadinessDetector.timeoutMs}ms for page readiness`);
     const timer = new timing.Timer().start();
     while (pageReadinessDetector.timeoutMs - timer.getDuration().asMilliSeconds > 0) {
-      /** @type {string} */
-      let readyState;
+      let readyState: string;
       try {
         const commandTimeoutMs = Math.max(
           100,
@@ -1014,7 +1129,7 @@ export class RpcClient {
           targetId,
         })).timeout(commandTimeoutMs);
         readyState = convertJavascriptEvaluationResult(rawResult);
-      } catch (e) {
+      } catch (e: any) {
         log.debug(`Cannot determine page readiness: ${e.message}`);
         continue;
       }
@@ -1034,12 +1149,14 @@ export class RpcClient {
   }
 
   /**
+   * Waits for a page to be initialized by acquiring locks on both the page
+   * target lock and the page selection lock.
    *
-   * @param {import('../types').AppIdKey} appIdKey
-   * @param {import('../types').PageIdKey} pageIdKey
-   * @returns {Promise<void>}
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @throws Error if no targets are found for the application.
    */
-  async waitForPage (appIdKey, pageIdKey) {
+  async waitForPage(appIdKey: AppIdKey, pageIdKey: PageIdKey): Promise<void> {
     const appTargetsMap = this.targets[appIdKey];
     if (!appTargetsMap) {
       throw new Error(`No targets found for app '${appIdKey}'`);
@@ -1057,16 +1174,21 @@ export class RpcClient {
   }
 
   /**
-   * Get the pending target details if there is a pending request.
+   * Gets the pending target details if there is a pending request for the given app.
+   * Filters out non-page target types (e.g., 'frame').
    *
-   * @param {import('../types').AppIdKey} appId
-   * @param {import('../types').TargetInfo} targetInfo
-   * @returns {PendingPageTargetDetails | undefined}
+   * @param appId - The application identifier key.
+   * @param targetInfo - Information about the target.
+   * @returns The pending page target details if there's a match, undefined otherwise.
    */
-  _getPendingPageTargetDetails(appId, targetInfo) {
-    const logInfo = (/** @type {string} */ message) => void log.info(
-      `Skipping 'Target.targetCreated' event ${message} for app '${appId}': ${JSON.stringify(targetInfo)}`
-    );
+  private _getPendingPageTargetDetails(
+    appId: AppIdKey,
+    targetInfo: TargetInfo
+  ): PendingPageTargetDetails | undefined {
+    const logInfo = (message: string): undefined =>
+      void log.info(
+        `Skipping 'Target.targetCreated' event ${message} for app '${appId}': ${JSON.stringify(targetInfo)}`
+      );
     if (!this._pendingTargetNotification) {
       return logInfo('with no pending request');
     }
@@ -1085,50 +1207,12 @@ export class RpcClient {
 }
 
 /**
+ * Creates a unique key for page selection based on app and page IDs.
  *
- * @param {import('../types').AppIdKey} appIdKey
- * @param {import('../types').PageIdKey} pageIdKey
- * @returns {string}
+ * @param appIdKey - The application identifier key.
+ * @param pageIdKey - The page identifier key.
+ * @returns A string key combining both identifiers.
  */
-function toPageSelectionKey(appIdKey, pageIdKey) {
+function toPageSelectionKey(appIdKey: AppIdKey, pageIdKey: PageIdKey): string {
   return `${appIdKey}:${pageIdKey}`;
 }
-
-export default RpcClient;
-
-/**
- * @typedef {Object} RpcClientOptions
- * @property {string} [bundleId]
- * @property {string} [platformVersion='']
- * @property {boolean} [isSafari=true]
- * @property {boolean} [logAllCommunication=false]
- * @property {boolean} [logAllCommunicationHexDump=false]
- * @property {number} [webInspectorMaxFrameLength]
- * @property {number} [socketChunkSize]
- * @property {boolean} [fullPageInitialization=false]
- * @property {number} [pageLoadTimeoutMs]
- * @property {string} [udid]
- * @property {number} [targetCreationTimeoutMs]
- */
-
-/**
- * @typedef {Object} PendingPageTargetDetails
- * @property {import('../types').AppIdKey} appIdKey
- * @property {import('../types').PageIdKey} pageIdKey
- * @property {PageReadinessDetector | undefined} pageReadinessDetector
- */
-
-/**
- * @typedef {{[key: import('../types').PageIdKey]: import('../types').TargetId}} PageDict
- */
-
-/**
- * @typedef {PageDict & {provisional?: import('../types').ProvisionalTargetInfo, lock: AsyncLock}} PagesToTargets
- * @typedef {{[key: import('../types').AppIdKey]: PagesToTargets}} AppToTargetsMap
- */
-
-/**
- * @typedef {Object} PageReadinessDetector
- * @property {number} timeoutMs
- * @property {(readyState: string) => boolean} readinessDetector
- */
