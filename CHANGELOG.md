@@ -1,3 +1,9 @@
+## [15.3.1](https://github.com/appium/appium-remote-debugger/compare/v15.3.0...v15.3.1) (2026-01-28)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @appium/eslint-config-appium-ts from 2.0.5 to 3.0.0 ([#473](https://github.com/appium/appium-remote-debugger/issues/473)) ([a7ef17e](https://github.com/appium/appium-remote-debugger/commit/a7ef17e9abb9ef36b64c0d04f0d78d3b16a8e0e7))
+
 ## [15.3.0](https://github.com/appium/appium-remote-debugger/compare/v15.2.14...v15.3.0) (2026-01-24)
 
 ### Features
