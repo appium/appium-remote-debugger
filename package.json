@@ -36,7 +36,7 @@
     "@appium/base-driver": "^10.0.0-rc.1",
     "@appium/support": "^7.0.0-rc.1",
     "appium-ios-device": "^3.0.0",
-    "asyncbox": "^5.0.0",
+    "asyncbox": "^6.1.0",
     "async-lock": "^1.4.1",
     "bluebird": "^3.4.7",
     "glob": "^13.0.0",
