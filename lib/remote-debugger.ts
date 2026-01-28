@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { log as defaultLog } from './logger';
 import { RpcClientSimulator } from './rpc';
 import { getModuleProperties } from './utils';
