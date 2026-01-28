@@ -1,7 +1,7 @@
 import { log } from '../logger';
 import _ from 'lodash';
 import B from 'bluebird';
-import net from 'net';
+import net from 'node:net';
 import { RpcClient } from './rpc-client';
 import { services } from 'appium-ios-device';
 import type { RpcClientOptions, RpcClientSimulatorOptions, RemoteCommand } from '../types';
