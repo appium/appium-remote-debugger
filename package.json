@@ -36,7 +36,7 @@
     "@appium/base-driver": "^10.0.0-rc.1",
     "@appium/support": "^7.0.0-rc.1",
     "appium-ios-device": "^3.0.0",
-    "asyncbox": "^5.0.0",
+    "asyncbox": "^6.1.0",
     "async-lock": "^1.4.1",
     "bluebird": "^3.4.7",
     "glob": "^13.0.0",
@@ -53,7 +53,7 @@
     "prepare": "npm run build",
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.ts\"",
     "e2e-test": "mocha --exit --timeout 1m \"./test/functional/**/*-specs.ts\"",
-    "inspect-safari": "node build/bin/web_inspector_proxy.js",
+    "inspect-safari": "node bin/web_inspector_proxy.mjs",
     "build:atoms": "npm run build:selenium && npm run build:atoms:import",
     "build:atoms:import": "node scripts/build-atoms.mjs",
     "build:selenium": "node scripts/build-selenium.mjs"
