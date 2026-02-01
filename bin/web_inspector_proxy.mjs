@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { SubProcess } from 'teen_process';
 import { plist, util } from '@appium/support';
-import { asyncify } from 'asyncbox';
 import B from 'bluebird';
 import { getSimulator } from 'appium-ios-simulator';
 import _ from 'lodash';
@@ -102,4 +101,7 @@ async function main () {
   await startSoCat(s);
 }
 
-asyncify(main);
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});
