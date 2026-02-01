@@ -1,3 +1,9 @@
+## [15.3.2](https://github.com/appium/appium-remote-debugger/compare/v15.3.1...v15.3.2) (2026-02-01)
+
+### Miscellaneous Chores
+
+* bump asyncbox ([#475](https://github.com/appium/appium-remote-debugger/issues/475)) ([ed68f27](https://github.com/appium/appium-remote-debugger/commit/ed68f273f3ea3fa82b08130bc55ae2e745dff44a))
+
 ## [15.3.1](https://github.com/appium/appium-remote-debugger/compare/v15.3.0...v15.3.1) (2026-01-28)
 
 ### Miscellaneous Chores
