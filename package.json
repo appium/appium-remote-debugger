@@ -18,16 +18,15 @@
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
     "npm": ">=10"
   },
-  "types": "./build/index.d.ts",
-  "main": "./build/index.js",
+  "types": "./build/lib/index.d.ts",
+  "main": "./build/lib/index.js",
   "bin": {},
   "directories": {
     "lib": "lib"
   },
   "files": [
-    "index.ts",
     "lib",
-    "build",
+    "build/lib",
     "scripts",
     "atoms",
     "CHANGELOG.md"
@@ -53,7 +52,8 @@
     "prepare": "npm run build",
     "test": "mocha --exit --timeout 1m \"./test/unit/**/*-specs.ts\"",
     "e2e-test": "mocha --exit --timeout 1m \"./test/functional/**/*-specs.ts\"",
-    "inspect-safari": "node bin/web_inspector_proxy.mjs",
+    "inspect-safari": "node scripts/web_inspector_proxy.mjs",
+    "get-web-inspector-socket": "node scripts/get-web-inspector-socket.mjs",
     "build:atoms": "npm run build:selenium && npm run build:atoms:import",
     "build:atoms:import": "node scripts/build-atoms.mjs",
     "build:selenium": "node scripts/build-selenium.mjs"

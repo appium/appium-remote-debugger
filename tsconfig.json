@@ -8,7 +8,6 @@
     "checkJs": true
   },
   "include": [
-    "index.ts",
     "lib",
     "test"
   ]
