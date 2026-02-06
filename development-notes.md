@@ -8,6 +8,9 @@ inspector protocol. The JSON protocol definitions live in the WebKit tree:
 
 Chrome DevTools protocol documentation is a useful reference:
 [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/).
+Although the WebKit inspector protocol is similar to CDP, there are a couple of important
+differences that are not documented; they can only be found by reading the WebKit source
+code at [github.com/WebKit/WebKit](https://github.com/WebKit/WebKit).
 
 ### Codebase overview
 
