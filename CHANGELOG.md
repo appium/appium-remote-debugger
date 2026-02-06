@@ -1,3 +1,9 @@
+## [15.3.3](https://github.com/appium/appium-remote-debugger/compare/v15.3.2...v15.3.3) (2026-02-06)
+
+### Miscellaneous Chores
+
+* Update development notes ([#476](https://github.com/appium/appium-remote-debugger/issues/476)) ([09c6661](https://github.com/appium/appium-remote-debugger/commit/09c666158b11712ef1bfbe62ca05bb1f9544c1b5))
+
 ## [15.3.2](https://github.com/appium/appium-remote-debugger/compare/v15.3.1...v15.3.2) (2026-02-01)
 
 ### Miscellaneous Chores
