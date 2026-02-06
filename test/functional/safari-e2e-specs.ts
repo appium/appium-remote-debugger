@@ -3,7 +3,7 @@ import { getSimulator, Simulator } from 'appium-ios-simulator';
 import { retryInterval, retry } from 'asyncbox';
 import { util } from '@appium/support';
 import _ from 'lodash';
-import { createRemoteDebugger } from '../../index';
+import { createRemoteDebugger } from '../../lib';
 import { startHttpServer, stopHttpServer } from './http-server';
 import { RemoteDebugger } from '../../lib/remote-debugger';
 import { expect, use } from 'chai';
