@@ -1,3 +1,9 @@
+## [15.3.4](https://github.com/appium/appium-remote-debugger/compare/v15.3.3...v15.3.4) (2026-02-07)
+
+### Bug Fixes
+
+* Introduce proper overloads for createRemoteDebugger ([#477](https://github.com/appium/appium-remote-debugger/issues/477)) ([5b82545](https://github.com/appium/appium-remote-debugger/commit/5b82545f3342f6d700106b8bc18650ce0122735f))
+
 ## [15.3.3](https://github.com/appium/appium-remote-debugger/compare/v15.3.2...v15.3.3) (2026-02-06)
 
 ### Miscellaneous Chores
