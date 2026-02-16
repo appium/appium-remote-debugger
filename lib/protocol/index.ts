@@ -1,5 +1,5 @@
-import type { StringRecord } from '@appium/types';
-import type { RemoteCommandOpts, ProtocolCommandOpts } from '../types';
+import type {StringRecord} from '@appium/types';
+import type {RemoteCommandOpts, ProtocolCommandOpts} from '../types';
 
 const OBJECT_GROUP = 'console';
 
@@ -197,7 +197,7 @@ const COMMANDS = {
   'Worker.enable': [],
   'Worker.disable': [],
   'Worker.initialized': ['workerId'],
-  'Worker.sendMessageToWorker': ['workerId', 'message']
+  'Worker.sendMessageToWorker': ['workerId', 'message'],
   //#endregion
 } as const;
 
@@ -219,18 +219,20 @@ export function getProtocolCommand(
   id: string,
   method: string,
   opts: RemoteCommandOpts,
-  direct: boolean = false
+  direct: boolean = false,
 ): ProtocolCommandOpts {
   const paramNames = COMMANDS[method as keyof typeof COMMANDS];
   if (!paramNames) {
     throw new Error(`Unknown command: '${method}'`);
   }
 
-  const params: StringRecord = (paramNames as readonly string[])
-    .reduce(function (acc: StringRecord, name: string) {
-      acc[name] = opts[name];
-      return acc;
-    }, {} as StringRecord);
+  const params: StringRecord = (paramNames as readonly string[]).reduce(function (
+    acc: StringRecord,
+    name: string,
+  ) {
+    acc[name] = opts[name];
+    return acc;
+  }, {} as StringRecord);
   const result: ProtocolCommandOpts = {
     id,
     method,

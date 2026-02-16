@@ -1,7 +1,7 @@
-import { MOCHA_TIMEOUT } from '../../helpers/helpers';
-import { executeAtom, executeAtomAsync, callFunction, execute } from '../../../lib/mixins/execute';
+import {MOCHA_TIMEOUT} from '../../helpers/helpers';
+import {executeAtom, executeAtomAsync, callFunction, execute} from '../../../lib/mixins/execute';
 import sinon from 'sinon';
-import { expect } from 'chai';
+import {expect} from 'chai';
 
 describe('execute', function () {
   this.timeout(MOCHA_TIMEOUT);
@@ -18,11 +18,15 @@ describe('execute', function () {
           send: () => ({hello: 'world'}),
           waitForPage: async () => {},
         },
-        requireRpcClient () {
+        requireRpcClient() {
           return this._rpcClient;
-        }
+        },
       };
-      const res = await executeAtom.call(ctx, 'find_element', ['css selector', '#id', {ELEMENT: 'foo'}]);
+      const res = await executeAtom.call(ctx, 'find_element', [
+        'css selector',
+        '#id',
+        {ELEMENT: 'foo'},
+      ]);
       expect(res).to.eql({hello: 'world'});
     });
   });
@@ -38,9 +42,9 @@ describe('execute', function () {
           send: () => ({result: {objectId: 'fake-object-id'}}),
           waitForPage: async () => {},
         },
-        requireRpcClient () {
+        requireRpcClient() {
           return this._rpcClient;
-        }
+        },
       };
       const sendSpy = sinon.spy(ctx._rpcClient, 'send');
       await executeAtomAsync.call(ctx, 'find_element', ['a', 'b', 'c'], ['frame-1'], ['frame-2']);
@@ -56,30 +60,26 @@ describe('execute', function () {
         _pageIdKey: 'fakePageId',
         log: {debug: () => {}},
         _garbageCollectOnExecute: true,
-        garbageCollect () { },
+        garbageCollect() {},
         _rpcClient: {
-          send () {
+          send() {
             return {result: {objectId: 'fake-object-id'}};
           },
           isConnected: true,
           waitForPage: async () => {},
         },
-        waitForDom () { },
+        waitForDom() {},
         _pageLoading: true,
-        requireRpcClient () {
+        requireRpcClient() {
           return this._rpcClient;
-        }
+        },
       };
       const sendSpy = sinon.spy(ctx._rpcClient, 'send');
       await callFunction.call(ctx, 'fake-object-id', 'fake_function', ['a', 'b', 'c']);
       expect(sendSpy.firstCall.args[0]).to.equal('Runtime.callFunctionOn');
       expect(sendSpy.firstCall.args[1]).to.eql({
         appIdKey: 'fakeAppId',
-        arguments: [
-          'a',
-          'b',
-          'c',
-        ],
+        arguments: ['a', 'b', 'c'],
         functionDeclaration: 'fake_function',
         objectId: 'fake-object-id',
         pageIdKey: 'fakePageId',
@@ -88,4 +88,3 @@ describe('execute', function () {
     });
   });
 });
-

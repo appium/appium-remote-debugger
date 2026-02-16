@@ -1,10 +1,7 @@
-import { checkParams } from '../utils';
-import B, { TimeoutError as BTimeoutError } from 'bluebird';
-import {
-  getAppIdKey,
-  getPageIdKey,
-} from './property-accessors';
-import type { RemoteDebugger } from '../remote-debugger';
+import {checkParams} from '../utils';
+import B, {TimeoutError as BTimeoutError} from 'bluebird';
+import {getAppIdKey, getPageIdKey} from './property-accessors';
+import type {RemoteDebugger} from '../remote-debugger';
 
 const SAFARI_BUNDLE_ID = 'com.apple.mobilesafari';
 const GARBAGE_COLLECT_TIMEOUT_MS = 5000;
@@ -15,7 +12,7 @@ const GARBAGE_COLLECT_TIMEOUT_MS = 5000;
  */
 export async function launchSafari(this: RemoteDebugger): Promise<void> {
   await this.requireRpcClient().send('launchApplication', {
-    bundleId: SAFARI_BUNDLE_ID
+    bundleId: SAFARI_BUNDLE_ID,
   });
 }
 
@@ -28,7 +25,7 @@ export async function launchSafari(this: RemoteDebugger): Promise<void> {
  */
 export async function startTimeline(
   this: RemoteDebugger,
-  fn: import('../types').EventListener
+  fn: import('../types').EventListener,
 ): Promise<any> {
   this.log.debug('Starting to record the timeline');
   this.requireRpcClient().on('Timeline.eventRecorded', fn);
@@ -77,7 +74,7 @@ export async function overrideUserAgent(this: RemoteDebugger, value: string): Pr
  */
 export async function isJavascriptExecutionBlocked(
   this: RemoteDebugger,
-  timeoutMs: number = 1000
+  timeoutMs: number = 1000,
 ): Promise<boolean> {
   try {
     await B.resolve(
@@ -86,7 +83,7 @@ export async function isJavascriptExecutionBlocked(
         returnByValue: true,
         appIdKey: getAppIdKey(this),
         pageIdKey: getPageIdKey(this),
-      })
+      }),
     ).timeout(timeoutMs);
     return false;
   } catch {
@@ -104,7 +101,7 @@ export async function isJavascriptExecutionBlocked(
  */
 export async function garbageCollect(
   this: RemoteDebugger,
-  timeoutMs: number = GARBAGE_COLLECT_TIMEOUT_MS
+  timeoutMs: number = GARBAGE_COLLECT_TIMEOUT_MS,
 ): Promise<void> {
   this.log.debug(`Garbage collecting with ${timeoutMs}ms timeout`);
 
@@ -119,11 +116,11 @@ export async function garbageCollect(
   }
 
   try {
-    await B.resolve(this.requireRpcClient().send(
-      'Heap.gc', {
+    await B.resolve(
+      this.requireRpcClient().send('Heap.gc', {
         appIdKey: getAppIdKey(this),
         pageIdKey: getPageIdKey(this),
-      })
+      }),
     ).timeout(timeoutMs);
     this.log.debug(`Garbage collection successful`);
   } catch (e: any) {

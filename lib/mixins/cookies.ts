@@ -1,9 +1,6 @@
-import {
-  getAppIdKey,
-  getPageIdKey,
-} from './property-accessors';
-import type { RemoteDebugger } from '../remote-debugger';
-import type { StringRecord } from '@appium/types';
+import {getAppIdKey, getPageIdKey} from './property-accessors';
+import type {RemoteDebugger} from '../remote-debugger';
+import type {StringRecord} from '@appium/types';
 
 /**
  * Retrieves all cookies for the current page by sending a Page.getCookies
@@ -26,10 +23,7 @@ export async function getCookies(this: RemoteDebugger): Promise<StringRecord> {
  * @param cookie - Dictionary containing the cookie properties to set.
  * @returns A promise that resolves when the cookie has been set.
  */
-export async function setCookie(
-  this: RemoteDebugger,
-  cookie: StringRecord
-): Promise<any> {
+export async function setCookie(this: RemoteDebugger, cookie: StringRecord): Promise<any> {
   this.log.debug('Setting cookie');
   return await this.requireRpcClient().send('Page.setCookie', {
     appIdKey: getAppIdKey(this),
@@ -49,7 +43,7 @@ export async function setCookie(
 export async function deleteCookie(
   this: RemoteDebugger,
   cookieName: string,
-  url: string
+  url: string,
 ): Promise<any> {
   this.log.debug(`Deleting cookie '${cookieName}' on '${url}'`);
   return await this.requireRpcClient().send('Page.deleteCookie', {

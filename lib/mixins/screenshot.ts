@@ -1,9 +1,6 @@
-import {
-  getAppIdKey,
-  getPageIdKey,
-} from './property-accessors';
-import type { RemoteDebugger } from '../remote-debugger';
-import type { Rect } from '@appium/types';
+import {getAppIdKey, getPageIdKey} from './property-accessors';
+import type {RemoteDebugger} from '../remote-debugger';
+import type {Rect} from '@appium/types';
 
 /**
  * Options for capturing a screenshot.
@@ -28,15 +25,17 @@ export interface ScreenshotCaptureOptions {
  */
 export async function captureScreenshot(
   this: RemoteDebugger,
-  opts: ScreenshotCaptureOptions = {}
+  opts: ScreenshotCaptureOptions = {},
 ): Promise<string> {
   const {rect = null, coordinateSystem = 'Viewport'} = opts;
   this.log.debug('Capturing screenshot');
 
-  const arect = rect ?? (await this.executeAtom(
-    'execute_script',
-    ['return {x: 0, y: 0, width: window.innerWidth, height: window.innerHeight}', []]
-  ) as Rect);
+  const arect =
+    rect ??
+    ((await this.executeAtom('execute_script', [
+      'return {x: 0, y: 0, width: window.innerWidth, height: window.innerHeight}',
+      [],
+    ])) as Rect);
   const response = await this.requireRpcClient().send('Page.snapshotRect', {
     ...arect,
     appIdKey: getAppIdKey(this),

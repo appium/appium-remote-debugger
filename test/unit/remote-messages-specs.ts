@@ -1,6 +1,6 @@
-import { RemoteMessages } from '../../lib/rpc/remote-messages';
-import { MOCHA_TIMEOUT } from '../helpers/helpers';
-import { expect } from 'chai';
+import {RemoteMessages} from '../../lib/rpc/remote-messages';
+import {MOCHA_TIMEOUT} from '../helpers/helpers';
+import {expect} from 'chai';
 
 describe('RemoteMessages', function () {
   this.timeout(MOCHA_TIMEOUT);
@@ -9,8 +9,15 @@ describe('RemoteMessages', function () {
 
   describe('getRemoteCommand', function () {
     const commands = [
-      'setConnectionKey', 'connectToApp', 'setSenderKey', 'indicateWebView',
-      'Runtime.evaluate', 'Runtime.callFunctionOn', 'Page.navigate', 'Page.enable', 'Timeline.start',
+      'setConnectionKey',
+      'connectToApp',
+      'setSenderKey',
+      'indicateWebView',
+      'Runtime.evaluate',
+      'Runtime.callFunctionOn',
+      'Page.navigate',
+      'Page.enable',
+      'Timeline.start',
       'Timeline.stop',
     ];
     for (const command of commands) {
@@ -30,4 +37,3 @@ describe('RemoteMessages', function () {
     }
   });
 });
-

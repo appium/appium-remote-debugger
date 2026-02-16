@@ -1,10 +1,10 @@
-import { log } from '../logger';
+import {log} from '../logger';
 import _ from 'lodash';
 import B from 'bluebird';
 import net from 'node:net';
-import { RpcClient } from './rpc-client';
-import { services } from 'appium-ios-device';
-import type { RpcClientOptions, RpcClientSimulatorOptions, RemoteCommand } from '../types';
+import {RpcClient} from './rpc-client';
+import {services} from 'appium-ios-device';
+import type {RpcClientOptions, RpcClientSimulatorOptions, RemoteCommand} from '../types';
 
 /**
  * RPC client implementation for iOS simulators.
@@ -26,12 +26,7 @@ export class RpcClientSimulator extends RpcClient {
   constructor(opts: RpcClientOptions & RpcClientSimulatorOptions = {}) {
     super(opts);
 
-    const {
-      socketPath,
-      host = '::1',
-      port,
-      messageProxy,
-    } = opts;
+    const {socketPath, host = '::1', port, messageProxy} = opts;
 
     // host/port config for TCP communication, socketPath for unix domain sockets
     this.host = host;
@@ -51,19 +46,24 @@ export class RpcClientSimulator extends RpcClient {
     if (this.socketPath) {
       if (this.messageProxy) {
         // unix domain socket via proxy
-        log.debug(`Connecting to remote debugger via proxy through unix domain socket: '${this.messageProxy}'`);
+        log.debug(
+          `Connecting to remote debugger via proxy through unix domain socket: '${this.messageProxy}'`,
+        );
         this.socket = net.connect(this.messageProxy);
 
         // Forward the actual socketPath to the proxy
         this.socket.once('connect', () => {
-          log.debug(`Forwarding the actual web inspector socket to the proxy: '${this.socketPath}'`);
+          log.debug(
+            `Forwarding the actual web inspector socket to the proxy: '${this.socketPath}'`,
+          );
           if (this.socket) {
-            this.socket.write(JSON.stringify({
-              socketPath: this.socketPath
-            }));
+            this.socket.write(
+              JSON.stringify({
+                socketPath: this.socketPath,
+              }),
+            );
           }
         });
-
       } else {
         // unix domain socket
         log.debug(`Connecting to remote debugger through unix domain socket: '${this.socketPath}'`);
@@ -76,7 +76,9 @@ export class RpcClientSimulator extends RpcClient {
       }
 
       // tcp socket
-      log.debug(`Connecting to remote debugger ${this.messageProxy ? 'via proxy ' : ''}through TCP: ${this.host}:${this.port}`);
+      log.debug(
+        `Connecting to remote debugger ${this.messageProxy ? 'via proxy ' : ''}through TCP: ${this.host}:${this.port}`,
+      );
       this.socket = new net.Socket();
       if (this.port && this.host) {
         this.socket.connect(this.port, this.host);
@@ -166,14 +168,15 @@ export class RpcClientSimulator extends RpcClient {
 
       if (!this.socket || !this.service) {
         return reject(
-          new Error('The RPC client is not connected. Have you called `connect()` before sending a message?')
+          new Error(
+            'The RPC client is not connected. Have you called `connect()` before sending a message?',
+          ),
         );
       }
       this.socket.on('error', onSocketError);
       this.service.sendMessage(cmd);
       resolve();
-    })
-    .finally(() => {
+    }).finally(() => {
       // remove this listener, so we don't exhaust the system
       if (this.socket && onSocketError) {
         this.socket.removeListener('error', onSocketError);

@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import { errorFromMJSONWPStatusCode } from '@appium/base-driver';
-import { util, node } from '@appium/support';
+import {errorFromMJSONWPStatusCode} from '@appium/base-driver';
+import {util, node} from '@appium/support';
 import nodeFs from 'node:fs';
 import path from 'node:path';
-import type { StringRecord } from '@appium/types';
-import type { AppInfo, AppDict, Page } from './types';
+import type {StringRecord} from '@appium/types';
+import type {AppInfo, AppDict, Page} from './types';
 
 const MODULE_NAME = 'appium-remote-debugger';
 export const WEB_CONTENT_BUNDLE_ID = 'com.apple.WebKit.WebContent';
@@ -35,9 +35,10 @@ export function appInfoFromDict(dict: Record<string, any>): [string, AppInfo] {
   let isAutomationEnabled: boolean | string = !!dict.WIRRemoteAutomationEnabledKey;
   if (_.has(dict, 'WIRAutomationAvailabilityKey')) {
     if (_.isString(dict.WIRAutomationAvailabilityKey)) {
-      isAutomationEnabled = dict.WIRAutomationAvailabilityKey === 'WIRAutomationAvailabilityUnknown'
-        ? 'Unknown'
-        : dict.WIRAutomationAvailabilityKey === 'WIRAutomationAvailabilityAvailable';
+      isAutomationEnabled =
+        dict.WIRAutomationAvailabilityKey === 'WIRAutomationAvailabilityUnknown'
+          ? 'Unknown'
+          : dict.WIRAutomationAvailabilityKey === 'WIRAutomationAvailabilityAvailable';
     } else {
       isAutomationEnabled = !!dict.WIRAutomationAvailabilityKey;
     }
@@ -63,15 +64,19 @@ export function appInfoFromDict(dict: Record<string, any>): [string, AppInfo] {
  * @returns An array of Page objects representing the available pages.
  */
 export function pageArrayFromDict(pageDict: StringRecord): Page[] {
-  return _.values(pageDict)
-    // count only WIRTypeWeb pages and ignore all others (WIRTypeJavaScript etc)
-    .filter((dict) => _.isUndefined(dict.WIRTypeKey) || ACCEPTED_PAGE_TYPES.includes(dict.WIRTypeKey))
-    .map((dict) => ({
-      id: dict.WIRPageIdentifierKey,
-      title: dict.WIRTitleKey,
-      url: dict.WIRURLKey,
-      isKey: !_.isUndefined(dict.WIRConnectionIdentifierKey),
-    }));
+  return (
+    _.values(pageDict)
+      // count only WIRTypeWeb pages and ignore all others (WIRTypeJavaScript etc)
+      .filter(
+        (dict) => _.isUndefined(dict.WIRTypeKey) || ACCEPTED_PAGE_TYPES.includes(dict.WIRTypeKey),
+      )
+      .map((dict) => ({
+        id: dict.WIRPageIdentifierKey,
+        title: dict.WIRTitleKey,
+        url: dict.WIRURLKey,
+        isKey: !_.isUndefined(dict.WIRConnectionIdentifierKey),
+      }))
+  );
 }
 
 /**
@@ -145,7 +150,9 @@ export function simpleStringify(value: any, multiline: boolean = false): string 
  */
 export function convertJavascriptEvaluationResult(res: any): any {
   if (_.isUndefined(res)) {
-    throw new Error(`Did not get OK result from remote debugger. Result was: ${_.truncate(simpleStringify(res), {length: RESPONSE_LOG_LENGTH})}`);
+    throw new Error(
+      `Did not get OK result from remote debugger. Result was: ${_.truncate(simpleStringify(res), {length: RESPONSE_LOG_LENGTH})}`,
+    );
   } else if (_.isString(res)) {
     try {
       res = JSON.parse(res);
