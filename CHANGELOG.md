@@ -1,3 +1,9 @@
+## [15.3.5](https://github.com/appium/appium-remote-debugger/compare/v15.3.4...v15.3.5) (2026-02-16)
+
+### Bug Fixes
+
+* format ([#478](https://github.com/appium/appium-remote-debugger/issues/478)) ([c49cc38](https://github.com/appium/appium-remote-debugger/commit/c49cc383afe313dfc83a3d34b523360b0f60bc20))
+
 ## [15.3.4](https://github.com/appium/appium-remote-debugger/compare/v15.3.3...v15.3.4) (2026-02-07)
 
 ### Bug Fixes
