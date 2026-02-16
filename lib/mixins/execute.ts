@@ -1,21 +1,17 @@
-import { errors } from '@appium/base-driver';
+import {errors} from '@appium/base-driver';
 import {
   checkParams,
   simpleStringify,
   convertJavascriptEvaluationResult,
   RESPONSE_LOG_LENGTH,
 } from '../utils';
-import { getScriptForAtom } from '../atoms';
-import { util, timing } from '@appium/support';
-import { retryInterval } from 'asyncbox';
+import {getScriptForAtom} from '../atoms';
+import {util, timing} from '@appium/support';
+import {retryInterval} from 'asyncbox';
 import _ from 'lodash';
-import {
-  getAppIdKey,
-  getPageIdKey,
-  getGarbageCollectOnExecute,
-} from './property-accessors';
-import type { RemoteDebugger } from '../remote-debugger';
-import type { AppIdKey, PageIdKey } from '../types';
+import {getAppIdKey, getPageIdKey, getGarbageCollectOnExecute} from './property-accessors';
+import type {RemoteDebugger} from '../remote-debugger';
+import type {AppIdKey, PageIdKey} from '../types';
 
 /* How many milliseconds to wait for webkit to return a response before timing out */
 const RPC_RESPONSE_TIMEOUT_MS = 5000;
@@ -33,14 +29,16 @@ export async function executeAtom(
   this: RemoteDebugger,
   atom: string,
   args: any[] = [],
-  frames: string[] = []
+  frames: string[] = [],
 ): Promise<any> {
   this.log.debug(`Executing atom '${atom}' with 'args=${JSON.stringify(args)}; frames=${frames}'`);
   const script = await getScriptForAtom(atom, args, frames);
   const value = await this.execute(script);
-  this.log.debug(`Received result for atom '${atom}' execution: ${_.truncate(simpleStringify(value), {
-    length: RESPONSE_LOG_LENGTH
-  })}`);
+  this.log.debug(
+    `Received result for atom '${atom}' execution: ${_.truncate(simpleStringify(value), {
+      length: RESPONSE_LOG_LENGTH,
+    })}`,
+  );
   return value;
 }
 
@@ -59,20 +57,26 @@ export async function executeAtomAsync(
   this: RemoteDebugger,
   atom: string,
   args: any[] = [],
-  frames: string[] = []
+  frames: string[] = [],
 ): Promise<any> {
   // helper to send directly to the web inspector
-  const evaluate = async (method: string, opts: any) => await this.requireRpcClient(true).send(method, Object.assign({
-    appIdKey: getAppIdKey(this),
-    pageIdKey: getPageIdKey(this),
-    returnByValue: false,
-  }, opts));
+  const evaluate = async (method: string, opts: any) =>
+    await this.requireRpcClient(true).send(
+      method,
+      Object.assign(
+        {
+          appIdKey: getAppIdKey(this),
+          pageIdKey: getPageIdKey(this),
+          returnByValue: false,
+        },
+        opts,
+      ),
+    );
 
   // first create a Promise on the page, saving the resolve/reject functions
   // as properties
   const promiseName = `appiumAsyncExecutePromise${util.uuidV4().replace(/-/g, '')}`;
-  const script =
-    `var res, rej;
+  const script = `var res, rej;
     window.${promiseName} = new Promise(function (resolve, reject) {
       res = resolve;
       rej = reject;
@@ -86,8 +90,7 @@ export async function executeAtomAsync(
   const promiseObjectId = obj.result.objectId;
 
   // execute the atom, calling back to the resolve function
-  const asyncCallBack =
-    `function (res) {
+  const asyncCallBack = `function (res) {
       window.${promiseName}.resolve(res);
       window.${promiseName}Value = res;
     }`;
@@ -109,7 +112,7 @@ export async function executeAtomAsync(
     }
     // awaitPromise is not always available, so simulate it with poll
     const retryWait = 100;
-    const timeout = (args.length >= 3) ? args[2] : RPC_RESPONSE_TIMEOUT_MS;
+    const timeout = args.length >= 3 ? args[2] : RPC_RESPONSE_TIMEOUT_MS;
     // if the timeout math turns up 0 retries, make sure it happens once
     const retries = parseInt(`${timeout / retryWait}`, 10) || 1;
     const timer = new timing.Timer().start();
@@ -130,14 +133,18 @@ export async function executeAtomAsync(
         });
       }
       // throw a TimeoutError, or else it needs to be caught and re-thrown
-      throw new errors.TimeoutError(`Timed out waiting for asynchronous script ` +
-                                    `result after ${timer.getDuration().asMilliSeconds.toFixed(0)}ms'));`);
+      throw new errors.TimeoutError(
+        `Timed out waiting for asynchronous script ` +
+          `result after ${timer.getDuration().asMilliSeconds.toFixed(0)}ms'));`,
+      );
     });
   } finally {
     try {
       // try to get rid of the promise
       await this.executeAtom(
-        'execute_script', [`delete window.${promiseName};`, [null, null], subcommandTimeout], frames
+        'execute_script',
+        [`delete window.${promiseName};`, [null, null], subcommandTimeout],
+        frames,
       );
     } catch {}
   }
@@ -154,7 +161,11 @@ export async function executeAtomAsync(
  *          converted to a usable format.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function execute(this: RemoteDebugger, command: string, override?: boolean): Promise<any> {
+export async function execute(
+  this: RemoteDebugger,
+  command: string,
+  override?: boolean,
+): Promise<any> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),
@@ -165,10 +176,7 @@ export async function execute(this: RemoteDebugger, command: string, override?: 
   }
 
   const rpcClient = this.requireRpcClient(true);
-  await rpcClient.waitForPage(
-    appIdKey as AppIdKey,
-    pageIdKey as PageIdKey
-  );
+  await rpcClient.waitForPage(appIdKey as AppIdKey, pageIdKey as PageIdKey);
   this.log.debug(`Sending javascript command: '${_.truncate(command, {length: 50})}'`);
   const res = await rpcClient.send('Runtime.evaluate', {
     expression: command,
@@ -193,7 +201,7 @@ export async function callFunction(
   this: RemoteDebugger,
   objectId: string,
   fn: string,
-  args?: any[]
+  args?: any[],
 ): Promise<any> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),

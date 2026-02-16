@@ -1,7 +1,7 @@
-import { EventEmitter } from 'node:events';
-import { log as defaultLog } from './logger';
-import { RpcClientSimulator } from './rpc';
-import { getModuleProperties } from './utils';
+import {EventEmitter} from 'node:events';
+import {log as defaultLog} from './logger';
+import {RpcClientSimulator} from './rpc';
+import {getModuleProperties} from './utils';
 import * as connectMixins from './mixins/connect';
 import * as executeMixins from './mixins/execute';
 import * as messageHandlerMixins from './mixins/message-handlers';
@@ -11,22 +11,14 @@ import * as screenshotMixins from './mixins/screenshot';
 import * as eventMixins from './mixins/events';
 import * as miscellaneousMixins from './mixins/misc';
 import _ from 'lodash';
-import type {
-  RemoteDebuggerOptions,
-  AppDict,
-  EventListener,
-  PageIdKey,
-  AppIdKey,
-} from './types';
-import type { AppiumLogger, StringRecord } from '@appium/types';
-import type { RpcClient } from './rpc/rpc-client';
+import type {RemoteDebuggerOptions, AppDict, EventListener, PageIdKey, AppIdKey} from './types';
+import type {AppiumLogger, StringRecord} from '@appium/types';
+import type {RpcClient} from './rpc/rpc-client';
 import type B from 'bluebird';
-
 
 export const REMOTE_DEBUGGER_PORT = 27753;
 const PAGE_READY_TIMEOUT_MS = 5000;
-const { version: MODULE_VERSION } = getModuleProperties();
-
+const {version: MODULE_VERSION} = getModuleProperties();
 
 export class RemoteDebugger extends EventEmitter {
   protected _skippedApps: string[];
@@ -107,7 +99,7 @@ export class RemoteDebugger extends EventEmitter {
   onCurrentState = messageHandlerMixins.onCurrentState;
   frameDetached = navigationMixins.frameDetached;
 
-  constructor (opts: RemoteDebuggerOptions = {}) {
+  constructor(opts: RemoteDebuggerOptions = {}) {
     super();
 
     this._log = opts.log ?? defaultLog;
@@ -151,7 +143,9 @@ export class RemoteDebugger extends EventEmitter {
     this._remoteDebugProxy = remoteDebugProxy;
     this._pageReadyTimeout = pageReadyTimeout;
 
-    this._logAllCommunication = _.isNil(logAllCommunication) ? !!logFullResponse : !!logAllCommunication;
+    this._logAllCommunication = _.isNil(logAllCommunication)
+      ? !!logFullResponse
+      : !!logAllCommunication;
     this._logAllCommunicationHexDump = logAllCommunicationHexDump;
     this._socketChunkSize = socketChunkSize;
 
@@ -181,7 +175,7 @@ export class RemoteDebugger extends EventEmitter {
     return this._rpcClient;
   }
 
-  setup (): void {
+  setup(): void {
     // app handling configuration
     this._appDict = {};
     this._appIdKey = undefined;
@@ -196,7 +190,7 @@ export class RemoteDebugger extends EventEmitter {
     this._clientEventListeners = {};
   }
 
-  teardown (): void {
+  teardown(): void {
     this.log.debug('Cleaning up listeners');
 
     this._appDict = {};
@@ -215,7 +209,7 @@ export class RemoteDebugger extends EventEmitter {
     }
   }
 
-  initRpcClient (): void {
+  initRpcClient(): void {
     this._rpcClient = new RpcClientSimulator({
       bundleId: this._bundleId,
       platformVersion: this._platformVersion,
@@ -232,7 +226,7 @@ export class RemoteDebugger extends EventEmitter {
     });
   }
 
-  get isConnected (): boolean {
+  get isConnected(): boolean {
     return !!this._rpcClient?.isConnected;
   }
 
@@ -243,27 +237,27 @@ export class RemoteDebugger extends EventEmitter {
     return _.cloneDeep(this._appDict);
   }
 
-  set allowNavigationWithoutReload (allow: boolean) {
+  set allowNavigationWithoutReload(allow: boolean) {
     this._allowNavigationWithoutReload = allow;
   }
 
-  get allowNavigationWithoutReload (): boolean {
+  get allowNavigationWithoutReload(): boolean {
     return !!this._allowNavigationWithoutReload;
   }
 
-  get currentState (): string | undefined {
+  get currentState(): string | undefined {
     return this._currentState;
   }
 
-  get connectedDrivers (): StringRecord[] | undefined {
+  get connectedDrivers(): StringRecord[] | undefined {
     return this._connectedDrivers;
   }
 
-  get pageLoadMs (): number {
+  get pageLoadMs(): number {
     return this._pageLoadMs ?? navigationMixins.DEFAULT_PAGE_READINESS_TIMEOUT_MS;
   }
 
-  set pageLoadMs (value: number) {
+  set pageLoadMs(value: number) {
     this._pageLoadMs = value;
   }
 }

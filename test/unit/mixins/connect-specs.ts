@@ -1,10 +1,8 @@
-import {
-  getPossibleDebuggerAppKeys
-} from '../../../lib/mixins/connect';
-import { MOCHA_TIMEOUT } from '../../helpers/helpers';
-import { RemoteDebugger } from '../../../lib/remote-debugger';
-import type { AppInfo } from '../../../lib/types';
-import { expect } from 'chai';
+import {getPossibleDebuggerAppKeys} from '../../../lib/mixins/connect';
+import {MOCHA_TIMEOUT} from '../../helpers/helpers';
+import {RemoteDebugger} from '../../../lib/remote-debugger';
+import type {AppInfo} from '../../../lib/types';
+import {expect} from 'chai';
 
 describe('connect', function () {
   this.timeout(MOCHA_TIMEOUT);
@@ -23,7 +21,7 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle1',
           isActive: true,
-          isAutomationEnabled: true
+          isAutomationEnabled: true,
         } as AppInfo,
         ['43']: {
           id: '43',
@@ -31,7 +29,7 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle2',
           isActive: true,
-          isAutomationEnabled: true
+          isAutomationEnabled: true,
         } as AppInfo,
         ['44']: {
           id: '44',
@@ -39,11 +37,12 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle3',
           isActive: true,
-          isAutomationEnabled: true
+          isAutomationEnabled: true,
         } as AppInfo,
       };
-      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1', 'io.appium.bundle2']))
-        .to.eql(['42', '43']);
+      expect(
+        getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1', 'io.appium.bundle2']),
+      ).to.eql(['42', '43']);
     });
     const webviewBundleIds = [
       'com.apple.WebKit.WebContent',
@@ -60,8 +59,8 @@ describe('connect', function () {
             isProxy: false,
             name: 'WebView',
             isActive: true,
-            isAutomationEnabled: true
-          } as AppInfo
+            isAutomationEnabled: true,
+          } as AppInfo,
         };
         expect(getPossibleDebuggerAppKeys.bind(rd)([])).to.eql(['42']);
       });
@@ -74,7 +73,7 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle',
           isActive: true,
-          isAutomationEnabled: true
+          isAutomationEnabled: true,
         } as AppInfo,
         ['43']: {
           id: '43',
@@ -83,8 +82,8 @@ describe('connect', function () {
           hostId: '42',
           name: 'ProxiedBundle',
           isActive: true,
-          isAutomationEnabled: true
-        } as AppInfo
+          isAutomationEnabled: true,
+        } as AppInfo,
       };
       expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle'])).to.eql(['42', '43']);
     });
@@ -100,7 +99,7 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle1',
           isActive: true,
-          isAutomationEnabled: true
+          isAutomationEnabled: true,
         } as AppInfo,
         ['43']: {
           id: '43',
@@ -108,11 +107,10 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle2',
           isActive: true,
-          isAutomationEnabled: true
+          isAutomationEnabled: true,
         } as AppInfo,
       };
       expect(getPossibleDebuggerAppKeys.bind(rd)(['*'])).to.eql(['42', '43']);
     });
   });
 });
-

@@ -1,8 +1,8 @@
-import { checkParams } from '../utils';
-import { events } from './events';
-import { timing, util } from '@appium/support';
+import {checkParams} from '../utils';
+import {events} from './events';
+import {timing, util} from '@appium/support';
 import _ from 'lodash';
-import B, { TimeoutError as BTimeoutError } from 'bluebird';
+import B, {TimeoutError as BTimeoutError} from 'bluebird';
 import {
   getAppIdKey,
   setPageLoading,
@@ -13,8 +13,8 @@ import {
   getPageIdKey,
   setNavigatingToPage,
 } from './property-accessors';
-import type { RemoteDebugger } from '../remote-debugger';
-import type { AppIdKey, PageIdKey } from '../types';
+import type {RemoteDebugger} from '../remote-debugger';
+import type {AppIdKey, PageIdKey} from '../types';
 
 export const DEFAULT_PAGE_READINESS_TIMEOUT_MS = 20 * 1000;
 const PAGE_READINESS_CHECK_INTERVAL_MS = 50;
@@ -25,7 +25,7 @@ const PAGE_READINESS_CHECK_INTERVAL_MS = 50;
 const PAGE_LOAD_STRATEGY = Object.freeze({
   EAGER: 'eager',
   NONE: 'none',
-  NORMAL: 'normal'
+  NORMAL: 'normal',
 });
 
 /**
@@ -78,7 +78,10 @@ export function isPageLoadingCompleted(this: RemoteDebugger, readyState: string)
  * @param startPageLoadTimer - Optional timer instance to use for tracking elapsed time.
  *                             If not provided, a new timer will be created and started.
  */
-export async function waitForDom(this: RemoteDebugger, startPageLoadTimer?: timing.Timer): Promise<void> {
+export async function waitForDom(
+  this: RemoteDebugger,
+  startPageLoadTimer?: timing.Timer,
+): Promise<void> {
   const readinessTimeoutMs = this.pageLoadMs;
   this.log.debug(`Waiting up to ${readinessTimeoutMs}ms for the page to be ready`);
   const timer = startPageLoadTimer ?? new timing.Timer().start();
@@ -86,49 +89,53 @@ export async function waitForDom(this: RemoteDebugger, startPageLoadTimer?: timi
   let isPageLoading = true;
   setPageLoading(this, true);
   setPageLoadDelay(this, util.cancellableDelay(readinessTimeoutMs));
-  const pageReadinessPromise = B.resolve((async () => {
-    let retry = 0;
-    while (isPageLoading) {
-      // if we are ready, or we've spend too much time on this
-      const elapsedMs = timer.getDuration().asMilliSeconds;
-      // exponential retry
-      const intervalMs = Math.min(
-        PAGE_READINESS_CHECK_INTERVAL_MS * Math.pow(2, retry),
-        readinessTimeoutMs - elapsedMs
-      );
-      await B.delay(intervalMs);
-      // we can get this called in the middle of trying to find a new app
-      if (!getAppIdKey(this)) {
-        this.log.debug('Not connected to an application. Ignoring page readiess check');
-        return;
-      }
-      if (!isPageLoading) {
-        return;
-      }
-
-      const maxWaitMs = (readinessTimeoutMs - elapsedMs) * 0.95;
-      if (await this.checkPageIsReady(maxWaitMs)) {
-        if (isPageLoading) {
-          this.log.debug(`Page is ready in ${elapsedMs}ms`);
-          isPageLoading = false;
-        }
-        return;
-      }
-      if (elapsedMs > readinessTimeoutMs) {
-        this.log.info(
-          `Timed out after ${readinessTimeoutMs}ms of waiting for the page readiness. Continuing anyway`
+  const pageReadinessPromise = B.resolve(
+    (async () => {
+      let retry = 0;
+      while (isPageLoading) {
+        // if we are ready, or we've spend too much time on this
+        const elapsedMs = timer.getDuration().asMilliSeconds;
+        // exponential retry
+        const intervalMs = Math.min(
+          PAGE_READINESS_CHECK_INTERVAL_MS * Math.pow(2, retry),
+          readinessTimeoutMs - elapsedMs,
         );
-        isPageLoading = false;
-        return;
+        await B.delay(intervalMs);
+        // we can get this called in the middle of trying to find a new app
+        if (!getAppIdKey(this)) {
+          this.log.debug('Not connected to an application. Ignoring page readiess check');
+          return;
+        }
+        if (!isPageLoading) {
+          return;
+        }
+
+        const maxWaitMs = (readinessTimeoutMs - elapsedMs) * 0.95;
+        if (await this.checkPageIsReady(maxWaitMs)) {
+          if (isPageLoading) {
+            this.log.debug(`Page is ready in ${elapsedMs}ms`);
+            isPageLoading = false;
+          }
+          return;
+        }
+        if (elapsedMs > readinessTimeoutMs) {
+          this.log.info(
+            `Timed out after ${readinessTimeoutMs}ms of waiting for the page readiness. Continuing anyway`,
+          );
+          isPageLoading = false;
+          return;
+        }
+        retry++;
       }
-      retry++;
-    }
-  })());
-  const cancellationPromise = B.resolve((async () => {
-    try {
-      await getPageLoadDelay(this);
-    } catch {}
-  })());
+    })(),
+  );
+  const cancellationPromise = B.resolve(
+    (async () => {
+      try {
+        await getPageLoadDelay(this);
+      } catch {}
+    })(),
+  );
 
   try {
     await B.any([cancellationPromise, pageReadinessPromise]);
@@ -152,13 +159,12 @@ export async function checkPageIsReady(this: RemoteDebugger, timeoutMs?: number)
   const readyCmd = 'document.readyState;';
   const actualTimeoutMs = timeoutMs ?? getPageReadyTimeout(this);
   try {
-    const readyState = await B.resolve(this.execute(readyCmd))
-      .timeout(actualTimeoutMs);
+    const readyState = await B.resolve(this.execute(readyCmd)).timeout(actualTimeoutMs);
     this.log.debug(
       JSON.stringify({
         readyState,
         pageLoadStrategy: getPageLoadStartegy(this) ?? PAGE_LOAD_STRATEGY.NORMAL,
-      })
+      }),
     );
     return this.isPageLoadingCompleted(readyState);
   } catch (err: any) {
@@ -194,10 +200,7 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
 
   this.log.debug(`Navigating to new URL: '${url}'`);
   setNavigatingToPage(this, true);
-  await rpcClient.waitForPage(
-    appIdKey as AppIdKey,
-    pageIdKey as PageIdKey
-  );
+  await rpcClient.waitForPage(appIdKey as AppIdKey, pageIdKey as PageIdKey);
   const readinessTimeoutMs = this.pageLoadMs;
   let onPageLoaded: (() => void) | undefined;
   let onPageLoadedTimeout: NodeJS.Timeout | undefined | null;
@@ -212,7 +215,7 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
         isPageLoading = false;
         this.log.info(
           `Timed out after ${start.getDuration().asMilliSeconds.toFixed(0)}ms of waiting ` +
-          `for the ${url} page readiness. Continuing anyway`
+            `for the ${url} page readiness. Continuing anyway`,
         );
       }
       return resolve();
@@ -221,7 +224,9 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
     onPageLoaded = () => {
       if (isPageLoading) {
         isPageLoading = false;
-        this.log.debug(`The page ${url} is ready in ${start.getDuration().asMilliSeconds.toFixed(0)}ms`);
+        this.log.debug(
+          `The page ${url} is ready in ${start.getDuration().asMilliSeconds.toFixed(0)}ms`,
+        );
       }
       if (onPageLoadedTimeout) {
         clearTimeout(onPageLoadedTimeout);
@@ -239,11 +244,13 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
       pageIdKey,
     });
   });
-  const cancellationPromise = B.resolve((async () => {
-    try {
-      await getPageLoadDelay(this);
-    } catch {}
-  })());
+  const cancellationPromise = B.resolve(
+    (async () => {
+      try {
+        await getPageLoadDelay(this);
+      } catch {}
+    })(),
+  );
 
   try {
     await B.any([cancellationPromise, pageReadinessPromise]);

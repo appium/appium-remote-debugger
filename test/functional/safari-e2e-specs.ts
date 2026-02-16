@@ -1,14 +1,14 @@
-import { Simctl } from 'node-simctl';
-import { getSimulator, Simulator } from 'appium-ios-simulator';
-import { retryInterval, retry } from 'asyncbox';
-import { util } from '@appium/support';
+import {Simctl} from 'node-simctl';
+import {getSimulator, Simulator} from 'appium-ios-simulator';
+import {retryInterval, retry} from 'asyncbox';
+import {util} from '@appium/support';
 import _ from 'lodash';
-import { createRemoteDebugger } from '../../lib';
-import { startHttpServer, stopHttpServer } from './http-server';
-import { RemoteDebugger } from '../../lib/remote-debugger';
-import { expect, use } from 'chai';
+import {createRemoteDebugger} from '../../lib';
+import {startHttpServer, stopHttpServer} from './http-server';
+import {RemoteDebugger} from '../../lib/remote-debugger';
+import {expect, use} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { StringRecord } from '@appium/types';
+import {StringRecord} from '@appium/types';
 
 use(chaiAsPromised);
 
@@ -18,7 +18,10 @@ const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '26.2';
 
 const PAGE_TITLE = 'Remote debugger test page';
 
-async function getExistingSim (deviceName: string, platformVersion: string): Promise<Simulator | null> {
+async function getExistingSim(
+  deviceName: string,
+  platformVersion: string,
+): Promise<Simulator | null> {
   const devices = await new Simctl().getDevices(platformVersion);
 
   for (const device of _.values(devices)) {
@@ -30,7 +33,7 @@ async function getExistingSim (deviceName: string, platformVersion: string): Pro
   return null;
 }
 
-async function deleteDeviceWithRetry (udid: string): Promise<void> {
+async function deleteDeviceWithRetry(udid: string): Promise<void> {
   const simctl = new Simctl({udid});
   try {
     await retryInterval(10, 1000, simctl.deleteDevice.bind(simctl));
@@ -47,7 +50,7 @@ describe('Safari remote debugger', function () {
   before(async function () {
     const portPromise = startHttpServer();
 
-    sim = await getExistingSim(DEVICE_NAME, PLATFORM_VERSION) as Simulator;
+    sim = (await getExistingSim(DEVICE_NAME, PLATFORM_VERSION)) as Simulator;
     if (!sim) {
       const udid = await new Simctl().createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
       sim = await getSimulator(udid);
@@ -70,17 +73,20 @@ describe('Safari remote debugger', function () {
   let rd: RemoteDebugger;
   beforeEach(async function () {
     const socketPath = await sim.getWebInspectorSocket();
-    rd = createRemoteDebugger({
-      bundleId: 'com.apple.mobilesafari',
-      isSafari: true,
-      platformVersion: PLATFORM_VERSION,
-      socketPath: socketPath || undefined,
-      garbageCollectOnExecute: false,
-      logAllCommunication: true,
-      logAllCommunicationHexDump: false,
-      pageReadyTimeout: 30000,
-      targetCreationTimeoutMs: process.env.CI ? 10 * 1000 * 60 : 60000,
-    }, false);
+    rd = createRemoteDebugger(
+      {
+        bundleId: 'com.apple.mobilesafari',
+        isSafari: true,
+        platformVersion: PLATFORM_VERSION,
+        socketPath: socketPath || undefined,
+        garbageCollectOnExecute: false,
+        logAllCommunication: true,
+        logAllCommunicationHexDump: false,
+        pageReadyTimeout: 30000,
+        targetCreationTimeoutMs: process.env.CI ? 10 * 1000 * 60 : 60000,
+      },
+      false,
+    );
 
     const maxRetries = process.env.CI ? 10 : 5;
     await retry(maxRetries, async () => await sim.openUrl(address));
@@ -108,8 +114,7 @@ describe('Safari remote debugger', function () {
 
   it('should be able to connect and get app', async function () {
     const pageArray = await rd.selectApp(address);
-    expect(_.filter(pageArray, (page) => page.title === PAGE_TITLE))
-      .to.have.length.at.least(1);
+    expect(_.filter(pageArray, (page) => page.title === PAGE_TITLE)).to.have.length.at.least(1);
   });
 
   it('should be able to execute an atom', async function () {
@@ -151,24 +156,27 @@ describe('Safari remote debugger', function () {
       await selectTestPage();
 
       const script = 'arguments[arguments.length - 1](123);';
-      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout]))
-        .to.eventually.eql(123);
+      await expect(
+        rd.executeAtomAsync('execute_async_script', [script, [], timeout]),
+      ).to.eventually.eql(123);
     });
 
     it('should bubble up JS errors', async function () {
       await selectTestPage();
 
       const script = `arguments[arguments.length - 1](1--);`;
-      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout]))
-        .to.eventually.be.rejectedWith(/operator applied to value that is not a reference/);
+      await expect(
+        rd.executeAtomAsync('execute_async_script', [script, [], timeout]),
+      ).to.eventually.be.rejectedWith(/operator applied to value that is not a reference/);
     });
 
     it('should timeout when callback is not invoked', async function () {
       await selectTestPage();
 
       const script = 'return 1 + 2';
-      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout]))
-        .to.eventually.be.rejectedWith(/Timed out waiting for/);
+      await expect(
+        rd.executeAtomAsync('execute_async_script', [script, [], timeout]),
+      ).to.eventually.be.rejectedWith(/Timed out waiting for/);
     });
 
     it('should be able to execute asynchronously in frame', async function () {
@@ -206,7 +214,8 @@ describe('Safari remote debugger', function () {
 
     await retryInterval(50, 100, async function () {
       expect(networkEvents.length).to.be.at.least(1);
-      expect(networkEvents.find(({event}) => event?.request?.url === 'https://github.com/')).to.exist;
+      expect(networkEvents.find(({event}) => event?.request?.url === 'https://github.com/')).to
+        .exist;
     });
   });
 
@@ -222,7 +231,7 @@ describe('Safari remote debugger', function () {
       await selectTestPage();
 
       const screenshot = await rd.captureScreenshot({
-        rect: {x: 0, y: 0, width: 100, height: 100}
+        rect: {x: 0, y: 0, width: 100, height: 100},
       });
       expect(screenshot.startsWith('iVBOR')).to.be.true;
     });
@@ -231,7 +240,7 @@ describe('Safari remote debugger', function () {
       await selectTestPage();
 
       const screenshot = await rd.captureScreenshot({
-        coordinateSystem: 'Page'
+        coordinateSystem: 'Page',
       });
       expect(screenshot.startsWith('iVBOR')).to.be.true;
     });
@@ -241,7 +250,7 @@ describe('Safari remote debugger', function () {
 
       const screenshot = await rd.captureScreenshot({
         rect: {x: 0, y: 0, width: 100, height: 100},
-        coordinateSystem: 'Page'
+        coordinateSystem: 'Page',
       });
       expect(screenshot.startsWith('iVBOR')).to.be.true;
     });
@@ -262,7 +271,8 @@ describe('Safari remote debugger', function () {
     await selectTestPage();
 
     const lines: any[] = [];
-    rd.startConsole(function (err, line) { // eslint-disable-line promise/prefer-await-to-callbacks
+    rd.startConsole(function (err, line) {
+      // eslint-disable-line promise/prefer-await-to-callbacks
       lines.push(line);
     });
 
@@ -278,7 +288,7 @@ describe('Safari remote debugger', function () {
   });
 
   it('should be able to access the shadow DOM', async function () {
-    function shadowScript (text: string): string {
+    function shadowScript(text: string): string {
       return `return (function (elem) {
   return (function() {
     // element has a shadowRoot property
@@ -296,18 +306,27 @@ describe('Safari remote debugger', function () {
     await rd.navToUrl(`${address}/shadow-dom.html`);
 
     // make sure the browser supports shadow DOM before running the test
-    const shadowDomSupported = await rd.executeAtom('execute_script', ['return !!document.head.createShadowRoot || !!document.head.attachShadow;']);
+    const shadowDomSupported = await rd.executeAtom('execute_script', [
+      'return !!document.head.createShadowRoot || !!document.head.attachShadow;',
+    ]);
     if (!shadowDomSupported) {
       return this.skip();
     }
 
-    await expect(retryInterval(5, 500, async function () {
-      const el1 = await rd.executeAtom('find_element', ['class name', 'element', null]);
-      const sEl1 = await rd.executeAtom('execute_script', [shadowScript('#shadowContent'), [el1]]);
-      const sEl2 = await rd.executeAtom('execute_script', [shadowScript('#shadowSubContent'), [sEl1]]);
-      const text = await rd.executeAtom('get_text', [sEl2]);
-      expect(text).to.eql('It is murky in here');
-    })).to.not.be.rejectedWith('Element is no longer attached to the DOM');
+    await expect(
+      retryInterval(5, 500, async function () {
+        const el1 = await rd.executeAtom('find_element', ['class name', 'element', null]);
+        const sEl1 = await rd.executeAtom('execute_script', [
+          shadowScript('#shadowContent'),
+          [el1],
+        ]);
+        const sEl2 = await rd.executeAtom('execute_script', [
+          shadowScript('#shadowSubContent'),
+          [sEl1],
+        ]);
+        const text = await rd.executeAtom('get_text', [sEl2]);
+        expect(text).to.eql('It is murky in here');
+      }),
+    ).to.not.be.rejectedWith('Element is no longer attached to the DOM');
   });
 });
-

@@ -1,6 +1,13 @@
 import _ from 'lodash';
-import { getProtocolCommand } from '../protocol';
-import type { RawRemoteCommand, RemoteCommandOpts, ProtocolCommandOpts, AppIdKey, PageIdKey, RemoteCommandId } from '../types';
+import {getProtocolCommand} from '../protocol';
+import type {
+  RawRemoteCommand,
+  RemoteCommandOpts,
+  ProtocolCommandOpts,
+  AppIdKey,
+  PageIdKey,
+  RemoteCommandId,
+} from '../types';
 
 const OBJECT_GROUP = 'console';
 
@@ -43,9 +50,9 @@ export class RemoteMessages {
   setConnectionKey(connId: string): RawRemoteCommand {
     return {
       __argument: {
-        WIRConnectionIdentifierKey: connId
+        WIRConnectionIdentifierKey: connId,
       },
-      __selector: '_rpc_reportIdentifier:'
+      __selector: '_rpc_reportIdentifier:',
     };
   }
 
@@ -60,9 +67,9 @@ export class RemoteMessages {
     return {
       __argument: {
         WIRConnectionIdentifierKey: connId,
-        WIRApplicationIdentifierKey: appIdKey
+        WIRApplicationIdentifierKey: appIdKey,
       },
-      __selector: '_rpc_forwardGetListing:'
+      __selector: '_rpc_forwardGetListing:',
     };
   }
 
@@ -75,7 +82,12 @@ export class RemoteMessages {
    * @param pageIdKey - Optional page identifier key.
    * @returns A RawRemoteCommand for setting the sender key.
    */
-  setSenderKey(connId: string, senderId: string, appIdKey: AppIdKey, pageIdKey?: PageIdKey): RawRemoteCommand {
+  setSenderKey(
+    connId: string,
+    senderId: string,
+    appIdKey: AppIdKey,
+    pageIdKey?: PageIdKey,
+  ): RawRemoteCommand {
     return {
       __argument: {
         WIRApplicationIdentifierKey: appIdKey,
@@ -84,7 +96,7 @@ export class RemoteMessages {
         WIRPageIdentifierKey: pageIdKey,
         WIRAutomaticallyPause: false,
       },
-      __selector: '_rpc_forwardSocketSetup:'
+      __selector: '_rpc_forwardSocketSetup:',
     };
   }
 
@@ -97,15 +109,20 @@ export class RemoteMessages {
    * @param enabled - Whether the web view indication is enabled. Defaults to true if not provided.
    * @returns A RawRemoteCommand for indicating web view status.
    */
-  indicateWebView(connId: string, appIdKey: AppIdKey, pageIdKey?: PageIdKey, enabled?: boolean): RawRemoteCommand {
+  indicateWebView(
+    connId: string,
+    appIdKey: AppIdKey,
+    pageIdKey?: PageIdKey,
+    enabled?: boolean,
+  ): RawRemoteCommand {
     return {
       __argument: {
         WIRApplicationIdentifierKey: appIdKey,
         WIRIndicateEnabledKey: _.isNil(enabled) ? true : enabled,
         WIRConnectionIdentifierKey: connId,
-        WIRPageIdentifierKey: pageIdKey
+        WIRPageIdentifierKey: pageIdKey,
       },
-      __selector: '_rpc_forwardIndicateWebView:'
+      __selector: '_rpc_forwardIndicateWebView:',
     };
   }
 
@@ -118,9 +135,9 @@ export class RemoteMessages {
   launchApplication(bundleId: string): RawRemoteCommand {
     return {
       __argument: {
-        WIRApplicationBundleIdentifierKey: bundleId
+        WIRApplicationBundleIdentifierKey: bundleId,
       },
-      __selector: '_rpc_requestApplicationLaunch:'
+      __selector: '_rpc_requestApplicationLaunch:',
     };
   }
 
@@ -132,16 +149,7 @@ export class RemoteMessages {
    * @returns A RawRemoteCommand with full parameter set.
    */
   getFullCommand(opts: RemoteCommandOpts & ProtocolCommandOpts): RawRemoteCommand {
-    const {
-      method,
-      params,
-      connId,
-      senderId,
-      appIdKey,
-      pageIdKey,
-      targetId,
-      id,
-    } = opts;
+    const {method, params, connId, senderId, appIdKey, pageIdKey, targetId, id} = opts;
 
     /* The Web Inspector has a number of parameters that can be passed in, as
      * seen when dumping what Safari is doing when communicating with it. Most
@@ -157,14 +165,17 @@ export class RemoteMessages {
       message: JSON.stringify({
         id: parseInt(id, 10),
         method,
-        params: Object.assign({
-          objectGroup: OBJECT_GROUP,
-          includeCommandLineAPI: true,
-          doNotPauseOnExceptionsAndMuteConsole: false,
-          emulateUserGesture: false,
-          generatePreview: false,
-          saveResult: false,
-        }, params)
+        params: Object.assign(
+          {
+            objectGroup: OBJECT_GROUP,
+            includeCommandLineAPI: true,
+            doNotPauseOnExceptionsAndMuteConsole: false,
+            emulateUserGesture: false,
+            generatePreview: false,
+            saveResult: false,
+          },
+          params,
+        ),
       }),
     };
 
@@ -215,7 +226,7 @@ export class RemoteMessages {
         WIRApplicationIdentifierKey: appIdKey,
         WIRPageIdentifierKey: pageIdKey,
       },
-      __selector: '_rpc_forwardSocketData:'
+      __selector: '_rpc_forwardSocketData:',
     };
     return _.omitBy(plist, _.isNil) as RawRemoteCommand;
   }
@@ -242,7 +253,7 @@ export class RemoteMessages {
         WIRApplicationIdentifierKey: appIdKey,
         WIRPageIdentifierKey: pageIdKey,
       },
-      __selector: '_rpc_forwardSocketData:'
+      __selector: '_rpc_forwardSocketData:',
     };
     return _.omitBy(plist, _.isNil) as RawRemoteCommand;
   }
@@ -257,14 +268,7 @@ export class RemoteMessages {
    * @throws Error if required parameters are missing for specific commands.
    */
   getRemoteCommand(command: string, opts: RemoteCommandOpts & RemoteCommandId): RawRemoteCommand {
-    const {
-      id,
-      connId,
-      appIdKey,
-      senderId,
-      pageIdKey,
-      targetId,
-    } = opts;
+    const {id, connId, appIdKey, senderId, pageIdKey, targetId} = opts;
 
     // deal with Safari Web Inspector commands
     switch (command) {
@@ -296,13 +300,9 @@ export class RemoteMessages {
     }
 
     // deal with WebKit commands
-    const builderFunction = (COMMANDS[command as keyof typeof COMMANDS] || MINIMAL_COMMAND) as CommandBuilderFunction;
-    const commonOpts = getProtocolCommand(
-      id,
-      command,
-      opts,
-      isDirectCommand(command),
-    );
+    const builderFunction = (COMMANDS[command as keyof typeof COMMANDS] ||
+      MINIMAL_COMMAND) as CommandBuilderFunction;
+    const commonOpts = getProtocolCommand(id, command, opts, isDirectCommand(command));
     return this[builderFunction]({
       ...commonOpts,
       connId,

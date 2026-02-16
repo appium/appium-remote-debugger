@@ -1,8 +1,8 @@
-import { EventEmitter } from 'node:events';
-import { log } from '../logger';
+import {EventEmitter} from 'node:events';
+import {log} from '../logger';
 import _ from 'lodash';
-import { util } from '@appium/support';
-import type { StringRecord } from '@appium/types';
+import {util} from '@appium/support';
+import type {StringRecord} from '@appium/types';
 
 /**
  * Represents a data message from the Web Inspector.
@@ -46,24 +46,27 @@ export default class RpcMessageHandler extends EventEmitter {
     const argument = plist.__argument;
     switch (selector) {
       case '_rpc_reportSetup:':
-        this.emit('_rpc_reportSetup:',
+        this.emit(
+          '_rpc_reportSetup:',
           null,
           argument.WIRSimulatorNameKey,
           argument.WIRSimulatorBuildKey,
-          argument.WIRSimulatorProductVersionKey
+          argument.WIRSimulatorProductVersionKey,
         );
         break;
       case '_rpc_reportConnectedApplicationList:':
-        this.emit('_rpc_reportConnectedApplicationList:',
+        this.emit(
+          '_rpc_reportConnectedApplicationList:',
           null,
-          argument.WIRApplicationDictionaryKey
+          argument.WIRApplicationDictionaryKey,
         );
         break;
       case '_rpc_applicationSentListing:':
-        this.emit('_rpc_forwardGetListing:',
+        this.emit(
+          '_rpc_forwardGetListing:',
           null,
           argument.WIRApplicationIdentifierKey,
-          argument.WIRListingKey
+          argument.WIRListingKey,
         );
         break;
       case '_rpc_applicationConnected:':
@@ -85,8 +88,9 @@ export default class RpcMessageHandler extends EventEmitter {
         await this.handleDataMessage(plist);
         break;
       default:
-        log.debug(`Debugger got a message for '${selector}' and have no ` +
-          `handler, doing nothing.`);
+        log.debug(
+          `Debugger got a message for '${selector}' and have no ` + `handler, doing nothing.`,
+        );
     }
   }
 
@@ -124,7 +128,7 @@ export default class RpcMessageHandler extends EventEmitter {
     method: string | undefined,
     params: StringRecord | undefined,
     result: any,
-    error: Error | undefined
+    error: Error | undefined,
   ): Promise<void> {
     if (msgId) {
       if (this.listenerCount(msgId)) {
@@ -133,10 +137,12 @@ export default class RpcMessageHandler extends EventEmitter {
         }
         this.emit(msgId, error, result);
       } else {
-        log.error(`Web Inspector returned data for message '${msgId}' ` +
-          `but we were not waiting for that message! ` +
-          `result: '${JSON.stringify(result)}'; ` +
-          `error: '${JSON.stringify(error)}'`);
+        log.error(
+          `Web Inspector returned data for message '${msgId}' ` +
+            `but we were not waiting for that message! ` +
+            `result: '${JSON.stringify(result)}'; ` +
+            `error: '${JSON.stringify(error)}'`,
+        );
       }
       return;
     }
@@ -200,9 +206,10 @@ export default class RpcMessageHandler extends EventEmitter {
     const parseError = (): Error | undefined => {
       const defaultMessage = 'Error occurred in handling data message';
       if (result?.wasThrown) {
-        const message = (result?.result?.value || result?.result?.description)
-          ? (result?.result?.value || result?.result?.description)
-          : (dataKey.error ?? defaultMessage);
+        const message =
+          result?.result?.value || result?.result?.description
+            ? result?.result?.value || result?.result?.description
+            : (dataKey.error ?? defaultMessage);
         return new Error(message);
       }
       if (dataKey.error) {
@@ -224,9 +231,10 @@ export default class RpcMessageHandler extends EventEmitter {
       case 'Target.targetDestroyed':
       case 'Target.didCommitProvisionalTarget': {
         const app = plist.__argument.WIRApplicationIdentifierKey;
-        const args = method === 'Target.didCommitProvisionalTarget'
-          ? params
-          : (params.targetInfo ?? {targetId: params.targetId});
+        const args =
+          method === 'Target.didCommitProvisionalTarget'
+            ? params
+            : (params.targetInfo ?? {targetId: params.targetId});
         this.emit(method, null, app, args);
         return;
       }
@@ -241,7 +249,9 @@ export default class RpcMessageHandler extends EventEmitter {
           } catch (err: any) {
             // if this happens then some aspect of the protocol is missing to us
             // so print the entire message to get visibility into what is going on
-            log.error(`Unexpected message format from Web Inspector: ${util.jsonStringify(plist, null)}`);
+            log.error(
+              `Unexpected message format from Web Inspector: ${util.jsonStringify(plist, null)}`,
+            );
             throw err;
           }
         }

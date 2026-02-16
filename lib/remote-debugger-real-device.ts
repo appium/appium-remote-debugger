@@ -1,17 +1,17 @@
-import { RemoteDebugger } from './remote-debugger';
-import { RpcClientRealDevice } from './rpc';
-import type { RemoteDebuggerRealDeviceOptions } from './types';
+import {RemoteDebugger} from './remote-debugger';
+import {RpcClientRealDevice} from './rpc';
+import type {RemoteDebuggerRealDeviceOptions} from './types';
 
 export class RemoteDebuggerRealDevice extends RemoteDebugger {
   private readonly _udid: string;
 
-  constructor (opts: RemoteDebuggerRealDeviceOptions) {
+  constructor(opts: RemoteDebuggerRealDeviceOptions) {
     super(opts);
     this._udid = opts.udid;
     this._skippedApps = ['lockdownd'];
   }
 
-  override initRpcClient (): void {
+  override initRpcClient(): void {
     this._rpcClient = new RpcClientRealDevice({
       bundleId: this._bundleId,
       platformVersion: this._platformVersion,

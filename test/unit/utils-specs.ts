@@ -1,9 +1,7 @@
-import {
-  pageArrayFromDict, checkParams, appInfoFromDict
-} from '../../lib/utils';
+import {pageArrayFromDict, checkParams, appInfoFromDict} from '../../lib/utils';
 import _ from 'lodash';
-import { MOCHA_TIMEOUT } from '../helpers/helpers';
-import { expect } from 'chai';
+import {MOCHA_TIMEOUT} from '../helpers/helpers';
+import {expect} from 'chai';
 
 describe('utils', function () {
   this.timeout(MOCHA_TIMEOUT);
@@ -15,7 +13,7 @@ describe('utils', function () {
         WIRApplicationNameKey: 'App Name',
         WIRApplicationBundleIdentifierKey: 'app.name',
         WIRIsApplicationProxyKey: 'false',
-        WIRHostApplicationIdentifierKey: '43'
+        WIRHostApplicationIdentifierKey: '43',
       };
       const [id, entry] = appInfoFromDict(dict);
       expect(id).to.equal(dict.WIRApplicationIdentifierKey);
@@ -33,28 +31,34 @@ describe('utils', function () {
         WIRTypeKey: 'WIRTypeWeb',
         WIRURLKey: 'http://127.0.0.1:4723/welcome',
         WIRPageIdentifierKey: 1,
-        WIRConnectionIdentifierKey: 'e777f792-c41e-4e5d-8722-68393af663b2'
-      }
+        WIRConnectionIdentifierKey: 'e777f792-c41e-4e5d-8722-68393af663b2',
+      },
     };
     it('should return a valid page array', function () {
       const pageArray = pageArrayFromDict(basePageDict);
       expect(pageArray).to.have.length(1);
     });
     it('should return a valid page array with 13.4-style type key', function () {
-      const pageDict = _.defaults({
-        2: {
-          WIRTypeKey: 'WIRTypeWebPage'
-        }
-      }, basePageDict);
+      const pageDict = _.defaults(
+        {
+          2: {
+            WIRTypeKey: 'WIRTypeWebPage',
+          },
+        },
+        basePageDict,
+      );
       const pageArray = pageArrayFromDict(pageDict);
       expect(pageArray).to.have.length(2);
     });
     it('should not count WIRTypeWeb entries', function () {
-      const pageDict = _.defaults({
-        2: {
-          WIRTypeKey: 'WIRTypeJavaScript'
-        }
-      }, basePageDict);
+      const pageDict = _.defaults(
+        {
+          2: {
+            WIRTypeKey: 'WIRTypeJavaScript',
+          },
+        },
+        basePageDict,
+      );
       const pageArray = pageArrayFromDict(pageDict);
       expect(pageArray).to.have.length(1);
     });
@@ -64,8 +68,9 @@ describe('utils', function () {
       checkParams({one: 'first', two: 'second', three: 'third'});
     });
     it('should throw error when parameter is missing', function () {
-      expect(() => checkParams({one: 'first', two: null, three: 'third'})).to.throw('Missing parameter: two');
+      expect(() => checkParams({one: 'first', two: null, three: 'third'})).to.throw(
+        'Missing parameter: two',
+      );
     });
   });
 });
-

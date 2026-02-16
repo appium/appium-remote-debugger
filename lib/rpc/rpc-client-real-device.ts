@@ -1,7 +1,7 @@
-import { log } from '../logger';
-import { RpcClient } from './rpc-client';
-import { services } from 'appium-ios-device';
-import type { RemoteCommand } from '../types';
+import {log} from '../logger';
+import {RpcClient} from './rpc-client';
+import {services} from 'appium-ios-device';
+import type {RemoteCommand} from '../types';
 
 /**
  * RPC client implementation for real iOS devices.
