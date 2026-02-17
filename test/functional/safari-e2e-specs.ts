@@ -271,8 +271,8 @@ describe('Safari remote debugger', function () {
     await selectTestPage();
 
     const lines: any[] = [];
-    rd.startConsole(function (err, line) {
-      // eslint-disable-line promise/prefer-await-to-callbacks
+    // Event listener registration; callback is required by startConsole API
+    rd.startConsole((_err, line) => {
       lines.push(line);
     });
 

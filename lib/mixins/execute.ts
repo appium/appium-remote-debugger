@@ -160,10 +160,10 @@ export async function executeAtomAsync(
  * @returns A promise that resolves to the result of the JavaScript evaluation,
  *          converted to a usable format.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function execute(
   this: RemoteDebugger,
   command: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for API compatibility
   override?: boolean,
 ): Promise<any> {
   const {appIdKey, pageIdKey} = checkParams({
