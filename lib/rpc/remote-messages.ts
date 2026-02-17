@@ -19,7 +19,6 @@ const DIRECT_COMMAND = 'getDirectCommand';
 // defaults to `getMinimalCommand`, so no need to have those listed here
 const COMMANDS = {
   'Page.getCookies': FULL_COMMAND,
-  'Page.navigate': FULL_COMMAND,
 
   'Runtime.awaitPromise': FULL_COMMAND,
   'Runtime.callFunctionOn': FULL_COMMAND,
@@ -262,7 +261,7 @@ export class RemoteMessages {
    * Gets a remote command based on the command name and options.
    * Handles both Safari Web Inspector commands and WebKit protocol commands.
    *
-   * @param command - The command name (e.g., 'setConnectionKey', 'Page.navigate').
+   * @param command - The command name (e.g., 'setConnectionKey', 'Runtime.evaluate').
    * @param opts - Options for the command.
    * @returns A RawRemoteCommand appropriate for the given command.
    * @throws Error if required parameters are missing for specific commands.

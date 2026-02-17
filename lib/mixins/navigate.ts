@@ -179,8 +179,9 @@ export async function checkPageIsReady(this: RemoteDebugger, timeoutMs?: number)
 
 /**
  * Navigates to a new URL and waits for the page to be ready.
- * Validates the URL format, waits for the page to be available, sends the navigation
- * command, and monitors for the Page.loadEventFired event or timeout.
+ * Validates the URL format, waits for the page to be available, sets window.location.href
+ * via Runtime.evaluate (Page.navigate was removed from WebKit Inspector protocol), and
+ * monitors for the Page.loadEventFired event or timeout.
  *
  * @param url - The URL to navigate to. Must be a valid URL format.
  * @throws TypeError if the provided URL is not a valid URL format.
@@ -238,8 +239,9 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
     // https://chromedevtools.github.io/devtools-protocol/tot/Page/#event-loadEventFired
     rpcClient.once('Page.loadEventFired', onPageLoaded);
 
-    rpcClient.send('Page.navigate', {
-      url,
+    // Page.navigate was removed from WebKit Inspector protocol; navigate via Runtime.evaluate.
+    rpcClient.send('Runtime.evaluate', {
+      expression: `window.location.href = ${JSON.stringify(url)};`,
       appIdKey,
       pageIdKey,
     });
