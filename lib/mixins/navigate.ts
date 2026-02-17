@@ -239,7 +239,8 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
     // https://chromedevtools.github.io/devtools-protocol/tot/Page/#event-loadEventFired
     rpcClient.once('Page.loadEventFired', onPageLoaded);
 
-    // Page.navigate was removed from WebKit Inspector protocol; navigate via Runtime.evaluate.
+    // Page.navigate was removed from the WebKit Inspector protocol since iOS 26.4
+    // See https://github.com/appium/appium/issues/21976
     rpcClient.send('Runtime.evaluate', {
       expression: `window.location.href = ${JSON.stringify(url)};`,
       appIdKey,
