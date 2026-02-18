@@ -1,3 +1,9 @@
+## [15.4.0](https://github.com/appium/appium-remote-debugger/compare/v15.3.5...v15.4.0) (2026-02-18)
+
+### Features
+
+* Remove the deprecated Page.navigate command ([#479](https://github.com/appium/appium-remote-debugger/issues/479)) ([68459a7](https://github.com/appium/appium-remote-debugger/commit/68459a75b0a356a3371989992b5477b20d41d9b8))
+
 ## [15.3.5](https://github.com/appium/appium-remote-debugger/compare/v15.3.4...v15.3.5) (2026-02-16)
 
 ### Bug Fixes
