@@ -13,6 +13,7 @@ import {
   getIncludeSafari,
   getBundleId,
   getAdditionalBundleIds,
+  getIgnoreBundleIds,
 } from './property-accessors';
 import {NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR} from '../rpc/rpc-client';
 import type {RemoteDebugger} from '../remote-debugger';
@@ -141,6 +142,25 @@ export async function selectApp(
   if (_.isEmpty(getAppDict(this))) {
     this.log.debug('No applications currently connected.');
     return [];
+  }
+
+  const ignoreBundleIds = getIgnoreBundleIds(this) ?? [];
+  if (ignoreBundleIds.length > 0) {
+    const nonIgnoredApps = _.values(getAppDict(this)).filter(
+      (app) => !ignoreBundleIds.includes(app.bundleId),
+    );
+    if (nonIgnoredApps.length === 0) {
+      this.log.info(
+        `All apps reported by Web Inspector have bundle IDs in the ignore list ` +
+          `(${_.uniq(_.values(getAppDict(this)).map((a) => a.bundleId)).join(', ')}). ` +
+          `Skipping webview search.`,
+      );
+      return [];
+    }
+    this.log.debug(
+      `Ignoring apps with bundle IDs: ${ignoreBundleIds.join(', ')}. ` +
+        `${nonIgnoredApps.length} app(s) remain for webview search.`,
+    );
   }
 
   const {appIdKey} = await searchForApp.bind(this)(currentUrl, maxTries, ignoreAboutBlankUrl);

@@ -48,6 +48,12 @@ export function getAdditionalBundleIds(
   return instance['_additionalBundleIds'];
 }
 
+export function getIgnoreBundleIds(
+  instance: RemoteDebugger,
+): (typeof instance)['_ignoreBundleIds'] {
+  return instance['_ignoreBundleIds'];
+}
+
 export function getSkippedApps(instance: RemoteDebugger): (typeof instance)['_skippedApps'] {
   return instance['_skippedApps'];
 }
