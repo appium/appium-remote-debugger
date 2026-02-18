@@ -15,7 +15,6 @@ describe('RemoteMessages', function () {
       'indicateWebView',
       'Runtime.evaluate',
       'Runtime.callFunctionOn',
-      'Page.navigate',
       'Page.enable',
       'Timeline.start',
       'Timeline.stop',

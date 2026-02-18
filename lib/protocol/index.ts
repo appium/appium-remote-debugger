@@ -136,7 +136,6 @@ const COMMANDS = {
   'Page.enable': [],
   'Page.disable': [],
   'Page.reload': ['ignoreCache', 'revalidateAllResources'],
-  'Page.navigate': ['url'],
   'Page.overrideUserAgent': ['value'],
   'Page.overrideSetting': ['setting', 'value'],
   'Page.overrideUserPreference': ['name', 'value'],
@@ -207,7 +206,7 @@ const COMMANDS = {
  * WebKit Inspector protocol specification.
  *
  * @param id - The command identifier.
- * @param method - The protocol method name (e.g., 'Page.navigate', 'Runtime.evaluate').
+ * @param method - The protocol method name (e.g., 'Page.reload', 'Runtime.evaluate').
  * @param opts - Options containing parameters for the command.
  * @param direct - If false (default), the resulting command params will be patched
  *                 with default values (objectGroup, includeCommandLineAPI, etc.).
