@@ -113,4 +113,76 @@ describe('connect', function () {
       expect(getPossibleDebuggerAppKeys.bind(rd)(['*'])).to.eql(['42', '43']);
     });
   });
+
+  describe('selectApp', function () {
+    const systemProcessApp: AppInfo = {
+      id: 'PID:88535',
+      bundleId: 'com.apple.amsengagementd',
+      isProxy: false,
+      name: 'amsengagementd',
+      isActive: false,
+      isAutomationEnabled: 'Unknown',
+    };
+    const realWebviewApp: AppInfo = {
+      id: 'PID:99999',
+      bundleId: 'com.example.myapp',
+      isProxy: false,
+      name: 'MyApp',
+      isActive: true,
+      isAutomationEnabled: true,
+    };
+
+    describe('ignoreBundleIds', function () {
+      it('should return [] immediately when all apps match the ignore list', async function () {
+        (rd as any)._appDict = {'PID:88535': systemProcessApp};
+        (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd'];
+
+        const result = await rd.selectApp();
+        expect(result).to.eql([]);
+      });
+
+      it('should return [] when multiple system processes all match the ignore list', async function () {
+        (rd as any)._appDict = {
+          'PID:88535': systemProcessApp,
+          'PID:88536': {...systemProcessApp, id: 'PID:88536', bundleId: 'com.apple.otherprocess'},
+        };
+        (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd', 'com.apple.otherprocess'];
+
+        const result = await rd.selectApp();
+        expect(result).to.eql([]);
+      });
+
+      it('should proceed past the ignore check when a non-ignored app exists', async function () {
+        (rd as any)._appDict = {
+          'PID:88535': systemProcessApp,
+          'PID:99999': realWebviewApp,
+        };
+        (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd'];
+
+        // No RPC client wired up — selectApp should NOT return [] (ignore guard bypassed)
+        // and should throw the retry-exhaustion error from searchForApp.
+        // maxTries=1 to avoid 20x500ms retry delay.
+        try {
+          await rd.selectApp(null, 1);
+          expect.fail('Expected an error to be thrown');
+        } catch (err: any) {
+          expect(err.message).to.match(/Could not connect to a valid webapp/);
+        }
+      });
+
+      it('should proceed normally when ignoreBundleIds is empty', async function () {
+        (rd as any)._appDict = {'PID:88535': systemProcessApp};
+        (rd as any)._ignoredBundleIds = [];
+
+        // Empty ignore list → falls through to searchForApp and exhausts retries.
+        // maxTries=1 to avoid 20x500ms retry delay.
+        try {
+          await rd.selectApp(null, 1);
+          expect.fail('Expected an error to be thrown');
+        } catch (err: any) {
+          expect(err.message).to.match(/Could not connect to a valid webapp/);
+        }
+      });
+    });
+  });
 });

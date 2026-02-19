@@ -13,6 +13,7 @@ import {
   getIncludeSafari,
   getBundleId,
   getAdditionalBundleIds,
+  getIgnoredBundleIds,
 } from './property-accessors';
 import {NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR} from '../rpc/rpc-client';
 import type {RemoteDebugger} from '../remote-debugger';
@@ -140,6 +141,10 @@ export async function selectApp(
   const timer = new timing.Timer().start();
   if (_.isEmpty(getAppDict(this))) {
     this.log.debug('No applications currently connected.');
+    return [];
+  }
+
+  if (isAppIgnored(this)) {
     return [];
   }
 
@@ -401,6 +406,40 @@ function searchForPage(
  * Displays all applications, their properties, and their associated pages
  * in a formatted structure.
  */
+/**
+ * Checks whether all apps in the app dictionary have bundle IDs that are in the
+ * configured ignore list and logs the result accordingly.
+ *
+ * Uses Set-based lookups for O(1) performance and computes the actual intersection
+ * of appDict bundle IDs with the ignore list for accurate log messages.
+ *
+ * @param instance - The RemoteDebugger instance.
+ * @returns `true` if webview search should be skipped (all apps are ignored),
+ *          `false` if the search should proceed.
+ */
+function isAppIgnored(instance: RemoteDebugger): boolean {
+  const ignoredBundleIds = getIgnoredBundleIds(instance) ?? [];
+  if (ignoredBundleIds.length === 0) {
+    return false;
+  }
+  const ignoredSet = new Set(ignoredBundleIds);
+  const appBundleIds = new Set(_.values(getAppDict(instance)).map((app) => app.bundleId));
+  const nonIgnoredBundleIds = [...appBundleIds].filter((id) => !ignoredSet.has(id));
+  const actuallyIgnoredIds = [...appBundleIds].filter((id) => ignoredSet.has(id));
+  if (nonIgnoredBundleIds.length === 0) {
+    instance.log.info(
+      `All apps reported by Web Inspector have bundle IDs in the ignore list ` +
+        `(${actuallyIgnoredIds.join(', ')}). Skipping webview search.`,
+    );
+    return true;
+  }
+  instance.log.debug(
+    `Ignoring apps with bundle IDs: ${actuallyIgnoredIds.join(', ')}. ` +
+      `${util.pluralize('app', nonIgnoredBundleIds.length, true)} remain for webview search.`,
+  );
+  return false;
+}
+
 function logApplicationDictionary(this: RemoteDebugger): void {
   this.log.debug('Current applications available:');
   for (const [app, info] of _.toPairs(getAppDict(this))) {
