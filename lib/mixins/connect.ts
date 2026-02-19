@@ -13,7 +13,7 @@ import {
   getIncludeSafari,
   getBundleId,
   getAdditionalBundleIds,
-  getIgnoreBundleIds,
+  getIgnoredBundleIds,
 } from './property-accessors';
 import {NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR} from '../rpc/rpc-client';
 import type {RemoteDebugger} from '../remote-debugger';
@@ -116,6 +116,42 @@ export async function disconnect(this: RemoteDebugger): Promise<void> {
 }
 
 /**
+ * Checks whether all apps in the app dictionary have bundle IDs that are in the
+ * configured ignore list and logs the result accordingly.
+ *
+ * Uses Set-based lookups for O(1) performance and computes the actual intersection
+ * of appDict bundle IDs with the ignore list for accurate log messages.
+ *
+ * @param instance - The RemoteDebugger instance.
+ * @returns `true` if webview search should be skipped (all apps are ignored),
+ *          `false` if the search should proceed.
+ */
+function checkIgnoredBundleIds(instance: RemoteDebugger): boolean {
+  const ignoredBundleIds = getIgnoredBundleIds(instance) ?? [];
+  if (ignoredBundleIds.length === 0) {
+    return false;
+  }
+  const ignoredSet = new Set(ignoredBundleIds);
+  const appDictValues = _.values(getAppDict(instance));
+  const nonIgnoredApps = appDictValues.filter((app) => !ignoredSet.has(app.bundleId));
+  const actuallyIgnoredIds = _.uniq(
+    appDictValues.map((a) => a.bundleId).filter((id) => ignoredSet.has(id)),
+  );
+  if (nonIgnoredApps.length === 0) {
+    instance.log.info(
+      `All apps reported by Web Inspector have bundle IDs in the ignore list ` +
+        `(${actuallyIgnoredIds.join(', ')}). Skipping webview search.`,
+    );
+    return true;
+  }
+  instance.log.debug(
+    `Ignoring apps with bundle IDs: ${actuallyIgnoredIds.join(', ')}. ` +
+      `${nonIgnoredApps.length} app(s) remain for webview search.`,
+  );
+  return false;
+}
+
+/**
  * Selects an application from the available connected applications.
  * Searches for an app matching the provided URL and bundle IDs, then returns
  * all pages from the selected application.
@@ -144,23 +180,8 @@ export async function selectApp(
     return [];
   }
 
-  const ignoreBundleIds = getIgnoreBundleIds(this) ?? [];
-  if (ignoreBundleIds.length > 0) {
-    const nonIgnoredApps = _.values(getAppDict(this)).filter(
-      (app) => !ignoreBundleIds.includes(app.bundleId),
-    );
-    if (nonIgnoredApps.length === 0) {
-      this.log.info(
-        `All apps reported by Web Inspector have bundle IDs in the ignore list ` +
-          `(${_.uniq(_.values(getAppDict(this)).map((a) => a.bundleId)).join(', ')}). ` +
-          `Skipping webview search.`,
-      );
-      return [];
-    }
-    this.log.debug(
-      `Ignoring apps with bundle IDs: ${ignoreBundleIds.join(', ')}. ` +
-        `${nonIgnoredApps.length} app(s) remain for webview search.`,
-    );
+  if (checkIgnoredBundleIds(this)) {
+    return [];
   }
 
   const {appIdKey} = await searchForApp.bind(this)(currentUrl, maxTries, ignoreAboutBlankUrl);

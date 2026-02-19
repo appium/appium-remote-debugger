@@ -135,7 +135,7 @@ describe('connect', function () {
     describe('ignoreBundleIds', function () {
       it('should return [] immediately when all apps match the ignore list', async function () {
         (rd as any)._appDict = {'PID:88535': systemProcessApp};
-        (rd as any)._ignoreBundleIds = ['com.apple.amsengagementd'];
+        (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd'];
 
         const result = await rd.selectApp();
         expect(result).to.eql([]);
@@ -146,7 +146,7 @@ describe('connect', function () {
           'PID:88535': systemProcessApp,
           'PID:88536': {...systemProcessApp, id: 'PID:88536', bundleId: 'com.apple.otherprocess'},
         };
-        (rd as any)._ignoreBundleIds = ['com.apple.amsengagementd', 'com.apple.otherprocess'];
+        (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd', 'com.apple.otherprocess'];
 
         const result = await rd.selectApp();
         expect(result).to.eql([]);
@@ -157,7 +157,7 @@ describe('connect', function () {
           'PID:88535': systemProcessApp,
           'PID:99999': realWebviewApp,
         };
-        (rd as any)._ignoreBundleIds = ['com.apple.amsengagementd'];
+        (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd'];
 
         // No RPC client wired up — selectApp should NOT return [] (ignore guard bypassed)
         // and should throw the retry-exhaustion error from searchForApp.
@@ -172,7 +172,7 @@ describe('connect', function () {
 
       it('should proceed normally when ignoreBundleIds is empty', async function () {
         (rd as any)._appDict = {'PID:88535': systemProcessApp};
-        (rd as any)._ignoreBundleIds = [];
+        (rd as any)._ignoredBundleIds = [];
 
         // Empty ignore list → falls through to searchForApp and exhausts retries.
         // maxTries=1 to avoid 20x500ms retry delay.

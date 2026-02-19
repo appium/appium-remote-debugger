@@ -38,7 +38,7 @@ export class RemoteDebugger extends EventEmitter {
   protected readonly _log: AppiumLogger;
   protected readonly _bundleId?: string;
   protected readonly _additionalBundleIds?: string[];
-  protected readonly _ignoreBundleIds?: string[];
+  protected readonly _ignoredBundleIds?: string[];
   protected readonly _platformVersion?: string;
   protected readonly _isSafari: boolean;
   protected readonly _includeSafari: boolean;
@@ -131,7 +131,7 @@ export class RemoteDebugger extends EventEmitter {
 
     this._bundleId = bundleId;
     this._additionalBundleIds = additionalBundleIds;
-    this._ignoreBundleIds = ignoreBundleIds;
+    this._ignoredBundleIds = ignoreBundleIds;
     this._platformVersion = platformVersion;
     this._isSafari = isSafari;
     this._includeSafari = includeSafari;
