@@ -1,3 +1,9 @@
+## [15.5.0](https://github.com/appium/appium-remote-debugger/compare/v15.4.0...v15.5.0) (2026-02-23)
+
+### Features
+
+* add ignoredBundleIds option to skip system processes in webview detection ([#480](https://github.com/appium/appium-remote-debugger/issues/480)) ([89331b0](https://github.com/appium/appium-remote-debugger/commit/89331b0f59dbd520e80143ef21dddd80dce10371))
+
 ## [15.4.0](https://github.com/appium/appium-remote-debugger/compare/v15.3.5...v15.4.0) (2026-02-18)
 
 ### Features
