@@ -39,7 +39,7 @@ export interface RemoteDebuggerOptions {
   /** array of possible bundle ids that the inspector could return */
   additionalBundleIds?: string[];
   /** array of bundle ids to exclude from webview context detection */
-  ignoreBundleIds?: string[];
+  ignoredBundleIds?: string[];
   /** version of iOS */
   platformVersion?: string;
   isSafari?: boolean;

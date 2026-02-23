@@ -132,7 +132,7 @@ describe('connect', function () {
       isAutomationEnabled: true,
     };
 
-    describe('ignoreBundleIds', function () {
+    describe('ignoredBundleIds', function () {
       it('should return [] immediately when all apps match the ignore list', async function () {
         (rd as any)._appDict = {'PID:88535': systemProcessApp};
         (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd'];
@@ -170,7 +170,7 @@ describe('connect', function () {
         }
       });
 
-      it('should proceed normally when ignoreBundleIds is empty', async function () {
+      it('should proceed normally when ignoredBundleIds is empty', async function () {
         (rd as any)._appDict = {'PID:88535': systemProcessApp};
         (rd as any)._ignoredBundleIds = [];
 

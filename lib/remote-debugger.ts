@@ -109,7 +109,7 @@ export class RemoteDebugger extends EventEmitter {
     const {
       bundleId,
       additionalBundleIds = [],
-      ignoreBundleIds = [],
+      ignoredBundleIds = [],
       platformVersion,
       isSafari = true,
       includeSafari = false,
@@ -131,7 +131,7 @@ export class RemoteDebugger extends EventEmitter {
 
     this._bundleId = bundleId;
     this._additionalBundleIds = additionalBundleIds;
-    this._ignoredBundleIds = ignoreBundleIds;
+    this._ignoredBundleIds = ignoredBundleIds;
     this._platformVersion = platformVersion;
     this._isSafari = isSafari;
     this._includeSafari = includeSafari;

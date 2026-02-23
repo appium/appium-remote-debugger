@@ -402,11 +402,6 @@ function searchForPage(
 }
 
 /**
- * Logs the current application dictionary to the debug log.
- * Displays all applications, their properties, and their associated pages
- * in a formatted structure.
- */
-/**
  * Checks whether all apps in the app dictionary have bundle IDs that are in the
  * configured ignore list and logs the result accordingly.
  *
@@ -424,6 +419,9 @@ function isAppIgnored(instance: RemoteDebugger): boolean {
   }
   const ignoredSet = new Set(ignoredBundleIds);
   const appBundleIds = new Set(_.values(getAppDict(instance)).map((app) => app.bundleId));
+  if (appBundleIds.size === 0) {
+    return false;
+  }
   const nonIgnoredBundleIds = [...appBundleIds].filter((id) => !ignoredSet.has(id));
   const actuallyIgnoredIds = [...appBundleIds].filter((id) => ignoredSet.has(id));
   if (nonIgnoredBundleIds.length === 0) {
@@ -433,13 +431,20 @@ function isAppIgnored(instance: RemoteDebugger): boolean {
     );
     return true;
   }
-  instance.log.debug(
-    `Ignoring apps with bundle IDs: ${actuallyIgnoredIds.join(', ')}. ` +
-      `${util.pluralize('app', nonIgnoredBundleIds.length, true)} remain for webview search.`,
-  );
+  if (actuallyIgnoredIds.length > 0) {
+    instance.log.debug(
+      `Ignoring apps with bundle IDs: ${actuallyIgnoredIds.join(', ')}. ` +
+        `${util.pluralize('app', nonIgnoredBundleIds.length, true)} remain for webview search.`,
+    );
+  }
   return false;
 }
 
+/**
+ * Logs the current application dictionary to the debug log.
+ * Displays all applications, their properties, and their associated pages
+ * in a formatted structure.
+ */
 function logApplicationDictionary(this: RemoteDebugger): void {
   this.log.debug('Current applications available:');
   for (const [app, info] of _.toPairs(getAppDict(this))) {
