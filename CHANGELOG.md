@@ -1,3 +1,33 @@
+## [15.5.0](https://github.com/appium/appium-remote-debugger/compare/v15.4.0...v15.5.0) (2026-02-23)
+
+### Features
+
+* add ignoredBundleIds option to skip system processes in webview detection ([#480](https://github.com/appium/appium-remote-debugger/issues/480)) ([89331b0](https://github.com/appium/appium-remote-debugger/commit/89331b0f59dbd520e80143ef21dddd80dce10371))
+
+## [15.4.0](https://github.com/appium/appium-remote-debugger/compare/v15.3.5...v15.4.0) (2026-02-18)
+
+### Features
+
+* Remove the deprecated Page.navigate command ([#479](https://github.com/appium/appium-remote-debugger/issues/479)) ([68459a7](https://github.com/appium/appium-remote-debugger/commit/68459a75b0a356a3371989992b5477b20d41d9b8))
+
+## [15.3.5](https://github.com/appium/appium-remote-debugger/compare/v15.3.4...v15.3.5) (2026-02-16)
+
+### Bug Fixes
+
+* format ([#478](https://github.com/appium/appium-remote-debugger/issues/478)) ([c49cc38](https://github.com/appium/appium-remote-debugger/commit/c49cc383afe313dfc83a3d34b523360b0f60bc20))
+
+## [15.3.4](https://github.com/appium/appium-remote-debugger/compare/v15.3.3...v15.3.4) (2026-02-07)
+
+### Bug Fixes
+
+* Introduce proper overloads for createRemoteDebugger ([#477](https://github.com/appium/appium-remote-debugger/issues/477)) ([5b82545](https://github.com/appium/appium-remote-debugger/commit/5b82545f3342f6d700106b8bc18650ce0122735f))
+
+## [15.3.3](https://github.com/appium/appium-remote-debugger/compare/v15.3.2...v15.3.3) (2026-02-06)
+
+### Miscellaneous Chores
+
+* Update development notes ([#476](https://github.com/appium/appium-remote-debugger/issues/476)) ([09c6661](https://github.com/appium/appium-remote-debugger/commit/09c666158b11712ef1bfbe62ca05bb1f9544c1b5))
+
 ## [15.3.2](https://github.com/appium/appium-remote-debugger/compare/v15.3.1...v15.3.2) (2026-02-01)
 
 ### Miscellaneous Chores

@@ -1,8 +1,6 @@
-import {
-  getClientEventListeners,
-} from './property-accessors';
-import type { RemoteDebugger } from '../remote-debugger';
-import type { EventListener } from '../types';
+import {getClientEventListeners} from './property-accessors';
+import type {RemoteDebugger} from '../remote-debugger';
+import type {EventListener} from '../types';
 
 // event emitted publically
 export const events = {
@@ -21,7 +19,7 @@ export const events = {
 export function addClientEventListener(
   this: RemoteDebugger,
   eventName: string,
-  listener: EventListener
+  listener: EventListener,
 ): void {
   getClientEventListeners(this)[eventName] ??= [];
   getClientEventListeners(this)[eventName].push(listener);
@@ -34,11 +32,8 @@ export function addClientEventListener(
  *
  * @param eventName - The name of the event to stop listening for.
  */
-export function removeClientEventListener(
-  this: RemoteDebugger,
-  eventName: string
-): void {
-  for (const listener of (getClientEventListeners(this)[eventName] || [])) {
+export function removeClientEventListener(this: RemoteDebugger, eventName: string): void {
+  for (const listener of getClientEventListeners(this)[eventName] || []) {
     this.requireRpcClient().off(eventName, listener);
   }
 }
@@ -49,10 +44,7 @@ export function removeClientEventListener(
  *
  * @param listener - The event listener function to call when console messages are received.
  */
-export function startConsole(
-  this: RemoteDebugger,
-  listener: EventListener
-): void {
+export function startConsole(this: RemoteDebugger, listener: EventListener): void {
   this.log.debug('Starting to listen for JavaScript console');
   this.addClientEventListener('Console.messageAdded', listener);
   this.addClientEventListener('Console.messageRepeatCountUpdated', listener);
@@ -74,10 +66,7 @@ export function stopConsole(this: RemoteDebugger): void {
  *
  * @param listener - The event listener function to call when network events are received.
  */
-export function startNetwork(
-  this: RemoteDebugger,
-  listener: EventListener
-): void {
+export function startNetwork(this: RemoteDebugger, listener: EventListener): void {
   this.log.debug('Starting to listen for network events');
   this.addClientEventListener('NetworkEvent', listener);
 }

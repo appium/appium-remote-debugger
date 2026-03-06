@@ -42,7 +42,7 @@ jobs:
       run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
     - name: Boot iOS Simulator
       id: prepareSimulator
-      uses: futureware-tech/simulator-action@v4
+      uses: futureware-tech/simulator-action@v5
       with:
         model: "${{ matrix.device }}"
         os_version: "${{ matrix.ios }}"

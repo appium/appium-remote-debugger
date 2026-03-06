@@ -1,8 +1,8 @@
-import { fs } from '@appium/support';
+import {fs} from '@appium/support';
 import path from 'node:path';
 import _ from 'lodash';
-import { log } from './logger';
-import { getModuleRoot } from './utils';
+import {log} from './logger';
+import {getModuleRoot} from './utils';
 
 const ATOMS_CACHE: Record<string, Buffer> = {};
 
@@ -52,8 +52,10 @@ export async function getAtom(atomName: string): Promise<Buffer> {
 async function wrapScriptForFrame(script: string, frame: string): Promise<string> {
   log.debug(`Wrapping script for frame '${frame}'`);
   const elFromCache = await getAtom('get_element_from_cache');
-  return `(function (window) { var document = window.document; ` +
-    `return (${script}); })((${elFromCache.toString('utf8')})(${atomsStringify(frame)}))`;
+  return (
+    `(function (window) { var document = window.document; ` +
+    `return (${script}); })((${elFromCache.toString('utf8')})(${atomsStringify(frame)}))`
+  );
 }
 
 /**
@@ -72,7 +74,7 @@ export async function getScriptForAtom(
   atom: string,
   args: any[] = [],
   frames: string[] = [],
-  asyncCallBack: string | null = null
+  asyncCallBack: string | null = null,
 ): Promise<string> {
   const atomSrc = (await getAtom(atom)).toString('utf8');
   let script: string;

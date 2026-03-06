@@ -101,7 +101,4 @@ async function main () {
   await startSoCat(s);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exitCode = 1;
-});
+(async () => await main())();

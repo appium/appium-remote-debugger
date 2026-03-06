@@ -1,11 +1,7 @@
-import {
-  pageArrayFromDict,
-  WEB_CONTENT_BUNDLE_ID,
-  appIdsForBundle,
-} from '../utils';
-import { events } from './events';
-import { timing, util } from '@appium/support';
-import { retryInterval, waitForCondition } from 'asyncbox';
+import {pageArrayFromDict, WEB_CONTENT_BUNDLE_ID, appIdsForBundle} from '../utils';
+import {events} from './events';
+import {timing, util} from '@appium/support';
+import {retryInterval, waitForCondition} from 'asyncbox';
 import _ from 'lodash';
 import {
   setAppIdKey,
@@ -17,10 +13,11 @@ import {
   getIncludeSafari,
   getBundleId,
   getAdditionalBundleIds,
+  getIgnoredBundleIds,
 } from './property-accessors';
-import { NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR } from '../rpc/rpc-client';
-import type { RemoteDebugger } from '../remote-debugger';
-import type { AppDict, Page, AppIdKey, PageIdKey, AppPage } from '../types';
+import {NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR} from '../rpc/rpc-client';
+import type {RemoteDebugger} from '../remote-debugger';
+import type {AppDict, Page, AppIdKey, PageIdKey, AppPage} from '../types';
 
 const APP_CONNECT_TIMEOUT_MS = 0;
 const APP_CONNECT_INTERVAL_MS = 100;
@@ -57,7 +54,10 @@ export async function setConnectionKey(this: RemoteDebugger): Promise<void> {
  * @returns A promise that resolves to the application dictionary containing all
  *          connected applications.
  */
-export async function connect(this: RemoteDebugger, timeout: number = APP_CONNECT_TIMEOUT_MS): Promise<AppDict> {
+export async function connect(
+  this: RemoteDebugger,
+  timeout: number = APP_CONNECT_TIMEOUT_MS,
+): Promise<AppDict> {
   this.setup();
 
   // initialize the rpc client
@@ -91,7 +91,7 @@ export async function connect(this: RemoteDebugger, timeout: number = APP_CONNEC
         });
         this.log.debug(
           `Retrieved ${util.pluralize('application', _.size(getAppDict(this)), true)} ` +
-          `within ${timer.getDuration().asMilliSeconds.toFixed(0)}ms`
+            `within ${timer.getDuration().asMilliSeconds.toFixed(0)}ms`,
         );
       } catch {
         this.log.debug(`Timed out waiting for applications to be reported`);
@@ -134,7 +134,7 @@ export async function selectApp(
   this: RemoteDebugger,
   currentUrl: string | null = null,
   maxTries: number = SELECT_APP_RETRIES,
-  ignoreAboutBlankUrl: boolean = false
+  ignoreAboutBlankUrl: boolean = false,
 ): Promise<Page[]> {
   this.log.debug('Selecting application');
 
@@ -144,9 +144,15 @@ export async function selectApp(
     return [];
   }
 
-  const { appIdKey } = await searchForApp.bind(this)(currentUrl, maxTries, ignoreAboutBlankUrl);
+  if (isAppIgnored(this)) {
+    return [];
+  }
+
+  const {appIdKey} = await searchForApp.bind(this)(currentUrl, maxTries, ignoreAboutBlankUrl);
   if (getAppIdKey(this) !== appIdKey) {
-    this.log.debug(`Received altered app id, updating from '${getAppIdKey(this)}' to '${appIdKey}'`);
+    this.log.debug(
+      `Received altered app id, updating from '${getAppIdKey(this)}' to '${appIdKey}'`,
+    );
     setAppIdKey(this, appIdKey);
   }
   logApplicationDictionary.bind(this)();
@@ -188,20 +194,24 @@ export async function selectPage(
   this: RemoteDebugger,
   appIdKey: AppIdKey,
   pageIdKey: PageIdKey,
-  skipReadyCheck: boolean = false
+  skipReadyCheck: boolean = false,
 ): Promise<void> {
   const fullAppIdKey = _.startsWith(`${appIdKey}`, 'PID:') ? `${appIdKey}` : `PID:${appIdKey}`;
   setAppIdKey(this, fullAppIdKey);
   setPageIdKey(this, pageIdKey);
 
-  this.log.debug(`Selecting page '${pageIdKey}' on app '${fullAppIdKey}' and forwarding socket setup`);
+  this.log.debug(
+    `Selecting page '${pageIdKey}' on app '${fullAppIdKey}' and forwarding socket setup`,
+  );
 
   const timer = new timing.Timer().start();
 
-  const pageReadinessDetector = skipReadyCheck ? undefined : {
-    timeoutMs: this.pageLoadMs,
-    readinessDetector: (readyState: string) => this.isPageLoadingCompleted(readyState),
-  };
+  const pageReadinessDetector = skipReadyCheck
+    ? undefined
+    : {
+        timeoutMs: this.pageLoadMs,
+        readinessDetector: (readyState: string) => this.isPageLoadingCompleted(readyState),
+      };
   await this.requireRpcClient().selectPage(fullAppIdKey, pageIdKey, pageReadinessDetector);
 
   this.log.debug(`Selected page after ${timer.getDuration().asMilliSeconds.toFixed(0)}ms`);
@@ -221,7 +231,7 @@ export function getPossibleDebuggerAppKeys(this: RemoteDebugger, bundleIds: stri
 
   if (bundleIds.includes(WILDCARD_BUNDLE_ID)) {
     this.log.info(
-      'Returning all apps because the list of matching bundle identifiers includes a wildcard'
+      'Returning all apps because the list of matching bundle identifiers includes a wildcard',
     );
     return _.keys(appDict);
   }
@@ -235,7 +245,7 @@ export function getPossibleDebuggerAppKeys(this: RemoteDebugger, bundleIds: stri
     ...bundleIds,
   ]);
   this.log.debug(
-    `Checking for apps with matching bundle identifiers: ${possibleBundleIds.join(', ')}`
+    `Checking for apps with matching bundle identifiers: ${possibleBundleIds.join(', ')}`,
   );
   const proxiedAppIds: string[] = [];
   for (const bundleId of possibleBundleIds) {
@@ -251,7 +261,7 @@ export function getPossibleDebuggerAppKeys(this: RemoteDebugger, bundleIds: stri
         if (data.isProxy && data.hostId === appId && !proxiedAppIds.includes(key)) {
           this.log.debug(
             `Found separate bundleId '${data.bundleId}' ` +
-            `acting as proxy for '${bundleId}', with app id '${key}'`
+              `acting as proxy for '${bundleId}', with app id '${key}'`,
           );
           proxiedAppIds.push(key);
         }
@@ -261,7 +271,7 @@ export function getPossibleDebuggerAppKeys(this: RemoteDebugger, bundleIds: stri
 
   this.log.debug(
     `You may also consider providing more values to 'additionalWebviewBundleIds' ` +
-    `capability to match other applications. Add a wildcard ('*') to match all apps.`
+      `capability to match other applications. Add a wildcard ('*') to match all apps.`,
   );
 
   return _.uniq(proxiedAppIds);
@@ -286,28 +296,31 @@ async function searchForApp(
   this: RemoteDebugger,
   currentUrl: string | null,
   maxTries: number,
-  ignoreAboutBlankUrl: boolean
+  ignoreAboutBlankUrl: boolean,
 ): Promise<AppPage> {
-  const bundleIds: string[] = _.compact(
-    [
-      getBundleId(this),
-      ...(getAdditionalBundleIds(this) ?? []),
-      ...(getIncludeSafari(this) && !getIsSafari(this) ? [SAFARI_BUNDLE_ID] : []),
-    ]
-  );
+  const bundleIds: string[] = _.compact([
+    getBundleId(this),
+    ...(getAdditionalBundleIds(this) ?? []),
+    ...(getIncludeSafari(this) && !getIsSafari(this) ? [SAFARI_BUNDLE_ID] : []),
+  ]);
   let retryCount = 0;
-  return await retryInterval(maxTries, SELECT_APP_RETRY_SLEEP_MS, async () => {
+  return (await retryInterval(maxTries, SELECT_APP_RETRY_SLEEP_MS, async () => {
     logApplicationDictionary.bind(this)();
     const possibleAppIds = getPossibleDebuggerAppKeys.bind(this)(bundleIds);
-    this.log.debug(`Trying out the possible app ids: ${possibleAppIds.join(', ')} (try #${retryCount + 1} of ${maxTries})`);
+    this.log.debug(
+      `Trying out the possible app ids: ${possibleAppIds.join(', ')} (try #${retryCount + 1} of ${maxTries})`,
+    );
     for (const attemptedAppIdKey of possibleAppIds) {
       const appInfo = getAppDict(this)[attemptedAppIdKey];
       if (!appInfo) {
         continue;
       }
-      if (!appInfo.isActive || (!appInfo.isAutomationEnabled && appInfo.bundleId === SAFARI_BUNDLE_ID)) {
+      if (
+        !appInfo.isActive ||
+        (!appInfo.isAutomationEnabled && appInfo.bundleId === SAFARI_BUNDLE_ID)
+      ) {
         this.log.debug(
-          `Skipping app '${attemptedAppIdKey}' because it is not ${appInfo.isActive ? 'enabled' : 'active'}`
+          `Skipping app '${attemptedAppIdKey}' because it is not ${appInfo.isActive ? 'enabled' : 'active'}`,
         );
         continue;
       }
@@ -328,22 +341,28 @@ async function searchForApp(
         }
 
         if (currentUrl) {
-          this.log.debug(`Received app, but expected url ('${currentUrl}') was not found. Trying again.`);
+          this.log.debug(
+            `Received app, but expected url ('${currentUrl}') was not found. Trying again.`,
+          );
         } else {
           this.log.debug('Received app, but no match was found. Trying again.');
         }
       } catch (err: any) {
-        if (![NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR].some((msg) => msg === err.message)) {
+        if (
+          ![NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR].some((msg) => msg === err.message)
+        ) {
           this.log.debug(err.stack);
         }
-        this.log.warn(`The application ${attemptedAppIdKey} is not connectable yet: ${err.message}`);
+        this.log.warn(
+          `The application ${attemptedAppIdKey} is not connectable yet: ${err.message}`,
+        );
       }
     }
     retryCount++;
     throw new Error(
-      `Could not connect to a valid webapp. Make sure it is debuggable and has at least one active page.`
+      `Could not connect to a valid webapp. Make sure it is debuggable and has at least one active page.`,
     );
-  }) as Promise<AppPage>;
+  })) as Promise<AppPage>;
 }
 
 /**
@@ -360,7 +379,7 @@ function searchForPage(
   this: RemoteDebugger,
   appsDict: AppDict,
   currentUrl: string | null = null,
-  ignoreAboutBlankUrl: boolean = false
+  ignoreAboutBlankUrl: boolean = false,
 ): AppPage | null {
   for (const appDict of _.values(appsDict)) {
     if (!appDict || !appDict.isActive || !appDict.pageArray || _.isEmpty(appDict.pageArray)) {
@@ -368,16 +387,57 @@ function searchForPage(
     }
 
     for (const page of appDict.pageArray) {
-      if ((!ignoreAboutBlankUrl || page.url !== BLANK_PAGE_URL) &&
-          (!currentUrl || page.url === currentUrl || page.url === `${currentUrl}/`)) {
+      if (
+        (!ignoreAboutBlankUrl || page.url !== BLANK_PAGE_URL) &&
+        (!currentUrl || page.url === currentUrl || page.url === `${currentUrl}/`)
+      ) {
         return {
           appIdKey: appDict.id,
-          pageDict: page
+          pageDict: page,
         };
       }
     }
   }
   return null;
+}
+
+/**
+ * Checks whether all apps in the app dictionary have bundle IDs that are in the
+ * configured ignore list and logs the result accordingly.
+ *
+ * Uses Set-based lookups for O(1) performance and computes the actual intersection
+ * of appDict bundle IDs with the ignore list for accurate log messages.
+ *
+ * @param instance - The RemoteDebugger instance.
+ * @returns `true` if webview search should be skipped (all apps are ignored),
+ *          `false` if the search should proceed.
+ */
+function isAppIgnored(instance: RemoteDebugger): boolean {
+  const ignoredBundleIds = getIgnoredBundleIds(instance) ?? [];
+  if (ignoredBundleIds.length === 0) {
+    return false;
+  }
+  const ignoredSet = new Set(ignoredBundleIds);
+  const appBundleIds = new Set(_.values(getAppDict(instance)).map((app) => app.bundleId));
+  if (appBundleIds.size === 0) {
+    return false;
+  }
+  const nonIgnoredBundleIds = [...appBundleIds].filter((id) => !ignoredSet.has(id));
+  const actuallyIgnoredIds = [...appBundleIds].filter((id) => ignoredSet.has(id));
+  if (nonIgnoredBundleIds.length === 0) {
+    instance.log.info(
+      `All apps reported by Web Inspector have bundle IDs in the ignore list ` +
+        `(${actuallyIgnoredIds.join(', ')}). Skipping webview search.`,
+    );
+    return true;
+  }
+  if (actuallyIgnoredIds.length > 0) {
+    instance.log.debug(
+      `Ignoring apps with bundle IDs: ${actuallyIgnoredIds.join(', ')}. ` +
+        `${util.pluralize('app', nonIgnoredBundleIds.length, true)} remain for webview search.`,
+    );
+  }
+  return false;
 }
 
 /**

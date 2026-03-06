@@ -1,4 +1,4 @@
-import type { StringRecord, AppiumLogger } from '@appium/types';
+import type {StringRecord, AppiumLogger} from '@appium/types';
 
 export interface AppInfo {
   id: string;
@@ -38,6 +38,8 @@ export interface RemoteDebuggerOptions {
   bundleId?: string;
   /** array of possible bundle ids that the inspector could return */
   additionalBundleIds?: string[];
+  /** array of bundle ids to exclude from webview context detection */
+  ignoredBundleIds?: string[];
   /** version of iOS */
   platformVersion?: string;
   isSafari?: boolean;
@@ -77,7 +79,8 @@ interface RemoteDebuggerRealDeviceSpecificOptions {
   udid: string;
 }
 
-export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions & RemoteDebuggerOptions;
+export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions &
+  RemoteDebuggerOptions;
 
 /**
  * Options for configuring an RpcClient instance.
@@ -153,7 +156,6 @@ interface RemoteCommandTemplated<T extends SocketDataKey> {
 
 export type RawRemoteCommand = RemoteCommandTemplated<StringRecord>;
 export type RemoteCommand = RemoteCommandTemplated<Buffer>;
-
 
 /**
  * Target types.

@@ -1,13 +1,13 @@
-import { RemoteDebugger } from './remote-debugger';
-import { RpcClientRealDevice, RpcClientRealDeviceShim } from './rpc';
-import { requiresWebInspectorShim } from './utils';
-import type { RemoteDebuggerRealDeviceOptions } from './types';
+import {RemoteDebugger} from './remote-debugger';
+import {RpcClientRealDevice, RpcClientRealDeviceShim} from './rpc';
+import {requiresWebInspectorShim} from './utils';
+import type {RemoteDebuggerRealDeviceOptions} from './types';
 
 export class RemoteDebuggerRealDevice extends RemoteDebugger {
   private readonly _udid: string;
   private _useWebInspectorShim: boolean;
 
-  constructor (opts: RemoteDebuggerRealDeviceOptions) {
+  constructor(opts: RemoteDebuggerRealDeviceOptions) {
     super(opts);
     this._udid = opts.udid;
     this._skippedApps = ['lockdownd'];

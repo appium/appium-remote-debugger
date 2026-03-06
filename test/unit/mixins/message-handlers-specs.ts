@@ -1,10 +1,8 @@
-import {
-  getDebuggerAppKey
-} from '../../../lib/mixins/message-handlers';
-import { MOCHA_TIMEOUT } from '../../helpers/helpers';
-import { RemoteDebugger } from '../../../lib/remote-debugger';
-import type { AppInfo } from '../../../lib/types';
-import { expect } from 'chai';
+import {getDebuggerAppKey} from '../../../lib/mixins/message-handlers';
+import {MOCHA_TIMEOUT} from '../../helpers/helpers';
+import {RemoteDebugger} from '../../../lib/remote-debugger';
+import type {AppInfo} from '../../../lib/types';
+import {expect} from 'chai';
 
 describe('connect', function () {
   this.timeout(MOCHA_TIMEOUT);
@@ -23,8 +21,8 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle',
           isActive: true,
-          isAutomationEnabled: true
-        } as AppInfo
+          isAutomationEnabled: true,
+        } as AppInfo,
       };
       expect(getDebuggerAppKey.bind(rd)('io.appium.bundle')).to.equal('42');
     });
@@ -36,7 +34,7 @@ describe('connect', function () {
           isProxy: false,
           name: 'Bundle',
           isActive: true,
-          isAutomationEnabled: true
+          isAutomationEnabled: true,
         } as AppInfo,
         ['43']: {
           id: '43',
@@ -45,8 +43,8 @@ describe('connect', function () {
           hostId: '42',
           name: 'ProxiedBundle',
           isActive: true,
-          isAutomationEnabled: true
-        } as AppInfo
+          isAutomationEnabled: true,
+        } as AppInfo,
       };
       expect(getDebuggerAppKey.bind(rd)('io.appium.bundle')).to.equal('43');
     });
@@ -56,4 +54,3 @@ describe('connect', function () {
     });
   });
 });
-

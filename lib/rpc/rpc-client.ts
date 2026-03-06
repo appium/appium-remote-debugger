@@ -1,14 +1,14 @@
-import { RemoteMessages } from './remote-messages';
-import { waitForCondition } from 'asyncbox';
-import { log } from '../logger';
+import {RemoteMessages} from './remote-messages';
+import {waitForCondition} from 'asyncbox';
+import {log} from '../logger';
 import _ from 'lodash';
 import B from 'bluebird';
 import RpcMessageHandler from './rpc-message-handler';
-import { util, timing } from '@appium/support';
-import { EventEmitter } from 'node:events';
+import {util, timing} from '@appium/support';
+import {EventEmitter} from 'node:events';
 import AsyncLock from 'async-lock';
-import { convertJavascriptEvaluationResult } from '../utils';
-import type { StringRecord } from '@appium/types';
+import {convertJavascriptEvaluationResult} from '../utils';
+import type {StringRecord} from '@appium/types';
 import type {
   AppIdKey,
   PageIdKey,
@@ -152,7 +152,10 @@ export class RpcClient {
     this.messageHandler.on('Target.targetCreated', this.addTarget.bind(this));
     this.messageHandler.on('Target.didCommitProvisionalTarget', this.updateTarget.bind(this));
     this.messageHandler.on('Target.targetDestroyed', this.removeTarget.bind(this));
-    this.messageHandler.on('Runtime.executionContextCreated', this.onExecutionContextCreated.bind(this));
+    this.messageHandler.on(
+      'Runtime.executionContextCreated',
+      this.onExecutionContextCreated.bind(this),
+    );
     this.messageHandler.on('Heap.garbageCollected', this.onGarbageCollected.bind(this));
   }
 
@@ -301,7 +304,7 @@ export class RpcClient {
     let target = this.getTarget(appIdKey, pageIdKey);
     if (target) {
       log.debug(
-        `The target '${target}' for app '${appIdKey}' and page '${pageIdKey}' already exists, no need to wait`
+        `The target '${target}' for app '${appIdKey}' and page '${pageIdKey}' already exists, no need to wait`,
       );
       return target;
     }
@@ -310,23 +313,26 @@ export class RpcClient {
     const waitMs = Math.max(MIN_WAIT_FOR_TARGET_TIMEOUT_MS, this.pageLoadTimeoutMs || 0);
     log.debug(
       `Waiting up to ${waitMs}ms for a target to be created for ` +
-      `app '${appIdKey}' and page '${pageIdKey}'`
+        `app '${appIdKey}' and page '${pageIdKey}'`,
     );
     try {
-      await waitForCondition(() => {
-        target = this.getTarget(appIdKey, pageIdKey);
-        return !_.isEmpty(target);
-      }, {
-        waitMs,
-        intervalMs: WAIT_FOR_TARGET_INTERVAL_MS,
-      });
+      await waitForCondition(
+        () => {
+          target = this.getTarget(appIdKey, pageIdKey);
+          return !_.isEmpty(target);
+        },
+        {
+          waitMs,
+          intervalMs: WAIT_FOR_TARGET_INTERVAL_MS,
+        },
+      );
       return target;
     } catch (err: any) {
       if (!err.message.includes('Condition unmet')) {
         throw err;
       }
       throw new Error(
-        `No targets could be matched for the app '${appIdKey}' and page '${pageIdKey}' after ${waitMs}ms`
+        `No targets could be matched for the app '${appIdKey}' and page '${pageIdKey}' after ${waitMs}ms`,
       );
     }
   }
@@ -341,19 +347,23 @@ export class RpcClient {
    * @param waitForResponse - Whether to wait for a response. Defaults to true.
    * @returns A promise that resolves to the command result or options.
    */
-  async send(command: string, opts: RemoteCommandOpts, waitForResponse: boolean = true): Promise<any> {
+  async send(
+    command: string,
+    opts: RemoteCommandOpts,
+    waitForResponse: boolean = true,
+  ): Promise<any> {
     const timer = new timing.Timer().start();
     try {
       return await this.sendToDevice(command, opts, waitForResponse);
     } catch (err: any) {
-      const {
-        appIdKey,
-        pageIdKey
-      } = opts;
+      const {appIdKey, pageIdKey} = opts;
       const messageLc = (err.message || '').toLowerCase();
       if (messageLc.includes(NO_TARGET_SUPPORTED_ERROR)) {
         return await this.sendToDevice(command, opts, waitForResponse);
-      } else if (appIdKey && NO_TARGET_PRESENT_YET_ERRORS.some((error) => messageLc.includes(error))) {
+      } else if (
+        appIdKey &&
+        NO_TARGET_PRESENT_YET_ERRORS.some((error) => messageLc.includes(error))
+      ) {
         await this.waitForTarget(appIdKey, pageIdKey as PageIdKey);
         return await this.sendToDevice(command, opts, waitForResponse);
       }
@@ -378,7 +388,7 @@ export class RpcClient {
   async sendToDevice<TWaitForResponse extends boolean = true>(
     command: string,
     opts: RemoteCommandOpts,
-    waitForResponse: TWaitForResponse = true as TWaitForResponse
+    waitForResponse: TWaitForResponse = true as TWaitForResponse,
   ): Promise<TWaitForResponse extends true ? any : RemoteCommandOpts> {
     return await new B<any>(async (resolve, reject) => {
       // promise to be resolved whenever remote debugger
@@ -400,12 +410,15 @@ export class RpcClient {
       const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
 
       // retrieve the correct command to send
-      const fullOpts: RemoteCommandOpts & RemoteCommandId = _.defaults({
-        connId: this.connId,
-        senderId: this.senderId,
-        targetId,
-        id: msgId.toString(),
-      }, opts);
+      const fullOpts: RemoteCommandOpts & RemoteCommandId = _.defaults(
+        {
+          connId: this.connId,
+          senderId: this.senderId,
+          targetId,
+          id: msgId.toString(),
+        },
+        opts,
+      );
       let cmd: RawRemoteCommand;
       try {
         cmd = this.remoteMessages.getRemoteCommand(command, fullOpts);
@@ -441,7 +454,7 @@ export class RpcClient {
             // a protocol change. Log and check during testing
             log.error(
               `Received error from send that is not being waited for (id: ${msgId}): ` +
-              _.truncate(JSON.stringify(err), DATA_LOG_LENGTH)
+                _.truncate(JSON.stringify(err), DATA_LOG_LENGTH),
             );
             // reject, though it is very rare that this will be triggered, since
             // the promise is resolved directly after send. On the off chance,
@@ -450,19 +463,28 @@ export class RpcClient {
           }
         });
       } else if (this.messageHandler.listenerCount(cmd.__selector)) {
-        this.messageHandler.prependOnceListener(cmd.__selector, (err: Error | null, ...args: any[]) => {
-          if (err) {
-            return reject(err);
-          }
-          log.debug(`Received response from send (id: ${msgId}): '${_.truncate(JSON.stringify(args), DATA_LOG_LENGTH)}'`);
-          resolve(args);
-        });
+        this.messageHandler.prependOnceListener(
+          cmd.__selector,
+          (err: Error | null, ...args: any[]) => {
+            if (err) {
+              return reject(err);
+            }
+            log.debug(
+              `Received response from send (id: ${msgId}): '${_.truncate(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
+            );
+            resolve(args);
+          },
+        );
       } else if (hasSocketData) {
         this.messageHandler.once(msgId.toString(), (err: Error | null, value: any) => {
           if (err) {
-            return reject(new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`));
+            return reject(
+              new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`),
+            );
           }
-          log.debug(`Received data response from send (id: ${msgId}): '${_.truncate(JSON.stringify(value), DATA_LOG_LENGTH)}'`);
+          log.debug(
+            `Received data response from send (id: ${msgId}): '${_.truncate(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
+          );
           resolve(value);
         });
       } else {
@@ -470,7 +492,8 @@ export class RpcClient {
         messageHandled = false;
       }
 
-      const msg = `Sending '${cmd.__selector}' message` +
+      const msg =
+        `Sending '${cmd.__selector}' message` +
         (appIdKey ? ` to app '${appIdKey}'` : '') +
         (pageIdKey ? `, page '${pageIdKey}'` : '') +
         (targetId ? `, target '${targetId}'` : '') +
@@ -545,11 +568,7 @@ export class RpcClient {
     if (!pendingPageTargetDetails) {
       return;
     }
-    const {
-      appIdKey,
-      pageIdKey,
-      pageReadinessDetector,
-    } = pendingPageTargetDetails;
+    const {appIdKey, pageIdKey, pageReadinessDetector} = pendingPageTargetDetails;
 
     if (!_.isPlainObject(this.targets[appIdKey])) {
       this.targets[appIdKey] = {
@@ -565,9 +584,7 @@ export class RpcClient {
 
       const elapsedMs = timer.getDuration().asMilliSeconds;
       if (elapsedMs >= pageReadinessDetector.timeoutMs) {
-        log.warn(
-          `Page '${pageIdKey}' took too long to initialize, skipping readiness check`
-        );
+        log.warn(`Page '${pageIdKey}' took too long to initialize, skipping readiness check`);
         return;
       }
       return {
@@ -578,7 +595,7 @@ export class RpcClient {
 
     if (targetInfo.isProvisional) {
       log.debug(
-        `Provisional target created for app '${appIdKey}' and page '${pageIdKey}': '${JSON.stringify(targetInfo)}'`
+        `Provisional target created for app '${appIdKey}' and page '${pageIdKey}': '${JSON.stringify(targetInfo)}'`,
       );
 
       this._provisionedPages.add(pageIdKey);
@@ -592,31 +609,36 @@ export class RpcClient {
               await this._resumeTarget(appIdKey, pageIdKey, targetInfo.targetId);
             } else {
               log.debug(
-                `Provisional target ${targetInfo.targetId}@${appIdKey} is not paused, so not resuming`
+                `Provisional target ${targetInfo.targetId}@${appIdKey} is not paused, so not resuming`,
               );
             }
           }
           if (wasInitialized) {
             await this._waitForPageReadiness(
-              appIdKey, pageIdKey, targetInfo.targetId, adjustPageReadinessDetector()
+              appIdKey,
+              pageIdKey,
+              targetInfo.targetId,
+              adjustPageReadinessDetector(),
             );
           }
         });
       } catch (e: any) {
         log.warn(
           `Cannot complete the initialization of the provisional target '${targetInfo.targetId}' ` +
-          `after ${timer.getDuration().asMilliSeconds}ms: ${e.message}`
+            `after ${timer.getDuration().asMilliSeconds}ms: ${e.message}`,
         );
       }
       return;
     }
 
-    log.debug(`Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`);
+    log.debug(
+      `Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`,
+    );
     if (_.has(this.targets[appIdKey], pageIdKey)) {
       const existingTarget = this.targets[appIdKey][pageIdKey] as TargetId;
       log.debug(
         `There is already a target for this app and page ('${existingTarget}'). ` +
-        `This might cause problems`
+          `This might cause problems`,
       );
     }
     this.targets[appIdKey][pageIdKey] = targetInfo.targetId;
@@ -629,7 +651,7 @@ export class RpcClient {
       });
     } catch (e: any) {
       log.debug(
-        `Cannot setup pause on start for app '${appIdKey}' and page '${pageIdKey}': ${e.message}`
+        `Cannot setup pause on start for app '${appIdKey}' and page '${pageIdKey}': ${e.message}`,
       );
     }
 
@@ -650,7 +672,10 @@ export class RpcClient {
         }
         if (wasInitialized) {
           await this._waitForPageReadiness(
-            appIdKey, pageIdKey, targetInfo.targetId, adjustPageReadinessDetector()
+            appIdKey,
+            pageIdKey,
+            targetInfo.targetId,
+            adjustPageReadinessDetector(),
           );
         }
       });
@@ -671,12 +696,15 @@ export class RpcClient {
    * @param app - The application identifier key.
    * @param targetInfo - Information about the provisional target update.
    */
-  async updateTarget(err: Error | undefined, app: AppIdKey, targetInfo: ProvisionalTargetInfo): Promise<void> {
-    const {
-      oldTargetId,
-      newTargetId,
-    } = targetInfo;
-    log.debug(`Target updated for app '${app}'. Old target: '${oldTargetId}', new target: '${newTargetId}'`);
+  async updateTarget(
+    err: Error | undefined,
+    app: AppIdKey,
+    targetInfo: ProvisionalTargetInfo,
+  ): Promise<void> {
+    const {oldTargetId, newTargetId} = targetInfo;
+    log.debug(
+      `Target updated for app '${app}'. Old target: '${oldTargetId}', new target: '${newTargetId}'`,
+    );
 
     const appTargetsMap = this.targets[app];
     if (!appTargetsMap) {
@@ -717,17 +745,17 @@ export class RpcClient {
         if (targetId === oldTargetId) {
           log.debug(
             `Found provisional target for app '${app}'. ` +
-            `Old target: '${oldTargetId}', new target: '${newTargetId}'. Updating`
+              `Old target: '${oldTargetId}', new target: '${newTargetId}'. Updating`,
           );
           appTargetsMap[page] = newTargetId;
           return;
         }
       }
       log.warn(
-        `Provisional target for app '${app}' found, but no suitable existing target found. This may cause problems`
+        `Provisional target for app '${app}' found, but no suitable existing target found. This may cause problems`,
       );
       log.warn(
-        `Old target: '${oldTargetId}', new target: '${newTargetId}'. Existing targets: ${JSON.stringify(appTargetsMap)}`
+        `Old target: '${oldTargetId}', new target: '${newTargetId}'. Existing targets: ${JSON.stringify(appTargetsMap)}`,
       );
     }
 
@@ -739,7 +767,9 @@ export class RpcClient {
         return;
       }
     }
-    log.debug(`Target '${targetInfo.targetId}' deleted for app '${app}', but no such target exists`);
+    log.debug(
+      `Target '${targetInfo.targetId}' deleted for app '${app}', but no such target exists`,
+    );
   }
 
   /**
@@ -769,7 +799,7 @@ export class RpcClient {
   async selectPage(
     appIdKey: AppIdKey,
     pageIdKey: PageIdKey,
-    pageReadinessDetector?: PageReadinessDetector
+    pageReadinessDetector?: PageReadinessDetector,
   ): Promise<void> {
     await this._pageSelectionLock.acquire(toPageSelectionKey(appIdKey, pageIdKey), async () => {
       this._pendingTargetNotification = {appIdKey, pageIdKey, pageReadinessDetector};
@@ -794,29 +824,35 @@ export class RpcClient {
       const setupWebview = async () => {
         // highlight and then un-highlight the webview
         for (const enabled of [true, false]) {
-          await this.send('indicateWebView', Object.assign({
-            enabled,
-          }, sendOpts), false);
+          await this.send(
+            'indicateWebView',
+            Object.assign(
+              {
+                enabled,
+              },
+              sendOpts,
+            ),
+            false,
+          );
         }
         await this.send('setSenderKey', sendOpts);
       };
-      await B.resolve(setupWebview())
-        .timeout(timeoutMs, `Cannot set up page '${pageIdKey}' for app '${appIdKey}' within ${timeoutMs}ms`);
+      await B.resolve(setupWebview()).timeout(
+        timeoutMs,
+        `Cannot set up page '${pageIdKey}' for app '${appIdKey}' within ${timeoutMs}ms`,
+      );
 
       const msLeft = Math.max(timeoutMs - Math.trunc(timer.getDuration().asMilliSeconds), 1000);
       log.debug(
-        `Waiting up to ${msLeft}ms for page '${pageIdKey}' of app '${appIdKey}' to be selected`
+        `Waiting up to ${msLeft}ms for page '${pageIdKey}' of app '${appIdKey}' to be selected`,
       );
       await new Promise<void>((resolve) => {
-        const onPageInitialized = (
-          notifiedAppIdKey: AppIdKey,
-          notifiedPageIdKey: PageIdKey
-        ) => {
+        const onPageInitialized = (notifiedAppIdKey: AppIdKey, notifiedPageIdKey: PageIdKey) => {
           const timeoutHandler = setTimeout(() => {
             this._pageSelectionMonitor.off(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
             log.warn(
               `Page '${pageIdKey}' for app '${appIdKey}' has not been selected ` +
-              `within ${timer.getDuration().asMilliSeconds}ms. Continuing anyway`
+                `within ${timer.getDuration().asMilliSeconds}ms. Continuing anyway`,
             );
             resolve();
           }, msLeft);
@@ -825,13 +861,13 @@ export class RpcClient {
             clearTimeout(timeoutHandler);
             this._pageSelectionMonitor.off(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
             log.debug(
-              `Selected the page ${pageIdKey}@${appIdKey} after ${timer.getDuration().asMilliSeconds}ms`
+              `Selected the page ${pageIdKey}@${appIdKey} after ${timer.getDuration().asMilliSeconds}ms`,
             );
             resolve();
           } else {
             log.debug(
               `Got notified that page ${notifiedPageIdKey}@${notifiedAppIdKey} is initialized, ` +
-              `but we are waiting for ${pageIdKey}@${appIdKey}. Continuing to wait`
+                `but we are waiting for ${pageIdKey}@${appIdKey}. Continuing to wait`,
             );
           }
         };
@@ -855,7 +891,7 @@ export class RpcClient {
   private async _initializePage(
     appIdKey: AppIdKey,
     pageIdKey: PageIdKey,
-    targetId?: TargetId
+    targetId?: TargetId,
   ): Promise<boolean> {
     const sendOpts: RemoteCommandOpts = {
       appIdKey,
@@ -890,7 +926,7 @@ export class RpcClient {
       }
       log.debug(
         `Simple initialization of page '${pageIdKey}' for app '${appIdKey}' completed ` +
-        `in ${timer.getDuration().asMilliSeconds}ms`
+          `in ${timer.getDuration().asMilliSeconds}ms`,
       );
       return true;
     }
@@ -958,12 +994,18 @@ export class RpcClient {
       try {
         const res = await this.send(domain, opts);
         if (domain === 'Console.getLoggingChannels') {
-          for (const source of (res?.channels || []).map((entry: { source: any }) => entry.source)) {
+          for (const source of (res?.channels || []).map((entry: {source: any}) => entry.source)) {
             try {
-              await this.send('Console.setLoggingChannelLevel', Object.assign({
-                source,
-                level: 'verbose',
-              }, sendOpts));
+              await this.send(
+                'Console.setLoggingChannelLevel',
+                Object.assign(
+                  {
+                    source,
+                    level: 'verbose',
+                  },
+                  sendOpts,
+                ),
+              );
             } catch (err: any) {
               log.info(`Cannot set logging channel level for '${source}': ${err.message}`);
               if (MISSING_TARGET_ERROR_PATTERN.test(err.message)) {
@@ -981,7 +1023,7 @@ export class RpcClient {
     }
     log.debug(
       `Full initialization of page '${pageIdKey}' for app '${appIdKey}' completed ` +
-      `in ${timer.getDuration().asMilliSeconds}ms`
+        `in ${timer.getDuration().asMilliSeconds}ms`,
     );
     return true;
   }
@@ -1011,8 +1053,10 @@ export class RpcClient {
         // if this is a report of a proxy redirect from the remote debugger
         // we want to update our dictionary and get a new app id
         if (oldAppIdKey && correctAppIdKey !== oldAppIdKey) {
-          log.debug(`We were notified we might have connected to the wrong app. ` +
-                    `Using id ${correctAppIdKey} instead of ${oldAppIdKey}`);
+          log.debug(
+            `We were notified we might have connected to the wrong app. ` +
+              `Using id ${correctAppIdKey} instead of ${oldAppIdKey}`,
+          );
         }
 
         reject(new Error(NEW_APP_CONNECTED_ERROR));
@@ -1046,7 +1090,7 @@ export class RpcClient {
    * @param err - Error if one occurred, undefined otherwise.
    * @param context - The execution context information.
    */
-  onExecutionContextCreated(err: Error | undefined, context: { id: number }): void {
+  onExecutionContextCreated(err: Error | undefined, context: {id: number}): void {
     // { id: 2, isPageContext: true, name: '', frameId: '0.1' }
     // right now we have no way to map contexts to apps/pages
     // so just store
@@ -1080,7 +1124,11 @@ export class RpcClient {
    * @param pageIdKey - The page identifier key.
    * @param targetId - The target ID to resume.
    */
-  private async _resumeTarget(appIdKey: AppIdKey, pageIdKey: PageIdKey, targetId: TargetId): Promise<void> {
+  private async _resumeTarget(
+    appIdKey: AppIdKey,
+    pageIdKey: PageIdKey,
+    targetId: TargetId,
+  ): Promise<void> {
     try {
       await this.send('Target.resume', {
         appIdKey,
@@ -1106,7 +1154,7 @@ export class RpcClient {
     appIdKey: AppIdKey,
     pageIdKey: PageIdKey,
     targetId: TargetId,
-    pageReadinessDetector?: PageReadinessDetector
+    pageReadinessDetector?: PageReadinessDetector,
   ): Promise<void> {
     if (!pageReadinessDetector) {
       return;
@@ -1119,15 +1167,17 @@ export class RpcClient {
       try {
         const commandTimeoutMs = Math.max(
           100,
-          Math.trunc((pageReadinessDetector.timeoutMs - timer.getDuration().asMilliSeconds) * 0.8)
+          Math.trunc((pageReadinessDetector.timeoutMs - timer.getDuration().asMilliSeconds) * 0.8),
         );
-        const rawResult = await B.resolve(this.send('Runtime.evaluate', {
-          expression: 'document.readyState;',
-          returnByValue: true,
-          appIdKey,
-          pageIdKey,
-          targetId,
-        })).timeout(commandTimeoutMs);
+        const rawResult = await B.resolve(
+          this.send('Runtime.evaluate', {
+            expression: 'document.readyState;',
+            returnByValue: true,
+            appIdKey,
+            pageIdKey,
+            targetId,
+          }),
+        ).timeout(commandTimeoutMs);
         readyState = convertJavascriptEvaluationResult(rawResult);
       } catch (e: any) {
         log.debug(`Cannot determine page readiness: ${e.message}`);
@@ -1136,7 +1186,7 @@ export class RpcClient {
       if (pageReadinessDetector.readinessDetector(readyState)) {
         log.info(
           `Page '${pageIdKey}' for app '${appIdKey}' is ready after ` +
-          `${timer.getDuration().asMilliSeconds}ms`
+            `${timer.getDuration().asMilliSeconds}ms`,
         );
         return;
       }
@@ -1144,7 +1194,7 @@ export class RpcClient {
     }
     log.warn(
       `Page '${pageIdKey}' for app '${appIdKey}' is not ready after ` +
-      `${timer.getDuration().asMilliSeconds}ms. Continuing anyway`
+        `${timer.getDuration().asMilliSeconds}ms. Continuing anyway`,
     );
   }
 
@@ -1165,7 +1215,10 @@ export class RpcClient {
     const timer = new timing.Timer().start();
     await Promise.all([
       lock.acquire(pageIdKey, async () => await B.delay(0)),
-      this._pageSelectionLock.acquire(toPageSelectionKey(appIdKey, pageIdKey), async () => await B.delay(0))
+      this._pageSelectionLock.acquire(
+        toPageSelectionKey(appIdKey, pageIdKey),
+        async () => await B.delay(0),
+      ),
     ]);
     const durationMs = timer.getDuration().asMilliSeconds;
     if (durationMs > 10) {
@@ -1183,11 +1236,11 @@ export class RpcClient {
    */
   private _getPendingPageTargetDetails(
     appId: AppIdKey,
-    targetInfo: TargetInfo
+    targetInfo: TargetInfo,
   ): PendingPageTargetDetails | undefined {
     const logInfo = (message: string): undefined =>
       void log.info(
-        `Skipping 'Target.targetCreated' event ${message} for app '${appId}': ${JSON.stringify(targetInfo)}`
+        `Skipping 'Target.targetCreated' event ${message} for app '${appId}': ${JSON.stringify(targetInfo)}`,
       );
     if (!this._pendingTargetNotification) {
       return logInfo('with no pending request');

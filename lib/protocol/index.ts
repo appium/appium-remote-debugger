@@ -1,5 +1,5 @@
-import type { StringRecord } from '@appium/types';
-import type { RemoteCommandOpts, ProtocolCommandOpts } from '../types';
+import type {StringRecord} from '@appium/types';
+import type {RemoteCommandOpts, ProtocolCommandOpts} from '../types';
 
 const OBJECT_GROUP = 'console';
 
@@ -136,7 +136,6 @@ const COMMANDS = {
   'Page.enable': [],
   'Page.disable': [],
   'Page.reload': ['ignoreCache', 'revalidateAllResources'],
-  'Page.navigate': ['url'],
   'Page.overrideUserAgent': ['value'],
   'Page.overrideSetting': ['setting', 'value'],
   'Page.overrideUserPreference': ['name', 'value'],
@@ -197,7 +196,7 @@ const COMMANDS = {
   'Worker.enable': [],
   'Worker.disable': [],
   'Worker.initialized': ['workerId'],
-  'Worker.sendMessageToWorker': ['workerId', 'message']
+  'Worker.sendMessageToWorker': ['workerId', 'message'],
   //#endregion
 } as const;
 
@@ -207,7 +206,7 @@ const COMMANDS = {
  * WebKit Inspector protocol specification.
  *
  * @param id - The command identifier.
- * @param method - The protocol method name (e.g., 'Page.navigate', 'Runtime.evaluate').
+ * @param method - The protocol method name (e.g., 'Page.reload', 'Runtime.evaluate').
  * @param opts - Options containing parameters for the command.
  * @param direct - If false (default), the resulting command params will be patched
  *                 with default values (objectGroup, includeCommandLineAPI, etc.).
@@ -219,18 +218,20 @@ export function getProtocolCommand(
   id: string,
   method: string,
   opts: RemoteCommandOpts,
-  direct: boolean = false
+  direct: boolean = false,
 ): ProtocolCommandOpts {
   const paramNames = COMMANDS[method as keyof typeof COMMANDS];
   if (!paramNames) {
     throw new Error(`Unknown command: '${method}'`);
   }
 
-  const params: StringRecord = (paramNames as readonly string[])
-    .reduce(function (acc: StringRecord, name: string) {
-      acc[name] = opts[name];
-      return acc;
-    }, {} as StringRecord);
+  const params: StringRecord = (paramNames as readonly string[]).reduce(function (
+    acc: StringRecord,
+    name: string,
+  ) {
+    acc[name] = opts[name];
+    return acc;
+  }, {} as StringRecord);
   const result: ProtocolCommandOpts = {
     id,
     method,
