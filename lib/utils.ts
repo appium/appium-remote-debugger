@@ -8,6 +8,13 @@ import type { AppInfo, AppDict, Page } from './types';
 
 const MODULE_NAME = 'appium-remote-debugger';
 export const WEB_CONTENT_BUNDLE_ID = 'com.apple.WebKit.WebContent';
+
+/**
+ * Minimum iOS version that requires the WebInspector shim service.
+ * Starting with iOS 18, the traditional WebInspector service is no longer available
+ * on real devices and has been replaced with the shim service (com.apple.webinspector.shim.remote).
+ */
+export const MIN_IOS_VERSION_FOR_SHIM = 18;
 const INACTIVE_APP_CODE = 0;
 // values for the page `WIRTypeKey` entry
 const ACCEPTED_PAGE_TYPES = [
@@ -191,6 +198,29 @@ export const getModuleRoot = _.memoize(function getModuleRoot(): string {
 export function getModuleProperties(): StringRecord {
   const fullPath = path.resolve(getModuleRoot(), 'package.json');
   return JSON.parse(nodeFs.readFileSync(fullPath, 'utf8'));
+}
+
+/**
+ * Determines if the given iOS platform version requires the WebInspector shim service.
+ * iOS 18 and later use the shim service (com.apple.webinspector.shim.remote) instead of
+ * the traditional WebInspector service for real devices.
+ *
+ * @param platformVersion - The iOS platform version string (e.g., "18.0", "17.5.1")
+ * @returns true if the version requires the WebInspector shim, false otherwise
+ */
+export function requiresWebInspectorShim(platformVersion?: string): boolean {
+  if (!platformVersion) {
+    return false;
+  }
+
+  // Extract major version number, handling formats like "18.0", "18.0.1", "18.0 (22A3354)"
+  const match = platformVersion.match(/^(\d+)/);
+  if (!match) {
+    return false;
+  }
+
+  const majorVersion = parseInt(match[1], 10);
+  return majorVersion >= MIN_IOS_VERSION_FOR_SHIM;
 }
 
 /**

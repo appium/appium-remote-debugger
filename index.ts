@@ -1,5 +1,6 @@
 import { RemoteDebugger, REMOTE_DEBUGGER_PORT } from './lib/remote-debugger';
 import { RemoteDebuggerRealDevice } from './lib/remote-debugger-real-device';
+import { requiresWebInspectorShim, MIN_IOS_VERSION_FOR_SHIM } from './lib/utils';
 import type { RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions } from './lib/types';
 
 export function createRemoteDebugger<T extends boolean> (
@@ -13,4 +14,5 @@ export function createRemoteDebugger<T extends boolean> (
 }
 
 export { RemoteDebugger, RemoteDebuggerRealDevice, REMOTE_DEBUGGER_PORT };
+export { requiresWebInspectorShim, MIN_IOS_VERSION_FOR_SHIM };
 export type { RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions };
