@@ -1,4 +1,4 @@
 module.exports = {
-  require: ['ts-node/register'],
+  'node-option': ['import=ts-node/esm'],
   forbidOnly: Boolean(process.env.CI)
 };

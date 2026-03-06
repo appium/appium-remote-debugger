@@ -201,6 +201,18 @@ export function getModuleProperties(): StringRecord {
 }
 
 /**
+ * Determines if the given iOS platform version requires the WebInspector shim service.
+ * iOS 18 and later use the shim service (com.apple.webinspector.shim.remote) instead of
+ * the traditional WebInspector service for real devices.
+ *
+ * @param platformVersion - The iOS platform version string (e.g., "18.0", "17.5.1")
+ * @returns true if the version requires the WebInspector shim, false otherwise
+ */
+export function requiresWebInspectorShim(platformVersion: string): boolean {
+  return !!platformVersion && util.compareVersions(platformVersion, '>=', '18.0');
+}
+
+/**
  * Removes noisy function properties from an object that can muddy the logs.
  * These properties are often added by JavaScript number objects and similar.
  *
