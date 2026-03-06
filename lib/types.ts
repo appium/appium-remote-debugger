@@ -75,11 +75,6 @@ export interface RemoteDebuggerOptions {
 
 interface RemoteDebuggerRealDeviceSpecificOptions {
   udid: string;
-  /**
-   * Whether to use the WebInspector shim service for iOS 18+ devices.
-   * If not specified, auto-detected based on platformVersion.
-   */
-  useWebInspectorShim?: boolean;
 }
 
 export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions & RemoteDebuggerOptions;

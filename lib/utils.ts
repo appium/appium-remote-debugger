@@ -8,7 +8,6 @@ import type { AppInfo, AppDict, Page } from './types';
 
 const MODULE_NAME = 'appium-remote-debugger';
 export const WEB_CONTENT_BUNDLE_ID = 'com.apple.WebKit.WebContent';
-
 const INACTIVE_APP_CODE = 0;
 // values for the page `WIRTypeKey` entry
 const ACCEPTED_PAGE_TYPES = [
