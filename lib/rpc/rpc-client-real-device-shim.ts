@@ -1,7 +1,7 @@
-import { log } from '../logger';
-import { RpcClient } from './rpc-client';
-import type { RemoteCommand, RpcClientOptions } from '../types';
-import type { StringRecord } from '@appium/types';
+import {log} from '../logger';
+import {RpcClient} from './rpc-client';
+import type {RemoteCommand, RpcClientOptions} from '../types';
+import type {StringRecord} from '@appium/types';
 
 /**
  * Options specific to RpcClientRealDeviceShim.
@@ -197,7 +197,7 @@ export class RpcClientRealDeviceShim extends RpcClient {
       for (const key of ['WIRMessageDataKey', 'WIRSocketDataKey', 'WIRDestinationKey']) {
         if (args[key] !== undefined) {
           if (Buffer.isBuffer(args[key])) {
-            args[key] = (args[key] as Buffer).toString('utf-8');
+            args[key] = (args[key] as Buffer).toString('utf8');
           }
         }
       }
