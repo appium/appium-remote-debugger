@@ -71,7 +71,6 @@ export interface RemoteDebuggerOptions {
   targetCreationTimeoutMs?: number;
   pageLoadStrategy?: string;
   log?: AppiumLogger;
-  useWebInspectorShim?: boolean;
 }
 
 interface RemoteDebuggerRealDeviceSpecificOptions {

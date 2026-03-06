@@ -5,16 +5,12 @@ import type { RemoteDebuggerRealDeviceOptions } from './types';
 
 export class RemoteDebuggerRealDevice extends RemoteDebugger {
   private readonly _udid: string;
-  private readonly _useWebInspectorShim: boolean;
+  private _useWebInspectorShim: boolean;
 
   constructor (opts: RemoteDebuggerRealDeviceOptions) {
     super(opts);
     this._udid = opts.udid;
     this._skippedApps = ['lockdownd'];
-
-    // Determine if we should use the WebInspector shim
-    // Can be explicitly set via options, otherwise auto-detect based on iOS version
-    this._useWebInspectorShim = true
   }
 
   /**
@@ -38,6 +34,7 @@ export class RemoteDebuggerRealDevice extends RemoteDebugger {
       pageLoadTimeoutMs: this._pageLoadMs,
     };
 
+    this._useWebInspectorShim = requiresWebInspectorShim(this._platformVersion!);
     if (this._useWebInspectorShim) {
       this.log.info(`Using WebInspector shim service for iOS ${this._platformVersion}`);
       this._rpcClient = new RpcClientRealDeviceShim(commonOpts);
