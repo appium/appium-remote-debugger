@@ -11,10 +11,6 @@ export function createRemoteDebugger(
   realDevice: false,
 ): RemoteDebugger;
 export function createRemoteDebugger(
-  opts: RemoteDebuggerRealDeviceOptions,
-  realDevice: boolean,
-): RemoteDebuggerRealDevice | RemoteDebugger;
-export function createRemoteDebugger(
   opts: RemoteDebuggerRealDeviceOptions | RemoteDebuggerOptions,
   realDevice: boolean,
 ): RemoteDebuggerRealDevice | RemoteDebugger {

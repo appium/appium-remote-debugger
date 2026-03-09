@@ -4,8 +4,8 @@ import {requiresWebInspectorShim} from './utils';
 import type {RemoteDebuggerRealDeviceOptions} from './types';
 
 export class RemoteDebuggerRealDevice extends RemoteDebugger {
-  private readonly _udid: string;
-  private _useWebInspectorShim: boolean;
+  private readonly _udid!: string;
+  private _useWebInspectorShim: boolean = false;
 
   constructor(opts: RemoteDebuggerRealDeviceOptions) {
     super(opts);
@@ -21,7 +21,7 @@ export class RemoteDebuggerRealDevice extends RemoteDebugger {
     return this._useWebInspectorShim;
   }
 
-  override initRpcClient (): void {
+  override async initRpcClient(): Promise<void> {
     const commonOpts = {
       bundleId: this._bundleId,
       platformVersion: this._platformVersion,
@@ -34,13 +34,24 @@ export class RemoteDebuggerRealDevice extends RemoteDebugger {
       pageLoadTimeoutMs: this._pageLoadMs,
     };
 
-    this._useWebInspectorShim = requiresWebInspectorShim(this._platformVersion!);
+    this._useWebInspectorShim = requiresWebInspectorShim(this._platformVersion as string);
     if (this._useWebInspectorShim) {
-      this.log.info(`Using WebInspector shim service for iOS ${this._platformVersion}`);
-      this._rpcClient = new RpcClientRealDeviceShim(commonOpts);
-    } else {
-      this._rpcClient = new RpcClientRealDevice(commonOpts);
+      const shimClient = new RpcClientRealDeviceShim(commonOpts);
+      try {
+        await shimClient.connect();
+        this._rpcClient = shimClient;
+        this.log.info(`Using WebInspector shim service for iOS ${this._platformVersion}`);
+        return;
+      } catch (err: any) {
+        this.log.warn(
+          `Failed to start WebInspector shim service: ${err.message}. ` +
+            'Falling back to the legacy Web Inspector implementation.',
+        );
+        this._useWebInspectorShim = false;
+      }
     }
+
+    this._rpcClient = new RpcClientRealDevice(commonOpts);
   }
 }
 

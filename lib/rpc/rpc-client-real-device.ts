@@ -15,6 +15,9 @@ export class RpcClientRealDevice extends RpcClient {
    * Starts the Web Inspector service and sets up message listening.
    */
   override async connect(): Promise<void> {
+    if (this.isConnected) {
+      return;
+    }
     this.service = await services.startWebInspectorService(this.udid, {
       osVersion: this.platformVersion,
       isSimulator: false,

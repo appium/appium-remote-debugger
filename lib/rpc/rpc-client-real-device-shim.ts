@@ -2,6 +2,8 @@ import {log} from '../logger';
 import {RpcClient} from './rpc-client';
 import type {RemoteCommand, RpcClientOptions} from '../types';
 import type {StringRecord} from '@appium/types';
+import type {WebInspectorService, RemoteXpcConnection} from 'appium-ios-remotexpc';
+import _ from 'lodash';
 
 /**
  * Options specific to RpcClientRealDeviceShim.
@@ -29,8 +31,8 @@ interface WebInspectorMessage {
  * the appium-ios-remotexpc library.
  */
 export class RpcClientRealDeviceShim extends RpcClient {
-  protected webInspectorService?: any;
-  protected remoteXPC?: any;
+  protected webInspectorService?: WebInspectorService;
+  protected remoteXPC?: RemoteXpcConnection;
   protected messageListenerTask?: Promise<void>;
   protected isListening: boolean = false;
 
@@ -52,25 +54,19 @@ export class RpcClientRealDeviceShim extends RpcClient {
    * `com.apple.webinspector.shim.remote` service.
    */
   override async connect(): Promise<void> {
+    if (this.isConnected) {
+      return;
+    }
     log.debug(`Connecting to WebInspector shim service for device ${this.udid}`);
 
-    try {
-      // Use dynamic import() to load the pure-ESM appium-ios-remotexpc package
-      // from a CommonJS context (static import would compile to require() and fail)
-      const { Services } = await import('appium-ios-remotexpc');
-      const result = await Services.startWebInspectorService(this.udid!);
-      this.webInspectorService = result.webInspectorService;
-      this.remoteXPC = result.remoteXPC;
+    const {Services} = await import('appium-ios-remotexpc');
+    const result = await Services.startWebInspectorService(this.udid as string);
+    this.webInspectorService = result.webInspectorService;
+    this.remoteXPC = result.remoteXPC;
 
-      // Start listening for messages
-      this.startMessageListener();
-
-      this.isConnected = true;
-      log.debug('Successfully connected to WebInspector shim service');
-    } catch (err: any) {
-      log.error(`Failed to connect to WebInspector shim service: ${err.message}`);
-      throw err;
-    }
+    this.startMessageListener();
+    this.isConnected = true;
+    log.debug('Successfully connected to WebInspector shim service');
   }
 
   /**
@@ -88,7 +84,13 @@ export class RpcClientRealDeviceShim extends RpcClient {
     // Stop the message listener
     this.isListening = false;
     if (this.webInspectorService) {
-      await this.webInspectorService.stopListeningAsync();
+      try {
+        await this.webInspectorService.stopListeningAsync();
+      } catch (err: any) {
+        log.warn(`Error while stopping shim message listener: ${err}`);
+        await this.webInspectorService.close();
+        this.webInspectorService = undefined;
+      }
     }
 
     // Wait for the listener task to complete
@@ -155,21 +157,22 @@ export class RpcClientRealDeviceShim extends RpcClient {
     }
 
     this.isListening = true;
+    const service = this.webInspectorService;
 
     this.messageListenerTask = (async () => {
       try {
-        for await (const message of this.webInspectorService.listenMessage()) {
+        for await (const message of service.listenMessage()) {
           if (!this.isListening) {
             break;
           }
 
           // Convert the message to the expected format
-          const convertedMessage = this.convertMessage(message as WebInspectorMessage);
+          const convertedMessage = this.convertMessage(message as unknown as WebInspectorMessage);
           await this.receive(convertedMessage);
         }
       } catch (err: any) {
         if (this.isListening) {
-          log.error(`Error in shim message listener: ${err.message}`);
+          log.error(`Error in shim message listener: ${err}`);
         }
       } finally {
         this.isListening = false;
@@ -190,8 +193,8 @@ export class RpcClientRealDeviceShim extends RpcClient {
     };
 
     // Convert buffer data to strings where necessary
-    if (message.__argument) {
-      const args = { ...message.__argument };
+    if (_.isPlainObject(message.__argument)) {
+      const args = {...message.__argument};
 
       // Handle WIRMessageDataKey and WIRSocketDataKey which may be buffers
       for (const key of ['WIRMessageDataKey', 'WIRSocketDataKey', 'WIRDestinationKey']) {
@@ -216,11 +219,11 @@ export class RpcClientRealDeviceShim extends RpcClient {
    * @returns The translated arguments for the shim service.
    */
   private translateArguments(args: any): StringRecord {
-    if (!args) {
+    if (!_.isPlainObject(args)) {
       return {};
     }
 
-    const translated: StringRecord = { ...args };
+    const translated: StringRecord = {...args};
 
     // Remove the connection identifier key as it will be added by the shim service
     delete translated.WIRConnectionIdentifierKey;
