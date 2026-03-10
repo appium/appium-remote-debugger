@@ -1,6 +1,6 @@
 import {RemoteDebugger} from './remote-debugger';
 import {RpcClientRealDevice, RpcClientRealDeviceShim} from './rpc';
-import {requiresWebInspectorShim} from './utils';
+import {canUseWebInspectorShim} from './utils';
 import type {RemoteDebuggerRealDeviceOptions} from './types';
 
 export class RemoteDebuggerRealDevice extends RemoteDebugger {
@@ -34,7 +34,7 @@ export class RemoteDebuggerRealDevice extends RemoteDebugger {
       pageLoadTimeoutMs: this._pageLoadMs,
     };
 
-    this._useWebInspectorShim = requiresWebInspectorShim(this._platformVersion as string);
+    this._useWebInspectorShim = canUseWebInspectorShim(this._platformVersion as string);
     if (this._useWebInspectorShim) {
       const shimClient = new RpcClientRealDeviceShim(commonOpts);
       try {

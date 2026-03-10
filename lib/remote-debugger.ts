@@ -47,6 +47,7 @@ export class RemoteDebugger extends EventEmitter {
   protected readonly _port?: number;
   protected readonly _socketPath?: string;
   protected readonly _remoteDebugProxy?: any;
+  protected readonly _targetCreationTimeoutMs?: number;
   protected readonly _pageReadyTimeout: number;
   protected readonly _logAllCommunication: boolean;
   protected readonly _logAllCommunicationHexDump: boolean;
@@ -212,7 +213,7 @@ export class RemoteDebugger extends EventEmitter {
     }
   }
 
-  initRpcClient(): void | Promise<void> {
+  async initRpcClient(): Promise<void> {
     this._rpcClient = new RpcClientSimulator({
       bundleId: this._bundleId,
       platformVersion: this._platformVersion,

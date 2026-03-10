@@ -201,14 +201,11 @@ export function getModuleProperties(): StringRecord {
 }
 
 /**
- * Determines if the given iOS platform version requires the WebInspector shim service.
- * iOS 18 and later use the shim service (com.apple.webinspector.shim.remote) instead of
- * the traditional WebInspector service for real devices.
- *
+ * Determines if the WebInspector shim can be used based on the provided iOS platform version.
  * @param platformVersion - The iOS platform version string (e.g., "18.0", "17.5.1")
- * @returns true if the version requires the WebInspector shim, false otherwise
+ * @returns true if the WebInspector shim can be used, false otherwise
  */
-export function requiresWebInspectorShim(platformVersion: string): boolean {
+export function canUseWebInspectorShim(platformVersion: string): boolean {
   return !!platformVersion && util.compareVersions(platformVersion, '>=', '18.0');
 }
 

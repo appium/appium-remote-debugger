@@ -43,9 +43,6 @@ export class RpcClientRealDeviceShim extends RpcClient {
    */
   constructor(opts: RpcClientRealDeviceShimOptions) {
     super(opts);
-    if (!this.udid) {
-      throw new Error('UDID is required for RpcClientRealDeviceShim');
-    }
   }
 
   /**
@@ -60,7 +57,7 @@ export class RpcClientRealDeviceShim extends RpcClient {
     log.debug(`Connecting to WebInspector shim service for device ${this.udid}`);
 
     const {Services} = await import('appium-ios-remotexpc');
-    const result = await Services.startWebInspectorService(this.udid as string);
+    const result = await Services.startWebInspectorService(this.udid);
     this.webInspectorService = result.webInspectorService;
     this.remoteXPC = result.remoteXPC;
 
@@ -87,7 +84,7 @@ export class RpcClientRealDeviceShim extends RpcClient {
       try {
         await this.webInspectorService.stopListeningAsync();
       } catch (err: any) {
-        log.warn(`Error while stopping shim message listener: ${err}`);
+        log.warn('Error while stopping shim message listener', err);
         await this.webInspectorService.close();
         this.webInspectorService = undefined;
       }
@@ -172,7 +169,7 @@ export class RpcClientRealDeviceShim extends RpcClient {
         }
       } catch (err: any) {
         if (this.isListening) {
-          log.error(`Error in shim message listener: ${err}`);
+          log.error('Error in shim message listener', err);
         }
       } finally {
         this.isListening = false;
@@ -198,13 +195,10 @@ export class RpcClientRealDeviceShim extends RpcClient {
 
       // Handle WIRMessageDataKey and WIRSocketDataKey which may be buffers
       for (const key of ['WIRMessageDataKey', 'WIRSocketDataKey', 'WIRDestinationKey']) {
-        if (args[key] !== undefined) {
-          if (Buffer.isBuffer(args[key])) {
-            args[key] = (args[key] as Buffer).toString('utf8');
-          }
+        if (args[key] !== undefined && Buffer.isBuffer(args[key])) {
+          args[key] = (args[key] as Buffer).toString('utf8');
         }
       }
-
       converted.__argument = args;
     }
 

@@ -81,7 +81,7 @@ export class RpcClient {
   protected readonly connId: string;
   protected readonly senderId: string;
   protected msgId: number;
-  protected readonly udid?: string;
+  protected readonly udid!: string;
   protected readonly logAllCommunication?: boolean;
   protected readonly logAllCommunicationHexDump?: boolean;
   protected readonly socketChunkSize?: number;
@@ -124,7 +124,7 @@ export class RpcClient {
     this.senderId = util.uuidV4();
     this.msgId = 0;
 
-    this.udid = udid;
+    this.udid = udid as string;
 
     this.logAllCommunication = logAllCommunication;
     this.logAllCommunicationHexDump = logAllCommunicationHexDump;
