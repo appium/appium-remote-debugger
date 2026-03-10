@@ -4,7 +4,7 @@
   "keywords": [
     "appium"
   ],
-  "version": "15.5.0",
+  "version": "15.6.0",
   "author": "Appium Contributors",
   "license": "Apache-2.0",
   "repository": {
@@ -43,7 +43,7 @@
     "teen_process": "^4.0.4"
   },
   "optionalDependencies": {
-      "appium-ios-remotexpc": "^0.x"
+    "appium-ios-remotexpc": "^0.x"
   },
   "scripts": {
     "build": "tsc -b",

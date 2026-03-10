@@ -1,3 +1,9 @@
+## [15.6.0](https://github.com/appium/appium-remote-debugger/compare/v15.5.0...v15.6.0) (2026-03-10)
+
+### Features
+
+* implement shim web inspector functionality ([#482](https://github.com/appium/appium-remote-debugger/issues/482)) ([e5484eb](https://github.com/appium/appium-remote-debugger/commit/e5484eb04d60d1be630bdfc5982f7c4822d40af3))
+
 ## [15.5.0](https://github.com/appium/appium-remote-debugger/compare/v15.4.0...v15.5.0) (2026-02-23)
 
 ### Features
