@@ -212,7 +212,7 @@ export class RemoteDebugger extends EventEmitter {
     }
   }
 
-  initRpcClient(): void {
+  async initRpcClient(): Promise<void> {
     this._rpcClient = new RpcClientSimulator({
       bundleId: this._bundleId,
       platformVersion: this._platformVersion,

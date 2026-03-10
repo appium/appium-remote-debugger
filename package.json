@@ -42,6 +42,9 @@
     "lodash": "^4.17.11",
     "teen_process": "^4.0.4"
   },
+  "optionalDependencies": {
+      "appium-ios-remotexpc": "^0.x"
+  },
   "scripts": {
     "build": "tsc -b",
     "clean": "npm run build -- --clean",

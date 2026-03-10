@@ -61,7 +61,7 @@ export async function connect(
   this.setup();
 
   // initialize the rpc client
-  this.initRpcClient();
+  await this.initRpcClient();
 
   const rpcClient = this.requireRpcClient();
 
