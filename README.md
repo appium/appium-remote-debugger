@@ -26,8 +26,6 @@ to interact with web pages.
 
 To refresh the bundled `atoms/` output, use the **Update Selenium Atoms** manual workflow ([`.github/workflows/update-atoms.yml`](./.github/workflows/update-atoms.yml)) in the GitHub Actions tab, or build locally. Full steps, inputs, and tooling are documented in **[docs/update-atoms.md](./docs/update-atoms.md)**.
 
-Appium-specific caveats are described in [atoms-notes.md](./atoms-notes.md).
-
 ## Test
 
 ```

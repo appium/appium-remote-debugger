@@ -81,17 +81,7 @@ export async function seleniumClone () {
   ]);
 
   log.info(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
-  try {
-    await exec('git', cloneArgs(SELENIUM_BRANCH));
-  } catch (err) {
-    // Selenium's primary branch has historically been `trunk`.
-    if (SELENIUM_BRANCH === 'main') {
-      log.warn(`Branch 'main' was not available. Falling back to 'trunk'.`);
-      await exec('git', cloneArgs('trunk'));
-      return;
-    }
-    throw err;
-  }
+  await exec('git', cloneArgs(SELENIUM_BRANCH));
 };
 
 /**
@@ -232,12 +222,12 @@ async function atomsCopyAtoms (atomsDir) {
 }
 
 /**
- * leave timestamp to log when atom build occurred.
+ * Record which Selenium revision produced these atoms.
  */
 async function atomsTimestamp () {
-  log.info(`Adding timestamp to atoms build dir`);
+  log.info(`Recording Selenium revision in atoms dir`);
   const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
-  await fs.writeFile(LAST_UPDATE_FILE, Buffer.from(`${new Date()}\n\n${stdout}`));
+  await fs.writeFile(LAST_UPDATE_FILE, Buffer.from(stdout.trimEnd() + '\n'));
 }
 
 export async function importAtoms(shouldClean) {

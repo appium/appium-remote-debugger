@@ -25,6 +25,8 @@ These are passed through as `SELENIUM_BRANCH` and `SELENIUM_GITHUB` when the job
 
 The job uses [`peter-evans/create-pull-request`](https://github.com/peter-evans/create-pull-request) with `add-paths: atoms/**`. If the build produces **no diff** under `atoms/`, **no pull request is created**. If a PR already exists on the configured branch, it may be updated when there are new changes.
 
+`atoms/lastupdate` stores only the Selenium checkout’s `git log -1` text (no build timestamp), so re-running against the same Selenium revision does not churn that file by itself. A PR appears when any atom file or `lastupdate` actually differs from the default branch — for example after `trunk` advances, or when toolchain outputs change.
+
 The workflow uses `bazelbuild/setup-bazelisk` so Bazel matches the version pinned in Selenium’s `.bazelversion`.
 
 ## Local build
