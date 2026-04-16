@@ -13,6 +13,20 @@ const BAZEL_ATOMS_TARGET = '//javascript/atoms/...';
 const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
 const BAZEL_WD_ATOMS_INJECT_TARGET = '//javascript/webdriver/atoms/inject/...';
 
+// `//javascript/atoms/...` includes browser-backed `closure-test*` targets that fetch pinned
+// Firefox/Safari/etc.; exclude them so local/CI atoms import builds without those repositories.
+const BAZEL_ATOMS_EXCLUDED_TARGETS = [
+  '//javascript/atoms:closure-test',
+  '//javascript/atoms:closure-test-all-browsers',
+  '//javascript/atoms:closure-test-chrome',
+  '//javascript/atoms:closure-test-chrome-beta',
+  '//javascript/atoms:closure-test-edge',
+  '//javascript/atoms:closure-test-firefox',
+  '//javascript/atoms:closure-test-firefox-beta',
+  '//javascript/atoms:closure-test-safari',
+  '//javascript/atoms:closure-test_debug_server',
+];
+
 const WORKING_ROOT_DIR = path.resolve(fileURLToPath(import.meta.url), '..', '..');
 const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
 const SELENIUM_DIRECTORY = path.resolve(TMP_DIRECTORY, 'selenium');
@@ -187,7 +201,11 @@ async function atomsBuild () {
     BAZEL_WD_ATOMS_INJECT_TARGET,
   ]) {
     log.info(`Running bazel build for ${target}`);
-    await exec(bazelCommand, ['build', target], {cwd: SELENIUM_DIRECTORY, env: getBazelEnv()});
+    const buildArgs = ['build', target];
+    if (target === BAZEL_ATOMS_TARGET) {
+      buildArgs.push('--', ...BAZEL_ATOMS_EXCLUDED_TARGETS.map((t) => `-${t}`));
+    }
+    await exec(bazelCommand, buildArgs, {cwd: SELENIUM_DIRECTORY, env: getBazelEnv()});
   }
   log.info(`Bazel builds complete`);
 }
