@@ -6,7 +6,7 @@ import { exec } from 'teen_process';
 
 const log = logger.getLogger('Atoms');
 
-const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'main';
+const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'trunk';
 const SELENIUM_GITHUB = process.env.SELENIUM_GITHUB || 'https://github.com/SeleniumHQ/selenium.git';
 
 const BAZEL_ATOMS_TARGET = '//javascript/atoms/...';

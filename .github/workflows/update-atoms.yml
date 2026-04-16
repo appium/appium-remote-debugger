@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       selenium_branch:
-        description: Selenium branch/ref to build atoms from
+        description: Selenium branch/ref to build atoms from (upstream default is trunk)
         required: true
-        default: main
+        default: trunk
       selenium_github:
         description: Selenium repository to clone
         required: true
