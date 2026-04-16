@@ -1,4 +1,4 @@
-import { fs, logger } from '@appium/support';
+import { fs, logger, util } from '@appium/support';
 import { glob } from 'glob';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -6,12 +6,12 @@ import { exec } from 'teen_process';
 
 const log = logger.getLogger('Atoms');
 
-const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'trunk'; // the hash is '9b1e83ce6409086413b1cd7ffe6da502ac9d11f1'
+const SELENIUM_BRANCH = process.env.SELENIUM_BRANCH || 'main';
 const SELENIUM_GITHUB = process.env.SELENIUM_GITHUB || 'https://github.com/SeleniumHQ/selenium.git';
 
+const BAZEL_ATOMS_TARGET = '//javascript/atoms/...';
 const BAZEL_WD_ATOMS_TARGET = '//javascript/webdriver/atoms/...';
 const BAZEL_WD_ATOMS_INJECT_TARGET = '//javascript/webdriver/atoms/inject/...';
-const BAZEL_ATOMS_TARGET = '//javascript/atoms/...';
 
 const WORKING_ROOT_DIR = path.resolve(fileURLToPath(import.meta.url), '..', '..');
 const TMP_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'tmp');
@@ -24,6 +24,17 @@ const BAZEL_WD_ATOMS_DIR = path.join(JS_RELATIVE_DIR, 'webdriver', 'atoms');
 const BAZEL_WD_ATOMS_INJECT_DIR = path.join(BAZEL_WD_ATOMS_DIR, 'inject');
 const ATOMS_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms');
 const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
+let bazelCommand;
+
+function getBazelEnv() {
+  // Selenium atoms build does not require Android SDK. If these env vars are set locally,
+  // Bazel may try to auto-configure Android toolchains and fail on host-specific SDK issues.
+  const env = {...process.env};
+  delete env.ANDROID_HOME;
+  delete env.ANDROID_SDK_ROOT;
+  delete env.ANDROID_SDK;
+  return env;
+}
 
 /**
  * Create a temporary directory to clone selenium repository to build atoms in.
@@ -47,41 +58,84 @@ async function seleniumClean () {
 export async function seleniumClone () {
   await seleniumMkdir();
   await seleniumClean();
-  log.info(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
-  await exec('git', [
+  const cloneArgs = (branch) => ([
     'clone',
-    `--branch=${SELENIUM_BRANCH}`,
-    `--depth=1`,
+    `--branch=${branch}`,
+    '--depth=1',
     SELENIUM_GITHUB,
     SELENIUM_DIRECTORY,
   ]);
+
+  log.info(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
+  try {
+    await exec('git', cloneArgs(SELENIUM_BRANCH));
+  } catch (err) {
+    // Selenium's primary branch has historically been `trunk`.
+    if (SELENIUM_BRANCH === 'main') {
+      log.warn(`Branch 'main' was not available. Falling back to 'trunk'.`);
+      await exec('git', cloneArgs('trunk'));
+      return;
+    }
+    throw err;
+  }
 };
 
 /**
  * Check bazel version if current available bazel version on the host machine
- * is good for the target selenium repository's required version.
+ * meets Selenium's minimum from `.bazelversion` (newer Bazel is allowed).
  */
 async function checkBazel() {
-  log.info('Checking required Bazel version');
-  const bazelVersion = (await fs.readFile(BAZEL_VERSION, 'utf8')).trim();
-  let result;
-  let err;
+  log.info('Checking minimum Bazel version from Selenium .bazelversion');
+  const minBazelVersion = (await fs.readFile(BAZEL_VERSION, 'utf8')).trim();
+  let bazelVersionResult;
+  let bazeliskVersionResult;
+  let bazelVersionErr;
+  let bazeliskVersionErr;
   try {
-    result = await exec('bazel', ['--version']);
+    bazelVersionResult = await exec('bazel', ['--version']);
   } catch (e) {
-    err = e.stderr || e.message;
+    bazelVersionErr = e.stderr || e.message;
   }
-  if (err || result.stderr) {
-    throw new Error(`Please setup Bazel ${bazelVersion} runtime environment by following https://bazel.build/install. ` +
-      `Original error: ${err || result.stderr}`);
+  if (!bazelVersionErr && !bazelVersionResult.stderr) {
+    // e.g. "bazel 9.0.1"
+    const currentBazelVersion = bazelVersionResult.stdout.trim().split(' ')[1];
+    let meetsMinimum = false;
+    let versionCompareFailed = false;
+    try {
+      meetsMinimum = util.compareVersions(currentBazelVersion, '>=', minBazelVersion);
+    } catch (err) {
+      versionCompareFailed = true;
+      log.warn(
+        `Could not compare Bazel versions (${currentBazelVersion} vs minimum ${minBazelVersion}): ${err.message}. ` +
+        `Trying bazelisk...`
+      );
+    }
+    if (meetsMinimum) {
+      bazelCommand = 'bazel';
+      log.info(`Bazel ${currentBazelVersion} (minimum ${minBazelVersion}) will be used to build atoms.`);
+      return;
+    }
+    if (!versionCompareFailed) {
+      log.warn(
+        `Found bazel ${currentBazelVersion}, but Selenium needs at least ${minBazelVersion}. Trying bazelisk...`
+      );
+    }
   }
-  // e.g. "bazel 7.4.1"
-  const currentBazelVersion = result.stdout.trim().split(' ')[1];
-  if (currentBazelVersion !== bazelVersion) {
-    throw new Error(`Please setup Bazel ${bazelVersion} runtime environment. ` +
-      `Current available version is ${currentBazelVersion}`);
+  try {
+    bazeliskVersionResult = await exec('bazelisk', ['--version']);
+  } catch (e) {
+    bazeliskVersionErr = e.stderr || e.message;
   }
-  log.info(`Bazel ${bazelVersion} will be used to build atoms.`);
+  if (bazeliskVersionErr || bazeliskVersionResult.stderr) {
+    throw new Error(
+      `Please install Bazel ${minBazelVersion} or newer by following https://bazel.build/install, ` +
+      `or install bazelisk (https://github.com/bazelbuild/bazelisk). ` +
+      `Original errors: bazel='${bazelVersionErr || bazelVersionResult?.stderr || 'unknown'}', ` +
+      `bazelisk='${bazeliskVersionErr || bazeliskVersionResult?.stderr || 'unknown'}'`
+    );
+  }
+  bazelCommand = 'bazelisk';
+  log.info(`Bazelisk will be used to build atoms (Selenium minimum Bazel ${minBazelVersion}).`);
 }
 
 /**
@@ -97,7 +151,7 @@ async function atomsCleanDir () {
  */
 async function atomsClean () {
   log.info('Building atoms');
-  await exec('bazel', ['clean'], {cwd: SELENIUM_DIRECTORY});
+  await exec(bazelCommand, ['clean'], {cwd: SELENIUM_DIRECTORY, env: getBazelEnv()});
 }
 
 /**
@@ -133,7 +187,7 @@ async function atomsBuild () {
     BAZEL_WD_ATOMS_INJECT_TARGET,
   ]) {
     log.info(`Running bazel build for ${target}`);
-    await exec('bazel', ['build', target], {cwd: SELENIUM_DIRECTORY});
+    await exec(bazelCommand, ['build', target], {cwd: SELENIUM_DIRECTORY, env: getBazelEnv()});
   }
   log.info(`Bazel builds complete`);
 }
