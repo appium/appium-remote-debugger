@@ -1,3 +1,9 @@
+## [15.7.0](https://github.com/appium/appium-remote-debugger/compare/v15.6.0...v15.7.0) (2026-04-17)
+
+### Features
+
+* Add automated atoms compilation script ([#485](https://github.com/appium/appium-remote-debugger/issues/485)) ([aa129f4](https://github.com/appium/appium-remote-debugger/commit/aa129f42beade3f6e1682430d281249eb2f6250d))
+
 ## [15.6.0](https://github.com/appium/appium-remote-debugger/compare/v15.5.0...v15.6.0) (2026-03-10)
 
 ### Features
