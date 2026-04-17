@@ -1,3 +1,9 @@
+## [15.7.1](https://github.com/appium/appium-remote-debugger/compare/v15.7.0...v15.7.1) (2026-04-17)
+
+### Miscellaneous Chores
+
+* **atoms:** update Selenium atoms from trunk ([#486](https://github.com/appium/appium-remote-debugger/issues/486)) ([16b7a89](https://github.com/appium/appium-remote-debugger/commit/16b7a896f98167de560c70aaf03c965b83e01b02))
+
 ## [15.7.0](https://github.com/appium/appium-remote-debugger/compare/v15.6.0...v15.7.0) (2026-04-17)
 
 ### Features
