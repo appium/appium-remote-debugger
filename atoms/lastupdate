@@ -1,20 +1,9 @@
-Tue Mar 11 2025 23:28:51 GMT-0700 (Pacific Daylight Time)
+commit eb427221db8a7d0fb2724efcd5c7b6a756517d54 (grafted, HEAD -> refs/heads/trunk, refs/remotes/origin/trunk)
+Author: Selenium CI Bot <diemol+selenium-ci@gmail.com>
+Date:   Fri Apr 17 03:02:43 2026 +0200
 
-commit 9b1e83ce6409086413b1cd7ffe6da502ac9d11f1 (grafted, HEAD -> refs/heads/trunk, tag: refs/tags/nightly, refs/remotes/origin/trunk, refs/remotes/origin/HEAD)
-Author: Adam Halbrock <halbrock@gmail.com>
-Date:   Tue Mar 11 14:36:50 2025 -0400
-
-    Issue 12549 fix atoms generation lowdash (#15247)
+    [dotnet][rb][java][js][py] Automated Browser Version Update (#17356)
     
-    * Updating the atom frament bazel file so that "_" is not used as the exported function, also passing in entire window so that all pieces should have access to what they need.
+    Update pinned browser versions
     
-    * Added the exported function name to the string substitution list.  Atoms build now.
-    
-    * Properly adding the exported function variable to the wrapper.
-    
-    * Updated exported symbol to relate to selenium for namespacing purposes, updating single quotes to to double for linting check.
-    
-    ---------
-    
-    Co-authored-by: Sri Harsha <12621691+harsha509@users.noreply.github.com>
-    Co-authored-by: David Burns <david.burns@theautomatedtester.co.uk>
+    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>
