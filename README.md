@@ -21,23 +21,10 @@ The steps to using the `RemoteDebugger` involve instantiating an object, then ru
 
 ## Selenium "atoms"
 
-The remote debugger uses the standard [Selenium Atoms](https://github.com/SeleniumHQ/selenium/tree/master/javascript/atoms)
-to interact with web pages. These need to be manually updated when necessary.
-To do so, simply update the branch in the `scripts/common.mjs`, by modifying the `SELENIUM_BRANCH`
-constant at the top of the file and commit them to explicitly leaves the latest target branch information.
-Then run `npm run build:atoms`, test and create a pull request with the resulting changed atoms directory.
+The remote debugger uses the standard [Selenium JavaScript atoms](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/atoms)
+to interact with web pages.
 
-You can set `SELENIUM_GITHUB` and `SELENIUM_BRANCH` environment variables with the npm command to
-customize the target repository and the target branch.
-
-Note that to build the atoms it is required that you have the `bazel` tool installed. Selenium will
-also require that it be installed at a particular version relative to the version of Selenium that
-has been checked out by our build script. It is most convenient simply to install
-[`bazelisk`](https://github.com/bazelbuild/bazelisk) and have it available on your PATH.
-
-One caveat is that there are some changes that are needed for Appium, that are
-not yet in the Selenium codebase. See the [atoms notes](./atoms-notes.md) for
-details.
+To refresh the bundled `atoms/` output, use the **Update Selenium Atoms** manual workflow ([`.github/workflows/update-atoms.yml`](./.github/workflows/update-atoms.yml)) in the GitHub Actions tab, or build locally. Full steps, inputs, and tooling are documented in **[docs/update-atoms.md](./docs/update-atoms.md)**.
 
 ## Test
 
