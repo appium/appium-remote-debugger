@@ -50,7 +50,7 @@ You can override the clone target without editing `scripts/common.mjs`:
 
 | Variable | Purpose |
 |----------|---------|
-| `SELENIUM_BRANCH` | Branch or ref (default in script: `trunk`). If you set `main` and that ref does not exist upstream, the script falls back to `trunk`. |
+| `SELENIUM_BRANCH` | Branch or ref to clone (default in script: `trunk`). If the specified ref does not exist upstream, the clone fails. |
 | `SELENIUM_GITHUB` | Repository URL (default: `https://github.com/SeleniumHQ/selenium.git`). |
 
 Example:
