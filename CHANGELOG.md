@@ -1,3 +1,9 @@
+## [15.7.2](https://github.com/appium/appium-remote-debugger/compare/v15.7.1...v15.7.2) (2026-04-17)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump typescript from 5.9.3 to 6.0.3 ([#487](https://github.com/appium/appium-remote-debugger/issues/487)) ([6696ac8](https://github.com/appium/appium-remote-debugger/commit/6696ac8927ffd28c35825303279baf2719c3696d))
+
 ## [15.7.1](https://github.com/appium/appium-remote-debugger/compare/v15.7.0...v15.7.1) (2026-04-17)
 
 ### Miscellaneous Chores
