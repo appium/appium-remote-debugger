@@ -1,3 +1,9 @@
+## [15.8.0](https://github.com/appium/appium-remote-debugger/compare/v15.7.3...v15.8.0) (2026-04-27)
+
+### Features
+
+* Ditch bluebird and lodash ([#490](https://github.com/appium/appium-remote-debugger/issues/490)) ([a0bb8b1](https://github.com/appium/appium-remote-debugger/commit/a0bb8b1349810d7e40405c0c5eb47198ab514029))
+
 ## [15.7.3](https://github.com/appium/appium-remote-debugger/compare/v15.7.2...v15.7.3) (2026-04-22)
 
 ### Miscellaneous Chores
