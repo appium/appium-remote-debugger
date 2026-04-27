@@ -35,11 +35,9 @@
     "@appium/base-driver": "^10.0.0-rc.1",
     "@appium/support": "^7.0.0-rc.1",
     "appium-ios-device": "^3.0.0",
-    "asyncbox": "^6.1.0",
     "async-lock": "^1.4.1",
-    "bluebird": "^3.4.7",
+    "asyncbox": "^6.1.0",
     "glob": "^13.0.0",
-    "lodash": "^4.17.11",
     "teen_process": "^4.0.4"
   },
   "optionalDependencies": {
@@ -74,8 +72,6 @@
     "@appium/types": "^1.0.0-rc.1",
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/git": "^10.0.1",
-    "@types/bluebird": "^3.5.38",
-    "@types/lodash": "^4.14.196",
     "@types/mocha": "^10.0.1",
     "@types/node": "^25.0.0",
     "appium-ios-simulator": "^8.0.0",
@@ -87,8 +83,8 @@
     "mocha-multi-reporters": "^1.5.1",
     "node-simctl": "^8.0.0",
     "prettier": "^3.0.0",
-    "serve-static": "^2.2.0",
     "semantic-release": "^25.0.2",
+    "serve-static": "^2.2.0",
     "sinon": "^21.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^6.0.3"

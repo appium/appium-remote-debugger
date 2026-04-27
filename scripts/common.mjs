@@ -40,6 +40,48 @@ const ATOMS_DIRECTORY = path.resolve(WORKING_ROOT_DIR, 'atoms');
 const LAST_UPDATE_FILE = path.resolve(ATOMS_DIRECTORY, 'lastupdate');
 let bazelCommand;
 
+/**
+ * Clone the target selenium repository and branch into the temporary directory.
+ */
+export async function seleniumClone () {
+  await seleniumMkdir();
+  await seleniumClean();
+  const cloneArgs = (branch) => ([
+    'clone',
+    `--branch=${branch}`,
+    '--depth=1',
+    SELENIUM_GITHUB,
+    SELENIUM_DIRECTORY,
+  ]);
+
+  log.info(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
+  await exec('git', cloneArgs(SELENIUM_BRANCH));
+}
+
+/**
+ * Builds Selenium atoms and imports them into this repository.
+ *
+ * @param {boolean} shouldClean - Whether to run `bazel clean` before building.
+ */
+export async function importAtoms(shouldClean) {
+  await checkBazel();
+  await atomsCleanDir();
+  if (shouldClean) {
+    await atomsClean();
+  }
+  await atomsMkdir();
+  await atomsBuild();
+  const bazelOutDir = await getBazelOutDir();
+  const atomsDir = path.resolve(bazelOutDir, BAZEL_WD_ATOMS_DIR);
+  const atomsInjectDir = path.resolve(bazelOutDir, BAZEL_WD_ATOMS_INJECT_DIR);
+  const fragmentsDir = path.resolve(bazelOutDir, BAZEL_FRAGMENTS_DIR);
+  await atomsCopyAtoms(fragmentsDir);
+  // copy fragments first and atoms later so atoms overwrite fragments
+  await atomsCopyAtoms(atomsDir);
+  await atomsCopyAtoms(atomsInjectDir);
+  await atomsTimestamp();
+}
+
 function getBazelEnv() {
   // Selenium atoms build does not require Android SDK. If these env vars are set locally,
   // Bazel may try to auto-configure Android toolchains and fail on host-specific SDK issues.
@@ -65,24 +107,6 @@ async function seleniumClean () {
   log.info(`Cleaning '${SELENIUM_DIRECTORY}'`);
   await fs.rimraf(SELENIUM_DIRECTORY);
 }
-
-/**
- * Clone the target selenium repository and branch into the temporary directory.
- */
-export async function seleniumClone () {
-  await seleniumMkdir();
-  await seleniumClean();
-  const cloneArgs = (branch) => ([
-    'clone',
-    `--branch=${branch}`,
-    '--depth=1',
-    SELENIUM_GITHUB,
-    SELENIUM_DIRECTORY,
-  ]);
-
-  log.info(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
-  await exec('git', cloneArgs(SELENIUM_BRANCH));
-};
 
 /**
  * Check bazel version if current available bazel version on the host machine
@@ -228,23 +252,4 @@ async function atomsTimestamp () {
   log.info(`Recording Selenium revision in atoms dir`);
   const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
   await fs.writeFile(LAST_UPDATE_FILE, Buffer.from(stdout.trimEnd() + '\n'));
-}
-
-export async function importAtoms(shouldClean) {
-  await checkBazel();
-  await atomsCleanDir();
-  if (shouldClean) {
-    await atomsClean();
-  }
-  await atomsMkdir();
-  await atomsBuild();
-  const bazelOutDir = await getBazelOutDir();
-  const atomsDir = path.resolve(bazelOutDir, BAZEL_WD_ATOMS_DIR);
-  const atomsInjectDir = path.resolve(bazelOutDir, BAZEL_WD_ATOMS_INJECT_DIR);
-  const fragmentsDir = path.resolve(bazelOutDir, BAZEL_FRAGMENTS_DIR);
-  await atomsCopyAtoms(fragmentsDir);
-  // copy fragments first and atoms later so atoms overwrite fragments
-  await atomsCopyAtoms(atomsDir);
-  await atomsCopyAtoms(atomsInjectDir);
-  await atomsTimestamp();
 };

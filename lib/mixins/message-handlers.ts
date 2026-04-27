@@ -1,6 +1,5 @@
 import {events} from './events';
-import {pageArrayFromDict, appInfoFromDict} from '../utils';
-import _ from 'lodash';
+import {deepEqual, defaults, isEmpty, pageArrayFromDict, appInfoFromDict} from '../utils';
 import {
   setAppIdKey,
   getAppDict,
@@ -35,7 +34,7 @@ export async function onPageChange(
   appIdKey: string,
   pageDict: StringRecord,
 ): Promise<void> {
-  if (_.isEmpty(pageDict)) {
+  if (isEmpty(pageDict)) {
     return;
   }
 
@@ -44,7 +43,7 @@ export async function onPageChange(
   if (getAppDict(this)[appIdKey]) {
     const previousPages = getAppDict(this)[appIdKey].pageArray;
     // we have a pre-existing pageDict
-    if (previousPages && _.isEqual(previousPages, currentPages)) {
+    if (previousPages && deepEqual(previousPages, currentPages)) {
       this.log.debug(
         `Received page change notice for app '${appIdKey}' ` +
           `but the listing has not changed. Ignoring.`,
@@ -116,7 +115,7 @@ export function onAppDisconnect(
     setAppIdKey(this, getDebuggerAppKey.bind(this)(getBundleId(this) as string));
   }
 
-  if (_.isEmpty(getAppDict(this))) {
+  if (isEmpty(getAppDict(this))) {
     // this means we no longer have any apps. what the what?
     this.log.debug('Main app disconnected. Disconnecting altogether.');
     this.emit(events.EVENT_DISCONNECT, true);
@@ -193,12 +192,12 @@ export async function onConnectedApplicationList(
   err: Error | null | undefined,
   apps: StringRecord,
 ): Promise<void> {
-  this.log.debug(`Received connected applications list: ${_.keys(apps).join(', ')}`);
+  this.log.debug(`Received connected applications list: ${Object.keys(apps).join(', ')}`);
 
   // translate the received information into an easier-to-manage
   // hash with app id as key, and app info as value
   const newDict: AppDict = {};
-  for (const dict of _.values(apps)) {
+  for (const dict of Object.values(apps)) {
     const [id, entry] = appInfoFromDict(dict);
     if (getSkippedApps(this).includes(entry.name)) {
       continue;
@@ -206,7 +205,7 @@ export async function onConnectedApplicationList(
     newDict[id] = entry;
   }
   // update the object's list of apps
-  _.defaults(getAppDict(this), newDict);
+  Object.assign(getAppDict(this), defaults(getAppDict(this), newDict));
 }
 
 /**
@@ -220,7 +219,7 @@ export async function onConnectedApplicationList(
  */
 export function getDebuggerAppKey(this: RemoteDebugger, bundleId: string): string | undefined {
   let appId: string | undefined;
-  for (const [key, data] of _.toPairs(getAppDict(this))) {
+  for (const [key, data] of Object.entries(getAppDict(this))) {
     if (data.bundleId === bundleId) {
       appId = key;
       break;
@@ -230,7 +229,7 @@ export function getDebuggerAppKey(this: RemoteDebugger, bundleId: string): strin
   if (appId) {
     this.log.debug(`Found app id key '${appId}' for bundle '${bundleId}'`);
     let proxyAppId: string | undefined;
-    for (const [key, data] of _.toPairs(getAppDict(this))) {
+    for (const [key, data] of Object.entries(getAppDict(this))) {
       if (data.isProxy && data.hostId === appId) {
         this.log.debug(
           `Found separate bundleId '${data.bundleId}' ` +

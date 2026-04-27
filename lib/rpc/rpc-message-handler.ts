@@ -1,6 +1,6 @@
 import {EventEmitter} from 'node:events';
 import {log} from '../logger';
-import _ from 'lodash';
+import {isPlainObject, truncateString} from '../utils';
 import {util} from '@appium/support';
 import type {StringRecord} from '@appium/types';
 
@@ -106,7 +106,7 @@ export default class RpcMessageHandler extends EventEmitter {
     try {
       return JSON.parse(plist.__argument.WIRMessageDataKey.toString('utf8'));
     } catch (err: any) {
-      log.error(`Unparseable message data: ${_.truncate(JSON.stringify(plist), {length: 100})}`);
+      log.error(`Unparseable message data: ${truncateString(JSON.stringify(plist), 100)}`);
       throw new Error(`Unable to parse message data: ${err.message}`);
     }
   }
@@ -132,7 +132,7 @@ export default class RpcMessageHandler extends EventEmitter {
   ): Promise<void> {
     if (msgId) {
       if (this.listenerCount(msgId)) {
-        if (_.has(result?.result, 'value')) {
+        if (Object.hasOwn(result?.result ?? {}, 'value')) {
           result = result.result.value;
         }
         this.emit(msgId, error, result);
@@ -173,12 +173,12 @@ export default class RpcMessageHandler extends EventEmitter {
         break;
     }
 
-    if (method && _.startsWith(method, 'Network.')) {
+    if (method?.startsWith('Network.')) {
       // aggregate Network events, and add original method name to the arguments
       eventNames.push('NetworkEvent');
       args.push(method);
     }
-    if (method && _.startsWith(method, 'Console.')) {
+    if (method?.startsWith('Console.')) {
       // aggregate Console events, and add original method name to the arguments
       eventNames.push('ConsoleEvent');
       args.push(method);
@@ -213,7 +213,7 @@ export default class RpcMessageHandler extends EventEmitter {
         return new Error(message);
       }
       if (dataKey.error) {
-        if (_.isPlainObject(dataKey.error)) {
+        if (isPlainObject(dataKey.error)) {
           const dataKeyError = dataKey.error as DataErrorMessage;
           const error = new Error(defaultMessage);
           for (const key of Object.keys(dataKeyError)) {
@@ -242,7 +242,7 @@ export default class RpcMessageHandler extends EventEmitter {
         if (!dataKey.error) {
           try {
             const message = JSON.parse(dataKey.params.message);
-            msgId = _.isUndefined(message.id) ? '' : String(message.id);
+            msgId = message.id === undefined ? '' : String(message.id);
             method = message.method;
             result = message.result || message;
             params = result.params;

@@ -10,6 +10,13 @@ export function createRemoteDebugger(
   opts: RemoteDebuggerOptions,
   realDevice: false,
 ): RemoteDebugger;
+/**
+ * Creates a remote debugger instance for either simulator or real device flows.
+ *
+ * @param opts - Configuration options for the selected debugger type.
+ * @param realDevice - Whether to create the real-device debugger implementation.
+ * @returns The initialized debugger instance for the selected target type.
+ */
 export function createRemoteDebugger(
   opts: RemoteDebuggerRealDeviceOptions | RemoteDebuggerOptions,
   realDevice: boolean,

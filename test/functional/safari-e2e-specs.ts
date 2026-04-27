@@ -2,7 +2,6 @@ import {Simctl} from 'node-simctl';
 import {getSimulator, Simulator} from 'appium-ios-simulator';
 import {retryInterval, retry} from 'asyncbox';
 import {util} from '@appium/support';
-import _ from 'lodash';
 import {createRemoteDebugger} from '../../lib';
 import {startHttpServer, stopHttpServer} from './http-server';
 import {RemoteDebugger} from '../../lib/remote-debugger';
@@ -24,7 +23,7 @@ async function getExistingSim(
 ): Promise<Simulator | null> {
   const devices = await new Simctl().getDevices(platformVersion);
 
-  for (const device of _.values(devices)) {
+  for (const device of Object.values(devices)) {
     if (device.name === deviceName) {
       return await getSimulator(device.udid);
     }
@@ -91,7 +90,7 @@ describe('Safari remote debugger', function () {
     const maxRetries = process.env.CI ? 10 : 5;
     await retry(maxRetries, async () => await sim.openUrl(address));
     await retry(maxRetries, async () => {
-      if (_.isEmpty(await rd.connect(60000))) {
+      if (Object.keys(await rd.connect(60000)).length === 0) {
         await rd.disconnect();
         throw new Error('The remote debugger did not return any connected applications');
       }
@@ -103,7 +102,7 @@ describe('Safari remote debugger', function () {
   });
 
   async function selectTestPage(): Promise<void> {
-    const page = _.find(await rd.selectApp(address), (page) => page.title === PAGE_TITLE);
+    const page = (await rd.selectApp(address)).find((page) => page.title === PAGE_TITLE);
     if (!page) {
       throw new Error('Test page not found');
     }
@@ -114,7 +113,7 @@ describe('Safari remote debugger', function () {
 
   it('should be able to connect and get app', async function () {
     const pageArray = await rd.selectApp(address);
-    expect(_.filter(pageArray, (page) => page.title === PAGE_TITLE)).to.have.length.at.least(1);
+    expect(pageArray.filter((page) => page.title === PAGE_TITLE)).to.have.length.at.least(1);
   });
 
   it('should be able to execute an atom', async function () {
