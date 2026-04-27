@@ -278,9 +278,10 @@ export function simpleStringify(value: any, multiline: boolean = false): string 
     return JSON.stringify(value);
   }
 
-  const cleanValue = value && (typeof value === 'object' || typeof value === 'function')
-    ? removeNoisyProperties(structuredClone(value))
-    : value;
+  const cleanValue =
+    value && (typeof value === 'object' || typeof value === 'function')
+      ? removeNoisyProperties(structuredClone(value))
+      : value;
   return multiline ? JSON.stringify(cleanValue, null, 2) : JSON.stringify(cleanValue);
 }
 
@@ -306,7 +307,7 @@ export function convertJavascriptEvaluationResult(res: any): any {
       // we might get a serialized object, but we might not
       // if we get here, it is just a value
     }
-  } else if (typeof res !== 'object' && typeof res !== 'function' || res === null) {
+  } else if ((typeof res !== 'object' && typeof res !== 'function') || res === null) {
     throw new Error(`Result has unexpected type: (${typeof res}).`);
   }
 
