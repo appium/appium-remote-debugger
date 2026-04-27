@@ -187,21 +187,21 @@ export class RpcClient {
   }
 
   /**
-   * Sets the connection status.
-   *
-   * @param connected - The connection status to set.
-   */
-  set isConnected(connected: boolean) {
-    this.connected = !!connected;
-  }
-
-  /**
    * Gets the event emitter for target subscriptions.
    *
    * @returns The target subscriptions event emitter.
    */
   get targetSubscriptions(): EventEmitter {
     return this._targetSubscriptions;
+  }
+
+  /**
+   * Sets the connection status.
+   *
+   * @param connected - The connection status to set.
+   */
+  set isConnected(connected: boolean) {
+    this.connected = !!connected;
   }
 
   /**
@@ -878,6 +878,124 @@ export class RpcClient {
   }
 
   /**
+   * Connects to a specific application and returns its page dictionary.
+   *
+   * @param appIdKey - The application identifier key to connect to.
+   * @returns A promise that resolves to a tuple containing the connected app ID key
+   *          and the page dictionary.
+   * @throws Error if a new application connects during the process or if the page
+   *               dictionary is empty.
+   */
+  async selectApp(appIdKey: AppIdKey): Promise<[string, StringRecord]> {
+    return await new B<[string, StringRecord]>((resolve, reject) => {
+      // local callback, temporarily added as callback to
+      // `_rpc_applicationConnected:` remote debugger response
+      // to handle the initial connection
+      const onAppChange = (err: Error | null, dict: StringRecord) => {
+        if (err) {
+          return reject(err);
+        }
+        // from the dictionary returned, get the ids
+        const oldAppIdKey = dict.WIRHostApplicationIdentifierKey;
+        const correctAppIdKey = dict.WIRApplicationIdentifierKey;
+
+        // if this is a report of a proxy redirect from the remote debugger
+        // we want to update our dictionary and get a new app id
+        if (oldAppIdKey && correctAppIdKey !== oldAppIdKey) {
+          log.debug(
+            `We were notified we might have connected to the wrong app. ` +
+              `Using id ${correctAppIdKey} instead of ${oldAppIdKey}`,
+          );
+        }
+
+        reject(new Error(NEW_APP_CONNECTED_ERROR));
+      };
+      this.messageHandler.prependOnceListener('_rpc_applicationConnected:', onAppChange);
+
+      // do the actual connecting to the app
+      void (async () => {
+        try {
+          const [connectedAppIdKey, pageDict] = await this.send('connectToApp', {appIdKey});
+          // sometimes the connect logic happens, but with an empty dictionary
+          // which leads to the remote debugger getting disconnected, and into a loop
+          if (_.isEmpty(pageDict)) {
+            reject(new Error(EMPTY_PAGE_DICTIONARY_ERROR));
+          } else {
+            resolve([connectedAppIdKey, pageDict]);
+          }
+        } catch (err: any) {
+          log.warn(`Unable to connect to the app: ${err.message}`);
+          reject(err);
+        } finally {
+          this.messageHandler.off('_rpc_applicationConnected:', onAppChange);
+        }
+      })();
+    });
+  }
+
+  /**
+   * Handles execution context creation events by storing the context ID.
+   *
+   * @param err - Error if one occurred, undefined otherwise.
+   * @param context - The execution context information.
+   */
+  onExecutionContextCreated(err: Error | undefined, context: {id: number}): void {
+    // { id: 2, isPageContext: true, name: '', frameId: '0.1' }
+    // right now we have no way to map contexts to apps/pages
+    // so just store
+    this.contexts.push(context.id);
+  }
+
+  /**
+   * Handles garbage collection events by logging them.
+   * Garbage collection can affect operation timing.
+   */
+  onGarbageCollected(): void {
+    // just want to log that this is happening, as it can affect operation
+    log.debug(`Web Inspector garbage collected`);
+  }
+
+  /**
+   * Handles script parsing events by logging script information.
+   *
+   * @param err - Error if one occurred, undefined otherwise.
+   * @param scriptInfo - Information about the parsed script.
+   */
+  onScriptParsed(err: Error | undefined, scriptInfo: StringRecord): void {
+    // { scriptId: '13', url: '', startLine: 0, startColumn: 0, endLine: 82, endColumn: 3 }
+    log.debug(`Script parsed: ${JSON.stringify(scriptInfo)}`);
+  }
+
+
+  /**
+   * Waits for a page to be initialized by acquiring locks on both the page
+   * target lock and the page selection lock.
+   *
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key.
+   * @throws Error if no targets are found for the application.
+   */
+  async waitForPage(appIdKey: AppIdKey, pageIdKey: PageIdKey): Promise<void> {
+    const appTargetsMap = this.targets[appIdKey];
+    if (!appTargetsMap) {
+      throw new Error(`No targets found for app '${appIdKey}'`);
+    }
+    const lock = appTargetsMap.lock;
+    const timer = new timing.Timer().start();
+    await Promise.all([
+      lock.acquire(pageIdKey, async () => await B.delay(0)),
+      this._pageSelectionLock.acquire(
+        toPageSelectionKey(appIdKey, pageIdKey),
+        async () => await B.delay(0),
+      ),
+    ]);
+    const durationMs = timer.getDuration().asMilliSeconds;
+    if (durationMs > 10) {
+      log.debug(`Waited ${durationMs}ms until the page ${pageIdKey}@${appIdKey} is initialized`);
+    }
+  }
+
+  /**
    * Initializes a page by enabling various Web Inspector domains.
    * Can perform either simple or full initialization based on configuration.
    * Mimics the steps that Desktop Safari Develop tools uses to initialize
@@ -1029,95 +1147,6 @@ export class RpcClient {
   }
 
   /**
-   * Connects to a specific application and returns its page dictionary.
-   *
-   * @param appIdKey - The application identifier key to connect to.
-   * @returns A promise that resolves to a tuple containing the connected app ID key
-   *          and the page dictionary.
-   * @throws Error if a new application connects during the process or if the page
-   *               dictionary is empty.
-   */
-  async selectApp(appIdKey: AppIdKey): Promise<[string, StringRecord]> {
-    return await new B<[string, StringRecord]>((resolve, reject) => {
-      // local callback, temporarily added as callback to
-      // `_rpc_applicationConnected:` remote debugger response
-      // to handle the initial connection
-      const onAppChange = (err: Error | null, dict: StringRecord) => {
-        if (err) {
-          return reject(err);
-        }
-        // from the dictionary returned, get the ids
-        const oldAppIdKey = dict.WIRHostApplicationIdentifierKey;
-        const correctAppIdKey = dict.WIRApplicationIdentifierKey;
-
-        // if this is a report of a proxy redirect from the remote debugger
-        // we want to update our dictionary and get a new app id
-        if (oldAppIdKey && correctAppIdKey !== oldAppIdKey) {
-          log.debug(
-            `We were notified we might have connected to the wrong app. ` +
-              `Using id ${correctAppIdKey} instead of ${oldAppIdKey}`,
-          );
-        }
-
-        reject(new Error(NEW_APP_CONNECTED_ERROR));
-      };
-      this.messageHandler.prependOnceListener('_rpc_applicationConnected:', onAppChange);
-
-      // do the actual connecting to the app
-      (async () => {
-        try {
-          const [connectedAppIdKey, pageDict] = await this.send('connectToApp', {appIdKey});
-          // sometimes the connect logic happens, but with an empty dictionary
-          // which leads to the remote debugger getting disconnected, and into a loop
-          if (_.isEmpty(pageDict)) {
-            reject(new Error(EMPTY_PAGE_DICTIONARY_ERROR));
-          } else {
-            resolve([connectedAppIdKey, pageDict]);
-          }
-        } catch (err: any) {
-          log.warn(`Unable to connect to the app: ${err.message}`);
-          reject(err);
-        } finally {
-          this.messageHandler.off('_rpc_applicationConnected:', onAppChange);
-        }
-      })();
-    });
-  }
-
-  /**
-   * Handles execution context creation events by storing the context ID.
-   *
-   * @param err - Error if one occurred, undefined otherwise.
-   * @param context - The execution context information.
-   */
-  onExecutionContextCreated(err: Error | undefined, context: {id: number}): void {
-    // { id: 2, isPageContext: true, name: '', frameId: '0.1' }
-    // right now we have no way to map contexts to apps/pages
-    // so just store
-    this.contexts.push(context.id);
-  }
-
-  /**
-   * Handles garbage collection events by logging them.
-   * Garbage collection can affect operation timing.
-   */
-  onGarbageCollected(): void {
-    // just want to log that this is happening, as it can affect operation
-    log.debug(`Web Inspector garbage collected`);
-  }
-
-  /**
-   * Handles script parsing events by logging script information.
-   *
-   * @param err - Error if one occurred, undefined otherwise.
-   * @param scriptInfo - Information about the parsed script.
-   */
-  onScriptParsed(err: Error | undefined, scriptInfo: StringRecord): void {
-    // { scriptId: '13', url: '', startLine: 0, startColumn: 0, endLine: 82, endColumn: 3 }
-    log.debug(`Script parsed: ${JSON.stringify(scriptInfo)}`);
-  }
-
-  /**
    * Resumes a paused target.
    *
    * @param appIdKey - The application identifier key.
@@ -1196,34 +1225,6 @@ export class RpcClient {
       `Page '${pageIdKey}' for app '${appIdKey}' is not ready after ` +
         `${timer.getDuration().asMilliSeconds}ms. Continuing anyway`,
     );
-  }
-
-  /**
-   * Waits for a page to be initialized by acquiring locks on both the page
-   * target lock and the page selection lock.
-   *
-   * @param appIdKey - The application identifier key.
-   * @param pageIdKey - The page identifier key.
-   * @throws Error if no targets are found for the application.
-   */
-  async waitForPage(appIdKey: AppIdKey, pageIdKey: PageIdKey): Promise<void> {
-    const appTargetsMap = this.targets[appIdKey];
-    if (!appTargetsMap) {
-      throw new Error(`No targets found for app '${appIdKey}'`);
-    }
-    const lock = appTargetsMap.lock;
-    const timer = new timing.Timer().start();
-    await Promise.all([
-      lock.acquire(pageIdKey, async () => await B.delay(0)),
-      this._pageSelectionLock.acquire(
-        toPageSelectionKey(appIdKey, pageIdKey),
-        async () => await B.delay(0),
-      ),
-    ]);
-    const durationMs = timer.getDuration().asMilliSeconds;
-    if (durationMs > 10) {
-      log.debug(`Waited ${durationMs}ms until the page ${pageIdKey}@${appIdKey} is initialized`);
-    }
   }
 
   /**

@@ -75,10 +75,6 @@ export interface RemoteDebuggerOptions {
   log?: AppiumLogger;
 }
 
-interface RemoteDebuggerRealDeviceSpecificOptions {
-  udid: string;
-}
-
 export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions &
   RemoteDebuggerOptions;
 
@@ -110,9 +106,9 @@ export interface RpcClientSimulatorOptions {
 }
 
 export type AppIdKey = string | number;
+
 export type PageIdKey = string | number;
 export type TargetId = string;
-
 export interface RemoteCommandId {
   id: string;
 }
@@ -135,26 +131,8 @@ export interface ProtocolCommandOpts {
   params: StringRecord;
 }
 
-type SocketDataKey = Buffer | StringRecord;
-
-interface RemoteCommandArgument<T extends SocketDataKey> {
-  WIRSocketDataKey?: T;
-  WIRConnectionIdentifierKey?: string;
-  WIRSenderKey?: string;
-  WIRApplicationIdentifierKey?: AppIdKey;
-  WIRPageIdentifierKey?: PageIdKey;
-  WIRMessageDataTypeKey?: string;
-  WIRDestinationKey?: string;
-  WIRMessageDataKey?: string;
-  [key: string]: any;
-}
-
-interface RemoteCommandTemplated<T extends SocketDataKey> {
-  __argument: RemoteCommandArgument<T>;
-  __selector: string;
-}
-
 export type RawRemoteCommand = RemoteCommandTemplated<StringRecord>;
+
 export type RemoteCommand = RemoteCommandTemplated<Buffer>;
 
 /**
@@ -174,4 +152,26 @@ export interface TargetInfo {
 export interface ProvisionalTargetInfo {
   oldTargetId: string;
   newTargetId: string;
+}
+interface RemoteDebuggerRealDeviceSpecificOptions {
+  udid: string;
+}
+
+type SocketDataKey = Buffer | StringRecord;
+
+interface RemoteCommandArgument<T extends SocketDataKey> {
+  WIRSocketDataKey?: T;
+  WIRConnectionIdentifierKey?: string;
+  WIRSenderKey?: string;
+  WIRApplicationIdentifierKey?: AppIdKey;
+  WIRPageIdentifierKey?: PageIdKey;
+  WIRMessageDataTypeKey?: string;
+  WIRDestinationKey?: string;
+  WIRMessageDataKey?: string;
+  [key: string]: any;
+}
+
+interface RemoteCommandTemplated<T extends SocketDataKey> {
+  __argument: RemoteCommandArgument<T>;
+  __selector: string;
 }

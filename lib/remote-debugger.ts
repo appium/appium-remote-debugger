@@ -21,39 +21,6 @@ const PAGE_READY_TIMEOUT_MS = 5000;
 const {version: MODULE_VERSION} = getModuleProperties();
 
 export class RemoteDebugger extends EventEmitter {
-  protected _skippedApps: string[];
-  protected _clientEventListeners: StringRecord<EventListener[]>;
-  protected _appDict: AppDict;
-  protected _appIdKey?: AppIdKey;
-  protected _pageIdKey?: PageIdKey;
-  protected _connectedDrivers?: StringRecord[];
-  protected _currentState?: string;
-  protected _pageLoadDelay?: B<void>;
-  protected _rpcClient: RpcClient | null;
-  protected _pageLoading: boolean;
-  protected _navigatingToPage: boolean;
-  protected _allowNavigationWithoutReload: boolean;
-  protected _pageLoadMs?: number;
-  protected readonly _pageLoadStrategy?: string;
-  protected readonly _log: AppiumLogger;
-  protected readonly _bundleId?: string;
-  protected readonly _additionalBundleIds?: string[];
-  protected readonly _ignoredBundleIds?: string[];
-  protected readonly _platformVersion?: string;
-  protected readonly _isSafari: boolean;
-  protected readonly _includeSafari: boolean;
-  protected readonly _garbageCollectOnExecute: boolean;
-  protected readonly _host?: string;
-  protected readonly _port?: number;
-  protected readonly _socketPath?: string;
-  protected readonly _remoteDebugProxy?: any;
-  protected readonly _pageReadyTimeout: number;
-  protected readonly _logAllCommunication: boolean;
-  protected readonly _logAllCommunicationHexDump: boolean;
-  protected readonly _socketChunkSize?: number;
-  protected readonly _webInspectorMaxFrameLength?: number;
-  protected readonly _fullPageInitialization?: boolean;
-
   // events
   static readonly EVENT_PAGE_CHANGE: string;
   static readonly EVENT_DISCONNECT: string;
@@ -90,7 +57,7 @@ export class RemoteDebugger extends EventEmitter {
   garbageCollect = miscellaneousMixins.garbageCollect;
   isJavascriptExecutionBlocked = miscellaneousMixins.isJavascriptExecutionBlocked;
 
-  // Callbacks
+  // callbacks
   onPageChange = messageHandlerMixins.onPageChange;
   onConnectedApplicationList = messageHandlerMixins.onConnectedApplicationList;
   onAppConnect = messageHandlerMixins.onAppConnect;
@@ -99,6 +66,39 @@ export class RemoteDebugger extends EventEmitter {
   onConnectedDriverList = messageHandlerMixins.onConnectedDriverList;
   onCurrentState = messageHandlerMixins.onCurrentState;
   frameDetached = navigationMixins.frameDetached;
+
+  protected _skippedApps: string[];
+  protected _clientEventListeners: StringRecord<EventListener[]>;
+  protected _appDict: AppDict;
+  protected _appIdKey?: AppIdKey;
+  protected _pageIdKey?: PageIdKey;
+  protected _connectedDrivers?: StringRecord[];
+  protected _currentState?: string;
+  protected _pageLoadDelay?: B<void>;
+  protected _rpcClient: RpcClient | null;
+  protected _pageLoading: boolean;
+  protected _navigatingToPage: boolean;
+  protected _allowNavigationWithoutReload: boolean;
+  protected _pageLoadMs?: number;
+  protected readonly _pageLoadStrategy?: string;
+  protected readonly _log: AppiumLogger;
+  protected readonly _bundleId?: string;
+  protected readonly _additionalBundleIds?: string[];
+  protected readonly _ignoredBundleIds?: string[];
+  protected readonly _platformVersion?: string;
+  protected readonly _isSafari: boolean;
+  protected readonly _includeSafari: boolean;
+  protected readonly _garbageCollectOnExecute: boolean;
+  protected readonly _host?: string;
+  protected readonly _port?: number;
+  protected readonly _socketPath?: string;
+  protected readonly _remoteDebugProxy?: any;
+  protected readonly _pageReadyTimeout: number;
+  protected readonly _logAllCommunication: boolean;
+  protected readonly _logAllCommunicationHexDump: boolean;
+  protected readonly _socketChunkSize?: number;
+  protected readonly _webInspectorMaxFrameLength?: number;
+  protected readonly _fullPageInitialization?: boolean;
 
   constructor(opts: RemoteDebuggerOptions = {}) {
     super();
@@ -168,6 +168,41 @@ export class RemoteDebugger extends EventEmitter {
     return this._log;
   }
 
+  get isConnected(): boolean {
+    return !!this._rpcClient?.isConnected;
+  }
+
+  // Only use this getter to read the appDict value.
+  // Any changes to it don't mutate the original property
+  // because the getter always returns the copy of it
+  get appDict(): AppDict {
+    return _.cloneDeep(this._appDict);
+  }
+
+  get allowNavigationWithoutReload(): boolean {
+    return !!this._allowNavigationWithoutReload;
+  }
+
+  get currentState(): string | undefined {
+    return this._currentState;
+  }
+
+  get connectedDrivers(): StringRecord[] | undefined {
+    return this._connectedDrivers;
+  }
+
+  get pageLoadMs(): number {
+    return this._pageLoadMs ?? navigationMixins.DEFAULT_PAGE_READINESS_TIMEOUT_MS;
+  }
+
+  set allowNavigationWithoutReload(allow: boolean) {
+    this._allowNavigationWithoutReload = allow;
+  }
+
+  set pageLoadMs(value: number) {
+    this._pageLoadMs = value;
+  }
+
   requireRpcClient(checkConnected: boolean = false): RpcClient {
     if (!this._rpcClient) {
       throw new Error(`rpcClient is undefined. Has 'initRpcClient' been called before?`);
@@ -229,40 +264,6 @@ export class RemoteDebugger extends EventEmitter {
     });
   }
 
-  get isConnected(): boolean {
-    return !!this._rpcClient?.isConnected;
-  }
-
-  // Only use this getter to read the appDict value.
-  // Any changes to it don't mutate the original property
-  // because the getter always returns the copy of it
-  get appDict(): AppDict {
-    return _.cloneDeep(this._appDict);
-  }
-
-  set allowNavigationWithoutReload(allow: boolean) {
-    this._allowNavigationWithoutReload = allow;
-  }
-
-  get allowNavigationWithoutReload(): boolean {
-    return !!this._allowNavigationWithoutReload;
-  }
-
-  get currentState(): string | undefined {
-    return this._currentState;
-  }
-
-  get connectedDrivers(): StringRecord[] | undefined {
-    return this._connectedDrivers;
-  }
-
-  get pageLoadMs(): number {
-    return this._pageLoadMs ?? navigationMixins.DEFAULT_PAGE_READINESS_TIMEOUT_MS;
-  }
-
-  set pageLoadMs(value: number) {
-    this._pageLoadMs = value;
-  }
 }
 
 for (const [name, event] of _.toPairs(eventMixins.events)) {

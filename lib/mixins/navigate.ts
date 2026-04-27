@@ -241,7 +241,7 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
 
     // Page.navigate was removed from the WebKit Inspector protocol since iOS 26.4
     // See https://github.com/appium/appium/issues/21976
-    rpcClient.send('Runtime.evaluate', {
+    void rpcClient.send('Runtime.evaluate', {
       expression: `window.location.href = ${JSON.stringify(url)};`,
       appIdKey,
       pageIdKey,
