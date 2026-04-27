@@ -257,7 +257,7 @@ export function appIdsForBundle(bundleId: string, appDict: AppDict): string[] {
 export function checkParams<T extends StringRecord>(params: T): T {
   // check if all parameters have a value
   const errors = Object.entries(params)
-    .filter(([, value]) => value === null || value === undefined)
+    .filter(([, value]) => value == null)
     .map(([param]) => param);
   if (errors.length) {
     throw new Error(`Missing ${util.pluralize('parameter', errors.length)}: ${errors.join(', ')}`);
@@ -278,8 +278,9 @@ export function simpleStringify(value: any, multiline: boolean = false): string 
     return JSON.stringify(value);
   }
 
-  const cleanValue =
-    value && typeof value === 'object' ? removeNoisyProperties(structuredClone(value)) : value;
+  const cleanValue = value && (typeof value === 'object' || typeof value === 'function')
+    ? removeNoisyProperties(structuredClone(value))
+    : value;
   return multiline ? JSON.stringify(cleanValue, null, 2) : JSON.stringify(cleanValue);
 }
 
@@ -305,11 +306,11 @@ export function convertJavascriptEvaluationResult(res: any): any {
       // we might get a serialized object, but we might not
       // if we get here, it is just a value
     }
-  } else if (typeof res !== 'object' || res === null) {
+  } else if (typeof res !== 'object' && typeof res !== 'function' || res === null) {
     throw new Error(`Result has unexpected type: (${typeof res}).`);
   }
 
-  if (res.status && res.status !== 0) {
+  if (Object.hasOwn(res, 'status') && res.status !== 0) {
     // we got some form of error.
     throw errorFromMJSONWPStatusCode(res.status, res.value.message || res.value);
   }

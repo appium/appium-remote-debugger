@@ -417,15 +417,15 @@ export class RpcClient {
         const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
 
         // retrieve the correct command to send
-      const fullOpts: RemoteCommandOpts & RemoteCommandId = defaults(
-        {
-          connId: this.connId,
-          senderId: this.senderId,
-          targetId,
-          id: msgId.toString(),
-        },
-        opts,
-      );
+        const fullOpts: RemoteCommandOpts & RemoteCommandId = defaults(
+          {
+            connId: this.connId,
+            senderId: this.senderId,
+            targetId,
+            id: msgId.toString(),
+          },
+          opts,
+        );
         let cmd: RawRemoteCommand;
         try {
           cmd = this.remoteMessages.getRemoteCommand(command, fullOpts);
