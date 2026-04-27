@@ -1,5 +1,4 @@
 import {log} from '../logger';
-import _ from 'lodash';
 import net from 'node:net';
 import {RpcClient} from './rpc-client';
 import {services} from 'appium-ios-device';
@@ -195,7 +194,7 @@ export class RpcClientSimulator extends RpcClient {
     }
 
     for (const key of ['WIRMessageDataKey', 'WIRDestinationKey', 'WIRSocketDataKey']) {
-      if (!_.isUndefined(data[key])) {
+      if (data[key] !== undefined) {
         data[key] = data[key].toString('utf8');
       }
     }

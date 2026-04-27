@@ -1,12 +1,19 @@
 import {RemoteMessages} from './remote-messages';
 import {waitForCondition} from 'asyncbox';
 import {log} from '../logger';
-import _ from 'lodash';
 import RpcMessageHandler from './rpc-message-handler';
 import {util, timing} from '@appium/support';
 import {EventEmitter} from 'node:events';
 import AsyncLock from 'async-lock';
-import {convertJavascriptEvaluationResult, delay, withTimeout} from '../utils';
+import {
+  convertJavascriptEvaluationResult,
+  delay,
+  defaults,
+  isEmpty,
+  isPlainObject,
+  truncateString,
+  withTimeout,
+} from '../utils';
 import type {StringRecord} from '@appium/types';
 import type {
   AppIdKey,
@@ -21,7 +28,7 @@ import type {
   RemoteCommandId,
 } from '../types';
 
-const DATA_LOG_LENGTH = {length: 200};
+const DATA_LOG_LENGTH = 200;
 const MIN_WAIT_FOR_TARGET_TIMEOUT_MS = 30000;
 const DEFAULT_TARGET_CREATION_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
 const WAIT_FOR_TARGET_INTERVAL_MS = 100;
@@ -318,7 +325,7 @@ export class RpcClient {
       await waitForCondition(
         () => {
           target = this.getTarget(appIdKey, pageIdKey);
-          return !_.isEmpty(target);
+          return !isEmpty(target);
         },
         {
           waitMs,
@@ -410,15 +417,15 @@ export class RpcClient {
         const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
 
         // retrieve the correct command to send
-        const fullOpts: RemoteCommandOpts & RemoteCommandId = _.defaults(
-          {
-            connId: this.connId,
-            senderId: this.senderId,
-            targetId,
-            id: msgId.toString(),
-          },
-          opts,
-        );
+      const fullOpts: RemoteCommandOpts & RemoteCommandId = defaults(
+        {
+          connId: this.connId,
+          senderId: this.senderId,
+          targetId,
+          id: msgId.toString(),
+        },
+        opts,
+      );
         let cmd: RawRemoteCommand;
         try {
           cmd = this.remoteMessages.getRemoteCommand(command, fullOpts);
@@ -427,16 +434,18 @@ export class RpcClient {
           return reject(err);
         }
 
+        const finalCommandArgs = {...cmd.__argument};
+        delete finalCommandArgs.WIRSocketDataKey;
         const finalCommand: RemoteCommand = {
-          __argument: _.omit(cmd.__argument, ['WIRSocketDataKey']) as any,
+          __argument: finalCommandArgs as any,
           __selector: cmd.__selector,
         };
 
-        const hasSocketData = _.isPlainObject(cmd.__argument?.WIRSocketDataKey);
+        const hasSocketData = isPlainObject(cmd.__argument?.WIRSocketDataKey);
         if (hasSocketData) {
           // make sure the message being sent has all the information that is needed
           const socketData = cmd.__argument.WIRSocketDataKey as StringRecord;
-          if (!_.isInteger(socketData.id)) {
+          if (!Number.isInteger(socketData.id)) {
             // ! This must be a number
             socketData.id = wrapperMsgId;
           }
@@ -454,7 +463,7 @@ export class RpcClient {
               // a protocol change. Log and check during testing
               log.error(
                 `Received error from send that is not being waited for (id: ${msgId}): ` +
-                  _.truncate(JSON.stringify(err), DATA_LOG_LENGTH),
+                  truncateString(JSON.stringify(err), DATA_LOG_LENGTH),
               );
               // reject, though it is very rare that this will be triggered, since
               // the promise is resolved directly after send. On the off chance,
@@ -470,7 +479,7 @@ export class RpcClient {
                 return reject(err);
               }
               log.debug(
-                `Received response from send (id: ${msgId}): '${_.truncate(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
+                `Received response from send (id: ${msgId}): '${truncateString(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
               );
               resolve(args);
             },
@@ -483,7 +492,7 @@ export class RpcClient {
               );
             }
             log.debug(
-              `Received data response from send (id: ${msgId}): '${_.truncate(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
+              `Received data response from send (id: ${msgId}): '${truncateString(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
             );
             resolve(value);
           });
@@ -560,7 +569,7 @@ export class RpcClient {
    * @param targetInfo - Information about the created target.
    */
   async addTarget(err: Error | undefined, app: AppIdKey, targetInfo: TargetInfo): Promise<void> {
-    if (_.isNil(targetInfo?.targetId)) {
+    if (targetInfo?.targetId == null) {
       log.info(`Received 'Target.targetCreated' event for app '${app}' with no target. Skipping`);
       return;
     }
@@ -571,7 +580,7 @@ export class RpcClient {
     }
     const {appIdKey, pageIdKey, pageReadinessDetector} = pendingPageTargetDetails;
 
-    if (!_.isPlainObject(this.targets[appIdKey])) {
+    if (!isPlainObject(this.targets[appIdKey])) {
       this.targets[appIdKey] = {
         lock: new AsyncLock({maxOccupationTime: this._targetCreationTimeoutMs}),
       } as PagesToTargets;
@@ -635,7 +644,7 @@ export class RpcClient {
     log.debug(
       `Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`,
     );
-    if (_.has(this.targets[appIdKey], pageIdKey)) {
+    if (Object.hasOwn(this.targets[appIdKey], pageIdKey)) {
       const existingTarget = this.targets[appIdKey][pageIdKey] as TargetId;
       log.debug(
         `There is already a target for this app and page ('${existingTarget}'). ` +
@@ -728,7 +737,7 @@ export class RpcClient {
    * @param targetInfo - Information about the destroyed target.
    */
   async removeTarget(err: Error | undefined, app: AppIdKey, targetInfo: TargetInfo): Promise<void> {
-    if (_.isNil(targetInfo?.targetId)) {
+    if (targetInfo?.targetId == null) {
       log.debug(`Received 'Target.targetDestroyed' event with no target. Skipping`);
       return;
     }
@@ -742,7 +751,7 @@ export class RpcClient {
 
       // we do not know the page, so go through and find the existing target
       const appTargetsMap = this.targets[app];
-      for (const [page, targetId] of _.toPairs(appTargetsMap)) {
+      for (const [page, targetId] of Object.entries(appTargetsMap)) {
         if (targetId === oldTargetId) {
           log.debug(
             `Found provisional target for app '${app}'. ` +
@@ -762,7 +771,7 @@ export class RpcClient {
 
     // if there is no waiting provisional target, just get rid of the existing one
     const targets = this.targets[app];
-    for (const [page, targetId] of _.toPairs(targets)) {
+    for (const [page, targetId] of Object.entries(targets)) {
       if (targetId === targetInfo.targetId) {
         delete targets[page];
         return;
@@ -920,7 +929,7 @@ export class RpcClient {
           const [connectedAppIdKey, pageDict] = await this.send('connectToApp', {appIdKey});
           // sometimes the connect logic happens, but with an empty dictionary
           // which leads to the remote debugger getting disconnected, and into a loop
-          if (_.isEmpty(pageDict)) {
+          if (isEmpty(pageDict)) {
             reject(new Error(EMPTY_PAGE_DICTIONARY_ERROR));
           } else {
             resolve([connectedAppIdKey, pageDict]);

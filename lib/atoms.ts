@@ -1,6 +1,5 @@
 import {fs} from '@appium/support';
 import path from 'node:path';
-import _ from 'lodash';
 import {log} from './logger';
 import {getModuleRoot} from './utils';
 
@@ -16,7 +15,7 @@ const ATOMS_CACHE: Record<string, Buffer> = {};
  */
 export async function getAtom(atomName: string): Promise<Buffer> {
   // check if we have already loaded and cached this atom
-  if (!_.has(ATOMS_CACHE, atomName)) {
+  if (!Object.hasOwn(ATOMS_CACHE, atomName)) {
     const atomFileName = path.resolve(getModuleRoot(), 'atoms', `${atomName}.js`);
     try {
       ATOMS_CACHE[atomName] = await fs.readFile(atomFileName);

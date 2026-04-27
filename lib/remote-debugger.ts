@@ -11,7 +11,6 @@ import * as screenshotMixins from './mixins/screenshot';
 import * as eventMixins from './mixins/events';
 import * as miscellaneousMixins from './mixins/misc';
 import {util} from '@appium/support';
-import _ from 'lodash';
 import type {RemoteDebuggerOptions, AppDict, EventListener, PageIdKey, AppIdKey} from './types';
 import type {AppiumLogger, StringRecord} from '@appium/types';
 import type {RpcClient} from './rpc/rpc-client';
@@ -146,13 +145,12 @@ export class RemoteDebugger extends EventEmitter {
     this._remoteDebugProxy = remoteDebugProxy;
     this._pageReadyTimeout = pageReadyTimeout;
 
-    this._logAllCommunication = _.isNil(logAllCommunication)
-      ? !!logFullResponse
-      : !!logAllCommunication;
+    this._logAllCommunication =
+      logAllCommunication == null ? !!logFullResponse : !!logAllCommunication;
     this._logAllCommunicationHexDump = logAllCommunicationHexDump;
     this._socketChunkSize = socketChunkSize;
 
-    if (_.isInteger(webInspectorMaxFrameLength)) {
+    if (Number.isInteger(webInspectorMaxFrameLength)) {
       this._webInspectorMaxFrameLength = webInspectorMaxFrameLength;
     }
 
@@ -176,7 +174,7 @@ export class RemoteDebugger extends EventEmitter {
   // Any changes to it don't mutate the original property
   // because the getter always returns the copy of it
   get appDict(): AppDict {
-    return _.cloneDeep(this._appDict);
+    return structuredClone(this._appDict);
   }
 
   get allowNavigationWithoutReload(): boolean {
@@ -265,7 +263,7 @@ export class RemoteDebugger extends EventEmitter {
   }
 }
 
-for (const [name, event] of _.toPairs(eventMixins.events)) {
+for (const [name, event] of Object.entries(eventMixins.events)) {
   RemoteDebugger[name] = event;
 }
 

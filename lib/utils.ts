@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import {errorFromMJSONWPStatusCode} from '@appium/base-driver';
 import {util, node} from '@appium/support';
+import {isDeepStrictEqual} from 'node:util';
 import nodeFs from 'node:fs';
 import path from 'node:path';
 import type {StringRecord} from '@appium/types';
@@ -25,6 +25,98 @@ export class TimeoutError extends Error {
     super(message);
     this.name = 'TimeoutError';
   }
+}
+
+/**
+ * Truncates a string to the requested length and appends ellipsis when needed.
+ *
+ * @param value - The input string.
+ * @param length - Maximum output length.
+ * @returns The original string when short enough, otherwise a truncated variant.
+ */
+export function truncateString(value: string, length: number): string {
+  if (value.length <= length) {
+    return value;
+  }
+  return `${value.slice(0, Math.max(0, length - 1))}…`;
+}
+
+/**
+ * Creates a shallow object where undefined keys from `target` are filled
+ * from `defaultsObj`.
+ *
+ * @param target - The object with priority values.
+ * @param defaultsObj - The object providing fallback values.
+ * @returns A new object containing merged defaulted values.
+ */
+export function defaults<T extends Record<string, any>, U extends Record<string, any>>(
+  target: T,
+  defaultsObj: U,
+): T & U {
+  const result = {...target} as T & U;
+  for (const [key, value] of Object.entries(defaultsObj)) {
+    if (result[key as keyof (T & U)] === undefined) {
+      (result as any)[key] = value;
+    }
+  }
+  return result;
+}
+
+/**
+ * Determines whether a value is a plain object.
+ *
+ * @param value - The value to check.
+ * @returns True when the value is a non-null non-array object.
+ */
+export function isPlainObject(value: unknown): value is Record<string, any> {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+/**
+ * Checks whether a value should be treated as empty.
+ *
+ * @param value - The value to evaluate.
+ * @returns True for nullish values, empty arrays/strings/maps/sets, or empty objects.
+ */
+export function isEmpty(value: unknown): boolean {
+  if (value == null) {
+    return true;
+  }
+  if (Array.isArray(value) || typeof value === 'string') {
+    return value.length === 0;
+  }
+  if (value instanceof Map || value instanceof Set) {
+    return value.size === 0;
+  }
+  if (isPlainObject(value)) {
+    return Object.keys(value).length === 0;
+  }
+  return false;
+}
+
+/**
+ * Deduplicates array entries while preserving order.
+ *
+ * @param items - Items to deduplicate.
+ * @returns The input items without duplicates.
+ */
+export function uniq<T>(items: T[]): T[] {
+  return [...new Set(items)];
+}
+
+/**
+ * Performs deep strict equality comparison.
+ *
+ * @param a - First value.
+ * @param b - Second value.
+ * @returns True when both values are deeply equal.
+ */
+export function deepEqual(a: unknown, b: unknown): boolean {
+  return isDeepStrictEqual(a, b);
 }
 
 /**
@@ -77,15 +169,16 @@ export async function withTimeout<T>(
  */
 export function appInfoFromDict(dict: Record<string, any>): [string, AppInfo] {
   const id = dict.WIRApplicationIdentifierKey;
-  const isProxy = _.isString(dict.WIRIsApplicationProxyKey)
-    ? dict.WIRIsApplicationProxyKey.toLowerCase() === 'true'
-    : dict.WIRIsApplicationProxyKey;
+  const isProxy =
+    typeof dict.WIRIsApplicationProxyKey === 'string'
+      ? dict.WIRIsApplicationProxyKey.toLowerCase() === 'true'
+      : dict.WIRIsApplicationProxyKey;
   // automation enabled can be either from the keys
   //   - WIRRemoteAutomationEnabledKey (boolean)
   //   - WIRAutomationAvailabilityKey (string or boolean)
   let isAutomationEnabled: boolean | string = !!dict.WIRRemoteAutomationEnabledKey;
-  if (_.has(dict, 'WIRAutomationAvailabilityKey')) {
-    if (_.isString(dict.WIRAutomationAvailabilityKey)) {
+  if (Object.hasOwn(dict, 'WIRAutomationAvailabilityKey')) {
+    if (typeof dict.WIRAutomationAvailabilityKey === 'string') {
       isAutomationEnabled =
         dict.WIRAutomationAvailabilityKey === 'WIRAutomationAvailabilityUnknown'
           ? 'Unknown'
@@ -116,16 +209,16 @@ export function appInfoFromDict(dict: Record<string, any>): [string, AppInfo] {
  */
 export function pageArrayFromDict(pageDict: StringRecord): Page[] {
   return (
-    _.values(pageDict)
+    Object.values(pageDict)
       // count only WIRTypeWeb pages and ignore all others (WIRTypeJavaScript etc)
       .filter(
-        (dict) => _.isUndefined(dict.WIRTypeKey) || ACCEPTED_PAGE_TYPES.includes(dict.WIRTypeKey),
+        (dict) => dict.WIRTypeKey === undefined || ACCEPTED_PAGE_TYPES.includes(dict.WIRTypeKey),
       )
       .map((dict) => ({
         id: dict.WIRPageIdentifierKey,
         title: dict.WIRTitleKey,
         url: dict.WIRURLKey,
-        isKey: !_.isUndefined(dict.WIRConnectionIdentifierKey),
+        isKey: dict.WIRConnectionIdentifierKey !== undefined,
       }))
   );
 }
@@ -140,7 +233,7 @@ export function pageArrayFromDict(pageDict: StringRecord): Page[] {
  * @returns An array of unique application identifier keys matching the bundle ID.
  */
 export function appIdsForBundle(bundleId: string, appDict: AppDict): string[] {
-  const appIds: string[] = _.toPairs(appDict)
+  const appIds: string[] = Object.entries(appDict)
     .filter(([, data]) => data.bundleId === bundleId)
     .map(([key]) => key);
 
@@ -149,7 +242,7 @@ export function appIdsForBundle(bundleId: string, appDict: AppDict): string[] {
     return appIdsForBundle(WEB_CONTENT_BUNDLE_ID, appDict);
   }
 
-  return _.uniq(appIds);
+  return uniq(appIds);
 }
 
 /**
@@ -163,8 +256,8 @@ export function appIdsForBundle(bundleId: string, appDict: AppDict): string[] {
  */
 export function checkParams<T extends StringRecord>(params: T): T {
   // check if all parameters have a value
-  const errors = _.toPairs(params)
-    .filter(([, value]) => _.isNil(value))
+  const errors = Object.entries(params)
+    .filter(([, value]) => value === null || value === undefined)
     .map(([param]) => param);
   if (errors.length) {
     throw new Error(`Missing ${util.pluralize('parameter', errors.length)}: ${errors.join(', ')}`);
@@ -185,7 +278,8 @@ export function simpleStringify(value: any, multiline: boolean = false): string 
     return JSON.stringify(value);
   }
 
-  const cleanValue = removeNoisyProperties(_.clone(value));
+  const cleanValue =
+    value && typeof value === 'object' ? removeNoisyProperties(structuredClone(value)) : value;
   return multiline ? JSON.stringify(cleanValue, null, 2) : JSON.stringify(cleanValue);
 }
 
@@ -200,18 +294,18 @@ export function simpleStringify(value: any, multiline: boolean = false): string 
  *               an error status code.
  */
 export function convertJavascriptEvaluationResult(res: any): any {
-  if (_.isUndefined(res)) {
+  if (res === undefined) {
     throw new Error(
-      `Did not get OK result from remote debugger. Result was: ${_.truncate(simpleStringify(res), {length: RESPONSE_LOG_LENGTH})}`,
+      `Did not get OK result from remote debugger. Result was: ${truncateString(simpleStringify(res), RESPONSE_LOG_LENGTH)}`,
     );
-  } else if (_.isString(res)) {
+  } else if (typeof res === 'string') {
     try {
       res = JSON.parse(res);
     } catch {
       // we might get a serialized object, but we might not
       // if we get here, it is just a value
     }
-  } else if (!_.isObject(res)) {
+  } else if (typeof res !== 'object' || res === null) {
     throw new Error(`Result has unexpected type: (${typeof res}).`);
   }
 
@@ -222,7 +316,7 @@ export function convertJavascriptEvaluationResult(res: any): any {
 
   // with either have an object with a `value` property (even if `null`),
   // or a plain object
-  const value = _.has(res, 'value') ? res.value : res;
+  const value = Object.hasOwn(res, 'value') ? res.value : res;
   return removeNoisyProperties(value);
 }
 
@@ -233,13 +327,24 @@ export function convertJavascriptEvaluationResult(res: any): any {
  * @returns The full path to the module root directory.
  * @throws Error if the module root folder cannot be determined.
  */
-export const getModuleRoot = _.memoize(function getModuleRoot(): string {
+let cachedModuleRoot: string | undefined;
+/**
+ * Calculates and memoizes the path to the current module root.
+ *
+ * @returns The full path to the module root directory.
+ * @throws Error if the module root folder cannot be determined.
+ */
+export function getModuleRoot(): string {
+  if (cachedModuleRoot) {
+    return cachedModuleRoot;
+  }
   const root = node.getModuleRootSync(MODULE_NAME, __filename);
   if (!root) {
     throw new Error(`Cannot find the root folder of the ${MODULE_NAME} Node.js module`);
   }
+  cachedModuleRoot = root;
   return root;
-});
+}
 
 /**
  * Reads and parses the package.json file from the module root.
@@ -268,7 +373,7 @@ export function canUseWebInspectorShim(platformVersion: string): boolean {
  * @returns The cleaned object.
  */
 function removeNoisyProperties<T>(obj: T): T {
-  if (_.isObject(obj)) {
+  if (obj && typeof obj === 'object') {
     for (const property of ['ceil', 'clone', 'floor', 'round', 'scale', 'toString']) {
       delete obj[property];
     }

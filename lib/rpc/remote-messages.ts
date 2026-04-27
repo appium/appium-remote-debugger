@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {getProtocolCommand} from '../protocol';
 import type {
   RawRemoteCommand,
@@ -14,6 +13,12 @@ const OBJECT_GROUP = 'console';
 const MINIMAL_COMMAND = 'getMinimalCommand';
 const FULL_COMMAND = 'getFullCommand';
 const DIRECT_COMMAND = 'getDirectCommand';
+
+function omitNilValues<T extends Record<string, any>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== null && value !== undefined),
+  ) as Partial<T>;
+}
 
 // mapping of commands to the function for getting the command
 // defaults to `getMinimalCommand`, so no need to have those listed here
@@ -117,7 +122,7 @@ export class RemoteMessages {
     return {
       __argument: {
         WIRApplicationIdentifierKey: appIdKey,
-        WIRIndicateEnabledKey: _.isNil(enabled) ? true : enabled,
+        WIRIndicateEnabledKey: enabled == null ? true : enabled,
         WIRConnectionIdentifierKey: connId,
         WIRPageIdentifierKey: pageIdKey,
       },
@@ -191,7 +196,7 @@ export class RemoteMessages {
       },
       __selector: '_rpc_forwardSocketData:',
     };
-    return _.omitBy(plist, _.isNil) as RawRemoteCommand;
+    return omitNilValues(plist) as RawRemoteCommand;
   }
 
   /**
@@ -227,7 +232,7 @@ export class RemoteMessages {
       },
       __selector: '_rpc_forwardSocketData:',
     };
-    return _.omitBy(plist, _.isNil) as RawRemoteCommand;
+    return omitNilValues(plist) as RawRemoteCommand;
   }
 
   /**
@@ -254,7 +259,7 @@ export class RemoteMessages {
       },
       __selector: '_rpc_forwardSocketData:',
     };
-    return _.omitBy(plist, _.isNil) as RawRemoteCommand;
+    return omitNilValues(plist) as RawRemoteCommand;
   }
 
   /**

@@ -1,7 +1,6 @@
 import {checkParams, delay, TimeoutError, withTimeout} from '../utils';
 import {events} from './events';
 import {timing, util} from '@appium/support';
-import _ from 'lodash';
 import {
   getAppIdKey,
   setPageLoading,
@@ -56,7 +55,7 @@ export function cancelPageLoad(this: RemoteDebugger): void {
  *          - 'normal' (default): returns true only when readyState is 'complete'
  */
 export function isPageLoadingCompleted(this: RemoteDebugger, readyState: string): boolean {
-  const pageLoadStrategy = _.toLower(getPageLoadStartegy(this));
+  const pageLoadStrategy = (getPageLoadStartegy(this) ?? '').toLowerCase();
   switch (pageLoadStrategy) {
     case PAGE_LOAD_STRATEGY.EAGER:
       // This could include 'interactive' or 'complete'

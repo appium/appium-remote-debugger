@@ -2,7 +2,6 @@
 import { SubProcess } from 'teen_process';
 import { plist, util } from '@appium/support';
 import { getSimulator } from 'appium-ios-simulator';
-import _ from 'lodash';
 
 
 async function getSocket (udid) {
@@ -94,7 +93,7 @@ async function startSoCat (socket) {
 }
 
 async function main () {
-  const udid = _.last(process.argv);
+  const udid = process.argv.at(-1);
   const s = await getSocket(udid);
   console.log('Simulator web inspector socket:', s);
   await startSoCat(s);
