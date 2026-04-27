@@ -1,5 +1,4 @@
 import http from 'node:http';
-import B from 'bluebird';
 import {logger} from '@appium/support';
 import finalhandler from 'finalhandler';
 import serveStatic from 'serve-static';
@@ -20,7 +19,10 @@ export async function startHttpServer(port: number = PORT): Promise<number> {
     serve(req, res, finalhandler(req, res));
   });
 
-  await (B.promisify(server.listen, {context: server}) as any)(PORT);
+  await new Promise<void>((resolve, reject) => {
+    server?.once('error', reject);
+    server?.listen(PORT, () => resolve());
+  });
   log.debug(`HTTP server listening on port '${port}'`);
 
   return port;

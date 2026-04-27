@@ -1,6 +1,5 @@
 import {log} from '../logger';
 import _ from 'lodash';
-import B from 'bluebird';
 import net from 'node:net';
 import {RpcClient} from './rpc-client';
 import {services} from 'appium-ios-device';
@@ -110,7 +109,7 @@ export class RpcClientSimulator extends RpcClient {
     this.service.listenMessage(this.receive.bind(this));
 
     // connect the socket
-    return await new B<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       // only resolve this function when we are actually connected
       if (!this.socket) {
         return reject(new Error('RPC socket is not connected. Please contact developers'));
@@ -157,7 +156,7 @@ export class RpcClientSimulator extends RpcClient {
   override async sendMessage(cmd: RemoteCommand): Promise<void> {
     let onSocketError: ((err: Error) => void) | undefined;
 
-    return await new B<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       // handle socket problems
       onSocketError = (err: Error) => {
         log.error(`Socket error: ${err.message}`);

@@ -1,5 +1,4 @@
-import {checkParams} from '../utils';
-import B, {TimeoutError as BTimeoutError} from 'bluebird';
+import {checkParams, TimeoutError, withTimeout} from '../utils';
 import {getAppIdKey, getPageIdKey} from './property-accessors';
 import type {RemoteDebugger} from '../remote-debugger';
 
@@ -77,14 +76,15 @@ export async function isJavascriptExecutionBlocked(
   timeoutMs: number = 1000,
 ): Promise<boolean> {
   try {
-    await B.resolve(
+    await withTimeout(
       this.requireRpcClient().send('Runtime.evaluate', {
         expression: '1+1;',
         returnByValue: true,
         appIdKey: getAppIdKey(this),
         pageIdKey: getPageIdKey(this),
       }),
-    ).timeout(timeoutMs);
+      timeoutMs,
+    );
     return false;
   } catch {
     return true;
@@ -116,15 +116,16 @@ export async function garbageCollect(
   }
 
   try {
-    await B.resolve(
+    await withTimeout(
       this.requireRpcClient().send('Heap.gc', {
         appIdKey: getAppIdKey(this),
         pageIdKey: getPageIdKey(this),
       }),
-    ).timeout(timeoutMs);
+      timeoutMs,
+    );
     this.log.debug(`Garbage collection successful`);
   } catch (e: any) {
-    if (e instanceof BTimeoutError) {
+    if (e instanceof TimeoutError) {
       this.log.debug(`Garbage collection timed out after ${timeoutMs}ms`);
     } else {
       this.log.debug(`Unable to collect garbage: ${e.message}`);

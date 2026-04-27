@@ -10,11 +10,11 @@ import * as cookieMixins from './mixins/cookies';
 import * as screenshotMixins from './mixins/screenshot';
 import * as eventMixins from './mixins/events';
 import * as miscellaneousMixins from './mixins/misc';
+import {util} from '@appium/support';
 import _ from 'lodash';
 import type {RemoteDebuggerOptions, AppDict, EventListener, PageIdKey, AppIdKey} from './types';
 import type {AppiumLogger, StringRecord} from '@appium/types';
 import type {RpcClient} from './rpc/rpc-client';
-import type B from 'bluebird';
 
 export const REMOTE_DEBUGGER_PORT = 27753;
 const PAGE_READY_TIMEOUT_MS = 5000;
@@ -74,7 +74,7 @@ export class RemoteDebugger extends EventEmitter {
   protected _pageIdKey?: PageIdKey;
   protected _connectedDrivers?: StringRecord[];
   protected _currentState?: string;
-  protected _pageLoadDelay?: B<void>;
+  protected _pageLoadDelay?: ReturnType<typeof util.cancellableDelay>;
   protected _rpcClient: RpcClient | null;
   protected _pageLoading: boolean;
   protected _navigatingToPage: boolean;

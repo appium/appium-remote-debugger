@@ -18,6 +18,57 @@ const ACCEPTED_PAGE_TYPES = [
 export const RESPONSE_LOG_LENGTH = 100;
 
 /**
+ * Error thrown when an async operation exceeds the configured timeout.
+ */
+export class TimeoutError extends Error {
+  constructor(message: string = 'Operation timed out') {
+    super(message);
+    this.name = 'TimeoutError';
+  }
+}
+
+/**
+ * Returns a promise that resolves after the specified delay.
+ *
+ * @param ms - Delay in milliseconds.
+ * @returns A promise that resolves when the delay expires.
+ */
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Wraps a promise with a timeout.
+ *
+ * @param promise - The promise to resolve.
+ * @param timeoutMs - Maximum time to wait in milliseconds.
+ * @param message - Optional timeout message.
+ * @returns A promise that resolves/rejects with the original promise result, or rejects on timeout.
+ */
+export async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message?: string,
+): Promise<T> {
+  let timeoutId: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_resolve, reject) => {
+        timeoutId = setTimeout(
+          () => reject(new TimeoutError(message ?? `Operation timed out after ${timeoutMs}ms`)),
+          timeoutMs,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
+/**
  * Takes a dictionary from the remote debugger and converts it into a more
  * manageable AppInfo object with understandable keys.
  *

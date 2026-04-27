@@ -2,12 +2,11 @@ import {RemoteMessages} from './remote-messages';
 import {waitForCondition} from 'asyncbox';
 import {log} from '../logger';
 import _ from 'lodash';
-import B from 'bluebird';
 import RpcMessageHandler from './rpc-message-handler';
 import {util, timing} from '@appium/support';
 import {EventEmitter} from 'node:events';
 import AsyncLock from 'async-lock';
-import {convertJavascriptEvaluationResult} from '../utils';
+import {convertJavascriptEvaluationResult, delay, withTimeout} from '../utils';
 import type {StringRecord} from '@appium/types';
 import type {
   AppIdKey,
@@ -390,7 +389,8 @@ export class RpcClient {
     opts: RemoteCommandOpts,
     waitForResponse: TWaitForResponse = true as TWaitForResponse,
   ): Promise<TWaitForResponse extends true ? any : RemoteCommandOpts> {
-    return await new B<any>(async (resolve, reject) => {
+    return await new Promise<any>((resolve, reject) => {
+      void (async () => {
       // promise to be resolved whenever remote debugger
       // replies to our request
 
@@ -509,6 +509,7 @@ export class RpcClient {
       } catch (err) {
         return reject(err);
       }
+      })();
     });
   }
 
@@ -837,7 +838,8 @@ export class RpcClient {
         }
         await this.send('setSenderKey', sendOpts);
       };
-      await B.resolve(setupWebview()).timeout(
+      await withTimeout(
+        setupWebview(),
         timeoutMs,
         `Cannot set up page '${pageIdKey}' for app '${appIdKey}' within ${timeoutMs}ms`,
       );
@@ -887,7 +889,7 @@ export class RpcClient {
    *               dictionary is empty.
    */
   async selectApp(appIdKey: AppIdKey): Promise<[string, StringRecord]> {
-    return await new B<[string, StringRecord]>((resolve, reject) => {
+    return await new Promise<[string, StringRecord]>((resolve, reject) => {
       // local callback, temporarily added as callback to
       // `_rpc_applicationConnected:` remote debugger response
       // to handle the initial connection
@@ -983,10 +985,10 @@ export class RpcClient {
     const lock = appTargetsMap.lock;
     const timer = new timing.Timer().start();
     await Promise.all([
-      lock.acquire(pageIdKey, async () => await B.delay(0)),
+      lock.acquire(pageIdKey, async () => await delay(0)),
       this._pageSelectionLock.acquire(
         toPageSelectionKey(appIdKey, pageIdKey),
-        async () => await B.delay(0),
+        async () => await delay(0),
       ),
     ]);
     const durationMs = timer.getDuration().asMilliSeconds;
@@ -1198,7 +1200,7 @@ export class RpcClient {
           100,
           Math.trunc((pageReadinessDetector.timeoutMs - timer.getDuration().asMilliSeconds) * 0.8),
         );
-        const rawResult = await B.resolve(
+        const rawResult = await withTimeout(
           this.send('Runtime.evaluate', {
             expression: 'document.readyState;',
             returnByValue: true,
@@ -1206,7 +1208,8 @@ export class RpcClient {
             pageIdKey,
             targetId,
           }),
-        ).timeout(commandTimeoutMs);
+          commandTimeoutMs,
+        );
         readyState = convertJavascriptEvaluationResult(rawResult);
       } catch (e: any) {
         log.debug(`Cannot determine page readiness: ${e.message}`);
@@ -1219,7 +1222,7 @@ export class RpcClient {
         );
         return;
       }
-      await B.delay(100);
+      await delay(100);
     }
     log.warn(
       `Page '${pageIdKey}' for app '${appIdKey}' is not ready after ` +
