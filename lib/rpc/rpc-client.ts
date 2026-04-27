@@ -391,124 +391,124 @@ export class RpcClient {
   ): Promise<TWaitForResponse extends true ? any : RemoteCommandOpts> {
     return await new Promise<any>((resolve, reject) => {
       void (async () => {
-      // promise to be resolved whenever remote debugger
-      // replies to our request
+        // promise to be resolved whenever remote debugger
+        // replies to our request
 
-      // keep track of the messages coming and going using a simple sequential id
-      const msgId = this.msgId++;
-      // for target-base communication, everything is wrapped up
-      const wrapperMsgId = this.msgId++;
-      // acknowledge wrapper message
-      this.messageHandler.on(wrapperMsgId.toString(), function (err: Error | null) {
-        if (err) {
-          reject(err);
-        }
-      });
-
-      const appIdKey = opts.appIdKey;
-      const pageIdKey = opts.pageIdKey;
-      const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
-
-      // retrieve the correct command to send
-      const fullOpts: RemoteCommandOpts & RemoteCommandId = _.defaults(
-        {
-          connId: this.connId,
-          senderId: this.senderId,
-          targetId,
-          id: msgId.toString(),
-        },
-        opts,
-      );
-      let cmd: RawRemoteCommand;
-      try {
-        cmd = this.remoteMessages.getRemoteCommand(command, fullOpts);
-      } catch (err: any) {
-        log.error(err);
-        return reject(err);
-      }
-
-      const finalCommand: RemoteCommand = {
-        __argument: _.omit(cmd.__argument, ['WIRSocketDataKey']) as any,
-        __selector: cmd.__selector,
-      };
-
-      const hasSocketData = _.isPlainObject(cmd.__argument?.WIRSocketDataKey);
-      if (hasSocketData) {
-        // make sure the message being sent has all the information that is needed
-        const socketData = cmd.__argument.WIRSocketDataKey as StringRecord;
-        if (!_.isInteger(socketData.id)) {
-          // ! This must be a number
-          socketData.id = wrapperMsgId;
-        }
-        finalCommand.__argument.WIRSocketDataKey = Buffer.from(JSON.stringify(socketData));
-      }
-
-      let messageHandled = true;
-      if (!waitForResponse) {
-        // the promise will be resolved as soon as the socket has been sent
-        messageHandled = false;
-        // do not log receipts
-        this.messageHandler.once(msgId.toString(), (err: Error | null) => {
+        // keep track of the messages coming and going using a simple sequential id
+        const msgId = this.msgId++;
+        // for target-base communication, everything is wrapped up
+        const wrapperMsgId = this.msgId++;
+        // acknowledge wrapper message
+        this.messageHandler.on(wrapperMsgId.toString(), function (err: Error | null) {
           if (err) {
-            // we are not waiting for this, and if it errors it is most likely
-            // a protocol change. Log and check during testing
-            log.error(
-              `Received error from send that is not being waited for (id: ${msgId}): ` +
-                _.truncate(JSON.stringify(err), DATA_LOG_LENGTH),
-            );
-            // reject, though it is very rare that this will be triggered, since
-            // the promise is resolved directly after send. On the off chance,
-            // though, it will alert of a protocol change.
             reject(err);
           }
         });
-      } else if (this.messageHandler.listenerCount(cmd.__selector)) {
-        this.messageHandler.prependOnceListener(
-          cmd.__selector,
-          (err: Error | null, ...args: any[]) => {
+
+        const appIdKey = opts.appIdKey;
+        const pageIdKey = opts.pageIdKey;
+        const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
+
+        // retrieve the correct command to send
+        const fullOpts: RemoteCommandOpts & RemoteCommandId = _.defaults(
+          {
+            connId: this.connId,
+            senderId: this.senderId,
+            targetId,
+            id: msgId.toString(),
+          },
+          opts,
+        );
+        let cmd: RawRemoteCommand;
+        try {
+          cmd = this.remoteMessages.getRemoteCommand(command, fullOpts);
+        } catch (err: any) {
+          log.error(err);
+          return reject(err);
+        }
+
+        const finalCommand: RemoteCommand = {
+          __argument: _.omit(cmd.__argument, ['WIRSocketDataKey']) as any,
+          __selector: cmd.__selector,
+        };
+
+        const hasSocketData = _.isPlainObject(cmd.__argument?.WIRSocketDataKey);
+        if (hasSocketData) {
+          // make sure the message being sent has all the information that is needed
+          const socketData = cmd.__argument.WIRSocketDataKey as StringRecord;
+          if (!_.isInteger(socketData.id)) {
+            // ! This must be a number
+            socketData.id = wrapperMsgId;
+          }
+          finalCommand.__argument.WIRSocketDataKey = Buffer.from(JSON.stringify(socketData));
+        }
+
+        let messageHandled = true;
+        if (!waitForResponse) {
+          // the promise will be resolved as soon as the socket has been sent
+          messageHandled = false;
+          // do not log receipts
+          this.messageHandler.once(msgId.toString(), (err: Error | null) => {
             if (err) {
-              return reject(err);
+              // we are not waiting for this, and if it errors it is most likely
+              // a protocol change. Log and check during testing
+              log.error(
+                `Received error from send that is not being waited for (id: ${msgId}): ` +
+                  _.truncate(JSON.stringify(err), DATA_LOG_LENGTH),
+              );
+              // reject, though it is very rare that this will be triggered, since
+              // the promise is resolved directly after send. On the off chance,
+              // though, it will alert of a protocol change.
+              reject(err);
+            }
+          });
+        } else if (this.messageHandler.listenerCount(cmd.__selector)) {
+          this.messageHandler.prependOnceListener(
+            cmd.__selector,
+            (err: Error | null, ...args: any[]) => {
+              if (err) {
+                return reject(err);
+              }
+              log.debug(
+                `Received response from send (id: ${msgId}): '${_.truncate(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
+              );
+              resolve(args);
+            },
+          );
+        } else if (hasSocketData) {
+          this.messageHandler.once(msgId.toString(), (err: Error | null, value: any) => {
+            if (err) {
+              return reject(
+                new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`),
+              );
             }
             log.debug(
-              `Received response from send (id: ${msgId}): '${_.truncate(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
+              `Received data response from send (id: ${msgId}): '${_.truncate(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
             );
-            resolve(args);
-          },
-        );
-      } else if (hasSocketData) {
-        this.messageHandler.once(msgId.toString(), (err: Error | null, value: any) => {
-          if (err) {
-            return reject(
-              new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`),
-            );
-          }
-          log.debug(
-            `Received data response from send (id: ${msgId}): '${_.truncate(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
-          );
-          resolve(value);
-        });
-      } else {
-        // nothing else is handling things, so just resolve when the message is sent
-        messageHandled = false;
-      }
-
-      const msg =
-        `Sending '${cmd.__selector}' message` +
-        (appIdKey ? ` to app '${appIdKey}'` : '') +
-        (pageIdKey ? `, page '${pageIdKey}'` : '') +
-        (targetId ? `, target '${targetId}'` : '') +
-        ` (id: ${msgId}): '${command}'`;
-      log.debug(msg);
-      try {
-        await this.sendMessage(finalCommand);
-        if (!messageHandled) {
-          // There are no handlers waiting for a response before resolving,
-          // and no errors sending the message over the socket, so resolve
-          resolve(fullOpts as any);
+            resolve(value);
+          });
+        } else {
+          // nothing else is handling things, so just resolve when the message is sent
+          messageHandled = false;
         }
-      } catch (err) {
-        return reject(err);
-      }
+
+        const msg =
+          `Sending '${cmd.__selector}' message` +
+          (appIdKey ? ` to app '${appIdKey}'` : '') +
+          (pageIdKey ? `, page '${pageIdKey}'` : '') +
+          (targetId ? `, target '${targetId}'` : '') +
+          ` (id: ${msgId}): '${command}'`;
+        log.debug(msg);
+        try {
+          await this.sendMessage(finalCommand);
+          if (!messageHandled) {
+            // There are no handlers waiting for a response before resolving,
+            // and no errors sending the message over the socket, so resolve
+            resolve(fullOpts as any);
+          }
+        } catch (err) {
+          return reject(err);
+        }
       })();
     });
   }
@@ -967,7 +967,6 @@ export class RpcClient {
     // { scriptId: '13', url: '', startLine: 0, startColumn: 0, endLine: 82, endColumn: 3 }
     log.debug(`Script parsed: ${JSON.stringify(scriptInfo)}`);
   }
-
 
   /**
    * Waits for a page to be initialized by acquiring locks on both the page

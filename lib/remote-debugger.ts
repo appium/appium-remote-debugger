@@ -263,7 +263,6 @@ export class RemoteDebugger extends EventEmitter {
       pageLoadTimeoutMs: this._pageLoadMs,
     });
   }
-
 }
 
 for (const [name, event] of _.toPairs(eventMixins.events)) {
