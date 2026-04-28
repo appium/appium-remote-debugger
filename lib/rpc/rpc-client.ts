@@ -518,7 +518,7 @@ export class RpcClient {
         } catch (err) {
           return reject(err);
         }
-      })();
+      })().catch(reject);
     });
   }
 

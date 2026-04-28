@@ -278,10 +278,15 @@ export function simpleStringify(value: any, multiline: boolean = false): string 
     return JSON.stringify(value);
   }
 
-  const cleanValue =
-    value && (typeof value === 'object' || typeof value === 'function')
-      ? removeNoisyProperties(structuredClone(value))
-      : value;
+  let cleanValue = value;
+  if (typeof value === 'object' && value !== null) {
+    try {
+      cleanValue = removeNoisyProperties(structuredClone(value));
+    } catch {
+      // Fall back to the original value when cloning fails (e.g., non-cloneable graph entries).
+      cleanValue = value;
+    }
+  }
   return multiline ? JSON.stringify(cleanValue, null, 2) : JSON.stringify(cleanValue);
 }
 

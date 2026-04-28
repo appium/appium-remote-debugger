@@ -20,8 +20,12 @@ export async function startHttpServer(port: number = PORT): Promise<number> {
   });
 
   await new Promise<void>((resolve, reject) => {
-    server?.once('error', reject);
-    server?.listen(PORT, () => resolve());
+    const onError = (err: Error) => reject(err);
+    server.once('error', onError);
+    server.listen(port, () => {
+      server.off('error', onError);
+      resolve();
+    });
   });
   log.debug(`HTTP server listening on port '${port}'`);
 
