@@ -23,7 +23,7 @@ export async function startHttpServer(port: number = PORT): Promise<number> {
   await new Promise<void>((resolve, reject) => {
     const onError = (err: Error) => reject(err);
     activeServer.once('error', onError);
-    activeServer.listen(port, () => resolve);
+    activeServer.listen(port, resolve);
   });
   log.debug(`HTTP server listening on port '${port}'`);
 
