@@ -1,3 +1,9 @@
+## [15.8.1](https://github.com/appium/appium-remote-debugger/compare/v15.8.0...v15.8.1) (2026-04-29)
+
+### Bug Fixes
+
+* Copilot review comments ([#491](https://github.com/appium/appium-remote-debugger/issues/491)) ([3eb2f5c](https://github.com/appium/appium-remote-debugger/commit/3eb2f5c83c5631b80ef46e81abed7cec22d82879))
+
 ## [15.8.0](https://github.com/appium/appium-remote-debugger/compare/v15.7.3...v15.8.0) (2026-04-27)
 
 ### Features
