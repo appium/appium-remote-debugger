@@ -266,12 +266,15 @@ export function checkParams<T extends StringRecord>(params: T): T {
 }
 
 /**
- * Converts a value to a JSON string, removing noisy function properties
- * that can muddy the logs.
+ * Converts a value to a best-effort JSON string for logging, removing noisy
+ * function properties from cloneable objects when possible.
+ *
+ * Falls back to `String(value)` when JSON serialization returns `undefined`
+ * or throws (for example, for functions, symbols, or circular structures).
  *
  * @param value - The value to stringify.
- * @param multiline - If true, formats the JSON with indentation. Defaults to false.
- * @returns A JSON string representation of the value with noisy properties removed.
+ * @param multiline - If true, formats JSON output with indentation. Defaults to false.
+ * @returns A string representation suitable for logging.
  */
 export function simpleStringify(value: any, multiline: boolean = false): string {
   const stringify = (val: any): string => {
