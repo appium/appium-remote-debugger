@@ -274,8 +274,18 @@ export function checkParams<T extends StringRecord>(params: T): T {
  * @returns A JSON string representation of the value with noisy properties removed.
  */
 export function simpleStringify(value: any, multiline: boolean = false): string {
+  const stringify = (val: any): string => {
+    try {
+      return multiline
+        ? (JSON.stringify(val, null, 2) ?? String(val))
+        : (JSON.stringify(val) ?? String(val));
+    } catch {
+      return String(val);
+    }
+  };
+
   if (!value) {
-    return JSON.stringify(value);
+    return stringify(value);
   }
 
   let cleanValue = value;
@@ -287,7 +297,7 @@ export function simpleStringify(value: any, multiline: boolean = false): string 
       cleanValue = value;
     }
   }
-  return multiline ? JSON.stringify(cleanValue, null, 2) : JSON.stringify(cleanValue);
+  return stringify(cleanValue);
 }
 
 /**
