@@ -18,10 +18,11 @@ export async function startHttpServer(port: number = PORT): Promise<number> {
     log.debug(`${req.method} ${req.url}`);
     serve(req, res, finalhandler(req, res));
   });
+  const activeServer = server;
 
   await new Promise<void>((resolve, reject) => {
-    server?.once('error', reject);
-    server?.listen(PORT, () => resolve());
+    activeServer.once('error', reject);
+    activeServer.listen(port, resolve);
   });
   log.debug(`HTTP server listening on port '${port}'`);
 

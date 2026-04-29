@@ -266,23 +266,41 @@ export function checkParams<T extends StringRecord>(params: T): T {
 }
 
 /**
- * Converts a value to a JSON string, removing noisy function properties
- * that can muddy the logs.
+ * Converts a value to a best-effort JSON string for logging, removing noisy
+ * function properties from cloneable objects when possible.
+ *
+ * Falls back to `String(value)` when JSON serialization returns `undefined`
+ * or throws (for example, for functions, symbols, or circular structures).
  *
  * @param value - The value to stringify.
- * @param multiline - If true, formats the JSON with indentation. Defaults to false.
- * @returns A JSON string representation of the value with noisy properties removed.
+ * @param multiline - If true, formats JSON output with indentation. Defaults to false.
+ * @returns A string representation suitable for logging.
  */
 export function simpleStringify(value: any, multiline: boolean = false): string {
+  const stringify = (val: any): string => {
+    try {
+      return multiline
+        ? (JSON.stringify(val, null, 2) ?? String(val))
+        : (JSON.stringify(val) ?? String(val));
+    } catch {
+      return String(val);
+    }
+  };
+
   if (!value) {
-    return JSON.stringify(value);
+    return stringify(value);
   }
 
-  const cleanValue =
-    value && (typeof value === 'object' || typeof value === 'function')
-      ? removeNoisyProperties(structuredClone(value))
-      : value;
-  return multiline ? JSON.stringify(cleanValue, null, 2) : JSON.stringify(cleanValue);
+  let cleanValue = value;
+  if (typeof value === 'object' && value !== null) {
+    try {
+      cleanValue = removeNoisyProperties(structuredClone(value));
+    } catch {
+      // Fall back to the original value when cloning fails (e.g., non-cloneable graph entries).
+      cleanValue = value;
+    }
+  }
+  return stringify(cleanValue);
 }
 
 /**

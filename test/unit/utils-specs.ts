@@ -7,6 +7,7 @@ import {
   delay,
   isEmpty,
   isPlainObject,
+  simpleStringify,
   TimeoutError,
   truncateString,
   uniq,
@@ -114,6 +115,24 @@ describe('utils', function () {
 
     it('truncates and appends unicode ellipsis', function () {
       expect(truncateString('abcdef', 4)).to.equal('abc…');
+    });
+  });
+
+  describe('simpleStringify', function () {
+    it('returns a string for undefined input', function () {
+      const result = simpleStringify(undefined);
+      expect(result).to.be.a('string');
+      expect(result).to.equal('undefined');
+    });
+
+    it('falls back safely when structuredClone fails', function () {
+      const value = {
+        name: 'example',
+        fn() {},
+      };
+      const result = simpleStringify(value);
+      expect(result).to.be.a('string');
+      expect(result).to.equal('{"name":"example"}');
     });
   });
 
