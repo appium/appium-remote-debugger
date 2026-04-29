@@ -1,4 +1,6 @@
 import {
+  cancellableDelay,
+  DelayCancellation,
   pageArrayFromDict,
   checkParams,
   appInfoFromDict,
@@ -191,6 +193,25 @@ describe('utils', function () {
       expect(resolved).to.equal(false);
       await promise;
       expect(resolved).to.equal(true);
+    });
+  });
+
+  describe('cancellableDelay', function () {
+    it('resolves after the delay interval', async function () {
+      await cancellableDelay(0);
+    });
+
+    it('rejects when cancelled', async function () {
+      const delayed = cancellableDelay(50);
+      delayed.cancel();
+
+      try {
+        await delayed;
+        throw new Error('Expected cancellation rejection');
+      } catch (err: any) {
+        expect(err).to.be.instanceOf(DelayCancellation);
+        expect(err.message).to.equal('Delay cancelled');
+      }
     });
   });
 

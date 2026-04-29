@@ -1,6 +1,6 @@
-import {checkParams, delay, TimeoutError, withTimeout} from '../utils';
+import {cancellableDelay, checkParams, delay, TimeoutError, withTimeout} from '../utils';
 import {events} from './events';
-import {timing, util} from '@appium/support';
+import {timing} from '@appium/support';
 import {
   getAppIdKey,
   setPageLoading,
@@ -86,7 +86,7 @@ export async function waitForDom(
 
   let isPageLoading = true;
   setPageLoading(this, true);
-  setPageLoadDelay(this, util.cancellableDelay(readinessTimeoutMs));
+  setPageLoadDelay(this, cancellableDelay(readinessTimeoutMs));
   const pageReadinessPromise = (async () => {
     let retry = 0;
     while (isPageLoading) {
@@ -199,7 +199,7 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
   const readinessTimeoutMs = this.pageLoadMs;
   let onPageLoaded: (() => void) | undefined;
   let onPageLoadedTimeout: NodeJS.Timeout | undefined | null;
-  setPageLoadDelay(this, util.cancellableDelay(readinessTimeoutMs));
+  setPageLoadDelay(this, cancellableDelay(readinessTimeoutMs));
   setPageLoading(this, true);
   let isPageLoading = true;
   const start = new timing.Timer().start();
