@@ -17,6 +17,20 @@ const ACCEPTED_PAGE_TYPES = [
 ];
 export const RESPONSE_LOG_LENGTH = 100;
 
+export type CancellableDelay = Promise<void> & {
+  cancel: () => void;
+};
+
+/**
+ * Thrown when a cancellable delay is cancelled.
+ */
+export class DelayCancellation extends Error {
+  constructor(message: string = 'Delay cancelled') {
+    super(message);
+    this.name = 'DelayCancellation';
+  }
+}
+
 /**
  * Error thrown when an async operation exceeds the configured timeout.
  */
@@ -127,6 +141,33 @@ export function deepEqual(a: unknown, b: unknown): boolean {
  */
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Returns a delay promise with a `cancel` method that rejects the promise.
+ *
+ * @param ms - Delay in milliseconds.
+ * @returns A cancellable delay promise.
+ */
+export function cancellableDelay(ms: number): CancellableDelay {
+  let timeoutId: NodeJS.Timeout | undefined;
+  let rejectFn: ((error: Error) => void) | undefined;
+
+  const promise = new Promise<void>((resolve, reject) => {
+    rejectFn = reject;
+    timeoutId = setTimeout(resolve, ms);
+  }) as CancellableDelay;
+
+  promise.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = undefined;
+    }
+    rejectFn?.(new DelayCancellation());
+    rejectFn = undefined;
+  };
+
+  return promise;
 }
 
 /**
