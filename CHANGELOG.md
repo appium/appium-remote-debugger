@@ -1,3 +1,9 @@
+## [15.9.0](https://github.com/appium/appium-remote-debugger/compare/v15.8.1...v15.9.0) (2026-04-30)
+
+### Features
+
+* Use cancellable delay built using native promises ([#492](https://github.com/appium/appium-remote-debugger/issues/492)) ([84b9aa9](https://github.com/appium/appium-remote-debugger/commit/84b9aa9b26aaa63e8668cdb16e55362e08059b66))
+
 ## [15.8.1](https://github.com/appium/appium-remote-debugger/compare/v15.8.0...v15.8.1) (2026-04-29)
 
 ### Bug Fixes
