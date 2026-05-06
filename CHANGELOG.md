@@ -1,3 +1,9 @@
+## [15.9.1](https://github.com/appium/appium-remote-debugger/compare/v15.9.0...v15.9.1) (2026-05-06)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump sinon from 21.1.2 to 22.0.0 ([#493](https://github.com/appium/appium-remote-debugger/issues/493)) ([660eaef](https://github.com/appium/appium-remote-debugger/commit/660eaefcff37e6434c4f40d57f1489a668ee53d7))
+
 ## [15.9.0](https://github.com/appium/appium-remote-debugger/compare/v15.8.1...v15.9.0) (2026-04-30)
 
 ### Features
