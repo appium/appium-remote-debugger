@@ -361,7 +361,7 @@ async function searchForApp(
     throw new Error(
       `Could not connect to a valid webapp. Make sure it is debuggable and has at least one active page.`,
     );
-  })) as Promise<AppPage>;
+  })) as AppPage;
 }
 
 /**

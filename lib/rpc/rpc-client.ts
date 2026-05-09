@@ -611,7 +611,7 @@ export class RpcClient {
 
       this._provisionedPages.add(pageIdKey);
       try {
-        await this.targets[appIdKey].lock.acquire(pageIdKey, async () => {
+        await this.targets[appIdKey].lock.acquire(String(pageIdKey), async () => {
           let wasInitialized: boolean;
           try {
             wasInitialized = await this._initializePage(appIdKey, pageIdKey, targetInfo.targetId);
@@ -667,7 +667,7 @@ export class RpcClient {
     }
 
     try {
-      await this.targets[appIdKey].lock.acquire(pageIdKey, async () => {
+      await this.targets[appIdKey].lock.acquire(String(pageIdKey), async () => {
         let wasInitialized = false;
         try {
           if (this._provisionedPages.has(pageIdKey)) {
@@ -994,7 +994,7 @@ export class RpcClient {
     const lock = appTargetsMap.lock;
     const timer = new timing.Timer().start();
     await Promise.all([
-      lock.acquire(pageIdKey, async () => await delay(0)),
+      lock.acquire(String(pageIdKey), async () => await delay(0)),
       this._pageSelectionLock.acquire(
         toPageSelectionKey(appIdKey, pageIdKey),
         async () => await delay(0),

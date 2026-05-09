@@ -47,7 +47,7 @@ describe('execute', function () {
         },
       };
       const sendSpy = sinon.spy(ctx._rpcClient, 'send');
-      await executeAtomAsync.call(ctx, 'find_element', ['a', 'b', 'c'], ['frame-1'], ['frame-2']);
+      await executeAtomAsync.call(ctx, 'find_element', ['a', 'b', 'c'], ['frame-1', 'frame-2']);
       const callArgs = sendSpy.firstCall.args;
       expect(callArgs[0]).to.equal('Runtime.evaluate');
       expect(callArgs[1].appIdKey).to.equal('appId');

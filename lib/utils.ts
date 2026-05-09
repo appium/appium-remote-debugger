@@ -435,8 +435,9 @@ export function canUseWebInspectorShim(platformVersion: string): boolean {
  */
 function removeNoisyProperties<T>(obj: T): T {
   if (obj && typeof obj === 'object') {
+    const record = obj as Record<string, unknown>;
     for (const property of ['ceil', 'clone', 'floor', 'round', 'scale', 'toString']) {
-      delete obj[property];
+      delete record[property];
     }
   }
   return obj;

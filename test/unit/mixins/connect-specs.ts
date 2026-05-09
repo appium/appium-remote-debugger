@@ -89,7 +89,7 @@ describe('connect', function () {
     });
     it('should return an empty array when there is no appropriate app', function () {
       (rd as any)._appDict = {};
-      expect(getPossibleDebuggerAppKeys.bind(rd)('io.appium.bundle')).to.eql([]);
+      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle'])).to.eql([]);
     });
     it('should return the all app keys when the bundlIds array includes a wildcard', function () {
       (rd as any)._appDict = {
