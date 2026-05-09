@@ -1,4 +1,4 @@
-import {isEmpty, pageArrayFromDict, uniq, WEB_CONTENT_BUNDLE_ID, appIdsForBundle} from '../utils';
+import {pageArrayFromDict, WEB_CONTENT_BUNDLE_ID, appIdsForBundle} from '../utils';
 import {events} from './events';
 import {timing, util} from '@appium/support';
 import {retryInterval, waitForCondition} from 'asyncbox';
@@ -84,7 +84,7 @@ export async function connect(
       const timer = new timing.Timer().start();
       this.log.debug(`Waiting up to ${timeout}ms for applications to be reported`);
       try {
-        await waitForCondition(() => !isEmpty(getAppDict(this)), {
+        await waitForCondition(() => !util.isEmpty(getAppDict(this)), {
           waitMs: timeout,
           intervalMs: APP_CONNECT_INTERVAL_MS,
         });
@@ -138,7 +138,7 @@ export async function selectApp(
   this.log.debug('Selecting application');
 
   const timer = new timing.Timer().start();
-  if (isEmpty(getAppDict(this))) {
+  if (util.isEmpty(getAppDict(this))) {
     this.log.debug('No applications currently connected.');
     return [];
   }
@@ -236,7 +236,7 @@ export function getPossibleDebuggerAppKeys(this: RemoteDebugger, bundleIds: stri
   }
 
   // go through the possible bundle identifiers
-  const possibleBundleIds = uniq([
+  const possibleBundleIds = util.uniq([
     WEB_CONTENT_BUNDLE_ID,
     WEB_CONTENT_PROCESS_BUNDLE_ID,
     SAFARI_VIEW_PROCESS_BUNDLE_ID,
@@ -273,7 +273,7 @@ export function getPossibleDebuggerAppKeys(this: RemoteDebugger, bundleIds: stri
       `capability to match other applications. Add a wildcard ('*') to match all apps.`,
   );
 
-  return uniq(proxiedAppIds);
+  return util.uniq(proxiedAppIds);
 }
 
 /**

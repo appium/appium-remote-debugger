@@ -1,4 +1,5 @@
-import {cancellableDelay, checkParams, delay, TimeoutError, withTimeout} from '../utils';
+import {sleep, withTimeout} from 'asyncbox';
+import {cancellableDelay, checkParams, TimeoutError} from '../utils';
 import {events} from './events';
 import {timing} from '@appium/support';
 import {
@@ -97,7 +98,7 @@ export async function waitForDom(
         PAGE_READINESS_CHECK_INTERVAL_MS * Math.pow(2, retry),
         readinessTimeoutMs - elapsedMs,
       );
-      await delay(intervalMs);
+      await sleep(intervalMs);
       // we can get this called in the middle of trying to find a new app
       if (!getAppIdKey(this)) {
         this.log.debug('Not connected to an application. Ignoring page readiess check');
@@ -153,7 +154,11 @@ export async function checkPageIsReady(this: RemoteDebugger, timeoutMs?: number)
   const readyCmd = 'document.readyState;';
   const actualTimeoutMs = timeoutMs ?? getPageReadyTimeout(this);
   try {
-    const readyState = await withTimeout(this.execute(readyCmd), actualTimeoutMs);
+    const readyState = await withTimeout(
+      this.execute(readyCmd),
+      actualTimeoutMs,
+      new TimeoutError(`Operation timed out after ${actualTimeoutMs}ms`),
+    );
     this.log.debug(
       JSON.stringify({
         readyState,

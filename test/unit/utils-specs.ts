@@ -6,15 +6,9 @@ import {
   appInfoFromDict,
   deepEqual,
   defaults,
-  delay,
-  isEmpty,
-  isPlainObject,
   simpleStringify,
-  TimeoutError,
-  truncateString,
-  uniq,
-  withTimeout,
 } from '../../lib/utils';
+import {TimeoutError, withTimeout} from 'asyncbox';
 import {MOCHA_TIMEOUT} from '../helpers/helpers';
 import {expect} from 'chai';
 
@@ -110,16 +104,6 @@ describe('utils', function () {
     });
   });
 
-  describe('truncateString', function () {
-    it('returns original value when within limit', function () {
-      expect(truncateString('abc', 3)).to.equal('abc');
-    });
-
-    it('truncates and appends unicode ellipsis', function () {
-      expect(truncateString('abcdef', 4)).to.equal('abc…');
-    });
-  });
-
   describe('simpleStringify', function () {
     it('returns a string for undefined input', function () {
       const result = simpleStringify(undefined);
@@ -142,57 +126,6 @@ describe('utils', function () {
     it('only applies fallback values for undefined keys', function () {
       const result = defaults({a: 1, b: undefined, c: null as null | number}, {b: 2, c: 3, d: 4});
       expect(result).to.deep.equal({a: 1, b: 2, c: null, d: 4});
-    });
-  });
-
-  describe('isPlainObject', function () {
-    it('returns true for plain objects and null-prototype objects', function () {
-      expect(isPlainObject({a: 1})).to.equal(true);
-      expect(isPlainObject(Object.create(null))).to.equal(true);
-    });
-
-    it('returns false for arrays, null, and class instances', function () {
-      class Example {}
-      expect(isPlainObject([])).to.equal(false);
-      expect(isPlainObject(null)).to.equal(false);
-      expect(isPlainObject(new Example())).to.equal(false);
-    });
-  });
-
-  describe('isEmpty', function () {
-    it('returns true for empty collections and nullish values', function () {
-      expect(isEmpty(undefined)).to.equal(true);
-      expect(isEmpty(null)).to.equal(true);
-      expect(isEmpty('')).to.equal(true);
-      expect(isEmpty([])).to.equal(true);
-      expect(isEmpty(new Set())).to.equal(true);
-      expect(isEmpty({})).to.equal(true);
-    });
-
-    it('returns false for non-empty values', function () {
-      expect(isEmpty('a')).to.equal(false);
-      expect(isEmpty([1])).to.equal(false);
-      expect(isEmpty(new Map([['k', 'v']]))).to.equal(false);
-      expect(isEmpty({a: 1})).to.equal(false);
-    });
-  });
-
-  describe('uniq', function () {
-    it('deduplicates while preserving first-seen order', function () {
-      expect(uniq(['b', 'a', 'b', 'c', 'a'])).to.deep.equal(['b', 'a', 'c']);
-    });
-  });
-
-  describe('delay', function () {
-    it('resolves asynchronously', async function () {
-      let resolved = false;
-      const promise = (async () => {
-        await delay(0);
-        resolved = true;
-      })();
-      expect(resolved).to.equal(false);
-      await promise;
-      expect(resolved).to.equal(true);
     });
   });
 
