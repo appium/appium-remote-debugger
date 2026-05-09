@@ -7,6 +7,7 @@ import {
   deepEqual,
   defaults,
   simpleStringify,
+  canUseWebInspectorShim,
 } from '../../lib/utils';
 import {TimeoutError, withTimeout} from 'asyncbox';
 import {MOCHA_TIMEOUT} from '../helpers/helpers';
@@ -126,6 +127,19 @@ describe('utils', function () {
     it('only applies fallback values for undefined keys', function () {
       const result = defaults({a: 1, b: undefined, c: null as null | number}, {b: 2, c: 3, d: 4});
       expect(result).to.deep.equal({a: 1, b: 2, c: null, d: 4});
+    });
+  });
+
+  describe('canUseWebInspectorShim', function () {
+    it('returns false when platform version is missing', function () {
+      expect(canUseWebInspectorShim(undefined)).to.equal(false);
+      expect(canUseWebInspectorShim(null)).to.equal(false);
+      expect(canUseWebInspectorShim('')).to.equal(false);
+    });
+
+    it('returns true only for iOS 18 and newer', function () {
+      expect(canUseWebInspectorShim('17.5')).to.equal(false);
+      expect(canUseWebInspectorShim('18.0')).to.equal(true);
     });
   });
 
