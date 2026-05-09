@@ -339,6 +339,7 @@ export class RpcClient {
       }
       throw new Error(
         `No targets could be matched for the app '${appIdKey}' and page '${pageIdKey}' after ${waitMs}ms`,
+        {cause: err},
       );
     }
   }
@@ -611,7 +612,7 @@ export class RpcClient {
       this._provisionedPages.add(pageIdKey);
       try {
         await this.targets[appIdKey].lock.acquire(pageIdKey, async () => {
-          let wasInitialized = false;
+          let wasInitialized: boolean;
           try {
             wasInitialized = await this._initializePage(appIdKey, pageIdKey, targetInfo.targetId);
           } finally {

@@ -1,6 +1,7 @@
 import {checkParams, TimeoutError, withTimeout} from '../utils';
 import {getAppIdKey, getPageIdKey} from './property-accessors';
 import type {RemoteDebugger} from '../remote-debugger';
+import type {EventListener} from '../types';
 
 const SAFARI_BUNDLE_ID = 'com.apple.mobilesafari';
 const GARBAGE_COLLECT_TIMEOUT_MS = 5000;
@@ -24,7 +25,7 @@ export async function launchSafari(this: RemoteDebugger): Promise<void> {
  */
 export async function startTimeline(
   this: RemoteDebugger,
-  fn: import('../types').EventListener,
+  fn: EventListener,
 ): Promise<any> {
   this.log.debug('Starting to record the timeline');
   this.requireRpcClient().on('Timeline.eventRecorded', fn);

@@ -107,7 +107,7 @@ export default class RpcMessageHandler extends EventEmitter {
       return JSON.parse(plist.__argument.WIRMessageDataKey.toString('utf8'));
     } catch (err: any) {
       log.error(`Unparseable message data: ${truncateString(JSON.stringify(plist), 100)}`);
-      throw new Error(`Unable to parse message data: ${err.message}`);
+      throw new Error(`Unable to parse message data: ${err.message}`, {cause: err});
     }
   }
 

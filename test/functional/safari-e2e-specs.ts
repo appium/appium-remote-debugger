@@ -1,13 +1,13 @@
 import {Simctl} from 'node-simctl';
-import {getSimulator, Simulator} from 'appium-ios-simulator';
+import {getSimulator, type Simulator} from 'appium-ios-simulator';
 import {retryInterval, retry} from 'asyncbox';
 import {util} from '@appium/support';
 import {createRemoteDebugger} from '../../lib';
 import {startHttpServer, stopHttpServer} from './http-server';
-import {RemoteDebugger} from '../../lib/remote-debugger';
+import type {RemoteDebugger} from '../../lib/remote-debugger';
 import {expect, use} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {StringRecord} from '@appium/types';
+import type {StringRecord} from '@appium/types';
 
 use(chaiAsPromised);
 
