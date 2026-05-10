@@ -1,6 +1,4 @@
 export {DelayCancellation, TimeoutError} from './errors';
-export type {CancellableDelay} from './async';
-export {cancellableDelay} from './async';
 export {defaults, deepEqual, checkParams} from './object';
 
 export {

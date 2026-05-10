@@ -1,6 +1,4 @@
 import {
-  cancellableDelay,
-  DelayCancellation,
   pageArrayFromDict,
   checkParams,
   appInfoFromDict,
@@ -140,25 +138,6 @@ describe('utils', function () {
     it('returns true only for iOS 18 and newer', function () {
       expect(canUseWebInspectorShim('17.5')).to.equal(false);
       expect(canUseWebInspectorShim('18.0')).to.equal(true);
-    });
-  });
-
-  describe('cancellableDelay', function () {
-    it('resolves after the delay interval', async function () {
-      await cancellableDelay(0);
-    });
-
-    it('rejects when cancelled', async function () {
-      const delayed = cancellableDelay(50);
-      delayed.cancel();
-
-      try {
-        await delayed;
-        throw new Error('Expected cancellation rejection');
-      } catch (err: any) {
-        expect(err).to.be.instanceOf(DelayCancellation);
-        expect(err.message).to.equal('Delay cancelled');
-      }
     });
   });
 
