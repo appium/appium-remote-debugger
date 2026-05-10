@@ -1,3 +1,9 @@
+## [15.10.0](https://github.com/appium/appium-remote-debugger/compare/v15.9.1...v15.10.0) (2026-05-10)
+
+### Features
+
+* Reorganize utils ([#494](https://github.com/appium/appium-remote-debugger/issues/494)) ([332e70d](https://github.com/appium/appium-remote-debugger/commit/332e70df703fceb1f5f21f9c3665db6c051c34d6))
+
 ## [15.9.1](https://github.com/appium/appium-remote-debugger/compare/v15.9.0...v15.9.1) (2026-05-06)
 
 ### Miscellaneous Chores
