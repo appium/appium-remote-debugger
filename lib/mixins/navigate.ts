@@ -87,10 +87,7 @@ export async function waitForDom(
 
   let isPageLoading = true;
   setPageLoading(this, true);
-  setPageLoadDelay(
-    this,
-    sleep({ms: readinessTimeoutMs, cancelError: new DelayCancellation()}),
-  );
+  setPageLoadDelay(this, sleep({ms: readinessTimeoutMs, cancelError: new DelayCancellation()}));
   const pageReadinessPromise = (async () => {
     let retry = 0;
     while (isPageLoading) {
@@ -207,10 +204,7 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
   const readinessTimeoutMs = this.pageLoadMs;
   let onPageLoaded: (() => void) | undefined;
   let onPageLoadedTimeout: NodeJS.Timeout | undefined | null;
-  setPageLoadDelay(
-    this,
-    sleep({ms: readinessTimeoutMs, cancelError: new DelayCancellation()}),
-  );
+  setPageLoadDelay(this, sleep({ms: readinessTimeoutMs, cancelError: new DelayCancellation()}));
   setPageLoading(this, true);
   let isPageLoading = true;
   const start = new timing.Timer().start();
