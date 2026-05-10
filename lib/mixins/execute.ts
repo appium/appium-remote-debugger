@@ -4,7 +4,6 @@ import {
   simpleStringify,
   convertJavascriptEvaluationResult,
   RESPONSE_LOG_LENGTH,
-  truncateString,
 } from '../utils';
 import {getScriptForAtom} from '../atoms';
 import {util, timing} from '@appium/support';
@@ -35,7 +34,7 @@ export async function executeAtom(
   const script = await getScriptForAtom(atom, args, frames);
   const value = await this.execute(script);
   this.log.debug(
-    `Received result for atom '${atom}' execution: ${truncateString(simpleStringify(value), RESPONSE_LOG_LENGTH)}`,
+    `Received result for atom '${atom}' execution: ${util.truncateString(simpleStringify(value), RESPONSE_LOG_LENGTH)}`,
   );
   return value;
 }
@@ -175,7 +174,7 @@ export async function execute(
 
   const rpcClient = this.requireRpcClient(true);
   await rpcClient.waitForPage(appIdKey as AppIdKey, pageIdKey as PageIdKey);
-  this.log.debug(`Sending javascript command: '${truncateString(command, 50)}'`);
+  this.log.debug(`Sending javascript command: '${util.truncateString(command, 50)}'`);
   const res = await rpcClient.send('Runtime.evaluate', {
     expression: command,
     returnByValue: true,

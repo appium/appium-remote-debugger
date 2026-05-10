@@ -1,19 +1,11 @@
 import {RemoteMessages} from './remote-messages';
-import {waitForCondition} from 'asyncbox';
+import {sleep, waitForCondition, withTimeout} from 'asyncbox';
 import {log} from '../logger';
 import RpcMessageHandler from './rpc-message-handler';
 import {util, timing} from '@appium/support';
 import {EventEmitter} from 'node:events';
 import AsyncLock from 'async-lock';
-import {
-  convertJavascriptEvaluationResult,
-  delay,
-  defaults,
-  isEmpty,
-  isPlainObject,
-  truncateString,
-  withTimeout,
-} from '../utils';
+import {convertJavascriptEvaluationResult, defaults} from '../utils';
 import type {StringRecord} from '@appium/types';
 import type {
   AppIdKey,
@@ -325,7 +317,7 @@ export class RpcClient {
       await waitForCondition(
         () => {
           target = this.getTarget(appIdKey, pageIdKey);
-          return !isEmpty(target);
+          return !util.isEmpty(target);
         },
         {
           waitMs,
@@ -339,6 +331,7 @@ export class RpcClient {
       }
       throw new Error(
         `No targets could be matched for the app '${appIdKey}' and page '${pageIdKey}' after ${waitMs}ms`,
+        {cause: err},
       );
     }
   }
@@ -441,7 +434,7 @@ export class RpcClient {
           __selector: cmd.__selector,
         };
 
-        const hasSocketData = isPlainObject(cmd.__argument?.WIRSocketDataKey);
+        const hasSocketData = util.isPlainObject(cmd.__argument?.WIRSocketDataKey);
         if (hasSocketData) {
           // make sure the message being sent has all the information that is needed
           const socketData = cmd.__argument.WIRSocketDataKey as StringRecord;
@@ -463,7 +456,7 @@ export class RpcClient {
               // a protocol change. Log and check during testing
               log.error(
                 `Received error from send that is not being waited for (id: ${msgId}): ` +
-                  truncateString(JSON.stringify(err), DATA_LOG_LENGTH),
+                  util.truncateString(JSON.stringify(err), DATA_LOG_LENGTH),
               );
               // reject, though it is very rare that this will be triggered, since
               // the promise is resolved directly after send. On the off chance,
@@ -479,7 +472,7 @@ export class RpcClient {
                 return reject(err);
               }
               log.debug(
-                `Received response from send (id: ${msgId}): '${truncateString(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
+                `Received response from send (id: ${msgId}): '${util.truncateString(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
               );
               resolve(args);
             },
@@ -492,7 +485,7 @@ export class RpcClient {
               );
             }
             log.debug(
-              `Received data response from send (id: ${msgId}): '${truncateString(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
+              `Received data response from send (id: ${msgId}): '${util.truncateString(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
             );
             resolve(value);
           });
@@ -580,7 +573,7 @@ export class RpcClient {
     }
     const {appIdKey, pageIdKey, pageReadinessDetector} = pendingPageTargetDetails;
 
-    if (!isPlainObject(this.targets[appIdKey])) {
+    if (!util.isPlainObject(this.targets[appIdKey])) {
       this.targets[appIdKey] = {
         lock: new AsyncLock({maxOccupationTime: this._targetCreationTimeoutMs}),
       } as PagesToTargets;
@@ -610,8 +603,8 @@ export class RpcClient {
 
       this._provisionedPages.add(pageIdKey);
       try {
-        await this.targets[appIdKey].lock.acquire(pageIdKey, async () => {
-          let wasInitialized = false;
+        await this.targets[appIdKey].lock.acquire(String(pageIdKey), async () => {
+          let wasInitialized: boolean;
           try {
             wasInitialized = await this._initializePage(appIdKey, pageIdKey, targetInfo.targetId);
           } finally {
@@ -666,7 +659,7 @@ export class RpcClient {
     }
 
     try {
-      await this.targets[appIdKey].lock.acquire(pageIdKey, async () => {
+      await this.targets[appIdKey].lock.acquire(String(pageIdKey), async () => {
         let wasInitialized = false;
         try {
           if (this._provisionedPages.has(pageIdKey)) {
@@ -929,7 +922,7 @@ export class RpcClient {
           const [connectedAppIdKey, pageDict] = await this.send('connectToApp', {appIdKey});
           // sometimes the connect logic happens, but with an empty dictionary
           // which leads to the remote debugger getting disconnected, and into a loop
-          if (isEmpty(pageDict)) {
+          if (util.isEmpty(pageDict)) {
             reject(new Error(EMPTY_PAGE_DICTIONARY_ERROR));
           } else {
             resolve([connectedAppIdKey, pageDict]);
@@ -993,10 +986,10 @@ export class RpcClient {
     const lock = appTargetsMap.lock;
     const timer = new timing.Timer().start();
     await Promise.all([
-      lock.acquire(pageIdKey, async () => await delay(0)),
+      lock.acquire(String(pageIdKey), async () => await sleep(0)),
       this._pageSelectionLock.acquire(
         toPageSelectionKey(appIdKey, pageIdKey),
-        async () => await delay(0),
+        async () => await sleep(0),
       ),
     ]);
     const durationMs = timer.getDuration().asMilliSeconds;
@@ -1230,7 +1223,7 @@ export class RpcClient {
         );
         return;
       }
-      await delay(100);
+      await sleep(100);
     }
     log.warn(
       `Page '${pageIdKey}' for app '${appIdKey}' is not ready after ` +

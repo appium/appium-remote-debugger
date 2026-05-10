@@ -1,6 +1,8 @@
-import {checkParams, TimeoutError, withTimeout} from '../utils';
+import {withTimeout} from 'asyncbox';
+import {checkParams, TimeoutError} from '../utils';
 import {getAppIdKey, getPageIdKey} from './property-accessors';
 import type {RemoteDebugger} from '../remote-debugger';
+import type {EventListener} from '../types';
 
 const SAFARI_BUNDLE_ID = 'com.apple.mobilesafari';
 const GARBAGE_COLLECT_TIMEOUT_MS = 5000;
@@ -22,10 +24,7 @@ export async function launchSafari(this: RemoteDebugger): Promise<void> {
  * @param fn - Event listener function that will be called when timeline events are recorded.
  * @returns A promise that resolves when the timeline recording has started.
  */
-export async function startTimeline(
-  this: RemoteDebugger,
-  fn: import('../types').EventListener,
-): Promise<any> {
+export async function startTimeline(this: RemoteDebugger, fn: EventListener): Promise<any> {
   this.log.debug('Starting to record the timeline');
   this.requireRpcClient().on('Timeline.eventRecorded', fn);
   return await this.requireRpcClient().send('Timeline.start', {
@@ -84,6 +83,7 @@ export async function isJavascriptExecutionBlocked(
         pageIdKey: getPageIdKey(this),
       }),
       timeoutMs,
+      new TimeoutError(`Operation timed out after ${timeoutMs}ms`),
     );
     return false;
   } catch {
@@ -122,6 +122,7 @@ export async function garbageCollect(
         pageIdKey: getPageIdKey(this),
       }),
       timeoutMs,
+      new TimeoutError(`Operation timed out after ${timeoutMs}ms`),
     );
     this.log.debug(`Garbage collection successful`);
   } catch (e: any) {

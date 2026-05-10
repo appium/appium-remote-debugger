@@ -1,6 +1,5 @@
 import {EventEmitter} from 'node:events';
 import {log} from '../logger';
-import {isPlainObject, truncateString} from '../utils';
 import {util} from '@appium/support';
 import type {StringRecord} from '@appium/types';
 
@@ -106,8 +105,8 @@ export default class RpcMessageHandler extends EventEmitter {
     try {
       return JSON.parse(plist.__argument.WIRMessageDataKey.toString('utf8'));
     } catch (err: any) {
-      log.error(`Unparseable message data: ${truncateString(JSON.stringify(plist), 100)}`);
-      throw new Error(`Unable to parse message data: ${err.message}`);
+      log.error(`Unparseable message data: ${util.truncateString(JSON.stringify(plist), 100)}`);
+      throw new Error(`Unable to parse message data: ${err.message}`, {cause: err});
     }
   }
 
@@ -213,7 +212,7 @@ export default class RpcMessageHandler extends EventEmitter {
         return new Error(message);
       }
       if (dataKey.error) {
-        if (isPlainObject(dataKey.error)) {
+        if (util.isPlainObject(dataKey.error)) {
           const dataKeyError = dataKey.error as DataErrorMessage;
           const error = new Error(defaultMessage);
           for (const key of Object.keys(dataKeyError)) {

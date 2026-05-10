@@ -1,5 +1,6 @@
+import {util} from '@appium/support';
 import {events} from './events';
-import {deepEqual, defaults, isEmpty, pageArrayFromDict, appInfoFromDict} from '../utils';
+import {deepEqual, defaults, pageArrayFromDict, appInfoFromDict} from '../utils';
 import {
   setAppIdKey,
   getAppDict,
@@ -34,7 +35,7 @@ export async function onPageChange(
   appIdKey: string,
   pageDict: StringRecord,
 ): Promise<void> {
-  if (isEmpty(pageDict)) {
+  if (util.isEmpty(pageDict)) {
     return;
   }
 
@@ -115,7 +116,7 @@ export function onAppDisconnect(
     setAppIdKey(this, getDebuggerAppKey.bind(this)(getBundleId(this) as string));
   }
 
-  if (isEmpty(getAppDict(this))) {
+  if (util.isEmpty(getAppDict(this))) {
     // this means we no longer have any apps. what the what?
     this.log.debug('Main app disconnected. Disconnecting altogether.');
     this.emit(events.EVENT_DISCONNECT, true);

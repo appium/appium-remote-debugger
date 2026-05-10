@@ -34,7 +34,7 @@ export class RemoteDebuggerRealDevice extends RemoteDebugger {
       pageLoadTimeoutMs: this._pageLoadMs,
     };
 
-    this._useWebInspectorShim = canUseWebInspectorShim(this._platformVersion as string);
+    this._useWebInspectorShim = canUseWebInspectorShim(this._platformVersion);
     if (this._useWebInspectorShim) {
       const shimClient = new RpcClientRealDeviceShim(commonOpts);
       try {

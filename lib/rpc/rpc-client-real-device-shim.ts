@@ -1,5 +1,5 @@
+import {util} from '@appium/support';
 import {log} from '../logger';
-import {isPlainObject} from '../utils';
 import {RpcClient} from './rpc-client';
 import type {RemoteCommand, RpcClientOptions} from '../types';
 import type {StringRecord} from '@appium/types';
@@ -190,7 +190,7 @@ export class RpcClientRealDeviceShim extends RpcClient {
     };
 
     // Convert buffer data to strings where necessary
-    if (isPlainObject(message.__argument)) {
+    if (util.isPlainObject(message.__argument)) {
       const args = {...message.__argument};
 
       // Handle WIRMessageDataKey and WIRSocketDataKey which may be buffers
@@ -213,7 +213,7 @@ export class RpcClientRealDeviceShim extends RpcClient {
    * @returns The translated arguments for the shim service.
    */
   private translateArguments(args: any): StringRecord {
-    if (!isPlainObject(args)) {
+    if (!util.isPlainObject(args)) {
       return {};
     }
 

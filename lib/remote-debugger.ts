@@ -67,16 +67,16 @@ export class RemoteDebugger extends EventEmitter {
   frameDetached = navigationMixins.frameDetached;
 
   protected _skippedApps: string[];
-  protected _clientEventListeners: StringRecord<EventListener[]>;
-  protected _appDict: AppDict;
+  protected _clientEventListeners!: StringRecord<EventListener[]>;
+  protected _appDict: AppDict = {};
   protected _appIdKey?: AppIdKey;
   protected _pageIdKey?: PageIdKey;
   protected _connectedDrivers?: StringRecord[];
   protected _currentState?: string;
   protected _pageLoadDelay?: CancellableDelay;
-  protected _rpcClient: RpcClient | null;
-  protected _pageLoading: boolean;
-  protected _navigatingToPage: boolean;
+  protected _rpcClient: RpcClient | null = null;
+  protected _pageLoading: boolean = false;
+  protected _navigatingToPage: boolean = false;
   protected _allowNavigationWithoutReload: boolean;
   protected _pageLoadMs?: number;
   protected readonly _pageLoadStrategy?: string;
@@ -263,8 +263,6 @@ export class RemoteDebugger extends EventEmitter {
   }
 }
 
-for (const [name, event] of Object.entries(eventMixins.events)) {
-  RemoteDebugger[name] = event;
-}
+Object.assign(RemoteDebugger, eventMixins.events);
 
 export default RemoteDebugger;
