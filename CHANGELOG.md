@@ -1,3 +1,9 @@
+## [15.10.1](https://github.com/appium/appium-remote-debugger/compare/v15.10.0...v15.10.1) (2026-05-11)
+
+### Miscellaneous Chores
+
+* Use cancellable sleep from asyncbox ([#495](https://github.com/appium/appium-remote-debugger/issues/495)) ([f33d1db](https://github.com/appium/appium-remote-debugger/commit/f33d1db34948799cca5159a700a6ea4f8b57cb4c))
+
 ## [15.10.0](https://github.com/appium/appium-remote-debugger/compare/v15.9.1...v15.10.0) (2026-05-10)
 
 ### Features
