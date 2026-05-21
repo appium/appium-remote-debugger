@@ -3,7 +3,7 @@ import {log} from '../logger';
 import {RpcClient} from './rpc-client';
 import type {RemoteCommand, RpcClientOptions} from '../types';
 import type {StringRecord} from '@appium/types';
-import type {WebInspectorService, RemoteXpcConnection} from 'appium-ios-remotexpc';
+import type {WebInspectorService} from 'appium-ios-remotexpc';
 
 /**
  * Options specific to RpcClientRealDeviceShim.
@@ -32,7 +32,6 @@ interface WebInspectorMessage {
  */
 export class RpcClientRealDeviceShim extends RpcClient {
   protected webInspectorService?: WebInspectorService;
-  protected remoteXPC?: RemoteXpcConnection;
   protected messageListenerTask?: Promise<void>;
   protected isListening: boolean = false;
 
@@ -57,9 +56,7 @@ export class RpcClientRealDeviceShim extends RpcClient {
     log.debug(`Connecting to WebInspector shim service for device ${this.udid}`);
 
     const {Services} = await import('appium-ios-remotexpc');
-    const result = await Services.startWebInspectorService(this.udid);
-    this.webInspectorService = result.webInspectorService;
-    this.remoteXPC = result.remoteXPC;
+    this.webInspectorService = await Services.startWebInspectorService(this.udid);
 
     this.startMessageListener();
     this.isConnected = true;
@@ -103,11 +100,6 @@ export class RpcClientRealDeviceShim extends RpcClient {
     if (this.webInspectorService) {
       await this.webInspectorService.close();
       this.webInspectorService = undefined;
-    }
-
-    if (this.remoteXPC) {
-      await this.remoteXPC.close();
-      this.remoteXPC = undefined;
     }
 
     this.isConnected = false;
