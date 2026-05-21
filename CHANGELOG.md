@@ -1,3 +1,9 @@
+## [15.10.2](https://github.com/appium/appium-remote-debugger/compare/v15.10.1...v15.10.2) (2026-05-21)
+
+### Miscellaneous Chores
+
+* **deps:** bump appium-ios-remotexpc from 1.1.13 to 2.0.0 ([#496](https://github.com/appium/appium-remote-debugger/issues/496)) ([304a173](https://github.com/appium/appium-remote-debugger/commit/304a1738dce1165057b187c4a680c000d1c4801b))
+
 ## [15.10.1](https://github.com/appium/appium-remote-debugger/compare/v15.10.0...v15.10.1) (2026-05-11)
 
 ### Miscellaneous Chores
