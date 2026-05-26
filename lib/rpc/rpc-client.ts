@@ -647,11 +647,15 @@ export class RpcClient {
     this.targets[appIdKey][pageIdKey] = targetInfo.targetId;
 
     try {
-      await this.send('Target.setPauseOnStart', {
-        pauseOnStart: true,
-        appIdKey,
-        pageIdKey,
-      });
+      await this.send(
+        'Target.setPauseOnStart',
+        {
+          pauseOnStart: true,
+          appIdKey,
+          pageIdKey,
+        },
+        false,
+      );
     } catch (e: any) {
       log.debug(
         `Cannot setup pause on start for app '${appIdKey}' and page '${pageIdKey}': ${e.message}`,

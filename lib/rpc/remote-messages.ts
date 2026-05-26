@@ -97,8 +97,8 @@ export class RemoteMessages {
         WIRApplicationIdentifierKey: appIdKey,
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
-        WIRPageIdentifierKey: pageIdKey,
-        WIRAutomaticallyPause: false,
+        WIRPageIdentifierKey: pageIdKey != null ? Number(pageIdKey) : pageIdKey,
+        WIRMessageDataTypeChunkSupportedKey: 0,
       },
       __selector: '_rpc_forwardSocketSetup:',
     };
@@ -124,7 +124,7 @@ export class RemoteMessages {
         WIRApplicationIdentifierKey: appIdKey,
         WIRIndicateEnabledKey: enabled == null ? true : enabled,
         WIRConnectionIdentifierKey: connId,
-        WIRPageIdentifierKey: pageIdKey,
+        WIRPageIdentifierKey: pageIdKey != null ? Number(pageIdKey) : pageIdKey,
       },
       __selector: '_rpc_forwardIndicateWebView:',
     };
@@ -192,7 +192,7 @@ export class RemoteMessages {
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
         WIRApplicationIdentifierKey: appIdKey,
-        WIRPageIdentifierKey: pageIdKey,
+        WIRPageIdentifierKey: pageIdKey != null ? Number(pageIdKey) : pageIdKey,
       },
       __selector: '_rpc_forwardSocketData:',
     };
@@ -228,7 +228,7 @@ export class RemoteMessages {
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
         WIRApplicationIdentifierKey: appIdKey,
-        WIRPageIdentifierKey: pageIdKey,
+        WIRPageIdentifierKey: pageIdKey != null ? Number(pageIdKey) : pageIdKey,
       },
       __selector: '_rpc_forwardSocketData:',
     };
@@ -255,7 +255,7 @@ export class RemoteMessages {
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
         WIRApplicationIdentifierKey: appIdKey,
-        WIRPageIdentifierKey: pageIdKey,
+        WIRPageIdentifierKey: pageIdKey != null ? Number(pageIdKey) : pageIdKey,
       },
       __selector: '_rpc_forwardSocketData:',
     };
