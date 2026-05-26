@@ -1,3 +1,9 @@
+## [15.10.3](https://github.com/appium/appium-remote-debugger/compare/v15.10.2...v15.10.3) (2026-05-26)
+
+### Bug Fixes
+
+* compatibility with iOS 26 ([#498](https://github.com/appium/appium-remote-debugger/issues/498)) ([410d97f](https://github.com/appium/appium-remote-debugger/commit/410d97fe4700bc55e0f5e50b858550aded748090))
+
 ## [15.10.2](https://github.com/appium/appium-remote-debugger/compare/v15.10.1...v15.10.2) (2026-05-21)
 
 ### Miscellaneous Chores
