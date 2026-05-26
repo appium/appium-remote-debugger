@@ -7,6 +7,12 @@ const PLATFORM_VERSION = process.env.PLATFORM_VERSION ?? '26';
 describe('Real device Safari remote debugger', function () {
   this.timeout('2m');
 
+  before(function () {
+    if (!process.env.DEVICE_UDID) {
+      this.skip();
+    }
+  });
+
   it('should connect to Safari and execute JavaScript', async function () {
     const rd = createRemoteDebugger(
       {
