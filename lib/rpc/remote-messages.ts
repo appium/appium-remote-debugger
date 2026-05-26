@@ -20,6 +20,13 @@ function omitNilValues<T extends Record<string, any>>(obj: T): Partial<T> {
   ) as Partial<T>;
 }
 
+function toPageIdKey(pageIdKey?: PageIdKey): {WIRPageIdentifierKey: number} | Record<never, never> {
+  if (pageIdKey == null || pageIdKey === '' || Number.isNaN(+pageIdKey)) {
+    return {};
+  }
+  return {WIRPageIdentifierKey: +pageIdKey};
+}
+
 // mapping of commands to the function for getting the command
 // defaults to `getMinimalCommand`, so no need to have those listed here
 const COMMANDS = {
@@ -97,8 +104,8 @@ export class RemoteMessages {
         WIRApplicationIdentifierKey: appIdKey,
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
-        WIRPageIdentifierKey: pageIdKey,
-        WIRAutomaticallyPause: false,
+        ...toPageIdKey(pageIdKey),
+        WIRMessageDataTypeChunkSupportedKey: 0,
       },
       __selector: '_rpc_forwardSocketSetup:',
     };
@@ -124,7 +131,7 @@ export class RemoteMessages {
         WIRApplicationIdentifierKey: appIdKey,
         WIRIndicateEnabledKey: enabled == null ? true : enabled,
         WIRConnectionIdentifierKey: connId,
-        WIRPageIdentifierKey: pageIdKey,
+        ...toPageIdKey(pageIdKey),
       },
       __selector: '_rpc_forwardIndicateWebView:',
     };
@@ -192,7 +199,7 @@ export class RemoteMessages {
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
         WIRApplicationIdentifierKey: appIdKey,
-        WIRPageIdentifierKey: pageIdKey,
+        ...toPageIdKey(pageIdKey),
       },
       __selector: '_rpc_forwardSocketData:',
     };
@@ -228,7 +235,7 @@ export class RemoteMessages {
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
         WIRApplicationIdentifierKey: appIdKey,
-        WIRPageIdentifierKey: pageIdKey,
+        ...toPageIdKey(pageIdKey),
       },
       __selector: '_rpc_forwardSocketData:',
     };
@@ -255,7 +262,7 @@ export class RemoteMessages {
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
         WIRApplicationIdentifierKey: appIdKey,
-        WIRPageIdentifierKey: pageIdKey,
+        ...toPageIdKey(pageIdKey),
       },
       __selector: '_rpc_forwardSocketData:',
     };
