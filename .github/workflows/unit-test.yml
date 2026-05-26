@@ -25,7 +25,17 @@ jobs:
     - uses: SocketDev/action@v1
       with:
         mode: firewall-free
-    - run: sfw npm install
+    - name: Install dependencies (verbose)
+      run: sfw npm install --loglevel verbose
+    - name: Check appium-ios-remotexpc optional dependency
+      if: always()
+      run: |
+        npm ls appium-ios-remotexpc --depth=0 || true
+        if [ -d node_modules/appium-ios-remotexpc ]; then
+          echo "appium-ios-remotexpc: installed ($(node -p "require('./node_modules/appium-ios-remotexpc/package.json').version"))"
+        else
+          echo "appium-ios-remotexpc: NOT in node_modules"
+        fi
     - run: npm run lint
     - run: npm run format:check
     - run: npm run test
