@@ -77,7 +77,7 @@
     "@types/chai-as-promised": "^8.0.2",
     "@types/finalhandler": "^1.2.4",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "@types/serve-static": "^2.2.0",
     "@types/sinon": "^21.0.1",
     "appium-ios-simulator": "^8.0.0",
