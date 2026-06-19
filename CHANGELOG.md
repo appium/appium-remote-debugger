@@ -1,3 +1,9 @@
+## [15.10.5](https://github.com/appium/appium-remote-debugger/compare/v15.10.4...v15.10.5) (2026-06-19)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @types/node from 25.9.4 to 26.0.0 ([#503](https://github.com/appium/appium-remote-debugger/issues/503)) ([bd89860](https://github.com/appium/appium-remote-debugger/commit/bd89860def7b8b6cfd8262228ecd0cd209348f28))
+
 ## [15.10.4](https://github.com/appium/appium-remote-debugger/compare/v15.10.3...v15.10.4) (2026-06-19)
 
 ### Miscellaneous Chores
