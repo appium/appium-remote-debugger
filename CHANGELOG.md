@@ -1,3 +1,5 @@
+## [15.10.6](https://github.com/appium/appium-remote-debugger/compare/v15.10.5...v15.10.6) (2026-06-29)
+
 ## [15.10.5](https://github.com/appium/appium-remote-debugger/compare/v15.10.4...v15.10.5) (2026-06-19)
 
 ### Miscellaneous Chores
