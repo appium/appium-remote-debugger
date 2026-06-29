@@ -83,7 +83,7 @@
     "appium-ios-simulator": "^8.0.0",
     "chai": "^6.0.0",
     "chai-as-promised": "^8.0.0",
-    "conventional-changelog-conventionalcommits": "^9.0.0",
+    "conventional-changelog-conventionalcommits": "^10.2.0",
     "mocha": "^11.0.1",
     "mocha-junit-reporter": "^2.0.0",
     "mocha-multi-reporters": "^1.5.1",
