@@ -79,7 +79,7 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^26.0.0",
     "@types/serve-static": "^2.2.0",
-    "@types/sinon": "^21.0.1",
+    "@types/sinon": "^22.0.0",
     "appium-ios-simulator": "^8.0.0",
     "chai": "^6.0.0",
     "chai-as-promised": "^8.0.0",
