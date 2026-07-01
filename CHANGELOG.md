@@ -1,3 +1,9 @@
+## [15.10.8](https://github.com/appium/appium-remote-debugger/compare/v15.10.7...v15.10.8) (2026-07-01)
+
+### Miscellaneous Chores
+
+* downgrade conventional-changelog-conventionalcommits to v9 ([#507](https://github.com/appium/appium-remote-debugger/issues/507)) ([ef4896f](https://github.com/appium/appium-remote-debugger/commit/ef4896f00fad0f9a1c804038f7141a0397cbbc7b))
+
 ## [15.10.7](https://github.com/appium/appium-remote-debugger/compare/v15.10.6...v15.10.7) (2026-07-01)
 
 ## [15.10.6](https://github.com/appium/appium-remote-debugger/compare/v15.10.5...v15.10.6) (2026-06-29)
