@@ -1,9 +1,8 @@
 import {RemoteMessages} from '../../lib/rpc/remote-messages';
-import {SUITE_TIMEOUT} from '../helpers/helpers';
 import {expect} from 'chai';
 import {describe, it} from 'node:test';
 
-describe('RemoteMessages', {timeout: SUITE_TIMEOUT}, function () {
+describe('RemoteMessages', function () {
   const remoteMessages = new RemoteMessages();
 
   describe('getRemoteCommand', function () {

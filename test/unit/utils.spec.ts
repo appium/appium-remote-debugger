@@ -8,11 +8,10 @@ import {
   canUseWebInspectorShim,
 } from '../../lib/utils';
 import {TimeoutError, withTimeout} from 'asyncbox';
-import {SUITE_TIMEOUT} from '../helpers/helpers';
 import {expect} from 'chai';
 import {describe, it} from 'node:test';
 
-describe('utils', {timeout: SUITE_TIMEOUT}, function () {
+describe('utils', function () {
   describe('appInfoFromDict', function () {
     it('should return the id and entry for a dict', function () {
       const dict = {

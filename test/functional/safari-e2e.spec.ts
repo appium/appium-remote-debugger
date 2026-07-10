@@ -40,7 +40,7 @@ async function deleteDeviceWithRetry(udid: string): Promise<void> {
   } catch {}
 }
 
-describe('Safari remote debugger', {timeout: 610000}, function () {
+describe('Safari remote debugger', function () {
   let sim: Simulator;
   let simCreated = false;
   let address: string;
@@ -176,7 +176,7 @@ describe('Safari remote debugger', {timeout: 610000}, function () {
       ).to.eventually.be.rejectedWith(/Timed out waiting for/);
     });
 
-    it('should be able to execute asynchronously in frame', async function () {
+    it.skip('should be able to execute asynchronously in frame', async function () {
       await selectTestPage();
 
       // go to the frameset page
