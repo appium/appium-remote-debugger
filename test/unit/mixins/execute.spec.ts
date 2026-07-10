@@ -1,11 +1,10 @@
-import {MOCHA_TIMEOUT} from '../../helpers/helpers';
+import {SUITE_TIMEOUT} from '../../helpers/helpers';
 import {executeAtom, executeAtomAsync, callFunction, execute} from '../../../lib/mixins/execute';
 import sinon from 'sinon';
 import {expect} from 'chai';
+import {describe, it} from 'node:test';
 
-describe('execute', function () {
-  this.timeout(MOCHA_TIMEOUT);
-
+describe('execute', {timeout: SUITE_TIMEOUT}, function () {
   describe('executeAtom', function () {
     it('should execute atom and call send event on rpc client', async function () {
       const ctx: any = {

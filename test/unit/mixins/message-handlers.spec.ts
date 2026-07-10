@@ -1,14 +1,14 @@
 import {getDebuggerAppKey} from '../../../lib/mixins/message-handlers';
-import {MOCHA_TIMEOUT} from '../../helpers/helpers';
+import {SUITE_TIMEOUT} from '../../helpers/helpers';
 import {RemoteDebugger} from '../../../lib/remote-debugger';
 import type {AppInfo} from '../../../lib/types';
 import {expect} from 'chai';
+import {describe, it, beforeEach} from 'node:test';
 
-describe('connect', function () {
-  this.timeout(MOCHA_TIMEOUT);
+describe('connect', {timeout: SUITE_TIMEOUT}, function () {
   let rd: RemoteDebugger;
 
-  this.beforeEach(function () {
+  beforeEach(function () {
     rd = new RemoteDebugger();
   });
 
