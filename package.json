@@ -88,6 +88,6 @@
     "semantic-release": "^25.0.2",
     "serve-static": "^2.2.0",
     "sinon": "^22.0.0",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
