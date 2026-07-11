@@ -8,12 +8,10 @@ import {
   canUseWebInspectorShim,
 } from '../../lib/utils';
 import {TimeoutError, withTimeout} from 'asyncbox';
-import {MOCHA_TIMEOUT} from '../helpers/helpers';
 import {expect} from 'chai';
+import {describe, it} from 'node:test';
 
 describe('utils', function () {
-  this.timeout(MOCHA_TIMEOUT);
-
   describe('appInfoFromDict', function () {
     it('should return the id and entry for a dict', function () {
       const dict = {

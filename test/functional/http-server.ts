@@ -1,10 +1,16 @@
 import http from 'node:http';
-import {logger} from '@appium/support';
+import {logger, node} from '@appium/support';
 import finalhandler from 'finalhandler';
 import serveStatic from 'serve-static';
 import path from 'node:path';
 
-const serve = serveStatic(path.resolve('test', 'functional', 'html'));
+const FIXTURES_DIR = path.resolve(
+  node.getModuleRootSync('appium-remote-debugger', __filename)!,
+  'test',
+  'fixtures',
+);
+
+const serve = serveStatic(path.join(FIXTURES_DIR, 'html'));
 
 const log = logger.getLogger('TestHttpServer');
 

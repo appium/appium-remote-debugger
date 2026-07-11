@@ -1,5 +1,6 @@
 import {RemoteDebugger} from '../../../lib/remote-debugger';
 import {expect} from 'chai';
+import {describe, it} from 'node:test';
 
 describe('navigate', function () {
   describe('isPageLoadingCompleted', function () {

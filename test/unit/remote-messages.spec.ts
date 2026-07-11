@@ -1,10 +1,8 @@
 import {RemoteMessages} from '../../lib/rpc/remote-messages';
-import {MOCHA_TIMEOUT} from '../helpers/helpers';
 import {expect} from 'chai';
+import {describe, it} from 'node:test';
 
 describe('RemoteMessages', function () {
-  this.timeout(MOCHA_TIMEOUT);
-
   const remoteMessages = new RemoteMessages();
 
   describe('getRemoteCommand', function () {

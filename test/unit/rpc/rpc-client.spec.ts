@@ -1,14 +1,12 @@
 import sinon from 'sinon';
-import {MOCHA_TIMEOUT} from '../../helpers/helpers';
 import {RpcClient} from '../../../lib/rpc/rpc-client';
 import {expect, use} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import {describe, it} from 'node:test';
 
 use(chaiAsPromised);
 
 describe('rpc-client', function () {
-  this.timeout(MOCHA_TIMEOUT);
-
   describe('.send', function () {
     it('should send RPC message to device', async function () {});
     it('should send RPC message to device and retry if target id not found', async function () {

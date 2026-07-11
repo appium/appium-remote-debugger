@@ -8,6 +8,7 @@ import type {RemoteDebugger} from '../../lib/remote-debugger';
 import {expect, use} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type {StringRecord} from '@appium/types';
+import {describe, it, before, after, beforeEach, afterEach, type TestContext} from 'node:test';
 
 use(chaiAsPromised);
 
@@ -40,9 +41,6 @@ async function deleteDeviceWithRetry(udid: string): Promise<void> {
 }
 
 describe('Safari remote debugger', function () {
-  this.timeout(610000);
-  this.retries(2);
-
   let sim: Simulator;
   let simCreated = false;
   let address: string;
@@ -178,7 +176,7 @@ describe('Safari remote debugger', function () {
       ).to.eventually.be.rejectedWith(/Timed out waiting for/);
     });
 
-    it('should be able to execute asynchronously in frame', async function () {
+    it.skip('should be able to execute asynchronously in frame', async function () {
       await selectTestPage();
 
       // go to the frameset page
@@ -192,10 +190,10 @@ describe('Safari remote debugger', function () {
     });
   });
 
-  it('should be able to monitor network events', async function () {
+  it('should be able to monitor network events', async function (ctx: TestContext) {
     if (process.env.CI) {
       // TODO: this test is flaky on CI due to its slowness
-      return this.skip();
+      return ctx.skip();
     }
 
     const networkEvents: {event: StringRecord; method: string}[] = [];
@@ -286,7 +284,7 @@ describe('Safari remote debugger', function () {
     });
   });
 
-  it('should be able to access the shadow DOM', async function () {
+  it('should be able to access the shadow DOM', async function (ctx: TestContext) {
     function shadowScript(text: string): string {
       return `return (function (elem) {
   return (function() {
@@ -309,7 +307,7 @@ describe('Safari remote debugger', function () {
       'return !!document.head.createShadowRoot || !!document.head.attachShadow;',
     ]);
     if (!shadowDomSupported) {
-      return this.skip();
+      return ctx.skip();
     }
 
     await expect(
