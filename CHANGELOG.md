@@ -1,3 +1,9 @@
+## [15.10.9](https://github.com/appium/appium-remote-debugger/compare/v15.10.8...v15.10.9) (2026-07-11)
+
+### Miscellaneous Chores
+
+* Drop mocha ([#511](https://github.com/appium/appium-remote-debugger/issues/511)) ([2b8cc59](https://github.com/appium/appium-remote-debugger/commit/2b8cc5956911aa9a67b7b5e4e15f0679f41855fc))
+
 ## [15.10.8](https://github.com/appium/appium-remote-debugger/compare/v15.10.7...v15.10.8) (2026-07-01)
 
 ### Miscellaneous Chores
