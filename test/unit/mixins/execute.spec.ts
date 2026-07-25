@@ -1,4 +1,4 @@
-import {executeAtom, executeAtomAsync, callFunction, execute} from '../../../lib/mixins/execute';
+import {executeAtom, executeAtomAsync, callFunction, execute} from '../../../lib/mixins/execute.js';
 import sinon from 'sinon';
 import {expect} from 'chai';
 import {describe, it} from 'node:test';

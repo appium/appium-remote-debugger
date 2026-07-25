@@ -3,9 +3,10 @@ import {logger, node} from '@appium/support';
 import finalhandler from 'finalhandler';
 import serveStatic from 'serve-static';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 const FIXTURES_DIR = path.resolve(
-  node.getModuleRootSync('appium-remote-debugger', __filename)!,
+  node.getModuleRootSync('appium-remote-debugger', fileURLToPath(import.meta.url))!,
   'test',
   'fixtures',
 );

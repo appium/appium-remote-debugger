@@ -1,5 +1,5 @@
-import {getAppIdKey, getPageIdKey} from './property-accessors';
-import type {RemoteDebugger} from '../remote-debugger';
+import {getAppIdKey, getPageIdKey} from './property-accessors.js';
+import type {RemoteDebugger} from '../remote-debugger.js';
 import type {Rect} from '@appium/types';
 
 /**

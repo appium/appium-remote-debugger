@@ -1,6 +1,6 @@
-import {getClientEventListeners} from './property-accessors';
-import type {RemoteDebugger} from '../remote-debugger';
-import type {EventListener} from '../types';
+import {getClientEventListeners} from './property-accessors.js';
+import type {RemoteDebugger} from '../remote-debugger.js';
+import type {EventListener} from '../types.js';
 
 // event emitted publically
 export const events = {

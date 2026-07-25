@@ -1,7 +1,7 @@
 import {fs} from '@appium/support';
 import path from 'node:path';
-import {log} from './logger';
-import {getModuleRoot} from './utils';
+import {log} from './logger.js';
+import {getModuleRoot} from './utils/index.js';
 
 const ATOMS_CACHE: Record<string, Buffer> = {};
 

@@ -1,12 +1,13 @@
 import {util, node} from '@appium/support';
 import nodeFs from 'node:fs';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import type {StringRecord} from '@appium/types';
 
 const MODULE_NAME = 'appium-remote-debugger';
 
 function resolveModuleRoot(): string {
-  const root = node.getModuleRootSync(MODULE_NAME, __filename);
+  const root = node.getModuleRootSync(MODULE_NAME, fileURLToPath(import.meta.url));
   if (!root) {
     throw new Error(`Cannot find the root folder of the ${MODULE_NAME} Node.js module`);
   }

@@ -1,6 +1,6 @@
 import {sleep, withTimeout} from 'asyncbox';
-import {DelayCancellation, checkParams, TimeoutError} from '../utils';
-import {events} from './events';
+import {DelayCancellation, checkParams, TimeoutError} from '../utils/index.js';
+import {events} from './events.js';
 import {timing} from '@appium/support';
 import {
   getAppIdKey,
@@ -11,9 +11,9 @@ import {
   getPageReadyTimeout,
   getPageIdKey,
   setNavigatingToPage,
-} from './property-accessors';
-import type {RemoteDebugger} from '../remote-debugger';
-import type {AppIdKey, PageIdKey} from '../types';
+} from './property-accessors.js';
+import type {RemoteDebugger} from '../remote-debugger.js';
+import type {AppIdKey, PageIdKey} from '../types.js';
 
 export const DEFAULT_PAGE_READINESS_TIMEOUT_MS = 20 * 1000;
 const PAGE_READINESS_CHECK_INTERVAL_MS = 50;

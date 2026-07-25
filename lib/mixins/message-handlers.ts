@@ -1,6 +1,6 @@
 import {util} from '@appium/support';
-import {events} from './events';
-import {deepEqual, defaults, pageArrayFromDict, appInfoFromDict} from '../utils';
+import {events} from './events.js';
+import {deepEqual, defaults, pageArrayFromDict, appInfoFromDict} from '../utils/index.js';
 import {
   setAppIdKey,
   getAppDict,
@@ -10,10 +10,10 @@ import {
   setCurrentState,
   setConnectedDrivers,
   getSkippedApps,
-} from './property-accessors';
-import type {RemoteDebugger} from '../remote-debugger';
+} from './property-accessors.js';
+import type {RemoteDebugger} from '../remote-debugger.js';
 import type {StringRecord} from '@appium/types';
-import type {AppDict} from '../types';
+import type {AppDict} from '../types.js';
 
 /*
  * Generic callbacks used throughout the lifecycle of the Remote Debugger.
