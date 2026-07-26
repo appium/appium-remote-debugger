@@ -1,3 +1,13 @@
+## [16.0.0](https://github.com/appium/appium-remote-debugger/compare/v15.10.9...v16.0.0) (2026-07-26)
+
+### ⚠ BREAKING CHANGES
+
+* Consumers using require('appium-remote-debugger') must switch to import/dynamic import() — the package no longer ships a CommonJS entry point.
+
+### Features
+
+* Migrate the package to ESM ([#516](https://github.com/appium/appium-remote-debugger/issues/516)) ([0beb0ff](https://github.com/appium/appium-remote-debugger/commit/0beb0ff29261675746e1f5b6aa98144de789b3f2))
+
 ## [15.10.9](https://github.com/appium/appium-remote-debugger/compare/v15.10.8...v15.10.9) (2026-07-11)
 
 ### Miscellaneous Chores
