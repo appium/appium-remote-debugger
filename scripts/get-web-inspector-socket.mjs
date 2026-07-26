@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { getSimulator } from 'appium-ios-simulator';
+import {getSimulator} from 'appium-ios-simulator';
 
-async function main () {
+async function main() {
   const udid = process.argv[2];
   if (!udid) {
     console.error('Usage: get-web-inspector-socket.mjs <simulator-udid>');

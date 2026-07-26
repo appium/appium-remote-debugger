@@ -1,8 +1,10 @@
-import {log} from '../logger.js';
 import net from 'node:net';
-import {RpcClient} from './rpc-client.js';
+
 import {services} from 'appium-ios-device';
+
+import {log} from '../logger.js';
 import type {RpcClientOptions, RpcClientSimulatorOptions, RemoteCommand} from '../types.js';
+import {RpcClient} from './rpc-client.js';
 
 /**
  * RPC client implementation for iOS simulators.
@@ -44,16 +46,12 @@ export class RpcClientSimulator extends RpcClient {
     if (this.socketPath) {
       if (this.messageProxy) {
         // unix domain socket via proxy
-        log.debug(
-          `Connecting to remote debugger via proxy through unix domain socket: '${this.messageProxy}'`,
-        );
+        log.debug(`Connecting to remote debugger via proxy through unix domain socket: '${this.messageProxy}'`);
         this.socket = net.connect(this.messageProxy);
 
         // Forward the actual socketPath to the proxy
         this.socket.once('connect', () => {
-          log.debug(
-            `Forwarding the actual web inspector socket to the proxy: '${this.socketPath}'`,
-          );
+          log.debug(`Forwarding the actual web inspector socket to the proxy: '${this.socketPath}'`);
           if (this.socket) {
             this.socket.write(
               JSON.stringify({
@@ -166,9 +164,7 @@ export class RpcClientSimulator extends RpcClient {
 
       if (!this.socket || !this.service) {
         return reject(
-          new Error(
-            'The RPC client is not connected. Have you called `connect()` before sending a message?',
-          ),
+          new Error('The RPC client is not connected. Have you called `connect()` before sending a message?'),
         );
       }
       this.socket.on('error', onSocketError);

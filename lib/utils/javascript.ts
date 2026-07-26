@@ -17,9 +17,7 @@ export const RESPONSE_LOG_LENGTH = 100;
 export function simpleStringify(value: any, multiline: boolean = false): string {
   const stringify = (val: any): string => {
     try {
-      return multiline
-        ? (JSON.stringify(val, null, 2) ?? String(val))
-        : (JSON.stringify(val) ?? String(val));
+      return multiline ? (JSON.stringify(val, null, 2) ?? String(val)) : (JSON.stringify(val) ?? String(val));
     } catch {
       return String(val);
     }

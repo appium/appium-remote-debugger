@@ -1,6 +1,8 @@
-import {RemoteMessages} from '../../lib/rpc/remote-messages.js';
-import {expect} from 'chai';
 import {describe, it} from 'node:test';
+
+import {expect} from 'chai';
+
+import {RemoteMessages} from '../../lib/rpc/remote-messages.js';
 
 describe('RemoteMessages', function () {
   const remoteMessages = new RemoteMessages();

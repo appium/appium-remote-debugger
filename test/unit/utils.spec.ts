@@ -1,3 +1,8 @@
+import {describe, it} from 'node:test';
+
+import {TimeoutError, withTimeout} from 'asyncbox';
+import {expect} from 'chai';
+
 import {
   pageArrayFromDict,
   checkParams,
@@ -7,9 +12,6 @@ import {
   simpleStringify,
   canUseWebInspectorShim,
 } from '../../lib/utils/index.js';
-import {TimeoutError, withTimeout} from 'asyncbox';
-import {expect} from 'chai';
-import {describe, it} from 'node:test';
 
 describe('utils', function () {
   describe('appInfoFromDict', function () {
@@ -70,9 +72,7 @@ describe('utils', function () {
       checkParams({one: 'first', two: 'second', three: 'third'});
     });
     it('should throw error when parameter is missing', function () {
-      expect(() => checkParams({one: 'first', two: null, three: 'third'})).to.throw(
-        'Missing parameter: two',
-      );
+      expect(() => checkParams({one: 'first', two: null, three: 'third'})).to.throw('Missing parameter: two');
     });
   });
 

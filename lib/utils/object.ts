@@ -1,5 +1,6 @@
-import {util} from '@appium/support';
 import {isDeepStrictEqual} from 'node:util';
+
+import {util} from '@appium/support';
 import type {StringRecord} from '@appium/types';
 
 /**

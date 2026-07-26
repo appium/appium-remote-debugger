@@ -1,8 +1,10 @@
+import {describe, it, beforeEach} from 'node:test';
+
+import {expect} from 'chai';
+
 import {getPossibleDebuggerAppKeys} from '../../../lib/mixins/connect.js';
 import {RemoteDebugger} from '../../../lib/remote-debugger.js';
 import type {AppInfo} from '../../../lib/types.js';
-import {expect} from 'chai';
-import {describe, it, beforeEach} from 'node:test';
 
 describe('connect', function () {
   let rd: RemoteDebugger;
@@ -39,9 +41,7 @@ describe('connect', function () {
           isAutomationEnabled: true,
         } as AppInfo,
       };
-      expect(
-        getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1', 'io.appium.bundle2']),
-      ).to.eql(['42', '43']);
+      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1', 'io.appium.bundle2'])).to.eql(['42', '43']);
     });
     const webviewBundleIds = [
       'com.apple.WebKit.WebContent',

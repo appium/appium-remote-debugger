@@ -1,15 +1,14 @@
+import {plist, util} from '@appium/support';
+import {getSimulator} from 'appium-ios-simulator';
 /* eslint-disable no-console */
-import { SubProcess } from 'teen_process';
-import { plist, util } from '@appium/support';
-import { getSimulator } from 'appium-ios-simulator';
+import {SubProcess} from 'teen_process';
 
-
-async function getSocket (udid) {
+async function getSocket(udid) {
   const sim = await getSimulator(udid);
   return await sim.getWebInspectorSocket();
 }
 
-function printRecord (lines) {
+function printRecord(lines) {
   const header = lines.shift();
   console.log(header);
 
@@ -33,8 +32,7 @@ function printRecord (lines) {
       .filter((str) => str !== '');
 
     arr = arr.slice(4);
-    const data = arr
-      .map((str) => parseInt(str, 16));
+    const data = arr.map((str) => parseInt(str, 16));
     if (data.length === 0) {
       console.log('no data');
       return;
@@ -53,11 +51,9 @@ function printRecord (lines) {
   return '';
 }
 
-async function startSoCat (socket) {
+async function startSoCat(socket) {
   const cmd = 'socat';
-  const args = [
-    '-t100',
-    '-x', `UNIX-LISTEN:${socket},mode=777,reuseaddr,fork`, `UNIX-CONNECT:${socket}.original`];
+  const args = ['-t100', '-x', `UNIX-LISTEN:${socket},mode=777,reuseaddr,fork`, `UNIX-CONNECT:${socket}.original`];
   const proc = new SubProcess(cmd, args);
 
   let buffer = [];
@@ -92,7 +88,7 @@ async function startSoCat (socket) {
   return prom;
 }
 
-async function main () {
+async function main() {
   const udid = process.argv.at(-1);
   const s = await getSocket(udid);
   console.log('Simulator web inspector socket:', s);

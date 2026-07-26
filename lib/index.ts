@@ -1,15 +1,9 @@
-import {RemoteDebugger, REMOTE_DEBUGGER_PORT} from './remote-debugger.js';
 import {RemoteDebuggerRealDevice} from './remote-debugger-real-device.js';
+import {RemoteDebugger, REMOTE_DEBUGGER_PORT} from './remote-debugger.js';
 import type {RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions} from './types.js';
 
-export function createRemoteDebugger(
-  opts: RemoteDebuggerRealDeviceOptions,
-  realDevice: true,
-): RemoteDebuggerRealDevice;
-export function createRemoteDebugger(
-  opts: RemoteDebuggerOptions,
-  realDevice: false,
-): RemoteDebugger;
+export function createRemoteDebugger(opts: RemoteDebuggerRealDeviceOptions, realDevice: true): RemoteDebuggerRealDevice;
+export function createRemoteDebugger(opts: RemoteDebuggerOptions, realDevice: false): RemoteDebugger;
 /**
  * Creates a remote debugger instance for either simulator or real device flows.
  *

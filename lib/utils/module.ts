@@ -1,7 +1,8 @@
-import {util, node} from '@appium/support';
 import nodeFs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+
+import {util, node} from '@appium/support';
 import type {StringRecord} from '@appium/types';
 
 const MODULE_NAME = 'appium-remote-debugger';

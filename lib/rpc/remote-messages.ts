@@ -93,12 +93,7 @@ export class RemoteMessages {
    * @param pageIdKey - Optional page identifier key.
    * @returns A RawRemoteCommand for setting the sender key.
    */
-  setSenderKey(
-    connId: string,
-    senderId: string,
-    appIdKey: AppIdKey,
-    pageIdKey?: PageIdKey,
-  ): RawRemoteCommand {
+  setSenderKey(connId: string, senderId: string, appIdKey: AppIdKey, pageIdKey?: PageIdKey): RawRemoteCommand {
     return {
       __argument: {
         WIRApplicationIdentifierKey: appIdKey,
@@ -120,12 +115,7 @@ export class RemoteMessages {
    * @param enabled - Whether the web view indication is enabled. Defaults to true if not provided.
    * @returns A RawRemoteCommand for indicating web view status.
    */
-  indicateWebView(
-    connId: string,
-    appIdKey: AppIdKey,
-    pageIdKey?: PageIdKey,
-    enabled?: boolean,
-  ): RawRemoteCommand {
+  indicateWebView(connId: string, appIdKey: AppIdKey, pageIdKey?: PageIdKey, enabled?: boolean): RawRemoteCommand {
     return {
       __argument: {
         WIRApplicationIdentifierKey: appIdKey,
@@ -311,8 +301,7 @@ export class RemoteMessages {
     }
 
     // deal with WebKit commands
-    const builderFunction = (COMMANDS[command as keyof typeof COMMANDS] ||
-      MINIMAL_COMMAND) as CommandBuilderFunction;
+    const builderFunction = (COMMANDS[command as keyof typeof COMMANDS] || MINIMAL_COMMAND) as CommandBuilderFunction;
     const commonOpts = getProtocolCommand(id, command, opts, isDirectCommand(command));
     return this[builderFunction]({
       ...commonOpts,

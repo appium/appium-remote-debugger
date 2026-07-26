@@ -1,7 +1,9 @@
-import {executeAtom, executeAtomAsync, callFunction, execute} from '../../../lib/mixins/execute.js';
-import sinon from 'sinon';
-import {expect} from 'chai';
 import {describe, it} from 'node:test';
+
+import {expect} from 'chai';
+import sinon from 'sinon';
+
+import {executeAtom, executeAtomAsync, callFunction, execute} from '../../../lib/mixins/execute.js';
 
 describe('execute', function () {
   describe('executeAtom', function () {
@@ -20,11 +22,7 @@ describe('execute', function () {
           return this._rpcClient;
         },
       };
-      const res = await executeAtom.call(ctx, 'find_element', [
-        'css selector',
-        '#id',
-        {ELEMENT: 'foo'},
-      ]);
+      const res = await executeAtom.call(ctx, 'find_element', ['css selector', '#id', {ELEMENT: 'foo'}]);
       expect(res).to.eql({hello: 'world'});
     });
   });

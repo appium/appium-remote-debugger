@@ -1,12 +1,11 @@
-import {RemoteMessages} from './remote-messages.js';
-import {sleep, waitForCondition, withTimeout} from 'asyncbox';
-import {log} from '../logger.js';
-import RpcMessageHandler from './rpc-message-handler.js';
-import {util, timing} from '@appium/support';
 import {EventEmitter} from 'node:events';
-import AsyncLock from 'async-lock';
-import {convertJavascriptEvaluationResult, defaults} from '../utils/index.js';
+
+import {util, timing} from '@appium/support';
 import type {StringRecord} from '@appium/types';
+import AsyncLock from 'async-lock';
+import {sleep, waitForCondition, withTimeout} from 'asyncbox';
+
+import {log} from '../logger.js';
 import type {
   AppIdKey,
   PageIdKey,
@@ -19,6 +18,9 @@ import type {
   RpcClientOptions,
   RemoteCommandId,
 } from '../types.js';
+import {convertJavascriptEvaluationResult, defaults} from '../utils/index.js';
+import {RemoteMessages} from './remote-messages.js';
+import RpcMessageHandler from './rpc-message-handler.js';
 
 const DATA_LOG_LENGTH = 200;
 const MIN_WAIT_FOR_TARGET_TIMEOUT_MS = 30000;
@@ -26,11 +28,7 @@ const DEFAULT_TARGET_CREATION_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
 const WAIT_FOR_TARGET_INTERVAL_MS = 100;
 const NO_TARGET_SUPPORTED_ERROR = `'target' domain was not found`;
 const MISSING_TARGET_ERROR_PATTERN = /Missing target/i;
-const NO_TARGET_PRESENT_YET_ERRORS = [
-  `domain was not found`,
-  `some arguments of method`,
-  `missing target`,
-];
+const NO_TARGET_PRESENT_YET_ERRORS = [`domain was not found`, `some arguments of method`, `missing target`];
 export const NEW_APP_CONNECTED_ERROR = 'New application has connected';
 export const EMPTY_PAGE_DICTIONARY_ERROR = 'Empty page dictionary received';
 const ON_PAGE_INITIALIZED_EVENT = 'onPageInitialized';
@@ -150,10 +148,7 @@ export class RpcClient {
     this.messageHandler.on('Target.targetCreated', this.addTarget.bind(this));
     this.messageHandler.on('Target.didCommitProvisionalTarget', this.updateTarget.bind(this));
     this.messageHandler.on('Target.targetDestroyed', this.removeTarget.bind(this));
-    this.messageHandler.on(
-      'Runtime.executionContextCreated',
-      this.onExecutionContextCreated.bind(this),
-    );
+    this.messageHandler.on('Runtime.executionContextCreated', this.onExecutionContextCreated.bind(this));
     this.messageHandler.on('Heap.garbageCollected', this.onGarbageCollected.bind(this));
   }
 
@@ -301,17 +296,14 @@ export class RpcClient {
   async waitForTarget(appIdKey: AppIdKey, pageIdKey: PageIdKey): Promise<TargetId | undefined> {
     let target = this.getTarget(appIdKey, pageIdKey);
     if (target) {
-      log.debug(
-        `The target '${target}' for app '${appIdKey}' and page '${pageIdKey}' already exists, no need to wait`,
-      );
+      log.debug(`The target '${target}' for app '${appIdKey}' and page '${pageIdKey}' already exists, no need to wait`);
       return target;
     }
 
     // otherwise waiting is necessary to see what the target is
     const waitMs = Math.max(MIN_WAIT_FOR_TARGET_TIMEOUT_MS, this.pageLoadTimeoutMs || 0);
     log.debug(
-      `Waiting up to ${waitMs}ms for a target to be created for ` +
-        `app '${appIdKey}' and page '${pageIdKey}'`,
+      `Waiting up to ${waitMs}ms for a target to be created for ` + `app '${appIdKey}' and page '${pageIdKey}'`,
     );
     try {
       await waitForCondition(
@@ -346,11 +338,7 @@ export class RpcClient {
    * @param waitForResponse - Whether to wait for a response. Defaults to true.
    * @returns A promise that resolves to the command result or options.
    */
-  async send(
-    command: string,
-    opts: RemoteCommandOpts,
-    waitForResponse: boolean = true,
-  ): Promise<any> {
+  async send(command: string, opts: RemoteCommandOpts, waitForResponse: boolean = true): Promise<any> {
     const timer = new timing.Timer().start();
     try {
       return await this.sendToDevice(command, opts, waitForResponse);
@@ -359,10 +347,7 @@ export class RpcClient {
       const messageLc = (err.message || '').toLowerCase();
       if (messageLc.includes(NO_TARGET_SUPPORTED_ERROR)) {
         return await this.sendToDevice(command, opts, waitForResponse);
-      } else if (
-        appIdKey &&
-        NO_TARGET_PRESENT_YET_ERRORS.some((error) => messageLc.includes(error))
-      ) {
+      } else if (appIdKey && NO_TARGET_PRESENT_YET_ERRORS.some((error) => messageLc.includes(error))) {
         await this.waitForTarget(appIdKey, pageIdKey as PageIdKey);
         return await this.sendToDevice(command, opts, waitForResponse);
       }
@@ -465,24 +450,19 @@ export class RpcClient {
             }
           });
         } else if (this.messageHandler.listenerCount(cmd.__selector)) {
-          this.messageHandler.prependOnceListener(
-            cmd.__selector,
-            (err: Error | null, ...args: any[]) => {
-              if (err) {
-                return reject(err);
-              }
-              log.debug(
-                `Received response from send (id: ${msgId}): '${util.truncateString(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
-              );
-              resolve(args);
-            },
-          );
+          this.messageHandler.prependOnceListener(cmd.__selector, (err: Error | null, ...args: any[]) => {
+            if (err) {
+              return reject(err);
+            }
+            log.debug(
+              `Received response from send (id: ${msgId}): '${util.truncateString(JSON.stringify(args), DATA_LOG_LENGTH)}'`,
+            );
+            resolve(args);
+          });
         } else if (hasSocketData) {
           this.messageHandler.once(msgId.toString(), (err: Error | null, value: any) => {
             if (err) {
-              return reject(
-                new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`),
-              );
+              return reject(new Error(`Remote debugger error with code '${(err as any).code}': ${err.message}`));
             }
             log.debug(
               `Received data response from send (id: ${msgId}): '${util.truncateString(JSON.stringify(value), DATA_LOG_LENGTH)}'`,
@@ -611,18 +591,11 @@ export class RpcClient {
             if (targetInfo.isPaused) {
               await this._resumeTarget(appIdKey, pageIdKey, targetInfo.targetId);
             } else {
-              log.debug(
-                `Provisional target ${targetInfo.targetId}@${appIdKey} is not paused, so not resuming`,
-              );
+              log.debug(`Provisional target ${targetInfo.targetId}@${appIdKey} is not paused, so not resuming`);
             }
           }
           if (wasInitialized) {
-            await this._waitForPageReadiness(
-              appIdKey,
-              pageIdKey,
-              targetInfo.targetId,
-              adjustPageReadinessDetector(),
-            );
+            await this._waitForPageReadiness(appIdKey, pageIdKey, targetInfo.targetId, adjustPageReadinessDetector());
           }
         });
       } catch (e: any) {
@@ -634,14 +607,11 @@ export class RpcClient {
       return;
     }
 
-    log.debug(
-      `Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`,
-    );
+    log.debug(`Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`);
     if (Object.hasOwn(this.targets[appIdKey], pageIdKey)) {
       const existingTarget = this.targets[appIdKey][pageIdKey] as TargetId;
       log.debug(
-        `There is already a target for this app and page ('${existingTarget}'). ` +
-          `This might cause problems`,
+        `There is already a target for this app and page ('${existingTarget}'). ` + `This might cause problems`,
       );
     }
     this.targets[appIdKey][pageIdKey] = targetInfo.targetId;
@@ -657,9 +627,7 @@ export class RpcClient {
         false,
       );
     } catch (e: any) {
-      log.debug(
-        `Cannot setup pause on start for app '${appIdKey}' and page '${pageIdKey}': ${e.message}`,
-      );
+      log.debug(`Cannot setup pause on start for app '${appIdKey}' and page '${pageIdKey}': ${e.message}`);
     }
 
     try {
@@ -678,12 +646,7 @@ export class RpcClient {
           }
         }
         if (wasInitialized) {
-          await this._waitForPageReadiness(
-            appIdKey,
-            pageIdKey,
-            targetInfo.targetId,
-            adjustPageReadinessDetector(),
-          );
+          await this._waitForPageReadiness(appIdKey, pageIdKey, targetInfo.targetId, adjustPageReadinessDetector());
         }
       });
     } catch (e: any) {
@@ -703,15 +666,9 @@ export class RpcClient {
    * @param app - The application identifier key.
    * @param targetInfo - Information about the provisional target update.
    */
-  async updateTarget(
-    err: Error | undefined,
-    app: AppIdKey,
-    targetInfo: ProvisionalTargetInfo,
-  ): Promise<void> {
+  async updateTarget(err: Error | undefined, app: AppIdKey, targetInfo: ProvisionalTargetInfo): Promise<void> {
     const {oldTargetId, newTargetId} = targetInfo;
-    log.debug(
-      `Target updated for app '${app}'. Old target: '${oldTargetId}', new target: '${newTargetId}'`,
-    );
+    log.debug(`Target updated for app '${app}'. Old target: '${oldTargetId}', new target: '${newTargetId}'`);
 
     const appTargetsMap = this.targets[app];
     if (!appTargetsMap) {
@@ -774,9 +731,7 @@ export class RpcClient {
         return;
       }
     }
-    log.debug(
-      `Target '${targetInfo.targetId}' deleted for app '${app}', but no such target exists`,
-    );
+    log.debug(`Target '${targetInfo.targetId}' deleted for app '${app}', but no such target exists`);
   }
 
   /**
@@ -851,9 +806,7 @@ export class RpcClient {
       );
 
       const msLeft = Math.max(timeoutMs - Math.trunc(timer.getDuration().asMilliSeconds), 1000);
-      log.debug(
-        `Waiting up to ${msLeft}ms for page '${pageIdKey}' of app '${appIdKey}' to be selected`,
-      );
+      log.debug(`Waiting up to ${msLeft}ms for page '${pageIdKey}' of app '${appIdKey}' to be selected`);
       await new Promise<void>((resolve) => {
         const onPageInitialized = (notifiedAppIdKey: AppIdKey, notifiedPageIdKey: PageIdKey) => {
           const timeoutHandler = setTimeout(() => {
@@ -868,9 +821,7 @@ export class RpcClient {
           if (notifiedAppIdKey === appIdKey && notifiedPageIdKey === pageIdKey) {
             clearTimeout(timeoutHandler);
             this._pageSelectionMonitor.off(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
-            log.debug(
-              `Selected the page ${pageIdKey}@${appIdKey} after ${timer.getDuration().asMilliSeconds}ms`,
-            );
+            log.debug(`Selected the page ${pageIdKey}@${appIdKey} after ${timer.getDuration().asMilliSeconds}ms`);
             resolve();
           } else {
             log.debug(
@@ -991,10 +942,7 @@ export class RpcClient {
     const timer = new timing.Timer().start();
     await Promise.all([
       lock.acquire(String(pageIdKey), async () => await sleep(0)),
-      this._pageSelectionLock.acquire(
-        toPageSelectionKey(appIdKey, pageIdKey),
-        async () => await sleep(0),
-      ),
+      this._pageSelectionLock.acquire(toPageSelectionKey(appIdKey, pageIdKey), async () => await sleep(0)),
     ]);
     const durationMs = timer.getDuration().asMilliSeconds;
     if (durationMs > 10) {
@@ -1013,11 +961,7 @@ export class RpcClient {
    * @param targetId - Optional target ID. If not provided, will be retrieved from the targets map.
    * @returns A promise that resolves to true if initialization succeeded, false otherwise.
    */
-  private async _initializePage(
-    appIdKey: AppIdKey,
-    pageIdKey: PageIdKey,
-    targetId?: TargetId,
-  ): Promise<boolean> {
+  private async _initializePage(appIdKey: AppIdKey, pageIdKey: PageIdKey, targetId?: TargetId): Promise<boolean> {
     const sendOpts: RemoteCommandOpts = {
       appIdKey,
       pageIdKey,
@@ -1160,11 +1104,7 @@ export class RpcClient {
    * @param pageIdKey - The page identifier key.
    * @param targetId - The target ID to resume.
    */
-  private async _resumeTarget(
-    appIdKey: AppIdKey,
-    pageIdKey: PageIdKey,
-    targetId: TargetId,
-  ): Promise<void> {
+  private async _resumeTarget(appIdKey: AppIdKey, pageIdKey: PageIdKey, targetId: TargetId): Promise<void> {
     try {
       await this.send('Target.resume', {
         appIdKey,
@@ -1222,8 +1162,7 @@ export class RpcClient {
       }
       if (pageReadinessDetector.readinessDetector(readyState)) {
         log.info(
-          `Page '${pageIdKey}' for app '${appIdKey}' is ready after ` +
-            `${timer.getDuration().asMilliSeconds}ms`,
+          `Page '${pageIdKey}' for app '${appIdKey}' is ready after ` + `${timer.getDuration().asMilliSeconds}ms`,
         );
         return;
       }
@@ -1243,10 +1182,7 @@ export class RpcClient {
    * @param targetInfo - Information about the target.
    * @returns The pending page target details if there's a match, undefined otherwise.
    */
-  private _getPendingPageTargetDetails(
-    appId: AppIdKey,
-    targetInfo: TargetInfo,
-  ): PendingPageTargetDetails | undefined {
+  private _getPendingPageTargetDetails(appId: AppIdKey, targetInfo: TargetInfo): PendingPageTargetDetails | undefined {
     const logInfo = (message: string): undefined =>
       void log.info(
         `Skipping 'Target.targetCreated' event ${message} for app '${appId}': ${JSON.stringify(targetInfo)}`,

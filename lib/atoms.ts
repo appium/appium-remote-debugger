@@ -1,5 +1,7 @@
-import {fs} from '@appium/support';
 import path from 'node:path';
+
+import {fs} from '@appium/support';
+
 import {log} from './logger.js';
 import {getModuleRoot} from './utils/index.js';
 

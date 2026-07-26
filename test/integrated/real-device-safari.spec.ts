@@ -1,6 +1,8 @@
-import {createRemoteDebugger} from '../../lib/index.js';
-import {expect} from 'chai';
 import {describe, it} from 'node:test';
+
+import {expect} from 'chai';
+
+import {createRemoteDebugger} from '../../lib/index.js';
 
 const UDID = process.env.DEVICE_UDID ?? '';
 const PLATFORM_VERSION = process.env.PLATFORM_VERSION ?? '26';

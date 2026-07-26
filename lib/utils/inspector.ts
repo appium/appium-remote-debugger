@@ -1,5 +1,6 @@
 import {util} from '@appium/support';
 import type {StringRecord} from '@appium/types';
+
 import type {AppInfo, AppDict, Page} from '../types.js';
 
 export const WEB_CONTENT_BUNDLE_ID = 'com.apple.WebKit.WebContent';
@@ -64,9 +65,7 @@ export function pageArrayFromDict(pageDict: StringRecord): Page[] {
   return (
     Object.values(pageDict)
       // count only WIRTypeWeb pages and ignore all others (WIRTypeJavaScript etc)
-      .filter(
-        (dict) => dict.WIRTypeKey === undefined || ACCEPTED_PAGE_TYPES.includes(dict.WIRTypeKey),
-      )
+      .filter((dict) => dict.WIRTypeKey === undefined || ACCEPTED_PAGE_TYPES.includes(dict.WIRTypeKey))
       .map((dict) => ({
         id: dict.WIRPageIdentifierKey,
         title: dict.WIRTitleKey,

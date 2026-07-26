@@ -1,6 +1,7 @@
-import {getAppIdKey, getPageIdKey} from './property-accessors.js';
-import type {RemoteDebugger} from '../remote-debugger.js';
 import type {Rect} from '@appium/types';
+
+import type {RemoteDebugger} from '../remote-debugger.js';
+import {getAppIdKey, getPageIdKey} from './property-accessors.js';
 
 /**
  * Options for capturing a screenshot.
@@ -23,10 +24,7 @@ export interface ScreenshotCaptureOptions {
  * @returns A promise that resolves to a base64-encoded string of the screenshot
  *          (without the data URL prefix).
  */
-export async function captureScreenshot(
-  this: RemoteDebugger,
-  opts: ScreenshotCaptureOptions = {},
-): Promise<string> {
+export async function captureScreenshot(this: RemoteDebugger, opts: ScreenshotCaptureOptions = {}): Promise<string> {
   const {rect = null, coordinateSystem = 'Viewport'} = opts;
   this.log.debug('Capturing screenshot');
 

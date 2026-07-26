@@ -1,8 +1,10 @@
-import sinon from 'sinon';
-import {RpcClient} from '../../../lib/rpc/rpc-client.js';
+import {describe, it} from 'node:test';
+
 import {expect, use} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {describe, it} from 'node:test';
+import sinon from 'sinon';
+
+import {RpcClient} from '../../../lib/rpc/rpc-client.js';
 
 use(chaiAsPromised);
 

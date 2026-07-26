@@ -1,9 +1,10 @@
 import {util} from '@appium/support';
-import {log} from '../logger.js';
-import {RpcClient} from './rpc-client.js';
-import type {RemoteCommand, RpcClientOptions} from '../types.js';
 import type {StringRecord} from '@appium/types';
 import type {WebInspectorService} from 'appium-ios-remotexpc';
+
+import {log} from '../logger.js';
+import type {RemoteCommand, RpcClientOptions} from '../types.js';
+import {RpcClient} from './rpc-client.js';
 
 /**
  * Options specific to RpcClientRealDeviceShim.

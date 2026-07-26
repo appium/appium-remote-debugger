@@ -1,7 +1,10 @@
+import {timing} from '@appium/support';
 import {sleep, withTimeout} from 'asyncbox';
+
+import type {RemoteDebugger} from '../remote-debugger.js';
+import type {AppIdKey, PageIdKey} from '../types.js';
 import {DelayCancellation, checkParams, TimeoutError} from '../utils/index.js';
 import {events} from './events.js';
-import {timing} from '@appium/support';
 import {
   getAppIdKey,
   setPageLoading,
@@ -12,8 +15,6 @@ import {
   getPageIdKey,
   setNavigatingToPage,
 } from './property-accessors.js';
-import type {RemoteDebugger} from '../remote-debugger.js';
-import type {AppIdKey, PageIdKey} from '../types.js';
 
 export const DEFAULT_PAGE_READINESS_TIMEOUT_MS = 20 * 1000;
 const PAGE_READINESS_CHECK_INTERVAL_MS = 50;
@@ -77,10 +78,7 @@ export function isPageLoadingCompleted(this: RemoteDebugger, readyState: string)
  * @param startPageLoadTimer - Optional timer instance to use for tracking elapsed time.
  *                             If not provided, a new timer will be created and started.
  */
-export async function waitForDom(
-  this: RemoteDebugger,
-  startPageLoadTimer?: timing.Timer,
-): Promise<void> {
+export async function waitForDom(this: RemoteDebugger, startPageLoadTimer?: timing.Timer): Promise<void> {
   const readinessTimeoutMs = this.pageLoadMs;
   this.log.debug(`Waiting up to ${readinessTimeoutMs}ms for the page to be ready`);
   const timer = startPageLoadTimer ?? new timing.Timer().start();
@@ -117,9 +115,7 @@ export async function waitForDom(
         return;
       }
       if (elapsedMs > readinessTimeoutMs) {
-        this.log.info(
-          `Timed out after ${readinessTimeoutMs}ms of waiting for the page readiness. Continuing anyway`,
-        );
+        this.log.info(`Timed out after ${readinessTimeoutMs}ms of waiting for the page readiness. Continuing anyway`);
         isPageLoading = false;
         return;
       }
@@ -226,9 +222,7 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
     onPageLoaded = () => {
       if (isPageLoading) {
         isPageLoading = false;
-        this.log.debug(
-          `The page ${url} is ready in ${start.getDuration().asMilliSeconds.toFixed(0)}ms`,
-        );
+        this.log.debug(`The page ${url} is ready in ${start.getDuration().asMilliSeconds.toFixed(0)}ms`);
       }
       if (onPageLoadedTimeout) {
         clearTimeout(onPageLoadedTimeout);
