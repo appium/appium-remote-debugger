@@ -1,4 +1,4 @@
-import {createRemoteDebugger} from '../../lib';
+import {createRemoteDebugger} from '../../lib/index.js';
 import {expect} from 'chai';
 import {describe, it} from 'node:test';
 

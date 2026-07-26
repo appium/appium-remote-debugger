@@ -1,7 +1,7 @@
-import {RemoteDebugger} from './remote-debugger';
-import {RpcClientRealDevice, RpcClientRealDeviceShim} from './rpc';
-import {canUseWebInspectorShim} from './utils';
-import type {RemoteDebuggerRealDeviceOptions} from './types';
+import {RemoteDebugger} from './remote-debugger.js';
+import {RpcClientRealDevice, RpcClientRealDeviceShim} from './rpc/index.js';
+import {canUseWebInspectorShim} from './utils/index.js';
+import type {RemoteDebuggerRealDeviceOptions} from './types.js';
 
 export class RemoteDebuggerRealDevice extends RemoteDebugger {
   private readonly _udid!: string;

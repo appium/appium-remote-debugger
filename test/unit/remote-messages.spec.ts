@@ -1,4 +1,4 @@
-import {RemoteMessages} from '../../lib/rpc/remote-messages';
+import {RemoteMessages} from '../../lib/rpc/remote-messages.js';
 import {expect} from 'chai';
 import {describe, it} from 'node:test';
 

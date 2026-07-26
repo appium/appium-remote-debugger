@@ -1,6 +1,6 @@
-import {RemoteDebugger, REMOTE_DEBUGGER_PORT} from './remote-debugger';
-import {RemoteDebuggerRealDevice} from './remote-debugger-real-device';
-import type {RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions} from './types';
+import {RemoteDebugger, REMOTE_DEBUGGER_PORT} from './remote-debugger.js';
+import {RemoteDebuggerRealDevice} from './remote-debugger-real-device.js';
+import type {RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions} from './types.js';
 
 export function createRemoteDebugger(
   opts: RemoteDebuggerRealDeviceOptions,

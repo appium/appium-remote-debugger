@@ -1,7 +1,7 @@
-import {log} from '../logger';
-import {RpcClient} from './rpc-client';
+import {log} from '../logger.js';
+import {RpcClient} from './rpc-client.js';
 import {services} from 'appium-ios-device';
-import type {RemoteCommand} from '../types';
+import type {RemoteCommand} from '../types.js';
 
 /**
  * RPC client implementation for real iOS devices.

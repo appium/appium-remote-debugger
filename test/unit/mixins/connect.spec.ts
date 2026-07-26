@@ -1,6 +1,6 @@
-import {getPossibleDebuggerAppKeys} from '../../../lib/mixins/connect';
-import {RemoteDebugger} from '../../../lib/remote-debugger';
-import type {AppInfo} from '../../../lib/types';
+import {getPossibleDebuggerAppKeys} from '../../../lib/mixins/connect.js';
+import {RemoteDebugger} from '../../../lib/remote-debugger.js';
+import type {AppInfo} from '../../../lib/types.js';
 import {expect} from 'chai';
 import {describe, it, beforeEach} from 'node:test';
 

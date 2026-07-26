@@ -1,5 +1,5 @@
 import {EventEmitter} from 'node:events';
-import {log} from '../logger';
+import {log} from '../logger.js';
 import {util} from '@appium/support';
 import type {StringRecord} from '@appium/types';
 

@@ -4,13 +4,13 @@ import {
   simpleStringify,
   convertJavascriptEvaluationResult,
   RESPONSE_LOG_LENGTH,
-} from '../utils';
-import {getScriptForAtom} from '../atoms';
+} from '../utils/index.js';
+import {getScriptForAtom} from '../atoms.js';
 import {util, timing} from '@appium/support';
 import {retryInterval} from 'asyncbox';
-import {getAppIdKey, getPageIdKey, getGarbageCollectOnExecute} from './property-accessors';
-import type {RemoteDebugger} from '../remote-debugger';
-import type {AppIdKey, PageIdKey} from '../types';
+import {getAppIdKey, getPageIdKey, getGarbageCollectOnExecute} from './property-accessors.js';
+import type {RemoteDebugger} from '../remote-debugger.js';
+import type {AppIdKey, PageIdKey} from '../types.js';
 
 /* How many milliseconds to wait for webkit to return a response before timing out */
 const RPC_RESPONSE_TIMEOUT_MS = 5000;

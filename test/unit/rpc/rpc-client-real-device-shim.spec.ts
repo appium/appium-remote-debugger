@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {RpcClientRealDeviceShim} from '../../../lib/rpc/rpc-client-real-device-shim';
+import {RpcClientRealDeviceShim} from '../../../lib/rpc/rpc-client-real-device-shim.js';
 import {describe, it, beforeEach} from 'node:test';
 
 describe('RpcClientRealDeviceShim', function () {

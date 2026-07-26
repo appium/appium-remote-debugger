@@ -1,11 +1,11 @@
-import {RemoteMessages} from './remote-messages';
+import {RemoteMessages} from './remote-messages.js';
 import {sleep, waitForCondition, withTimeout} from 'asyncbox';
-import {log} from '../logger';
-import RpcMessageHandler from './rpc-message-handler';
+import {log} from '../logger.js';
+import RpcMessageHandler from './rpc-message-handler.js';
 import {util, timing} from '@appium/support';
 import {EventEmitter} from 'node:events';
 import AsyncLock from 'async-lock';
-import {convertJavascriptEvaluationResult, defaults} from '../utils';
+import {convertJavascriptEvaluationResult, defaults} from '../utils/index.js';
 import type {StringRecord} from '@appium/types';
 import type {
   AppIdKey,
@@ -18,7 +18,7 @@ import type {
   RawRemoteCommand,
   RpcClientOptions,
   RemoteCommandId,
-} from '../types';
+} from '../types.js';
 
 const DATA_LOG_LENGTH = 200;
 const MIN_WAIT_FOR_TARGET_TIMEOUT_MS = 30000;

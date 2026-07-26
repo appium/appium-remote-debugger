@@ -1,5 +1,5 @@
-import {pageArrayFromDict, WEB_CONTENT_BUNDLE_ID, appIdsForBundle} from '../utils';
-import {events} from './events';
+import {pageArrayFromDict, WEB_CONTENT_BUNDLE_ID, appIdsForBundle} from '../utils/index.js';
+import {events} from './events.js';
 import {timing, util} from '@appium/support';
 import {retryInterval, waitForCondition} from 'asyncbox';
 import {
@@ -13,10 +13,10 @@ import {
   getBundleId,
   getAdditionalBundleIds,
   getIgnoredBundleIds,
-} from './property-accessors';
-import {NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR} from '../rpc/rpc-client';
-import type {RemoteDebugger} from '../remote-debugger';
-import type {AppDict, Page, AppIdKey, PageIdKey, AppPage} from '../types';
+} from './property-accessors.js';
+import {NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR} from '../rpc/rpc-client.js';
+import type {RemoteDebugger} from '../remote-debugger.js';
+import type {AppDict, Page, AppIdKey, PageIdKey, AppPage} from '../types.js';
 
 const APP_CONNECT_TIMEOUT_MS = 0;
 const APP_CONNECT_INTERVAL_MS = 100;

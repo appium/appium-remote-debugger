@@ -1,7 +1,7 @@
 /* eslint-disable dot-notation */
 import type {StringRecord} from '@appium/types';
-import type {RemoteDebugger} from '../remote-debugger';
-import type {EventListener} from '../types';
+import type {RemoteDebugger} from '../remote-debugger.js';
+import type {EventListener} from '../types.js';
 
 /** Gets the current app dictionary snapshot reference. */
 export function getAppDict(instance: RemoteDebugger): (typeof instance)['_appDict'] {

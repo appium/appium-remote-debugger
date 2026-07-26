@@ -1,8 +1,8 @@
-import {log} from '../logger';
+import {log} from '../logger.js';
 import net from 'node:net';
-import {RpcClient} from './rpc-client';
+import {RpcClient} from './rpc-client.js';
 import {services} from 'appium-ios-device';
-import type {RpcClientOptions, RpcClientSimulatorOptions, RemoteCommand} from '../types';
+import type {RpcClientOptions, RpcClientSimulatorOptions, RemoteCommand} from '../types.js';
 
 /**
  * RPC client implementation for iOS simulators.

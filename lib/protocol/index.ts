@@ -1,5 +1,5 @@
 import type {StringRecord} from '@appium/types';
-import type {RemoteCommandOpts, ProtocolCommandOpts} from '../types';
+import type {RemoteCommandOpts, ProtocolCommandOpts} from '../types.js';
 
 const OBJECT_GROUP = 'console';
 

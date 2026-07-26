@@ -1,4 +1,4 @@
-import {getProtocolCommand} from '../protocol';
+import {getProtocolCommand} from '../protocol/index.js';
 import type {
   RawRemoteCommand,
   RemoteCommandOpts,
@@ -6,7 +6,7 @@ import type {
   AppIdKey,
   PageIdKey,
   RemoteCommandId,
-} from '../types';
+} from '../types.js';
 
 const OBJECT_GROUP = 'console';
 

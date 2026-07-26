@@ -18,8 +18,16 @@
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
     "npm": ">=10"
   },
+  "type": "module",
   "types": "./build/lib/index.d.ts",
   "main": "./build/lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./build/lib/index.d.ts",
+      "import": "./build/lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "bin": {},
   "directories": {
     "lib": "lib"

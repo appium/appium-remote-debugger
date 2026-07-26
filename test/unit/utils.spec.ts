@@ -6,7 +6,7 @@ import {
   defaults,
   simpleStringify,
   canUseWebInspectorShim,
-} from '../../lib/utils';
+} from '../../lib/utils/index.js';
 import {TimeoutError, withTimeout} from 'asyncbox';
 import {expect} from 'chai';
 import {describe, it} from 'node:test';
