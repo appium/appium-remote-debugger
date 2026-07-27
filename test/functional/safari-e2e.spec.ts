@@ -304,7 +304,7 @@ describe('Safari remote debugger', function () {
 
     await assert.doesNotReject(
       retryInterval(5, 500, async function () {
-        const el1 = await rd.executeAtom('find_element', ['class name', 'element', null]);
+        const el1 = await rd.executeAtom('find_element_fragment', ['class name', 'element']);
         const sEl1 = await rd.executeAtom('execute_script', [shadowScript('#shadowContent'), [el1]]);
         const sEl2 = await rd.executeAtom('execute_script', [shadowScript('#shadowSubContent'), [sEl1]]);
         const text = await rd.executeAtom('get_text', [sEl2]);
