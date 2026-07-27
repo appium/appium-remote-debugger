@@ -1,4 +1,5 @@
 import type {StringRecord} from '@appium/types';
+
 import type {RemoteCommandOpts, ProtocolCommandOpts} from '../types.js';
 
 const OBJECT_GROUP = 'console';
@@ -225,10 +226,7 @@ export function getProtocolCommand(
     throw new Error(`Unknown command: '${method}'`);
   }
 
-  const params: StringRecord = (paramNames as readonly string[]).reduce(function (
-    acc: StringRecord,
-    name: string,
-  ) {
+  const params: StringRecord = (paramNames as readonly string[]).reduce(function (acc: StringRecord, name: string) {
     acc[name] = opts[name];
     return acc;
   }, {} as StringRecord);

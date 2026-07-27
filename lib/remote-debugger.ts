@@ -1,19 +1,21 @@
 import {EventEmitter} from 'node:events';
+
+import type {AppiumLogger, StringRecord} from '@appium/types';
+import type {CancellablePromise} from 'asyncbox';
+
 import {log as defaultLog} from './logger.js';
-import {RpcClientSimulator} from './rpc/index.js';
-import {getModuleProperties} from './utils/index.js';
 import * as connectMixins from './mixins/connect.js';
+import * as cookieMixins from './mixins/cookies.js';
+import * as eventMixins from './mixins/events.js';
 import * as executeMixins from './mixins/execute.js';
 import * as messageHandlerMixins from './mixins/message-handlers.js';
-import * as navigationMixins from './mixins/navigate.js';
-import * as cookieMixins from './mixins/cookies.js';
-import * as screenshotMixins from './mixins/screenshot.js';
-import * as eventMixins from './mixins/events.js';
 import * as miscellaneousMixins from './mixins/misc.js';
-import type {CancellablePromise} from 'asyncbox';
-import type {RemoteDebuggerOptions, AppDict, EventListener, PageIdKey, AppIdKey} from './types.js';
-import type {AppiumLogger, StringRecord} from '@appium/types';
+import * as navigationMixins from './mixins/navigate.js';
+import * as screenshotMixins from './mixins/screenshot.js';
+import {RpcClientSimulator} from './rpc/index.js';
 import type {RpcClient} from './rpc/rpc-client.js';
+import type {RemoteDebuggerOptions, AppDict, EventListener, PageIdKey, AppIdKey} from './types.js';
+import {getModuleProperties} from './utils/index.js';
 
 export const REMOTE_DEBUGGER_PORT = 27753;
 const PAGE_READY_TIMEOUT_MS = 5000;
@@ -145,8 +147,7 @@ export class RemoteDebugger extends EventEmitter {
     this._remoteDebugProxy = remoteDebugProxy;
     this._pageReadyTimeout = pageReadyTimeout;
 
-    this._logAllCommunication =
-      logAllCommunication == null ? !!logFullResponse : !!logAllCommunication;
+    this._logAllCommunication = logAllCommunication == null ? !!logFullResponse : !!logAllCommunication;
     this._logAllCommunicationHexDump = logAllCommunicationHexDump;
     this._socketChunkSize = socketChunkSize;
 

@@ -1,6 +1,10 @@
 import {util} from '@appium/support';
-import {events} from './events.js';
+import type {StringRecord} from '@appium/types';
+
+import type {RemoteDebugger} from '../remote-debugger.js';
+import type {AppDict} from '../types.js';
 import {deepEqual, defaults, pageArrayFromDict, appInfoFromDict} from '../utils/index.js';
+import {events} from './events.js';
 import {
   setAppIdKey,
   getAppDict,
@@ -11,9 +15,6 @@ import {
   setConnectedDrivers,
   getSkippedApps,
 } from './property-accessors.js';
-import type {RemoteDebugger} from '../remote-debugger.js';
-import type {StringRecord} from '@appium/types';
-import type {AppDict} from '../types.js';
 
 /*
  * Generic callbacks used throughout the lifecycle of the Remote Debugger.
@@ -45,10 +46,7 @@ export async function onPageChange(
     const previousPages = getAppDict(this)[appIdKey].pageArray;
     // we have a pre-existing pageDict
     if (previousPages && deepEqual(previousPages, currentPages)) {
-      this.log.debug(
-        `Received page change notice for app '${appIdKey}' ` +
-          `but the listing has not changed. Ignoring.`,
-      );
+      this.log.debug(`Received page change notice for app '${appIdKey}' but the listing has not changed. Ignoring.`);
       return;
     }
     // keep track of the page dictionary
@@ -97,11 +95,7 @@ export async function onAppConnect(
  * @param dict - Dictionary containing the disconnected application information
  *               including the WIRApplicationIdentifierKey.
  */
-export function onAppDisconnect(
-  this: RemoteDebugger,
-  err: Error | null | undefined,
-  dict: StringRecord,
-): void {
+export function onAppDisconnect(this: RemoteDebugger, err: Error | null | undefined, dict: StringRecord): void {
   const appIdKey = dict.WIRApplicationIdentifierKey;
   this.log.debug(`Application '${appIdKey}' disconnected. Removing from app dictionary.`);
   this.log.debug(`Current app is '${getAppIdKey(this)}'`);
@@ -167,17 +161,11 @@ export function onConnectedDriverList(
  * @param state - Dictionary containing the automation availability state with
  *                WIRAutomationAvailabilityKey.
  */
-export function onCurrentState(
-  this: RemoteDebugger,
-  err: Error | null | undefined,
-  state: StringRecord,
-): void {
+export function onCurrentState(this: RemoteDebugger, err: Error | null | undefined, state: StringRecord): void {
   setCurrentState(this, state.WIRAutomationAvailabilityKey);
   // This state changes when 'Remote Automation' in 'Settings app' > 'Safari' > 'Advanced' > 'Remote Automation' changes
   // WIRAutomationAvailabilityAvailable or WIRAutomationAvailabilityNotAvailable
-  this.log.debug(
-    `Received connected automation availability state: ${JSON.stringify(this.currentState)}`,
-  );
+  this.log.debug(`Received connected automation availability state: ${JSON.stringify(this.currentState)}`);
 }
 
 /**
@@ -233,8 +221,7 @@ export function getDebuggerAppKey(this: RemoteDebugger, bundleId: string): strin
     for (const [key, data] of Object.entries(getAppDict(this))) {
       if (data.isProxy && data.hostId === appId) {
         this.log.debug(
-          `Found separate bundleId '${data.bundleId}' ` +
-            `acting as proxy for '${bundleId}', with app id '${key}'`,
+          `Found separate bundleId '${data.bundleId}' acting as proxy for '${bundleId}', with app id '${key}'`,
         );
         // set the app id... the last one will be used, so just keep re-assigning
         proxyAppId = key;

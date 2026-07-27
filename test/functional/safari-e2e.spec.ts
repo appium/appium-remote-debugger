@@ -1,14 +1,16 @@
-import {Simctl} from 'node-simctl';
+import {describe, it, before, after, beforeEach, afterEach, type TestContext} from 'node:test';
+
+import {util} from '@appium/support';
+import type {StringRecord} from '@appium/types';
 import {getSimulator, type Simulator} from 'appium-ios-simulator';
 import {retryInterval, retry} from 'asyncbox';
-import {util} from '@appium/support';
-import {createRemoteDebugger} from '../../lib/index.js';
-import {startHttpServer, stopHttpServer} from './http-server.js';
-import type {RemoteDebugger} from '../../lib/remote-debugger.js';
 import {expect, use} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import type {StringRecord} from '@appium/types';
-import {describe, it, before, after, beforeEach, afterEach, type TestContext} from 'node:test';
+import {Simctl} from 'node-simctl';
+
+import {createRemoteDebugger} from '../../lib/index.js';
+import type {RemoteDebugger} from '../../lib/remote-debugger.js';
+import {startHttpServer, stopHttpServer} from './http-server.js';
 
 use(chaiAsPromised);
 
@@ -18,10 +20,7 @@ const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '26.2';
 
 const PAGE_TITLE = 'Remote debugger test page';
 
-async function getExistingSim(
-  deviceName: string,
-  platformVersion: string,
-): Promise<Simulator | null> {
+async function getExistingSim(deviceName: string, platformVersion: string): Promise<Simulator | null> {
   const devices = await new Simctl().getDevices(platformVersion);
 
   for (const device of Object.values(devices)) {
@@ -153,27 +152,25 @@ describe('Safari remote debugger', function () {
       await selectTestPage();
 
       const script = 'arguments[arguments.length - 1](123);';
-      await expect(
-        rd.executeAtomAsync('execute_async_script', [script, [], timeout]),
-      ).to.eventually.eql(123);
+      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout])).to.eventually.eql(123);
     });
 
     it('should bubble up JS errors', async function () {
       await selectTestPage();
 
       const script = `arguments[arguments.length - 1](1--);`;
-      await expect(
-        rd.executeAtomAsync('execute_async_script', [script, [], timeout]),
-      ).to.eventually.be.rejectedWith(/operator applied to value that is not a reference/);
+      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout])).to.eventually.be.rejectedWith(
+        /operator applied to value that is not a reference/,
+      );
     });
 
     it('should timeout when callback is not invoked', async function () {
       await selectTestPage();
 
       const script = 'return 1 + 2';
-      await expect(
-        rd.executeAtomAsync('execute_async_script', [script, [], timeout]),
-      ).to.eventually.be.rejectedWith(/Timed out waiting for/);
+      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout])).to.eventually.be.rejectedWith(
+        /Timed out waiting for/,
+      );
     });
 
     it.skip('should be able to execute asynchronously in frame', async function () {
@@ -211,8 +208,7 @@ describe('Safari remote debugger', function () {
 
     await retryInterval(50, 100, async function () {
       expect(networkEvents.length).to.be.at.least(1);
-      expect(networkEvents.find(({event}) => event?.request?.url === 'https://github.com/')).to
-        .exist;
+      expect(networkEvents.find(({event}) => event?.request?.url === 'https://github.com/')).to.exist;
     });
   });
 
@@ -313,14 +309,8 @@ describe('Safari remote debugger', function () {
     await expect(
       retryInterval(5, 500, async function () {
         const el1 = await rd.executeAtom('find_element', ['class name', 'element', null]);
-        const sEl1 = await rd.executeAtom('execute_script', [
-          shadowScript('#shadowContent'),
-          [el1],
-        ]);
-        const sEl2 = await rd.executeAtom('execute_script', [
-          shadowScript('#shadowSubContent'),
-          [sEl1],
-        ]);
+        const sEl1 = await rd.executeAtom('execute_script', [shadowScript('#shadowContent'), [el1]]);
+        const sEl2 = await rd.executeAtom('execute_script', [shadowScript('#shadowSubContent'), [sEl1]]);
         const text = await rd.executeAtom('get_text', [sEl2]);
         expect(text).to.eql('It is murky in here');
       }),

@@ -1,4 +1,3 @@
-import { seleniumClone } from './common.mjs';
-
+import {seleniumClone} from './common.mjs';
 
 (async () => await seleniumClone())();

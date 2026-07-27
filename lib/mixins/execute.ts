@@ -1,16 +1,12 @@
 import {errors} from '@appium/base-driver';
-import {
-  checkParams,
-  simpleStringify,
-  convertJavascriptEvaluationResult,
-  RESPONSE_LOG_LENGTH,
-} from '../utils/index.js';
-import {getScriptForAtom} from '../atoms.js';
 import {util, timing} from '@appium/support';
 import {retryInterval} from 'asyncbox';
-import {getAppIdKey, getPageIdKey, getGarbageCollectOnExecute} from './property-accessors.js';
+
+import {getScriptForAtom} from '../atoms.js';
 import type {RemoteDebugger} from '../remote-debugger.js';
 import type {AppIdKey, PageIdKey} from '../types.js';
+import {checkParams, simpleStringify, convertJavascriptEvaluationResult, RESPONSE_LOG_LENGTH} from '../utils/index.js';
+import {getAppIdKey, getPageIdKey, getGarbageCollectOnExecute} from './property-accessors.js';
 
 /* How many milliseconds to wait for webkit to return a response before timing out */
 const RPC_RESPONSE_TIMEOUT_MS = 5000;
@@ -194,12 +190,7 @@ export async function execute(
  * @returns A promise that resolves to the result of the function call,
  *          converted to a usable format.
  */
-export async function callFunction(
-  this: RemoteDebugger,
-  objectId: string,
-  fn: string,
-  args?: any[],
-): Promise<any> {
+export async function callFunction(this: RemoteDebugger, objectId: string, fn: string, args?: any[]): Promise<any> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),

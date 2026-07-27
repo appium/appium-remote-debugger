@@ -1,5 +1,6 @@
 /* eslint-disable dot-notation */
 import type {StringRecord} from '@appium/types';
+
 import type {RemoteDebugger} from '../remote-debugger.js';
 import type {EventListener} from '../types.js';
 
@@ -29,10 +30,7 @@ export function getPageIdKey(instance: RemoteDebugger): (typeof instance)['_page
 }
 
 /** Sets the currently selected page id key. */
-export function setPageIdKey(
-  instance: RemoteDebugger,
-  value: (typeof instance)['_pageIdKey'],
-): void {
+export function setPageIdKey(instance: RemoteDebugger, value: (typeof instance)['_pageIdKey']): void {
   instance['_pageIdKey'] = value;
 }
 
@@ -52,16 +50,12 @@ export function getBundleId(instance: RemoteDebugger): (typeof instance)['_bundl
 }
 
 /** Gets additional bundle identifiers used for matching apps. */
-export function getAdditionalBundleIds(
-  instance: RemoteDebugger,
-): (typeof instance)['_additionalBundleIds'] {
+export function getAdditionalBundleIds(instance: RemoteDebugger): (typeof instance)['_additionalBundleIds'] {
   return instance['_additionalBundleIds'];
 }
 
 /** Gets bundle identifiers to be ignored during matching. */
-export function getIgnoredBundleIds(
-  instance: RemoteDebugger,
-): (typeof instance)['_ignoredBundleIds'] {
+export function getIgnoredBundleIds(instance: RemoteDebugger): (typeof instance)['_ignoredBundleIds'] {
   return instance['_ignoredBundleIds'];
 }
 
@@ -86,40 +80,27 @@ export function setPageLoading(instance: RemoteDebugger, value: boolean): void {
 }
 
 /** Gets whether GC should run after JavaScript execution. */
-export function getGarbageCollectOnExecute(
-  instance: RemoteDebugger,
-): (typeof instance)['_garbageCollectOnExecute'] {
+export function getGarbageCollectOnExecute(instance: RemoteDebugger): (typeof instance)['_garbageCollectOnExecute'] {
   return instance['_garbageCollectOnExecute'];
 }
 
 /** Gets whether a navigation-to-page operation is active. */
-export function getNavigatingToPage(
-  instance: RemoteDebugger,
-): (typeof instance)['_navigatingToPage'] {
+export function getNavigatingToPage(instance: RemoteDebugger): (typeof instance)['_navigatingToPage'] {
   return instance['_navigatingToPage'];
 }
 
 /** Sets whether a navigation-to-page operation is active. */
-export function setNavigatingToPage(
-  instance: RemoteDebugger,
-  value: (typeof instance)['_navigatingToPage'],
-): void {
+export function setNavigatingToPage(instance: RemoteDebugger, value: (typeof instance)['_navigatingToPage']): void {
   instance['_navigatingToPage'] = value;
 }
 
 /** Sets the current state string reported by the remote debugger. */
-export function setCurrentState(
-  instance: RemoteDebugger,
-  value: (typeof instance)['_currentState'],
-): void {
+export function setCurrentState(instance: RemoteDebugger, value: (typeof instance)['_currentState']): void {
   instance['_currentState'] = value;
 }
 
 /** Sets the currently connected driver list. */
-export function setConnectedDrivers(
-  instance: RemoteDebugger,
-  value: (typeof instance)['_connectedDrivers'],
-): void {
+export function setConnectedDrivers(instance: RemoteDebugger, value: (typeof instance)['_connectedDrivers']): void {
   instance['_connectedDrivers'] = value;
 }
 
@@ -129,23 +110,16 @@ export function getPageLoadDelay(instance: RemoteDebugger): (typeof instance)['_
 }
 
 /** Sets the cancellable page-load delay promise. */
-export function setPageLoadDelay(
-  instance: RemoteDebugger,
-  value: (typeof instance)['_pageLoadDelay'],
-): void {
+export function setPageLoadDelay(instance: RemoteDebugger, value: (typeof instance)['_pageLoadDelay']): void {
   instance['_pageLoadDelay'] = value;
 }
 
 /** Gets the configured page load strategy. */
-export function getPageLoadStartegy(
-  instance: RemoteDebugger,
-): (typeof instance)['_pageLoadStrategy'] {
+export function getPageLoadStartegy(instance: RemoteDebugger): (typeof instance)['_pageLoadStrategy'] {
   return instance['_pageLoadStrategy'];
 }
 
 /** Gets the configured page readiness timeout in milliseconds. */
-export function getPageReadyTimeout(
-  instance: RemoteDebugger,
-): (typeof instance)['_pageReadyTimeout'] {
+export function getPageReadyTimeout(instance: RemoteDebugger): (typeof instance)['_pageReadyTimeout'] {
   return instance['_pageReadyTimeout'];
 }

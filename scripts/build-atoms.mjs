@@ -1,4 +1,4 @@
-import { importAtoms } from './common.mjs';
+import {importAtoms} from './common.mjs';
 
 (async () => {
   await importAtoms(process.argv.includes('--clean'));

@@ -1,8 +1,9 @@
 import {withTimeout} from 'asyncbox';
-import {checkParams, TimeoutError} from '../utils/index.js';
-import {getAppIdKey, getPageIdKey} from './property-accessors.js';
+
 import type {RemoteDebugger} from '../remote-debugger.js';
 import type {EventListener} from '../types.js';
+import {checkParams, TimeoutError} from '../utils/index.js';
+import {getAppIdKey, getPageIdKey} from './property-accessors.js';
 
 const SAFARI_BUNDLE_ID = 'com.apple.mobilesafari';
 const GARBAGE_COLLECT_TIMEOUT_MS = 5000;
@@ -70,10 +71,7 @@ export async function overrideUserAgent(this: RemoteDebugger, value: string): Pr
  * @returns A promise that resolves to true if JavaScript execution is blocked,
  *          false if it is not blocked.
  */
-export async function isJavascriptExecutionBlocked(
-  this: RemoteDebugger,
-  timeoutMs: number = 1000,
-): Promise<boolean> {
+export async function isJavascriptExecutionBlocked(this: RemoteDebugger, timeoutMs: number = 1000): Promise<boolean> {
   try {
     await withTimeout(
       this.requireRpcClient().send('Runtime.evaluate', {

@@ -1,6 +1,6 @@
-import {getClientEventListeners} from './property-accessors.js';
 import type {RemoteDebugger} from '../remote-debugger.js';
 import type {EventListener} from '../types.js';
+import {getClientEventListeners} from './property-accessors.js';
 
 // event emitted publically
 export const events = {
@@ -16,11 +16,7 @@ export const events = {
  * @param eventName - The name of the event to listen for.
  * @param listener - The event listener function to call when the event is emitted.
  */
-export function addClientEventListener(
-  this: RemoteDebugger,
-  eventName: string,
-  listener: EventListener,
-): void {
+export function addClientEventListener(this: RemoteDebugger, eventName: string, listener: EventListener): void {
   getClientEventListeners(this)[eventName] ??= [];
   getClientEventListeners(this)[eventName].push(listener);
   this.requireRpcClient().on(eventName, listener);

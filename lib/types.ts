@@ -75,8 +75,7 @@ export interface RemoteDebuggerOptions {
   log?: AppiumLogger;
 }
 
-export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions &
-  RemoteDebuggerOptions;
+export type RemoteDebuggerRealDeviceOptions = RemoteDebuggerRealDeviceSpecificOptions & RemoteDebuggerOptions;
 
 /**
  * Options for configuring an RpcClient instance.

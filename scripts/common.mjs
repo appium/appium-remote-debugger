@@ -1,8 +1,9 @@
-import { fs, logger, util } from '@appium/support';
-import { glob } from 'glob';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { exec } from 'teen_process';
+import {fileURLToPath} from 'node:url';
+
+import {fs, logger, util} from '@appium/support';
+import {glob} from 'glob';
+import {exec} from 'teen_process';
 
 const log = logger.getLogger('Atoms');
 
@@ -43,16 +44,10 @@ let bazelCommand;
 /**
  * Clone the target selenium repository and branch into the temporary directory.
  */
-export async function seleniumClone () {
+export async function seleniumClone() {
   await seleniumMkdir();
   await seleniumClean();
-  const cloneArgs = (branch) => ([
-    'clone',
-    `--branch=${branch}`,
-    '--depth=1',
-    SELENIUM_GITHUB,
-    SELENIUM_DIRECTORY,
-  ]);
+  const cloneArgs = (branch) => ['clone', `--branch=${branch}`, '--depth=1', SELENIUM_GITHUB, SELENIUM_DIRECTORY];
 
   log.info(`Cloning branch '${SELENIUM_BRANCH}' from '${SELENIUM_GITHUB}'`);
   await exec('git', cloneArgs(SELENIUM_BRANCH));
@@ -95,15 +90,15 @@ function getBazelEnv() {
 /**
  * Create a temporary directory to clone selenium repository to build atoms in.
  */
-async function seleniumMkdir () {
+async function seleniumMkdir() {
   log.info(`Creating '${TMP_DIRECTORY}'`);
-  await fs.mkdir(TMP_DIRECTORY, { recursive: true });
+  await fs.mkdir(TMP_DIRECTORY, {recursive: true});
 }
 
 /**
  * Remove entire the temporary selenium directory on the machine local.
  */
-async function seleniumClean () {
+async function seleniumClean() {
   log.info(`Cleaning '${SELENIUM_DIRECTORY}'`);
   await fs.rimraf(SELENIUM_DIRECTORY);
 }
@@ -135,7 +130,7 @@ async function checkBazel() {
       versionCompareFailed = true;
       log.warn(
         `Could not compare Bazel versions (${currentBazelVersion} vs minimum ${minBazelVersion}): ${err.message}. ` +
-        `Trying bazelisk...`
+          `Trying bazelisk...`,
       );
     }
     if (meetsMinimum) {
@@ -145,7 +140,7 @@ async function checkBazel() {
     }
     if (!versionCompareFailed) {
       log.warn(
-        `Found bazel ${currentBazelVersion}, but Selenium needs at least ${minBazelVersion}. Trying bazelisk...`
+        `Found bazel ${currentBazelVersion}, but Selenium needs at least ${minBazelVersion}. Trying bazelisk...`,
       );
     }
   }
@@ -157,9 +152,9 @@ async function checkBazel() {
   if (bazeliskVersionErr || bazeliskVersionResult.stderr) {
     throw new Error(
       `Please install Bazel ${minBazelVersion} or newer by following https://bazel.build/install, ` +
-      `or install bazelisk (https://github.com/bazelbuild/bazelisk). ` +
-      `Original errors: bazel='${bazelVersionErr || bazelVersionResult?.stderr || 'unknown'}', ` +
-      `bazelisk='${bazeliskVersionErr || bazeliskVersionResult?.stderr || 'unknown'}'`
+        `or install bazelisk (https://github.com/bazelbuild/bazelisk). ` +
+        `Original errors: bazel='${bazelVersionErr || bazelVersionResult?.stderr || 'unknown'}', ` +
+        `bazelisk='${bazeliskVersionErr || bazeliskVersionResult?.stderr || 'unknown'}'`,
     );
   }
   bazelCommand = 'bazelisk';
@@ -169,7 +164,7 @@ async function checkBazel() {
 /**
  * Remove contents in 'atoms'.
  */
-async function atomsCleanDir () {
+async function atomsCleanDir() {
   log.info(`Cleaning '${ATOMS_DIRECTORY}'`);
   await fs.rimraf(ATOMS_DIRECTORY);
 }
@@ -177,7 +172,7 @@ async function atomsCleanDir () {
 /**
  * Run bazel clean command.
  */
-async function atomsClean () {
+async function atomsClean() {
   log.info('Building atoms');
   await exec(bazelCommand, ['clean'], {cwd: SELENIUM_DIRECTORY, env: getBazelEnv()});
 }
@@ -185,22 +180,24 @@ async function atomsClean () {
 /**
  * Create a directory for atoms.
  */
-async function atomsMkdir () {
+async function atomsMkdir() {
   log.info(`Creating '${ATOMS_DIRECTORY}'`);
-  await fs.mkdir(ATOMS_DIRECTORY, { recursive: true });
+  await fs.mkdir(ATOMS_DIRECTORY, {recursive: true});
 }
 
 /**
  * Return the path to bazel built result.
  * @returns {Promise<string>}
  */
-async function getBazelOutDir () {
+async function getBazelOutDir() {
   log.info(`Finding bazel output dir`);
   const outDirMatch = '*-fastbuild';
   const relativeDir = (await glob(outDirMatch, {cwd: BAZEL_OUT_BASEDIR}))[0];
   if (!relativeDir) {
-    throw new Error(`Expected architecture-specific Bazel output directory was not found in ` +
-      `'${BAZEL_OUT_BASEDIR}'. We looked for something matching '${outDirMatch}`);
+    throw new Error(
+      `Expected architecture-specific Bazel output directory was not found in ` +
+        `'${BAZEL_OUT_BASEDIR}'. We looked for something matching '${outDirMatch}`,
+    );
   }
   return path.resolve(BAZEL_OUT_BASEDIR, relativeDir);
 }
@@ -208,12 +205,8 @@ async function getBazelOutDir () {
 /**
  * Build atoms with bazel command.
  */
-async function atomsBuild () {
-  for (const target of [
-    BAZEL_ATOMS_TARGET,
-    BAZEL_WD_ATOMS_TARGET,
-    BAZEL_WD_ATOMS_INJECT_TARGET,
-  ]) {
+async function atomsBuild() {
+  for (const target of [BAZEL_ATOMS_TARGET, BAZEL_WD_ATOMS_TARGET, BAZEL_WD_ATOMS_INJECT_TARGET]) {
     log.info(`Running bazel build for ${target}`);
     const buildArgs = ['build', target];
     if (target === BAZEL_ATOMS_TARGET) {
@@ -228,13 +221,13 @@ async function atomsBuild () {
  * Copy atoms in bazel built result to 'atoms' in this repository's main 'atoms' place.
  * @param {string} atomsDir
  */
-async function atomsCopyAtoms (atomsDir) {
+async function atomsCopyAtoms(atomsDir) {
   log.info(`Copying any atoms found in ${atomsDir} to atoms dir`);
-  const filesToCopy = (await glob('**/*-ios.js', {
+  const filesToCopy = await glob('**/*-ios.js', {
     absolute: true,
     strict: false,
     cwd: atomsDir,
-  }));
+  });
   for (const file of filesToCopy) {
     // convert - to _ for backwards compatibility with old atoms
     const newFileName = path.basename(file).replace('-ios', '').replace(/-/g, '_');
@@ -248,8 +241,8 @@ async function atomsCopyAtoms (atomsDir) {
 /**
  * Record which Selenium revision produced these atoms.
  */
-async function atomsTimestamp () {
+async function atomsTimestamp() {
   log.info(`Recording Selenium revision in atoms dir`);
   const {stdout} = await exec('git', ['log', '-n', '1', '--decorate=full'], {cwd: SELENIUM_DIRECTORY});
   await fs.writeFile(LAST_UPDATE_FILE, Buffer.from(stdout.trimEnd() + '\n'));
-};
+}

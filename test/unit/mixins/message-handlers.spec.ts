@@ -1,8 +1,10 @@
+import {describe, it, beforeEach} from 'node:test';
+
+import {expect} from 'chai';
+
 import {getDebuggerAppKey} from '../../../lib/mixins/message-handlers.js';
 import {RemoteDebugger} from '../../../lib/remote-debugger.js';
 import type {AppInfo} from '../../../lib/types.js';
-import {expect} from 'chai';
-import {describe, it, beforeEach} from 'node:test';
 
 describe('connect', function () {
   let rd: RemoteDebugger;
