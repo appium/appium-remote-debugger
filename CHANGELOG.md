@@ -1,3 +1,9 @@
+## [16.0.1](https://github.com/appium/appium-remote-debugger/compare/v16.0.0...v16.0.1) (2026-07-27)
+
+### Miscellaneous Chores
+
+* Integrate oxc and release configs ([#517](https://github.com/appium/appium-remote-debugger/issues/517)) ([c09aab4](https://github.com/appium/appium-remote-debugger/commit/c09aab431614854bb6cf2cb17099f7a692f8763b))
+
 ## [16.0.0](https://github.com/appium/appium-remote-debugger/compare/v15.10.9...v16.0.0) (2026-07-26)
 
 ### ⚠ BREAKING CHANGES
