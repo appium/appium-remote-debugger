@@ -1,6 +1,5 @@
+import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
-
-import {expect} from 'chai';
 
 import {RemoteDebugger} from '../../../lib/remote-debugger.js';
 
@@ -11,30 +10,30 @@ describe('navigate', function () {
     describe('default pageLoadStrategy', function () {
       it('with complete readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID});
-        expect(remoteDebugger.isPageLoadingCompleted('complete')).to.eql(true);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('complete'), true);
       });
       it('with interactive readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID});
-        expect(remoteDebugger.isPageLoadingCompleted('interactive')).to.eql(false);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('interactive'), false);
       });
       it('with loading readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID});
-        expect(remoteDebugger.isPageLoadingCompleted('loading')).to.eql(false);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('loading'), false);
       });
     });
 
     describe('eager pageLoadStrategy', function () {
       it('with complete readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID, pageLoadStrategy: 'eager'});
-        expect(remoteDebugger.isPageLoadingCompleted('complete')).to.eql(true);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('complete'), true);
       });
       it('with interactive readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID, pageLoadStrategy: 'Eager'});
-        expect(remoteDebugger.isPageLoadingCompleted('interactive')).to.eql(true);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('interactive'), true);
       });
       it('with loading readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID, pageLoadStrategy: 'eager'});
-        expect(remoteDebugger.isPageLoadingCompleted('loading')).to.eql(false);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('loading'), false);
       });
     });
 
@@ -44,36 +43,36 @@ describe('navigate', function () {
           bundleId: BUNDLE_ID,
           pageLoadStrategy: 'NorMal',
         });
-        expect(remoteDebugger.isPageLoadingCompleted('complete')).to.eql(true);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('complete'), true);
       });
       it('with interactive readyState', function () {
         const remoteDebugger = new RemoteDebugger({
           bundleId: BUNDLE_ID,
           pageLoadStrategy: 'normaL',
         });
-        expect(remoteDebugger.isPageLoadingCompleted('interactive')).to.eql(false);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('interactive'), false);
       });
       it('with loading readyState', function () {
         const remoteDebugger = new RemoteDebugger({
           bundleId: BUNDLE_ID,
           pageLoadStrategy: 'normal',
         });
-        expect(remoteDebugger.isPageLoadingCompleted('loading')).to.eql(false);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('loading'), false);
       });
     });
 
     describe('none pageLoadStrategy', function () {
       it('with complete readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID, pageLoadStrategy: 'none'});
-        expect(remoteDebugger.isPageLoadingCompleted('complete')).to.eql(true);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('complete'), true);
       });
       it('with interactive readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID, pageLoadStrategy: 'noNe'});
-        expect(remoteDebugger.isPageLoadingCompleted('interactive')).to.eql(true);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('interactive'), true);
       });
       it('with loading readyState', function () {
         const remoteDebugger = new RemoteDebugger({bundleId: BUNDLE_ID, pageLoadStrategy: 'NONE'});
-        expect(remoteDebugger.isPageLoadingCompleted('loading')).to.eql(true);
+        assert.strictEqual(remoteDebugger.isPageLoadingCompleted('loading'), true);
       });
     });
   });

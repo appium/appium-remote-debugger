@@ -1,6 +1,5 @@
+import assert from 'node:assert/strict';
 import {describe, it, beforeEach} from 'node:test';
-
-import {expect} from 'chai';
 
 import {getPossibleDebuggerAppKeys} from '../../../lib/mixins/connect.js';
 import {RemoteDebugger} from '../../../lib/remote-debugger.js';
@@ -41,7 +40,10 @@ describe('connect', function () {
           isAutomationEnabled: true,
         } as AppInfo,
       };
-      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1', 'io.appium.bundle2'])).to.eql(['42', '43']);
+      assert.deepStrictEqual(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle1', 'io.appium.bundle2']), [
+        '42',
+        '43',
+      ]);
     });
     const webviewBundleIds = [
       'com.apple.WebKit.WebContent',
@@ -61,7 +63,7 @@ describe('connect', function () {
             isAutomationEnabled: true,
           } as AppInfo,
         };
-        expect(getPossibleDebuggerAppKeys.bind(rd)([])).to.eql(['42']);
+        assert.deepStrictEqual(getPossibleDebuggerAppKeys.bind(rd)([]), ['42']);
       });
     }
     it('should return the app key for the bundleIds when proxied', function () {
@@ -84,11 +86,11 @@ describe('connect', function () {
           isAutomationEnabled: true,
         } as AppInfo,
       };
-      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle'])).to.eql(['42', '43']);
+      assert.deepStrictEqual(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle']), ['42', '43']);
     });
     it('should return an empty array when there is no appropriate app', function () {
       (rd as any)._appDict = {};
-      expect(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle'])).to.eql([]);
+      assert.deepStrictEqual(getPossibleDebuggerAppKeys.bind(rd)(['io.appium.bundle']), []);
     });
     it('should return the all app keys when the bundleIds array includes a wildcard', function () {
       (rd as any)._appDict = {
@@ -109,7 +111,7 @@ describe('connect', function () {
           isAutomationEnabled: true,
         } as AppInfo,
       };
-      expect(getPossibleDebuggerAppKeys.bind(rd)(['*'])).to.eql(['42', '43']);
+      assert.deepStrictEqual(getPossibleDebuggerAppKeys.bind(rd)(['*']), ['42', '43']);
     });
   });
 
@@ -137,7 +139,7 @@ describe('connect', function () {
         (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd'];
 
         const result = await rd.selectApp();
-        expect(result).to.eql([]);
+        assert.deepStrictEqual(result, []);
       });
 
       it('should return [] when multiple system processes all match the ignore list', async function () {
@@ -148,7 +150,7 @@ describe('connect', function () {
         (rd as any)._ignoredBundleIds = ['com.apple.amsengagementd', 'com.apple.otherprocess'];
 
         const result = await rd.selectApp();
-        expect(result).to.eql([]);
+        assert.deepStrictEqual(result, []);
       });
 
       it('should proceed past the ignore check when a non-ignored app exists', async function () {
@@ -163,9 +165,9 @@ describe('connect', function () {
         // maxTries=1 to avoid 20x500ms retry delay.
         try {
           await rd.selectApp(null, 1);
-          expect.fail('Expected an error to be thrown');
+          assert.fail('Expected an error to be thrown');
         } catch (err: any) {
-          expect(err.message).to.match(/Could not connect to a valid webapp/);
+          assert.match(err.message, /Could not connect to a valid webapp/);
         }
       });
 
@@ -177,9 +179,9 @@ describe('connect', function () {
         // maxTries=1 to avoid 20x500ms retry delay.
         try {
           await rd.selectApp(null, 1);
-          expect.fail('Expected an error to be thrown');
+          assert.fail('Expected an error to be thrown');
         } catch (err: any) {
-          expect(err.message).to.match(/Could not connect to a valid webapp/);
+          assert.match(err.message, /Could not connect to a valid webapp/);
         }
       });
     });

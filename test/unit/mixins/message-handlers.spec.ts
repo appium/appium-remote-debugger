@@ -1,6 +1,5 @@
+import assert from 'node:assert/strict';
 import {describe, it, beforeEach} from 'node:test';
-
-import {expect} from 'chai';
 
 import {getDebuggerAppKey} from '../../../lib/mixins/message-handlers.js';
 import {RemoteDebugger} from '../../../lib/remote-debugger.js';
@@ -25,7 +24,7 @@ describe('connect', function () {
           isAutomationEnabled: true,
         } as AppInfo,
       };
-      expect(getDebuggerAppKey.bind(rd)('io.appium.bundle')).to.equal('42');
+      assert.strictEqual(getDebuggerAppKey.bind(rd)('io.appium.bundle'), '42');
     });
     it('should return the app key for the bundle when proxied', function () {
       (rd as any)._appDict = {
@@ -47,11 +46,11 @@ describe('connect', function () {
           isAutomationEnabled: true,
         } as AppInfo,
       };
-      expect(getDebuggerAppKey.bind(rd)('io.appium.bundle')).to.equal('43');
+      assert.strictEqual(getDebuggerAppKey.bind(rd)('io.appium.bundle'), '43');
     });
     it('should return undefined when there is no appropriate app', function () {
       (rd as any)._appDict = {};
-      expect(getDebuggerAppKey.bind(rd)('io.appium.bundle')).to.not.exist;
+      assert.strictEqual(getDebuggerAppKey.bind(rd)('io.appium.bundle'), undefined);
     });
   });
 });

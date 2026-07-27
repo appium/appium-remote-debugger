@@ -1,12 +1,9 @@
+import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 
-import {expect, use} from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
 import {RpcClient} from '../../../lib/rpc/rpc-client.js';
-
-use(chaiAsPromised);
 
 describe('rpc-client', function () {
   describe('.send', function () {
@@ -29,10 +26,10 @@ describe('rpc-client', function () {
       const waitForTargetSpy = sinon.spy(mockRpcClient, 'waitForTarget');
       const opts = {appIdKey: 'appId', pageIdKey: 'pageKey'};
       const res = await send.call(mockRpcClient, 'command', opts, true);
-      expect(res).to.eql('success');
-      expect(sendToDeviceSpy.firstCall.args).to.eql(['command', opts, true]);
-      expect(sendToDeviceSpy.secondCall.args).to.eql(['command', opts, true]);
-      expect(waitForTargetSpy.firstCall.args).to.eql(['appId', 'pageKey']);
+      assert.strictEqual(res, 'success');
+      assert.deepStrictEqual(sendToDeviceSpy.firstCall.args, ['command', opts, true]);
+      assert.deepStrictEqual(sendToDeviceSpy.secondCall.args, ['command', opts, true]);
+      assert.deepStrictEqual(waitForTargetSpy.firstCall.args, ['appId', 'pageKey']);
     });
   });
 });

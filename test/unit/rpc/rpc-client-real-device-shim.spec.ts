@@ -1,6 +1,5 @@
+import assert from 'node:assert/strict';
 import {describe, it, beforeEach} from 'node:test';
-
-import {expect} from 'chai';
 
 import {RpcClientRealDeviceShim} from '../../../lib/rpc/rpc-client-real-device-shim.js';
 
@@ -17,7 +16,7 @@ describe('RpcClientRealDeviceShim', function () {
         __selector: '_rpc_applicationConnected:',
         __argument: {WIRApplicationIdentifierKey: 'com.example.app'},
       });
-      expect(result.__selector).to.equal('_rpc_applicationConnected:');
+      assert.strictEqual(result.__selector, '_rpc_applicationConnected:');
     });
 
     it('should copy plain object __argument as-is', function () {
@@ -25,7 +24,7 @@ describe('RpcClientRealDeviceShim', function () {
         __selector: '_rpc_reportConnectedApplicationList:',
         __argument: {WIRApplicationIdentifierKey: 'com.example.app'},
       });
-      expect(result.__argument).to.deep.equal({
+      assert.deepStrictEqual(result.__argument, {
         WIRApplicationIdentifierKey: 'com.example.app',
       });
     });
@@ -35,7 +34,7 @@ describe('RpcClientRealDeviceShim', function () {
         __selector: '_rpc_forwardSocketData:',
         __argument: {WIRMessageDataKey: Buffer.from('hello', 'utf8')},
       });
-      expect(result.__argument.WIRMessageDataKey).to.equal('hello');
+      assert.strictEqual(result.__argument.WIRMessageDataKey, 'hello');
     });
 
     it('should convert Buffer values in WIRSocketDataKey to utf8 string', function () {
@@ -43,7 +42,7 @@ describe('RpcClientRealDeviceShim', function () {
         __selector: '_rpc_forwardSocketData:',
         __argument: {WIRSocketDataKey: Buffer.from('world', 'utf8')},
       });
-      expect(result.__argument.WIRSocketDataKey).to.equal('world');
+      assert.strictEqual(result.__argument.WIRSocketDataKey, 'world');
     });
 
     it('should convert Buffer values in WIRDestinationKey to utf8 string', function () {
@@ -51,7 +50,7 @@ describe('RpcClientRealDeviceShim', function () {
         __selector: '_rpc_forwardSocketData:',
         __argument: {WIRDestinationKey: Buffer.from('target', 'utf8')},
       });
-      expect(result.__argument.WIRDestinationKey).to.equal('target');
+      assert.strictEqual(result.__argument.WIRDestinationKey, 'target');
     });
 
     it('should leave non-Buffer values unchanged', function () {
@@ -62,8 +61,8 @@ describe('RpcClientRealDeviceShim', function () {
           WIRApplicationIdentifierKey: 'com.example',
         },
       });
-      expect(result.__argument.WIRMessageDataKey).to.equal('already a string');
-      expect(result.__argument.WIRApplicationIdentifierKey).to.equal('com.example');
+      assert.strictEqual(result.__argument.WIRMessageDataKey, 'already a string');
+      assert.strictEqual(result.__argument.WIRApplicationIdentifierKey, 'com.example');
     });
 
     it('should convert multiple Buffer fields in a single message', function () {
@@ -75,9 +74,9 @@ describe('RpcClientRealDeviceShim', function () {
           WIRDestinationKey: Buffer.from('dest', 'utf8'),
         },
       });
-      expect(result.__argument.WIRMessageDataKey).to.equal('msg');
-      expect(result.__argument.WIRSocketDataKey).to.equal('sock');
-      expect(result.__argument.WIRDestinationKey).to.equal('dest');
+      assert.strictEqual(result.__argument.WIRMessageDataKey, 'msg');
+      assert.strictEqual(result.__argument.WIRSocketDataKey, 'sock');
+      assert.strictEqual(result.__argument.WIRDestinationKey, 'dest');
     });
 
     it('should not convert Buffer values in non-special keys', function () {
@@ -86,7 +85,7 @@ describe('RpcClientRealDeviceShim', function () {
         __selector: '_rpc_applicationConnected:',
         __argument: {WIRSomeOtherKey: buf},
       });
-      expect(result.__argument.WIRSomeOtherKey).to.equal(buf);
+      assert.strictEqual(result.__argument.WIRSomeOtherKey, buf);
     });
 
     it('should omit __argument when it is not a plain object', function () {
@@ -94,7 +93,7 @@ describe('RpcClientRealDeviceShim', function () {
         __selector: '_rpc_applicationConnected:',
         __argument: null,
       });
-      expect(result).to.not.have.property('__argument');
+      assert.ok(!('__argument' in result));
     });
   });
 
@@ -104,23 +103,23 @@ describe('RpcClientRealDeviceShim', function () {
         WIRConnectionIdentifierKey: 'some-uuid',
         WIRApplicationIdentifierKey: 'com.example.app',
       });
-      expect(result).to.not.have.property('WIRConnectionIdentifierKey');
-      expect(result.WIRApplicationIdentifierKey).to.equal('com.example.app');
+      assert.ok(!('WIRConnectionIdentifierKey' in result));
+      assert.strictEqual(result.WIRApplicationIdentifierKey, 'com.example.app');
     });
 
     it('should return an empty object when args is not a plain object', function () {
-      expect(shim.translateArguments(null)).to.deep.equal({});
-      expect(shim.translateArguments(undefined)).to.deep.equal({});
-      expect(shim.translateArguments('string')).to.deep.equal({});
+      assert.deepStrictEqual(shim.translateArguments(null), {});
+      assert.deepStrictEqual(shim.translateArguments(undefined), {});
+      assert.deepStrictEqual(shim.translateArguments('string'), {});
     });
 
     it('should return an empty object when only WIRConnectionIdentifierKey is present', function () {
-      expect(shim.translateArguments({WIRConnectionIdentifierKey: 'some-uuid'})).to.deep.equal({});
+      assert.deepStrictEqual(shim.translateArguments({WIRConnectionIdentifierKey: 'some-uuid'}), {});
     });
 
     it('should return args unchanged when WIRConnectionIdentifierKey is absent', function () {
       const args = {WIRApplicationIdentifierKey: 'com.example.app'};
-      expect(shim.translateArguments(args)).to.deep.equal(args);
+      assert.deepStrictEqual(shim.translateArguments(args), args);
     });
   });
 });

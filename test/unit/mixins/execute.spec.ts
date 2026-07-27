@@ -1,6 +1,6 @@
+import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 
-import {expect} from 'chai';
 import sinon from 'sinon';
 
 import {executeAtom, executeAtomAsync, callFunction, execute} from '../../../lib/mixins/execute.js';
@@ -23,7 +23,7 @@ describe('execute', function () {
         },
       };
       const res = await executeAtom.call(ctx, 'find_element', ['css selector', '#id', {ELEMENT: 'foo'}]);
-      expect(res).to.eql({hello: 'world'});
+      assert.deepStrictEqual(res, {hello: 'world'});
     });
   });
   describe('.executeAtomAsync', function () {
@@ -45,8 +45,8 @@ describe('execute', function () {
       const sendSpy = sinon.spy(ctx._rpcClient, 'send');
       await executeAtomAsync.call(ctx, 'find_element', ['a', 'b', 'c'], ['frame-1', 'frame-2']);
       const callArgs = sendSpy.firstCall.args;
-      expect(callArgs[0]).to.equal('Runtime.evaluate');
-      expect(callArgs[1].appIdKey).to.equal('appId');
+      assert.strictEqual(callArgs[0], 'Runtime.evaluate');
+      assert.strictEqual(callArgs[1].appIdKey, 'appId');
     });
   });
   describe('.callFunction', function () {
@@ -72,8 +72,8 @@ describe('execute', function () {
       };
       const sendSpy = sinon.spy(ctx._rpcClient, 'send');
       await callFunction.call(ctx, 'fake-object-id', 'fake_function', ['a', 'b', 'c']);
-      expect(sendSpy.firstCall.args[0]).to.equal('Runtime.callFunctionOn');
-      expect(sendSpy.firstCall.args[1]).to.eql({
+      assert.strictEqual(sendSpy.firstCall.args[0], 'Runtime.callFunctionOn');
+      assert.deepStrictEqual(sendSpy.firstCall.args[1], {
         appIdKey: 'fakeAppId',
         arguments: ['a', 'b', 'c'],
         functionDeclaration: 'fake_function',
