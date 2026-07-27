@@ -302,9 +302,7 @@ export class RpcClient {
 
     // otherwise waiting is necessary to see what the target is
     const waitMs = Math.max(MIN_WAIT_FOR_TARGET_TIMEOUT_MS, this.pageLoadTimeoutMs || 0);
-    log.debug(
-      `Waiting up to ${waitMs}ms for a target to be created for ` + `app '${appIdKey}' and page '${pageIdKey}'`,
-    );
+    log.debug(`Waiting up to ${waitMs}ms for a target to be created for app '${appIdKey}' and page '${pageIdKey}'`);
     try {
       await waitForCondition(
         () => {
@@ -610,9 +608,7 @@ export class RpcClient {
     log.debug(`Target created for app '${appIdKey}' and page '${pageIdKey}': ${JSON.stringify(targetInfo)}`);
     if (Object.hasOwn(this.targets[appIdKey], pageIdKey)) {
       const existingTarget = this.targets[appIdKey][pageIdKey] as TargetId;
-      log.debug(
-        `There is already a target for this app and page ('${existingTarget}'). ` + `This might cause problems`,
-      );
+      log.debug(`There is already a target for this app and page ('${existingTarget}'). This might cause problems`);
     }
     this.targets[appIdKey][pageIdKey] = targetInfo.targetId;
 
@@ -1161,9 +1157,7 @@ export class RpcClient {
         continue;
       }
       if (pageReadinessDetector.readinessDetector(readyState)) {
-        log.info(
-          `Page '${pageIdKey}' for app '${appIdKey}' is ready after ` + `${timer.getDuration().asMilliSeconds}ms`,
-        );
+        log.info(`Page '${pageIdKey}' for app '${appIdKey}' is ready after ${timer.getDuration().asMilliSeconds}ms`);
         return;
       }
       await sleep(100);

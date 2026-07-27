@@ -80,7 +80,7 @@ export default class RpcMessageHandler extends EventEmitter {
         await this.handleDataMessage(plist);
         break;
       default:
-        log.debug(`Debugger got a message for '${selector}' and have no ` + `handler, doing nothing.`);
+        log.debug(`Debugger got a message for '${selector}' and have no handler, doing nothing.`);
     }
   }
 

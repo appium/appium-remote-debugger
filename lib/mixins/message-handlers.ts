@@ -46,9 +46,7 @@ export async function onPageChange(
     const previousPages = getAppDict(this)[appIdKey].pageArray;
     // we have a pre-existing pageDict
     if (previousPages && deepEqual(previousPages, currentPages)) {
-      this.log.debug(
-        `Received page change notice for app '${appIdKey}' ` + `but the listing has not changed. Ignoring.`,
-      );
+      this.log.debug(`Received page change notice for app '${appIdKey}' but the listing has not changed. Ignoring.`);
       return;
     }
     // keep track of the page dictionary
@@ -223,7 +221,7 @@ export function getDebuggerAppKey(this: RemoteDebugger, bundleId: string): strin
     for (const [key, data] of Object.entries(getAppDict(this))) {
       if (data.isProxy && data.hostId === appId) {
         this.log.debug(
-          `Found separate bundleId '${data.bundleId}' ` + `acting as proxy for '${bundleId}', with app id '${key}'`,
+          `Found separate bundleId '${data.bundleId}' acting as proxy for '${bundleId}', with app id '${key}'`,
         );
         // set the app id... the last one will be used, so just keep re-assigning
         proxyAppId = key;

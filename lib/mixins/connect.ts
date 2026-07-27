@@ -249,7 +249,7 @@ export function getPossibleDebuggerAppKeys(this: RemoteDebugger, bundleIds: stri
       for (const [key, data] of Object.entries(appDict)) {
         if (data.isProxy && data.hostId === appId && !proxiedAppIds.includes(key)) {
           this.log.debug(
-            `Found separate bundleId '${data.bundleId}' ` + `acting as proxy for '${bundleId}', with app id '${key}'`,
+            `Found separate bundleId '${data.bundleId}' acting as proxy for '${bundleId}', with app id '${key}'`,
           );
           proxiedAppIds.push(key);
         }
