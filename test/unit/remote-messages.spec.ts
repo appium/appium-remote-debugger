@@ -1,6 +1,5 @@
+import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
-
-import {expect} from 'chai';
 
 import {RemoteMessages} from '../../lib/rpc/remote-messages.js';
 
@@ -29,9 +28,9 @@ describe('RemoteMessages', function () {
           senderId: 'test-sender-id',
           bundleId: 'test.bundle.id',
         });
-        expect(remoteCommand).to.be.an.instanceof(Object);
-        expect(remoteCommand.__argument).to.exist;
-        expect(remoteCommand.__selector).to.exist;
+        assert.ok(remoteCommand instanceof Object);
+        assert.ok(remoteCommand.__argument != null);
+        assert.ok(remoteCommand.__selector != null);
       });
     }
   });

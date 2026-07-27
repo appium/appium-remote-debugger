@@ -1,6 +1,5 @@
+import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
-
-import {expect} from 'chai';
 
 import {createRemoteDebugger} from '../../lib/index.js';
 
@@ -27,14 +26,15 @@ describe('Real device Safari remote debugger', {skip: !process.env.DEVICE_UDID},
       await rd.connect(15000);
 
       const pages = await rd.selectApp(null, undefined, true);
-      expect(pages).to.have.length.above(0, 'No Safari pages found');
+      assert.ok(pages.length > 0, 'No Safari pages found');
 
       const page = pages[0];
       const [appIdKey, pageIdKey] = String(page.id).split('.');
       await rd.selectPage(appIdKey, pageIdKey, true);
 
       const title = await rd.execute('document.title');
-      expect(title).to.be.a('string').and.not.be.empty;
+      assert.strictEqual(typeof title, 'string');
+      assert.ok(title.length > 0);
     } finally {
       await rd.disconnect();
     }

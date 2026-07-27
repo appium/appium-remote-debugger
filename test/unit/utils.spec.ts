@@ -1,7 +1,7 @@
+import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 
 import {TimeoutError, withTimeout} from 'asyncbox';
-import {expect} from 'chai';
 
 import {
   pageArrayFromDict,
@@ -24,12 +24,12 @@ describe('utils', function () {
         WIRHostApplicationIdentifierKey: '43',
       };
       const [id, entry] = appInfoFromDict(dict);
-      expect(id).to.equal(dict.WIRApplicationIdentifierKey);
-      expect(entry.id).to.equal(dict.WIRApplicationIdentifierKey);
-      expect(entry.name).to.equal(dict.WIRApplicationNameKey);
-      expect(entry.bundleId).to.equal(dict.WIRApplicationBundleIdentifierKey);
-      expect(entry.isProxy).to.equal(dict.WIRIsApplicationProxyKey === 'true');
-      expect(entry.hostId).to.equal(dict.WIRHostApplicationIdentifierKey);
+      assert.strictEqual(id, dict.WIRApplicationIdentifierKey);
+      assert.strictEqual(entry.id, dict.WIRApplicationIdentifierKey);
+      assert.strictEqual(entry.name, dict.WIRApplicationNameKey);
+      assert.strictEqual(entry.bundleId, dict.WIRApplicationBundleIdentifierKey);
+      assert.strictEqual(entry.isProxy, dict.WIRIsApplicationProxyKey === 'true');
+      assert.strictEqual(entry.hostId, dict.WIRHostApplicationIdentifierKey);
     });
   });
   describe('pageArrayFromDict', function () {
@@ -44,7 +44,7 @@ describe('utils', function () {
     };
     it('should return a valid page array', function () {
       const pageArray = pageArrayFromDict(basePageDict);
-      expect(pageArray).to.have.length(1);
+      assert.strictEqual(pageArray.length, 1);
     });
     it('should return a valid page array with 13.4-style type key', function () {
       const pageDict = {
@@ -54,7 +54,7 @@ describe('utils', function () {
         },
       };
       const pageArray = pageArrayFromDict(pageDict);
-      expect(pageArray).to.have.length(2);
+      assert.strictEqual(pageArray.length, 2);
     });
     it('should not count WIRTypeWeb entries', function () {
       const pageDict = {
@@ -64,7 +64,7 @@ describe('utils', function () {
         },
       };
       const pageArray = pageArrayFromDict(pageDict);
-      expect(pageArray).to.have.length(1);
+      assert.strictEqual(pageArray.length, 1);
     });
   });
   describe('checkParams', function () {
@@ -72,7 +72,9 @@ describe('utils', function () {
       checkParams({one: 'first', two: 'second', three: 'third'});
     });
     it('should throw error when parameter is missing', function () {
-      expect(() => checkParams({one: 'first', two: null, three: 'third'})).to.throw('Missing parameter: two');
+      assert.throws(() => checkParams({one: 'first', two: null, three: 'third'}), {
+        message: 'Missing parameter: two',
+      });
     });
   });
 
@@ -97,15 +99,15 @@ describe('utils', function () {
         },
       });
 
-      expect(deepEqual(previousPages, currentPages)).to.equal(true);
+      assert.strictEqual(deepEqual(previousPages, currentPages), true);
     });
   });
 
   describe('simpleStringify', function () {
     it('returns a string for undefined input', function () {
       const result = simpleStringify(undefined);
-      expect(result).to.be.a('string');
-      expect(result).to.equal('undefined');
+      assert.strictEqual(typeof result, 'string');
+      assert.strictEqual(result, 'undefined');
     });
 
     it('falls back safely when structuredClone fails', function () {
@@ -114,35 +116,35 @@ describe('utils', function () {
         fn() {},
       };
       const result = simpleStringify(value);
-      expect(result).to.be.a('string');
-      expect(result).to.equal('{"name":"example"}');
+      assert.strictEqual(typeof result, 'string');
+      assert.strictEqual(result, '{"name":"example"}');
     });
   });
 
   describe('defaults', function () {
     it('only applies fallback values for undefined keys', function () {
       const result = defaults({a: 1, b: undefined, c: null as null | number}, {b: 2, c: 3, d: 4});
-      expect(result).to.deep.equal({a: 1, b: 2, c: null, d: 4});
+      assert.deepStrictEqual(result, {a: 1, b: 2, c: null, d: 4});
     });
   });
 
   describe('canUseWebInspectorShim', function () {
     it('returns false when platform version is missing', function () {
-      expect(canUseWebInspectorShim(undefined)).to.equal(false);
-      expect(canUseWebInspectorShim(null)).to.equal(false);
-      expect(canUseWebInspectorShim('')).to.equal(false);
+      assert.strictEqual(canUseWebInspectorShim(undefined), false);
+      assert.strictEqual(canUseWebInspectorShim(null), false);
+      assert.strictEqual(canUseWebInspectorShim(''), false);
     });
 
     it('returns true only for iOS 18 and newer', function () {
-      expect(canUseWebInspectorShim('17.5')).to.equal(false);
-      expect(canUseWebInspectorShim('18.0')).to.equal(true);
+      assert.strictEqual(canUseWebInspectorShim('17.5'), false);
+      assert.strictEqual(canUseWebInspectorShim('18.0'), true);
     });
   });
 
   describe('withTimeout', function () {
     it('resolves when promise settles before timeout', async function () {
       const value = await withTimeout(Promise.resolve('ok'), 50);
-      expect(value).to.equal('ok');
+      assert.strictEqual(value, 'ok');
     });
 
     it('rejects with TimeoutError on timeout', async function () {
@@ -150,8 +152,8 @@ describe('utils', function () {
         await withTimeout(new Promise<void>(() => {}), 5, 'timed out');
         throw new Error('Expected timeout');
       } catch (err: any) {
-        expect(err).to.be.instanceOf(TimeoutError);
-        expect(err.message).to.equal('timed out');
+        assert.ok(err instanceof TimeoutError);
+        assert.strictEqual(err.message, 'timed out');
       }
     });
   });

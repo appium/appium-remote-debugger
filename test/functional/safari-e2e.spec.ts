@@ -1,18 +1,15 @@
+import assert from 'node:assert/strict';
 import {describe, it, before, after, beforeEach, afterEach, type TestContext} from 'node:test';
 
 import {util} from '@appium/support';
 import type {StringRecord} from '@appium/types';
 import {getSimulator, type Simulator} from 'appium-ios-simulator';
 import {retryInterval, retry} from 'asyncbox';
-import {expect, use} from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import {Simctl} from 'node-simctl';
 
 import {createRemoteDebugger} from '../../lib/index.js';
 import type {RemoteDebugger} from '../../lib/remote-debugger.js';
 import {startHttpServer, stopHttpServer} from './http-server.js';
-
-use(chaiAsPromised);
 
 const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 17';
@@ -110,7 +107,7 @@ describe('Safari remote debugger', function () {
 
   it('should be able to connect and get app', async function () {
     const pageArray = await rd.selectApp(address);
-    expect(pageArray.filter((page) => page.title === PAGE_TITLE)).to.have.length.at.least(1);
+    assert.ok(pageArray.filter((page) => page.title === PAGE_TITLE).length >= 1);
   });
 
   it('should be able to execute an atom', async function () {
@@ -118,7 +115,7 @@ describe('Safari remote debugger', function () {
 
     const script = 'return 1 + 1;';
     const sum = await rd.executeAtom('execute_script', [script, []]);
-    expect(sum).to.eql(2);
+    assert.strictEqual(sum, 2);
   });
 
   it('should be able to find an element', async function () {
@@ -126,20 +123,20 @@ describe('Safari remote debugger', function () {
 
     const el = await rd.executeAtom('find_element_fragment', ['css selector', '#somediv']);
     const text = await rd.executeAtom('get_text', [el]);
-    expect(text).to.eql('This is in #somediv');
+    assert.strictEqual(text, 'This is in #somediv');
   });
 
   it('should be able to send text to an element and get attribute values', async function () {
     await selectTestPage();
 
-    expect(await rd.isJavascriptExecutionBlocked()).to.equal(false);
+    assert.strictEqual(await rd.isJavascriptExecutionBlocked(), false);
     const el = await rd.executeAtom('find_element_fragment', ['css selector', '#input']);
     let text = await rd.executeAtom('get_text', [el]);
-    expect(text).to.eql('');
+    assert.strictEqual(text, '');
     await rd.executeAtom('type', [el, 'hello world']);
 
     text = await rd.executeAtom('get_attribute_value', [el, 'value']);
-    expect(text).to.eql('hello world');
+    assert.strictEqual(text, 'hello world');
 
     // clean up page
     await rd.executeAtom('execute_script', ['window.location.reload()']);
@@ -152,14 +149,15 @@ describe('Safari remote debugger', function () {
       await selectTestPage();
 
       const script = 'arguments[arguments.length - 1](123);';
-      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout])).to.eventually.eql(123);
+      assert.strictEqual(await rd.executeAtomAsync('execute_async_script', [script, [], timeout]), 123);
     });
 
     it('should bubble up JS errors', async function () {
       await selectTestPage();
 
       const script = `arguments[arguments.length - 1](1--);`;
-      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout])).to.eventually.be.rejectedWith(
+      await assert.rejects(
+        rd.executeAtomAsync('execute_async_script', [script, [], timeout]),
         /operator applied to value that is not a reference/,
       );
     });
@@ -168,9 +166,7 @@ describe('Safari remote debugger', function () {
       await selectTestPage();
 
       const script = 'return 1 + 2';
-      await expect(rd.executeAtomAsync('execute_async_script', [script, [], timeout])).to.eventually.be.rejectedWith(
-        /Timed out waiting for/,
-      );
+      await assert.rejects(rd.executeAtomAsync('execute_async_script', [script, [], timeout]), /Timed out waiting for/);
     });
 
     it.skip('should be able to execute asynchronously in frame', async function () {
@@ -183,7 +179,7 @@ describe('Safari remote debugger', function () {
       const {WINDOW: frame} = await rd.executeAtom('frame_by_id_or_name', ['first']);
       const script = `arguments[arguments.length - 1](document.getElementsByTagName('h1')[0].innerHTML);`;
       const res = await rd.executeAtomAsync('execute_async_script', [script, [], timeout], [frame]);
-      expect(res).to.eql('Sub frame 1');
+      assert.strictEqual(res, 'Sub frame 1');
     });
   });
 
@@ -207,8 +203,8 @@ describe('Safari remote debugger', function () {
     await rd.navToUrl(`${address}/frameset.html`);
 
     await retryInterval(50, 100, async function () {
-      expect(networkEvents.length).to.be.at.least(1);
-      expect(networkEvents.find(({event}) => event?.request?.url === 'https://github.com/')).to.exist;
+      assert.ok(networkEvents.length >= 1);
+      assert.ok(networkEvents.find(({event}) => event?.request?.url === 'https://github.com/') != null);
     });
   });
 
@@ -217,7 +213,7 @@ describe('Safari remote debugger', function () {
       await selectTestPage();
 
       const screenshot = await rd.captureScreenshot();
-      expect(screenshot.startsWith('iVBOR')).to.be.true;
+      assert.ok(screenshot.startsWith('iVBOR'));
     });
 
     it('rect on a viewport', async function () {
@@ -226,7 +222,7 @@ describe('Safari remote debugger', function () {
       const screenshot = await rd.captureScreenshot({
         rect: {x: 0, y: 0, width: 100, height: 100},
       });
-      expect(screenshot.startsWith('iVBOR')).to.be.true;
+      assert.ok(screenshot.startsWith('iVBOR'));
     });
 
     it('full page', async function () {
@@ -235,7 +231,7 @@ describe('Safari remote debugger', function () {
       const screenshot = await rd.captureScreenshot({
         coordinateSystem: 'Page',
       });
-      expect(screenshot.startsWith('iVBOR')).to.be.true;
+      assert.ok(screenshot.startsWith('iVBOR'));
     });
 
     it('rect on a page', async function () {
@@ -245,7 +241,7 @@ describe('Safari remote debugger', function () {
         rect: {x: 0, y: 0, width: 100, height: 100},
         coordinateSystem: 'Page',
       });
-      expect(screenshot.startsWith('iVBOR')).to.be.true;
+      assert.ok(screenshot.startsWith('iVBOR'));
     });
   });
 
@@ -255,7 +251,7 @@ describe('Safari remote debugger', function () {
 
     const script = 'return 1 + 1;';
     const sum = await rd.executeAtom('execute_script', [script, []]);
-    expect(sum).to.eql(2);
+    assert.strictEqual(sum, 2);
 
     await rd.selectApp(address);
   });
@@ -275,8 +271,8 @@ describe('Safari remote debugger', function () {
 
     // wait for the asynchronous console event to come in
     await retryInterval(50, 100, async function () {
-      expect(lines.length).to.be.at.least(1);
-      expect(lines.filter((line) => line.text === 'hi from appium').length).to.eql(1);
+      assert.ok(lines.length >= 1);
+      assert.strictEqual(lines.filter((line) => line.text === 'hi from appium').length, 1);
     });
   });
 
@@ -306,14 +302,14 @@ describe('Safari remote debugger', function () {
       return ctx.skip();
     }
 
-    await expect(
+    await assert.doesNotReject(
       retryInterval(5, 500, async function () {
-        const el1 = await rd.executeAtom('find_element', ['class name', 'element', null]);
+        const el1 = await rd.executeAtom('find_element_fragment', ['class name', 'element']);
         const sEl1 = await rd.executeAtom('execute_script', [shadowScript('#shadowContent'), [el1]]);
         const sEl2 = await rd.executeAtom('execute_script', [shadowScript('#shadowSubContent'), [sEl1]]);
         const text = await rd.executeAtom('get_text', [sEl2]);
-        expect(text).to.eql('It is murky in here');
+        assert.strictEqual(text, 'It is murky in here');
       }),
-    ).to.not.be.rejectedWith('Element is no longer attached to the DOM');
+    );
   });
 });
