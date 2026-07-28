@@ -2,7 +2,6 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {fs, logger, util} from '@appium/support';
-import {glob} from 'glob';
 import {exec} from 'teen_process';
 
 const log = logger.getLogger('Atoms');
@@ -192,7 +191,7 @@ async function atomsMkdir() {
 async function getBazelOutDir() {
   log.info(`Finding bazel output dir`);
   const outDirMatch = '*-fastbuild';
-  const relativeDir = (await glob(outDirMatch, {cwd: BAZEL_OUT_BASEDIR}))[0];
+  const relativeDir = (await fs.glob(outDirMatch, {cwd: BAZEL_OUT_BASEDIR}))[0];
   if (!relativeDir) {
     throw new Error(
       `Expected architecture-specific Bazel output directory was not found in ` +
@@ -223,7 +222,7 @@ async function atomsBuild() {
  */
 async function atomsCopyAtoms(atomsDir) {
   log.info(`Copying any atoms found in ${atomsDir} to atoms dir`);
-  const filesToCopy = await glob('**/*-ios.js', {
+  const filesToCopy = await fs.glob('**/*-ios.js', {
     absolute: true,
     strict: false,
     cwd: atomsDir,
