@@ -1,3 +1,9 @@
+## [16.0.3](https://github.com/appium/appium-remote-debugger/compare/v16.0.2...v16.0.3) (2026-07-28)
+
+### Miscellaneous Chores
+
+* Drop glob dependency ([#521](https://github.com/appium/appium-remote-debugger/issues/521)) ([5579cde](https://github.com/appium/appium-remote-debugger/commit/5579cdee4574b17d652790577193bf950194fe08))
+
 ## [16.0.2](https://github.com/appium/appium-remote-debugger/compare/v16.0.1...v16.0.2) (2026-07-27)
 
 ### Miscellaneous Chores
