@@ -16,7 +16,6 @@ is no more Bazel dependency, no Selenium clone step, and no periodic "refresh fr
 |------|----------|
 | `atoms/src/` | Vendored Closure source (`atoms/`, `webdriver/`, `third_party/closure/goog/`) — only the files actually needed to compile the atoms below. |
 | `atoms/*.js` | Compiled output — what `lib/atoms.ts` actually loads at runtime. Committed to git. |
-| `atoms/lastupdate` | Static note recording which Selenium commit `atoms/src/` was vendored from. Not auto-generated. |
 | `scripts/build-atoms.mjs` | The compiler script (Node.js + [`google-closure-compiler`](https://www.npmjs.com/package/google-closure-compiler) — no Bazel, no JVM required on supported platforms). |
 
 ## Building

@@ -8,8 +8,9 @@ actually reachable (via `goog.provide`/`goog.require`) from the atoms this packa
 `scripts/build-atoms.mjs` for the full list — not Selenium's entire `javascript/` tree or the full
 Google Closure Library.
 
-Origin: see `../lastupdate` for the exact Selenium commit this snapshot was taken from
-(`javascript/atoms/**`, `javascript/webdriver/**`, and `third_party/closure/goog/**`).
+Origin: `javascript/atoms/**`, `javascript/webdriver/**`, and `third_party/closure/goog/**` from
+[SeleniumHQ/selenium](https://github.com/SeleniumHQ/selenium) — see the git history of this
+directory for exactly when and from which commit it was vendored.
 
 **This is not kept in sync with upstream Selenium.** Upstream's JS atoms are effectively
 unmaintained, so this package owns and maintains this snapshot directly going forward — see
