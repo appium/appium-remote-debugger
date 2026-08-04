@@ -1,84 +1,70 @@
 # Updating Selenium atoms
 
-The remote debugger ships prebuilt [Selenium JavaScript atoms](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/atoms) under the `atoms/` directory. This document describes how to refresh them using CI or a local machine.
+The remote debugger ships prebuilt [Selenium JavaScript atoms](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/atoms)
+under the `atoms/` directory — small Closure-compiled scripts (`click.js`, `get_text.js`,
+`is_displayed.js`, ...) that get injected into the page over the WebKit Web Inspector protocol.
 
-## GitHub Actions (manual workflow)
+Upstream Selenium's JS atoms are effectively unmaintained, so **this package no longer syncs from
+upstream**. Instead, `atoms/src/` holds a one-time, hand-pruned snapshot of the Closure source
+needed to build them (see [`atoms/src/README.md`](../atoms/src/README.md) for exactly what was
+vendored and why), and this package owns and maintains that snapshot directly going forward. There
+is no more Bazel dependency, no Selenium clone step, and no periodic "refresh from trunk" workflow.
 
-The repository includes a **manually triggered** workflow that clones Selenium, runs the same build steps as `npm run build:atoms`, and opens a pull request when `atoms/` actually changes.
+## Layout
 
-| Item | Value |
-|------|--------|
-| Workflow file | [`.github/workflows/update-atoms.yml`](../.github/workflows/update-atoms.yml) |
-| Name in GitHub UI | **Update Selenium Atoms** |
-| Trigger | `workflow_dispatch` only (run from the **Actions** tab) |
+| Path | Contents |
+|------|----------|
+| `atoms/src/` | Vendored Closure source (`atoms/`, `webdriver/`, `third_party/closure/goog/`) — only the files actually needed to compile the atoms below. |
+| `atoms/*.js` | Compiled output — what `lib/atoms.ts` actually loads at runtime. Committed to git. |
+| `atoms/lastupdate` | Static note recording which Selenium commit `atoms/src/` was vendored from. Not auto-generated. |
+| `scripts/build-atoms.mjs` | The compiler script (Node.js + [`google-closure-compiler`](https://www.npmjs.com/package/google-closure-compiler) — no Bazel, no JVM required on supported platforms). |
 
-### Workflow inputs
-
-| Input | Default | Purpose |
-|-------|---------|---------|
-| `selenium_branch` | `trunk` | Branch or ref to clone from the Selenium repo (upstream’s default branch is `trunk`). |
-| `selenium_github` | `https://github.com/SeleniumHQ/selenium.git` | Git URL of the Selenium checkout used for the build. |
-
-These are passed through as `SELENIUM_BRANCH` and `SELENIUM_GITHUB` when the job runs `npm run build:atoms`.
-
-### Pull request behavior
-
-The job uses [`peter-evans/create-pull-request`](https://github.com/peter-evans/create-pull-request) with `add-paths: atoms/**`. If the build produces **no diff** under `atoms/`, **no pull request is created**. If a PR already exists on the configured branch, it may be updated when there are new changes.
-
-`atoms/lastupdate` stores only the Selenium checkout’s `git log -1` text (no build timestamp), so re-running against the same Selenium revision does not churn that file by itself. A PR appears when any atom file or `lastupdate` actually differs from the default branch — for example after `trunk` advances, or when toolchain outputs change.
-
-The workflow uses `bazelbuild/setup-bazelisk` so Bazel matches the version pinned in Selenium’s `.bazelversion`.
-
-## Local build
-
-From the repository root:
+## Building
 
 ```bash
 npm run build:atoms
 ```
 
-This runs `scripts/build-selenium.mjs` (clone into `tmp/selenium`) and `scripts/build-atoms.mjs` (Bazel build + copy into `atoms/`).
+This runs `scripts/build-atoms.mjs`, which compiles each atom entry from `atoms/src/` with Closure
+Compiler (`ADVANCED_OPTIMIZATIONS`, `--dependency_mode=PRUNE`) and writes the result to
+`atoms/<name>.js`. Only the **mobile Safari (WebKit)** fragment variant is built — Selenium's
+`closure_fragment` macro's `--define=goog.userAgent.ASSUME_MOBILE_WEBKIT=true` — since that's the
+only browser this package targets. Other browser variants (chrome, ie, firefox, android) are not
+built.
 
-### Requirements
+`google-closure-compiler` installs a native compiler binary for your OS/architecture as an
+`optionalDependency` (falls back to a bundled compiler `.jar`, requiring `java`, only if no native
+binary is available) — `npm install` handles this automatically, no separate toolchain to install.
 
-- **Git** — to clone Selenium.
-- **Bazel or Bazelisk** — Selenium pins a minimum Bazel version in `.bazelversion` at the checkout root. The build script prefers `bazel` when its version satisfies that minimum (using `@appium/support`’s `util.compareVersions`); otherwise it uses `bazelisk`. Installing [Bazelisk](https://github.com/bazelbuild/bazelisk) and putting it on `PATH` is the most reliable approach.
+## Modifying an atom, or adding a new one
 
-### Environment variables
+1. Edit the relevant file(s) under `atoms/src/`, or add new vendored source files there if a
+   change needs something not already vendored (mirror Selenium's `javascript/atoms/...` /
+   `javascript/webdriver/atoms/...` / `third_party/closure/goog/...` layout, minus the leading
+   `javascript/`).
+2. If you're adding a brand-new atom (not just editing an existing one), add a row to the `ATOMS`
+   table at the top of `scripts/build-atoms.mjs` — `name` (the output filename), `module` (the
+   `goog.provide`d namespace), and `fn` (the fully-qualified exported function). See the comment
+   above that table for how the existing rows were derived from Selenium's `closure_fragment`
+   Bazel targets.
+3. Run `npm run build:atoms` and commit **both** the `atoms/src/` change and the regenerated
+   `atoms/*.js` output together.
+4. Run the tests (below).
 
-You can override the clone target without editing `scripts/common.mjs`:
+## Tests
 
-| Variable | Purpose |
-|----------|---------|
-| `SELENIUM_BRANCH` | Branch or ref to clone (default in script: `trunk`). If the specified ref does not exist upstream, the clone fails. |
-| `SELENIUM_GITHUB` | Repository URL (default: `https://github.com/SeleniumHQ/selenium.git`). |
+- `test/unit/atoms.spec.ts` — jsdom-backed green-path tests that exercise every compiled atom
+  directly (locators, element state, interaction, frames, storage, script execution, HTML5
+  storage/appcache/SQL/geolocation, and the element cache). Runs as part of `npm test` on every
+  push/PR, no simulator needed.
+- `test/functional/safari-e2e.spec.ts` — a smaller set of the same atom families exercised against
+  a real Safari session in an iOS Simulator. Runs via `npm run e2e-test` / the `functional-test.yml`
+  CI workflow.
 
-Example:
+## CI
 
-```bash
-SELENIUM_BRANCH=trunk SELENIUM_GITHUB=https://github.com/SeleniumHQ/selenium.git npm run build:atoms
-```
-
-### Optional clean
-
-Pass `--clean` to the import step via:
-
-```bash
-node scripts/build-atoms.mjs --clean
-```
-
-(`npm run build:atoms` does not pass `--clean` by default; extend the npm script if you need that regularly.)
-
-### Build details (maintainers)
-
-- Bazel targets include `//javascript/atoms/...`, `//javascript/webdriver/atoms/...`, and `//javascript/webdriver/atoms/inject/...`. Browser-backed `closure-test*` targets under `//javascript/atoms/...` are excluded from that wildcard so the import build does not require pinned Firefox/Safari archives used only for Selenium’s JS test harness.
-- `ANDROID_HOME`, `ANDROID_SDK_ROOT`, and `ANDROID_SDK` are unset for Bazel invocations so a host Android SDK does not interfere with analysis.
-
-## After updating atoms
-
-Run tests and open a pull request with the regenerated `atoms/` tree (or rely on the GitHub Action to open it for you).
-
-```bash
-npm test
-npm run e2e-test
-```
+`unit-test.yml`'s `verify-atoms` job runs on every push and pull request, but only does real work
+when the diff touches `atoms/**` or `scripts/build-atoms.mjs` (via `dorny/paths-filter`) — for any
+other PR it's a fast no-op. When it does run, it executes `npm run build:atoms` and fails the build
+if the regenerated `atoms/` differs from what's committed, so `atoms/src/` and `atoms/*.js` can
+never silently drift apart.

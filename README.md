@@ -22,9 +22,10 @@ The steps to using the `RemoteDebugger` involve instantiating an object, then ru
 ## Selenium "atoms"
 
 The remote debugger uses the standard [Selenium JavaScript atoms](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/atoms)
-to interact with web pages.
-
-To refresh the bundled `atoms/` output, use the **Update Selenium Atoms** manual workflow ([`.github/workflows/update-atoms.yml`](./.github/workflows/update-atoms.yml)) in the GitHub Actions tab, or build locally. Full steps, inputs, and tooling are documented in **[docs/update-atoms.md](./docs/update-atoms.md)**.
+to interact with web pages. The source these atoms are compiled from is vendored under `atoms/src/`
+and maintained directly in this repository (no live Selenium clone or Bazel dependency); the
+compiled output lives in `atoms/`. To modify or rebuild them, run `npm run build:atoms` locally.
+Full details are documented in **[docs/update-atoms.md](./docs/update-atoms.md)**.
 
 ## Test
 

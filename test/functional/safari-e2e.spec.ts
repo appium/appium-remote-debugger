@@ -142,6 +142,61 @@ describe('Safari remote debugger', function () {
     await rd.executeAtom('execute_script', ['window.location.reload()']);
   });
 
+  it('should be able to check element visibility and enabled state', async function () {
+    await selectTestPage();
+
+    const visibleEl = await rd.executeAtom('find_element_fragment', ['css selector', '#somediv']);
+    assert.strictEqual(await rd.executeAtom('is_displayed', [visibleEl]), true);
+    assert.strictEqual(await rd.executeAtom('is_enabled', [visibleEl]), true);
+
+    const hiddenEl = await rd.executeAtom('find_element_fragment', ['css selector', '#hiddendiv']);
+    assert.strictEqual(await rd.executeAtom('is_displayed', [hiddenEl]), false);
+  });
+
+  it('should be able to click a checkbox and read its selected state', async function () {
+    await selectTestPage();
+
+    const el = await rd.executeAtom('find_element_fragment', ['css selector', '#checkbox']);
+    assert.strictEqual(await rd.executeAtom('is_selected', [el]), false);
+    await rd.executeAtom('click', [el]);
+    assert.strictEqual(await rd.executeAtom('is_selected', [el]), true);
+
+    // clean up page
+    await rd.executeAtom('execute_script', ['window.location.reload()']);
+  });
+
+  it('should be able to clear a text input', async function () {
+    await selectTestPage();
+
+    const el = await rd.executeAtom('find_element_fragment', ['css selector', '#input']);
+    await rd.executeAtom('type', [el, 'some text']);
+    assert.strictEqual(await rd.executeAtom('get_attribute_value', [el, 'value']), 'some text');
+    await rd.executeAtom('clear', [el]);
+    assert.strictEqual(await rd.executeAtom('get_attribute_value', [el, 'value']), '');
+
+    // clean up page
+    await rd.executeAtom('execute_script', ['window.location.reload()']);
+  });
+
+  it('should be able to round-trip local and session storage', async function () {
+    await selectTestPage();
+
+    await rd.executeAtom('set_local_storage_item', ['foo', 'bar']);
+    assert.strictEqual(await rd.executeAtom('get_local_storage_item', ['foo']), 'bar');
+    await rd.executeAtom('remove_local_storage_item', ['foo']);
+
+    await rd.executeAtom('set_session_storage_item', ['foo', 'bar']);
+    assert.strictEqual(await rd.executeAtom('get_session_storage_item', ['foo']), 'bar');
+    await rd.executeAtom('remove_session_storage_item', ['foo']);
+  });
+
+  it('should be able to get the active element and default content', async function () {
+    await selectTestPage();
+
+    assert.ok((await rd.executeAtom('active_element', [])).ELEMENT);
+    assert.ok((await rd.executeAtom('default_content', [])).WINDOW);
+  });
+
   describe('executeAtomAsync', function () {
     const timeout = 1000;
 
