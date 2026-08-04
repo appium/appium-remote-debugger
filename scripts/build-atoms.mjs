@@ -1,7 +1,9 @@
+import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {fs, logger} from '@appium/support';
+import {asyncmap} from 'asyncbox';
 import Compiler from 'google-closure-compiler';
 import {getFirstSupportedPlatform, getNativeImagePath} from 'google-closure-compiler/lib/utils.js';
 
@@ -211,9 +213,11 @@ async function buildAtoms() {
   await fs.mkdir(STUB_DIRECTORY, {recursive: true});
   await fs.mkdir(ATOMS_DIRECTORY, {recursive: true});
   try {
-    for (const atom of ATOMS) {
-      await compileAtom(atom);
-    }
+    // Each atom is an independent closure-compiler invocation (own stub/output files, read-only
+    // shared source), so they compile fine in parallel; cap concurrency to the CPU count so this
+    // doesn't blow through memory on smaller CI runners.
+    const concurrency = os.availableParallelism();
+    await asyncmap(ATOMS, (atom) => compileAtom(atom), {concurrency});
   } finally {
     await fs.rimraf(STUB_DIRECTORY);
   }
