@@ -9,8 +9,6 @@ goog.provide('goog.string.Const');
 goog.require('goog.asserts');
 goog.require('goog.string.TypedString');
 
-
-
 /**
  * Wrapper for compile-time-constant strings.
  *
@@ -39,7 +37,7 @@ goog.require('goog.string.TypedString');
  * @param {Object=} opt_token package-internal implementation detail.
  * @param {string=} opt_content package-internal implementation detail.
  */
-goog.string.Const = function(opt_token, opt_content) {
+goog.string.Const = function (opt_token, opt_content) {
   'use strict';
   /**
    * The wrapped value of this Const object.  The field has a purposely ugly
@@ -48,10 +46,7 @@ goog.string.Const = function(opt_token, opt_content) {
    * @private {string}
    */
   this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ =
-      ((opt_token ===
-        goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_) &&
-       opt_content) ||
-      '';
+    (opt_token === goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content) || '';
 
   /**
    * A type marker used to implement additional run-time type checking.
@@ -59,17 +54,14 @@ goog.string.Const = function(opt_token, opt_content) {
    * @const {!Object}
    * @private
    */
-  this.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ =
-      goog.string.Const.TYPE_MARKER_;
+  this.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ = goog.string.Const.TYPE_MARKER_;
 };
-
 
 /**
  * @override
  * @const
  */
 goog.string.Const.prototype.implementsGoogStringTypedString = true;
-
 
 /**
  * Returns this Const's value as a string.
@@ -82,11 +74,10 @@ goog.string.Const.prototype.implementsGoogStringTypedString = true;
  * @override
  * @return {string}
  */
-goog.string.Const.prototype.getTypedStringValue = function() {
+goog.string.Const.prototype.getTypedStringValue = function () {
   'use strict';
   return this.stringConstValueWithSecurityContract__googStringSecurityPrivate_;
 };
-
 
 if (goog.DEBUG) {
   /**
@@ -99,14 +90,11 @@ if (goog.DEBUG) {
    * @override
    * @return {string}
    */
-  goog.string.Const.prototype.toString = function() {
+  goog.string.Const.prototype.toString = function () {
     'use strict';
-    return 'Const{' +
-        this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ +
-        '}';
+    return 'Const{' + this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ + '}';
   };
 }
-
 
 /**
  * Performs a runtime check that the provided object is indeed an instance
@@ -117,25 +105,23 @@ if (goog.DEBUG) {
  *     string, or, if assertions are enabled, throws
  *     `goog.asserts.AssertionError`.
  */
-goog.string.Const.unwrap = function(stringConst) {
+goog.string.Const.unwrap = function (stringConst) {
   'use strict';
   // Perform additional run-time type-checking to ensure that stringConst is
   // indeed an instance of the expected type.  This provides some additional
   // protection against security bugs due to application code that disables type
   // checks.
-  if (stringConst instanceof goog.string.Const &&
-      stringConst.constructor === goog.string.Const &&
-      stringConst.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ ===
-          goog.string.Const.TYPE_MARKER_) {
-    return stringConst
-        .stringConstValueWithSecurityContract__googStringSecurityPrivate_;
+  if (
+    stringConst instanceof goog.string.Const &&
+    stringConst.constructor === goog.string.Const &&
+    stringConst.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ === goog.string.Const.TYPE_MARKER_
+  ) {
+    return stringConst.stringConstValueWithSecurityContract__googStringSecurityPrivate_;
   } else {
-    goog.asserts.fail(
-        'expected object of type Const, got \'' + stringConst + '\'');
+    goog.asserts.fail("expected object of type Const, got '" + stringConst + "'");
     return 'type_error:Const';
   }
 };
-
 
 /**
  * Creates a Const object from a compile-time constant string.
@@ -158,10 +144,9 @@ goog.string.Const.unwrap = function(stringConst) {
  * @param {string} s A constant string from which to create a Const.
  * @return {!goog.string.Const} A Const object initialized to stringConst.
  */
-goog.string.Const.from = function(s) {
+goog.string.Const.from = function (s) {
   'use strict';
-  return new goog.string.Const(
-      goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_, s);
+  return new goog.string.Const(goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_, s);
 };
 
 /**

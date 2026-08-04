@@ -52,8 +52,7 @@ function isWebKit() {
  * @return {boolean} Whether the rendering engine is Gecko.
  */
 function isGecko() {
-  return util.matchUserAgent('Gecko') && !isWebKit() && !isTrident() &&
-      !isEdge();
+  return util.matchUserAgent('Gecko') && !isWebKit() && !isTrident() && !isEdge();
 }
 
 /**
@@ -127,11 +126,11 @@ function isVersionOrHigher(version) {
 function getVersionForKey(tuples, key) {
   // TODO(nnaze): Move to util if useful elsewhere.
 
-  const pair = googArray.find(tuples, function(pair) {
+  const pair = googArray.find(tuples, function (pair) {
     return key == pair[0];
   });
 
-  return pair && pair[1] || '';
+  return (pair && pair[1]) || '';
 }
 
 exports = {

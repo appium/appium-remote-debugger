@@ -24,13 +24,11 @@ goog.provide('webdriver.atoms.inject.storage.appcache');
 goog.require('bot.inject');
 goog.require('webdriver.atoms.storage.appcache');
 
-
 /**
  * Gets the status of the application cache.
  *
  * @return {string} The status of the application cache.
  */
-webdriver.atoms.inject.storage.appcache.getStatus = function() {
-  return /**@type {string}*/(bot.inject.executeScript(
-      webdriver.atoms.storage.appcache.getStatus, [], true));
+webdriver.atoms.inject.storage.appcache.getStatus = function () {
+  return /**@type {string}*/ (bot.inject.executeScript(webdriver.atoms.storage.appcache.getStatus, [], true));
 };

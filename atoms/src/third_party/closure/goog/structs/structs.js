@@ -14,7 +14,6 @@
  * @suppress {strictMissingProperties}
  */
 
-
 goog.provide('goog.structs');
 
 goog.require('goog.array');
@@ -22,17 +21,15 @@ goog.require('goog.object');
 
 goog.require('goog.utils');
 
-
 // We treat an object as a dictionary if it has getKeys or it is an object that
 // isn't arrayLike.
-
 
 /**
  * Returns the number of values in the collection-like object.
  * @param {Object} col The collection-like object.
  * @return {number} The number of values in the collection-like object.
  */
-goog.structs.getCount = function(col) {
+goog.structs.getCount = function (col) {
   'use strict';
   if (col.getCount && typeof col.getCount == 'function') {
     return col.getCount();
@@ -43,13 +40,12 @@ goog.structs.getCount = function(col) {
   return goog.object.getCount(col);
 };
 
-
 /**
  * Returns the values of the collection-like object.
  * @param {Object} col The collection-like object.
  * @return {!Array<?>} The values in the collection-like object.
  */
-goog.structs.getValues = function(col) {
+goog.structs.getValues = function (col) {
   'use strict';
   if (col.getValues && typeof col.getValues == 'function') {
     return col.getValues();
@@ -57,8 +53,7 @@ goog.structs.getValues = function(col) {
   // ES6 Map and Set both define a values function that returns an iterator.
   // The typeof check allows the compiler to remove the Map and Set polyfills
   // if they are otherwise unused throughout the entire binary.
-  if ((typeof Map !== 'undefined' && col instanceof Map) ||
-      (typeof Set !== 'undefined' && col instanceof Set)) {
+  if ((typeof Map !== 'undefined' && col instanceof Map) || (typeof Set !== 'undefined' && col instanceof Set)) {
     return Array.from(col.values());
   }
   if (typeof col === 'string') {
@@ -75,14 +70,13 @@ goog.structs.getValues = function(col) {
   return goog.object.getValues(col);
 };
 
-
 /**
  * Returns the keys of the collection. Some collections have no notion of
  * keys/indexes and this function will return undefined in those cases.
  * @param {Object} col The collection-like object.
  * @return {!Array|undefined} The keys in the collection.
  */
-goog.structs.getKeys = function(col) {
+goog.structs.getKeys = function (col) {
   'use strict';
   if (col.getKeys && typeof col.getKeys == 'function') {
     return col.getKeys();
@@ -114,7 +108,6 @@ goog.structs.getKeys = function(col) {
   return goog.object.getKeys(col);
 };
 
-
 /**
  * Whether the collection contains the given value. This is O(n) and uses
  * equals (==) to test the existence.
@@ -122,7 +115,7 @@ goog.structs.getKeys = function(col) {
  * @param {*} val The value to check for.
  * @return {boolean} True if the map contains the value.
  */
-goog.structs.contains = function(col, val) {
+goog.structs.contains = function (col, val) {
   'use strict';
   if (col.contains && typeof col.contains == 'function') {
     return col.contains(val);
@@ -136,13 +129,12 @@ goog.structs.contains = function(col, val) {
   return goog.object.containsValue(col, val);
 };
 
-
 /**
  * Whether the collection is empty.
  * @param {Object} col The collection-like object.
  * @return {boolean} True if empty.
  */
-goog.structs.isEmpty = function(col) {
+goog.structs.isEmpty = function (col) {
   'use strict';
   if (col.isEmpty && typeof col.isEmpty == 'function') {
     return col.isEmpty();
@@ -158,13 +150,12 @@ goog.structs.isEmpty = function(col) {
   return goog.object.isEmpty(col);
 };
 
-
 /**
  * Removes all the elements from the collection.
  * @param {Object} col The collection-like object.
  * @return {void}
  */
-goog.structs.clear = function(col) {
+goog.structs.clear = function (col) {
   'use strict';
   // NOTE(arv): This should not contain strings because strings are immutable
   if (col.clear && typeof col.clear == 'function') {
@@ -175,7 +166,6 @@ goog.structs.clear = function(col) {
     goog.object.clear(col);
   }
 };
-
 
 /**
  * Calls a function for each value in a collection. The function takes
@@ -193,7 +183,7 @@ goog.structs.clear = function(col) {
  * @deprecated Use a more specific method, e.g. native Array.prototype.forEach,
  *     or for-of.
  */
-goog.structs.forEach = function(col, f, opt_obj) {
+goog.structs.forEach = function (col, f, opt_obj) {
   'use strict';
   if (col.forEach && typeof col.forEach == 'function') {
     col.forEach(f, opt_obj);
@@ -208,7 +198,6 @@ goog.structs.forEach = function(col, f, opt_obj) {
     }
   }
 };
-
 
 /**
  * Calls a function for every value in the collection. When a call returns true,
@@ -228,14 +217,13 @@ goog.structs.forEach = function(col, f, opt_obj) {
  *     has keys and values a plain old JS object is returned.
  * @template T,S
  */
-goog.structs.filter = function(col, f, opt_obj) {
+goog.structs.filter = function (col, f, opt_obj) {
   'use strict';
   if (typeof col.filter == 'function') {
     return col.filter(f, opt_obj);
   }
   if (goog.utils.isArrayLike(col) || typeof col === 'string') {
-    return Array.prototype.filter.call(
-        /** @type {!Array<?>} */ (col), f, opt_obj);
+    return Array.prototype.filter.call(/** @type {!Array<?>} */ (col), f, opt_obj);
   }
 
   var rv;
@@ -263,7 +251,6 @@ goog.structs.filter = function(col, f, opt_obj) {
   return rv;
 };
 
-
 /**
  * Calls a function for every value in the collection and adds the result into a
  * new collection (defaults to creating a new Array).
@@ -280,7 +267,7 @@ goog.structs.filter = function(col, f, opt_obj) {
  *     values a plain old JS object is returned.
  * @template T,S,V
  */
-goog.structs.map = function(col, f, opt_obj) {
+goog.structs.map = function (col, f, opt_obj) {
   'use strict';
   if (typeof col.map == 'function') {
     return col.map(f, opt_obj);
@@ -310,7 +297,6 @@ goog.structs.map = function(col, f, opt_obj) {
   return rv;
 };
 
-
 /**
  * Calls f for each value in a collection. If any call returns true this returns
  * true (without checking the rest). If all returns false this returns false.
@@ -325,14 +311,13 @@ goog.structs.map = function(col, f, opt_obj) {
  * @return {boolean} True if any value passes the test.
  * @template T,S
  */
-goog.structs.some = function(col, f, opt_obj) {
+goog.structs.some = function (col, f, opt_obj) {
   'use strict';
   if (typeof col.some == 'function') {
     return col.some(f, opt_obj);
   }
   if (goog.utils.isArrayLike(col) || typeof col === 'string') {
-    return Array.prototype.some.call(
-        /** @type {!Array<?>} */ (col), f, opt_obj);
+    return Array.prototype.some.call(/** @type {!Array<?>} */ (col), f, opt_obj);
   }
   var keys = goog.structs.getKeys(col);
   var values = goog.structs.getValues(col);
@@ -344,7 +329,6 @@ goog.structs.some = function(col, f, opt_obj) {
   }
   return false;
 };
-
 
 /**
  * Calls f for each value in a collection. If all calls return true this return
@@ -361,14 +345,13 @@ goog.structs.some = function(col, f, opt_obj) {
  * @return {boolean} True if all key-value pairs pass the test.
  * @template T,S
  */
-goog.structs.every = function(col, f, opt_obj) {
+goog.structs.every = function (col, f, opt_obj) {
   'use strict';
   if (typeof col.every == 'function') {
     return col.every(f, opt_obj);
   }
   if (goog.utils.isArrayLike(col) || typeof col === 'string') {
-    return Array.prototype.every.call(
-        /** @type {!Array<?>} */ (col), f, opt_obj);
+    return Array.prototype.every.call(/** @type {!Array<?>} */ (col), f, opt_obj);
   }
   var keys = goog.structs.getKeys(col);
   var values = goog.structs.getValues(col);

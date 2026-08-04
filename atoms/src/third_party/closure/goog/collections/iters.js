@@ -32,7 +32,6 @@ function getIterator(iterable) {
 }
 exports.getIterator = getIterator;
 
-
 /**
  * Call a function with every value of an iterable.
  *
@@ -82,13 +81,11 @@ class MapIterator {
     // so that we don't accidentally preserve generator return values, which
     // are unlikely to be meaningful in the context of this MapIterator.
     return {
-      value: childResult.done ? undefined :
-                                this.mapFn_.call(undefined, childResult.value),
+      value: childResult.done ? undefined : this.mapFn_.call(undefined, childResult.value),
       done: childResult.done,
     };
   }
 }
-
 
 /**
  * Maps the values of one iterable to create another iterable.
@@ -103,10 +100,9 @@ class MapIterator {
  *     mapped values.
  * @template VALUE, RESULT
  */
-exports.map = function(iterable, f) {
+exports.map = function (iterable, f) {
   return new MapIterator(iterable, f);
 };
-
 
 /**
  * An Iterable that wraps a child Iterable and returns a subset of the child's
@@ -149,7 +145,6 @@ class FilterIterator {
   }
 }
 
-
 /**
  * Filter elements from one iterator to create another iterable.
  *
@@ -163,10 +158,9 @@ class FilterIterator {
  *     values.
  * @template VALUE
  */
-exports.filter = function(iterable, f) {
+exports.filter = function (iterable, f) {
   return new FilterIterator(iterable, f);
 };
-
 
 /**
  * @template T
@@ -199,7 +193,6 @@ class ConcatIterator {
   }
 }
 
-
 /**
  * Concatenates multiple iterators to create a new iterable.
  *
@@ -215,7 +208,7 @@ class ConcatIterator {
  * @return {!IteratorIterable<VALUE>}
  * @template VALUE
  */
-exports.concat = function(...iterables) {
+exports.concat = function (...iterables) {
   return new ConcatIterator(iterables.map(getIterator));
 };
 
@@ -225,8 +218,8 @@ exports.concat = function(...iterables) {
  * @return {!Array<VALUE>}
  * @template VALUE
  */
-exports.toArray = function(iterator) {
+exports.toArray = function (iterator) {
   const arr = [];
-  forEach(iterator, e => arr.push(e));
+  forEach(iterator, (e) => arr.push(e));
   return arr;
 };

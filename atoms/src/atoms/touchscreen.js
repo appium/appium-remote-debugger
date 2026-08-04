@@ -34,8 +34,6 @@ goog.require('goog.math.Coordinate');
 goog.require('goog.userAgent.product');
 goog.require('goog.utils');
 
-
-
 /**
  * A TouchScreen that provides atomic touch actions.  The metaphor
  * for this abstraction is a finger moving above the touchscreen that
@@ -57,26 +55,20 @@ bot.Touchscreen = function () {
 };
 goog.utils.inherits(bot.Touchscreen, bot.Device);
 
-
 /** @private {boolean} */
 bot.Touchscreen.prototype.fireMouseEventsOnRelease_ = true;
-
 
 /** @private {boolean} */
 bot.Touchscreen.prototype.cancelled_ = false;
 
-
 /** @private {number} */
 bot.Touchscreen.prototype.touchIdentifier_ = 0;
-
 
 /** @private {number} */
 bot.Touchscreen.prototype.touchIdentifier2_ = 0;
 
-
 /** @private {number} */
 bot.Touchscreen.prototype.touchCounter_ = 2;
-
 
 /**
  * Press the touch screen.  Pressing before moving results in an exception.
@@ -88,8 +80,7 @@ bot.Touchscreen.prototype.touchCounter_ = 2;
  */
 bot.Touchscreen.prototype.press = function (opt_press2) {
   if (this.isPressed()) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot press touchscreen when already pressed.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot press touchscreen when already pressed.');
   }
 
   this.touchIdentifier_ = this.touchCounter_++;
@@ -101,11 +92,9 @@ bot.Touchscreen.prototype.press = function (opt_press2) {
     this.fireMouseEventsOnRelease_ = true;
     this.firePointerEvents_(bot.Touchscreen.fireSinglePressPointer_);
   } else {
-    this.fireMouseEventsOnRelease_ = this.fireTouchEvent_(
-      bot.events.EventType.TOUCHSTART);
+    this.fireMouseEventsOnRelease_ = this.fireTouchEvent_(bot.events.EventType.TOUCHSTART);
   }
 };
-
 
 /**
  * Releases an element on a touchscreen.  Releasing an element that is not
@@ -113,8 +102,7 @@ bot.Touchscreen.prototype.press = function (opt_press2) {
  */
 bot.Touchscreen.prototype.release = function () {
   if (!this.isPressed()) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot release touchscreen when not already pressed.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot release touchscreen when not already pressed.');
   }
 
   if (!bot.userAgent.IE_DOC_10) {
@@ -127,7 +115,6 @@ bot.Touchscreen.prototype.release = function () {
   this.touchIdentifier2_ = 0;
   this.cancelled_ = false;
 };
-
 
 /**
  * Moves finger along the touchscreen.
@@ -167,18 +154,29 @@ bot.Touchscreen.prototype.move = function (element, coords, opt_coords2) {
       if (bot.Touchscreen.hasMsTouchActionsEnabled_(element)) {
         this.firePointerEvents_(bot.Touchscreen.fireSingleMovePointer_);
       } else {
-        this.fireMSPointerEvent(bot.events.EventType.MSPOINTEROUT, coords, -1,
-          this.touchIdentifier_, MSPointerEvent.MSPOINTER_TYPE_TOUCH, true);
+        this.fireMSPointerEvent(
+          bot.events.EventType.MSPOINTEROUT,
+          coords,
+          -1,
+          this.touchIdentifier_,
+          MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+          true,
+        );
         this.fireMouseEvent(bot.events.EventType.MOUSEOUT, coords, 0);
-        this.fireMSPointerEvent(bot.events.EventType.MSPOINTERCANCEL, coords, 0,
-          this.touchIdentifier_, MSPointerEvent.MSPOINTER_TYPE_TOUCH, true);
+        this.fireMSPointerEvent(
+          bot.events.EventType.MSPOINTERCANCEL,
+          coords,
+          0,
+          this.touchIdentifier_,
+          MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+          true,
+        );
         this.cancelled_ = true;
         bot.Device.clearPointerMap();
       }
     }
   }
 };
-
 
 /**
  * Returns whether the touchscreen is currently pressed.
@@ -189,7 +187,6 @@ bot.Touchscreen.prototype.isPressed = function () {
   return !!this.touchIdentifier_;
 };
 
-
 /**
  * A helper function to fire touch events.
  *
@@ -199,8 +196,7 @@ bot.Touchscreen.prototype.isPressed = function () {
  */
 bot.Touchscreen.prototype.fireTouchEvent_ = function (type) {
   if (!this.isPressed()) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Should never fire event when touchscreen is not pressed.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Should never fire event when touchscreen is not pressed.');
   }
   var touchIdentifier2;
   var coords2;
@@ -208,10 +204,8 @@ bot.Touchscreen.prototype.fireTouchEvent_ = function (type) {
     touchIdentifier2 = this.touchIdentifier2_;
     coords2 = this.clientXY2_;
   }
-  return this.fireTouchEvent(type, this.touchIdentifier_, this.clientXY_,
-    touchIdentifier2, coords2);
+  return this.fireTouchEvent(type, this.touchIdentifier_, this.clientXY_, touchIdentifier2, coords2);
 };
-
 
 /**
  * A helper function to fire touch events that occur on a release.
@@ -230,14 +224,11 @@ bot.Touchscreen.prototype.fireTouchReleaseEvents_ = function () {
   // 3. Any event handler for touchend has called preventDefault(), and browser
   // is Mobile Safari or Chrome.
   var fireMouseEvents =
-    this.fireMouseEventsOnRelease_ &&
-    (touchendSuccess || !(bot.userAgent.IOS ||
-      goog.userAgent.product.CHROME));
+    this.fireMouseEventsOnRelease_ && (touchendSuccess || !(bot.userAgent.IOS || goog.userAgent.product.CHROME));
 
   if (fireMouseEvents) {
     this.fireMouseEvent(bot.events.EventType.MOUSEMOVE, this.clientXY_, 0);
-    var performFocus = this.fireMouseEvent(bot.events.EventType.MOUSEDOWN,
-      this.clientXY_, 0);
+    var performFocus = this.fireMouseEvent(bot.events.EventType.MOUSEDOWN, this.clientXY_, 0);
     // Element gets focus after the mousedown event only if the mousedown was
     // not cancelled.
     if (performFocus) {
@@ -248,20 +239,15 @@ bot.Touchscreen.prototype.fireTouchReleaseEvents_ = function () {
     // If a mouseup event is dispatched to an interactable event, and that
     // mouseup would complete a click, then the click event must be dispatched
     // even if the element becomes non-interactable after the mouseup.
-    var elementInteractableBeforeMouseup =
-      bot.dom.isInteractable(this.getElement());
+    var elementInteractableBeforeMouseup = bot.dom.isInteractable(this.getElement());
     this.fireMouseEvent(bot.events.EventType.MOUSEUP, this.clientXY_, 0);
 
     // Special click logic to follow links and to perform form actions.
-    if (!(bot.userAgent.WINDOWS_PHONE &&
-      bot.dom.isElement(this.getElement(), goog.dom.TagName.OPTION))) {
-      this.clickElement(this.clientXY_,
-                         /* button */ 0,
-                         /* opt_force */ elementInteractableBeforeMouseup);
+    if (!(bot.userAgent.WINDOWS_PHONE && bot.dom.isElement(this.getElement(), goog.dom.TagName.OPTION))) {
+      this.clickElement(this.clientXY_, /* button */ 0, /* opt_force */ elementInteractableBeforeMouseup);
     }
   }
 };
-
 
 /**
  * A helper function to fire a sequence of Pointer events.
@@ -271,15 +257,11 @@ bot.Touchscreen.prototype.fireTouchReleaseEvents_ = function () {
  * @private
  */
 bot.Touchscreen.prototype.firePointerEvents_ = function (fireSinglePointer) {
-  fireSinglePointer(this, this.getElement(), this.clientXY_,
-    this.touchIdentifier_, true);
-  if (this.touchIdentifier2_ &&
-    bot.Touchscreen.hasMsTouchActionsEnabled_(this.getElement())) {
-    fireSinglePointer(this, this.getElement(),
-      this.clientXY2_, this.touchIdentifier2_, false);
+  fireSinglePointer(this, this.getElement(), this.clientXY_, this.touchIdentifier_, true);
+  if (this.touchIdentifier2_ && bot.Touchscreen.hasMsTouchActionsEnabled_(this.getElement())) {
+    fireSinglePointer(this, this.getElement(), this.clientXY2_, this.touchIdentifier2_, false);
   }
 };
-
 
 /**
  * A helper function to fire Pointer events related to a press.
@@ -293,31 +275,47 @@ bot.Touchscreen.prototype.firePointerEvents_ = function (fireSinglePointer) {
  *     of contact.
  * @private
  */
-bot.Touchscreen.fireSinglePressPointer_ = function (ts, element, coords, id,
-  isPrimary) {
+bot.Touchscreen.fireSinglePressPointer_ = function (ts, element, coords, id, isPrimary) {
   // Fire a mousemove event.
   ts.fireMouseEvent(bot.events.EventType.MOUSEMOVE, coords, 0);
 
   // Fire a MSPointerOver and mouseover events.
-  ts.fireMSPointerEvent(bot.events.EventType.MSPOINTEROVER, coords, 0, id,
-    MSPointerEvent.MSPOINTER_TYPE_TOUCH, isPrimary);
+  ts.fireMSPointerEvent(
+    bot.events.EventType.MSPOINTEROVER,
+    coords,
+    0,
+    id,
+    MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+    isPrimary,
+  );
   ts.fireMouseEvent(bot.events.EventType.MOUSEOVER, coords, 0);
 
   // Fire a MSPointerDown and mousedown events.
-  ts.fireMSPointerEvent(bot.events.EventType.MSPOINTERDOWN, coords, 0, id,
-    MSPointerEvent.MSPOINTER_TYPE_TOUCH, isPrimary);
+  ts.fireMSPointerEvent(
+    bot.events.EventType.MSPOINTERDOWN,
+    coords,
+    0,
+    id,
+    MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+    isPrimary,
+  );
 
   // Element gets focus after the mousedown event.
   if (ts.fireMouseEvent(bot.events.EventType.MOUSEDOWN, coords, 0)) {
     // For selectable elements, IE 10 fires a MSGotPointerCapture event.
     if (bot.dom.isSelectable(element)) {
-      ts.fireMSPointerEvent(bot.events.EventType.MSGOTPOINTERCAPTURE, coords, 0,
-        id, MSPointerEvent.MSPOINTER_TYPE_TOUCH, isPrimary);
+      ts.fireMSPointerEvent(
+        bot.events.EventType.MSGOTPOINTERCAPTURE,
+        coords,
+        0,
+        id,
+        MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+        isPrimary,
+      );
     }
     ts.focusOnElement();
   }
 };
-
 
 /**
  * A helper function to fire Pointer events related to a release.
@@ -331,46 +329,54 @@ bot.Touchscreen.fireSinglePressPointer_ = function (ts, element, coords, id,
  *     of contact.
  * @private
  */
-bot.Touchscreen.fireSingleReleasePointer_ = function (ts, element, coords, id,
-  isPrimary) {
+bot.Touchscreen.fireSingleReleasePointer_ = function (ts, element, coords, id, isPrimary) {
   // Fire a MSPointerUp and mouseup events.
-  ts.fireMSPointerEvent(bot.events.EventType.MSPOINTERUP, coords, 0, id,
-    MSPointerEvent.MSPOINTER_TYPE_TOUCH, isPrimary);
+  ts.fireMSPointerEvent(
+    bot.events.EventType.MSPOINTERUP,
+    coords,
+    0,
+    id,
+    MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+    isPrimary,
+  );
 
   // If a mouseup event is dispatched to an interactable event, and that mouseup
   // would complete a click, then the click event must be dispatched even if the
   // element becomes non-interactable after the mouseup.
-  var elementInteractableBeforeMouseup =
-    bot.dom.isInteractable(ts.getElement());
-  ts.fireMouseEvent(bot.events.EventType.MOUSEUP, coords, 0, null, 0, false,
-    id);
+  var elementInteractableBeforeMouseup = bot.dom.isInteractable(ts.getElement());
+  ts.fireMouseEvent(bot.events.EventType.MOUSEUP, coords, 0, null, 0, false, id);
 
   // Fire a click.
   if (ts.fireMouseEventsOnRelease_) {
     ts.maybeToggleOption();
-    if (!(bot.userAgent.WINDOWS_PHONE &&
-      bot.dom.isElement(element, goog.dom.TagName.OPTION))) {
-      ts.clickElement(ts.clientXY_,
-                      /* button */ 0,
-                      /* opt_force */ elementInteractableBeforeMouseup,
-        id);
+    if (!(bot.userAgent.WINDOWS_PHONE && bot.dom.isElement(element, goog.dom.TagName.OPTION))) {
+      ts.clickElement(ts.clientXY_, /* button */ 0, /* opt_force */ elementInteractableBeforeMouseup, id);
     }
   }
 
   if (bot.dom.isSelectable(element)) {
     // For selectable elements, IE 10 fires a MSLostPointerCapture event.
-    ts.fireMSPointerEvent(bot.events.EventType.MSLOSTPOINTERCAPTURE,
-      new goog.math.Coordinate(0, 0), 0, id,
-      MSPointerEvent.MSPOINTER_TYPE_TOUCH, false);
+    ts.fireMSPointerEvent(
+      bot.events.EventType.MSLOSTPOINTERCAPTURE,
+      new goog.math.Coordinate(0, 0),
+      0,
+      id,
+      MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+      false,
+    );
   }
 
   // Fire a MSPointerOut and mouseout events.
-  ts.fireMSPointerEvent(bot.events.EventType.MSPOINTEROUT, coords, -1, id,
-    MSPointerEvent.MSPOINTER_TYPE_TOUCH, isPrimary);
-  ts.fireMouseEvent(bot.events.EventType.MOUSEOUT, coords, 0, null, 0, false,
-    id);
+  ts.fireMSPointerEvent(
+    bot.events.EventType.MSPOINTEROUT,
+    coords,
+    -1,
+    id,
+    MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+    isPrimary,
+  );
+  ts.fireMouseEvent(bot.events.EventType.MOUSEOUT, coords, 0, null, 0, false, id);
 };
-
 
 /**
  * A helper function to fire Pointer events related to a move.
@@ -384,15 +390,18 @@ bot.Touchscreen.fireSingleReleasePointer_ = function (ts, element, coords, id,
  *     of contact.
  * @private
  */
-bot.Touchscreen.fireSingleMovePointer_ = function (ts, element, coords, id,
-  isPrimary) {
+bot.Touchscreen.fireSingleMovePointer_ = function (ts, element, coords, id, isPrimary) {
   // Fire a MSPointerMove and mousemove events.
-  ts.fireMSPointerEvent(bot.events.EventType.MSPOINTERMOVE, coords, -1, id,
-    MSPointerEvent.MSPOINTER_TYPE_TOUCH, isPrimary);
-  ts.fireMouseEvent(bot.events.EventType.MOUSEMOVE, coords, 0, null, 0, false,
-    id);
+  ts.fireMSPointerEvent(
+    bot.events.EventType.MSPOINTERMOVE,
+    coords,
+    -1,
+    id,
+    MSPointerEvent.MSPOINTER_TYPE_TOUCH,
+    isPrimary,
+  );
+  ts.fireMouseEvent(bot.events.EventType.MOUSEMOVE, coords, 0, null, 0, false, id);
 };
-
 
 /**
  * A function that determines whether an element can be manipulated by the user.

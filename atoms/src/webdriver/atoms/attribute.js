@@ -23,7 +23,6 @@ var array = goog.require('goog.array');
 var domCore = goog.require('bot.dom.core');
 var utils = goog.require('goog.utils');
 
-
 /**
  * Common aliases for properties. This maps names that users use to the correct
  * property name.
@@ -32,9 +31,8 @@ var utils = goog.require('goog.utils');
  */
 var PROPERTY_ALIASES = {
   'class': 'className',
-  'readonly': 'readOnly'
+  'readonly': 'readOnly',
 };
-
 
 /**
  * Used to determine whether we should return a boolean value from getAttribute.
@@ -92,9 +90,8 @@ var BOOLEAN_PROPERTIES = [
   'selected',
   'truespeed',
   'typemustmatch',
-  'willvalidate'
+  'willvalidate',
 ];
-
 
 /**
  * Get the value of the given property or attribute. If the "attribute" is for
@@ -107,7 +104,7 @@ var BOOLEAN_PROPERTIES = [
  * @return {?string} The string value of the attribute or property, or null.
  * @suppress {reportUnknownTypes}
  */
-exports.get = function(element, attribute) {
+exports.get = function (element, attribute) {
   var value = null;
   var name = attribute.toLowerCase();
 
@@ -121,8 +118,7 @@ exports.get = function(element, attribute) {
     return /** @type {?string} */ (value);
   }
 
-  if (('selected' == name || 'checked' == name) &&
-      domCore.isSelectable(element)) {
+  if (('selected' == name || 'checked' == name) && domCore.isSelectable(element)) {
     return domCore.isSelected(element) ? 'true' : null;
   }
 
@@ -158,8 +154,7 @@ exports.get = function(element, attribute) {
 
   var propName = PROPERTY_ALIASES[attribute] || attribute;
   if (array.contains(BOOLEAN_PROPERTIES, name)) {
-    value = domCore.getAttribute(element, attribute) !== null ||
-        domCore.getProperty(element, propName);
+    value = domCore.getAttribute(element, attribute) !== null || domCore.getProperty(element, propName);
     return value ? 'true' : null;
   }
 
@@ -189,4 +184,3 @@ exports.get = function(element, attribute) {
   // The empty string is a valid return value.
   return value != null ? value.toString() : null;
 };
-

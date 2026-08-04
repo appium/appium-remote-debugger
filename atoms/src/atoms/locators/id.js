@@ -21,7 +21,6 @@ goog.require('bot.dom');
 goog.require('goog.array');
 goog.require('goog.dom');
 
-
 /**
  * Tests whether the standardized W3C Selectors API are available on an
  * element and the target locator meets CSS requirements.
@@ -35,7 +34,6 @@ goog.require('goog.dom');
 bot.locators.id.canUseQuerySelector_ = function (root, target) {
   return !!(root.querySelectorAll && root.querySelector) && !/^\d.*/.test(target);
 };
-
 
 /**
  * Find an element by using the value of the ID attribute.
@@ -54,19 +52,16 @@ bot.locators.id.single = function (target, root) {
   }
 
   // On IE getting by ID returns the first match by id _or_ name.
-  if (bot.dom.getAttribute(e, 'id') == target &&
-    root != e && goog.dom.contains(root, e)) {
+  if (bot.dom.getAttribute(e, 'id') == target && root != e && goog.dom.contains(root, e)) {
     return e;
   }
 
   var elements = dom.getElementsByTagNameAndClass('*');
   var element = goog.array.find(elements, function (element) {
-    return bot.dom.getAttribute(element, 'id') == target &&
-      root != element && goog.dom.contains(root, element);
+    return bot.dom.getAttribute(element, 'id') == target && root != element && goog.dom.contains(root, element);
   });
   return /**@type{Element}*/ (element);
 };
-
 
 /**
  * Find many elements by using the value of the ID attribute.

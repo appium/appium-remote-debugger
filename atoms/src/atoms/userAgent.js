@@ -26,7 +26,6 @@ goog.require('goog.userAgent');
 goog.require('goog.userAgent.product');
 goog.require('goog.userAgent.product.isVersion');
 
-
 /**
  * Whether the rendering engine version of the current browser is equal to or
  * greater than the given version. This implementation differs from
@@ -43,13 +42,11 @@ goog.require('goog.userAgent.product.isVersion');
  */
 bot.userAgent.isEngineVersion = function (version) {
   if (goog.userAgent.IE) {
-    return goog.string.compareVersions(
-        /** @type {number} */(goog.userAgent.DOCUMENT_MODE), version) >= 0;
+    return goog.string.compareVersions(/** @type {number} */ (goog.userAgent.DOCUMENT_MODE), version) >= 0;
   } else {
     return goog.userAgent.isVersionOrHigher(version);
   }
 };
-
 
 /**
  * Whether the product version of the current browser is equal to or greater
@@ -67,13 +64,11 @@ bot.userAgent.isEngineVersion = function (version) {
  */
 bot.userAgent.isProductVersion = function (version) {
   if (goog.userAgent.product.ANDROID) {
-    return goog.string.compareVersions(
-      bot.userAgent.ANDROID_VERSION_, version) >= 0;
+    return goog.string.compareVersions(bot.userAgent.ANDROID_VERSION_, version) >= 0;
   } else {
     return goog.userAgent.product.isVersion(version);
   }
 };
-
 
 /**
  * Whether we are a WebExtension.
@@ -85,7 +80,7 @@ bot.userAgent.WEBEXTENSION = (function () {
   // The content script global object is different than it's window
   // Which requires accessing the chrome and browser objects through this
   try {
-    return !!((goog.global.chrome || goog.global.browser)['extension']);
+    return !!(goog.global.chrome || goog.global.browser)['extension'];
   } catch (e) {
     return false;
   }
@@ -97,9 +92,7 @@ bot.userAgent.WEBEXTENSION = (function () {
  * @const
  * @type {boolean}
  */
-bot.userAgent.IOS = goog.userAgent.product.IPAD ||
-  goog.userAgent.product.IPHONE;
-
+bot.userAgent.IOS = goog.userAgent.product.IPAD || goog.userAgent.product.IPHONE;
 
 /**
  * Whether we are on a mobile browser.
@@ -108,7 +101,6 @@ bot.userAgent.IOS = goog.userAgent.product.IPAD ||
  * @type {boolean}
  */
 bot.userAgent.MOBILE = bot.userAgent.IOS || goog.userAgent.product.ANDROID;
-
 
 /**
  * Android Operating System Version.
@@ -125,15 +117,12 @@ bot.userAgent.ANDROID_VERSION_ = (function () {
   }
 })();
 
-
 /**
  * Whether the current document is IE in a documentMode older than 8.
  * @type {boolean}
  * @const
  */
-bot.userAgent.IE_DOC_PRE8 = goog.userAgent.IE &&
-  !goog.userAgent.isDocumentModeOrHigher(8);
-
+bot.userAgent.IE_DOC_PRE8 = goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(8);
 
 /**
  * Whether the current document is IE in IE9 (or newer) standards mode.
@@ -142,15 +131,12 @@ bot.userAgent.IE_DOC_PRE8 = goog.userAgent.IE &&
  */
 bot.userAgent.IE_DOC_9 = goog.userAgent.isDocumentModeOrHigher(9);
 
-
 /**
  * Whether the current document is IE in a documentMode older than 9.
  * @type {boolean}
  * @const
  */
-bot.userAgent.IE_DOC_PRE9 = goog.userAgent.IE &&
-  !goog.userAgent.isDocumentModeOrHigher(9);
-
+bot.userAgent.IE_DOC_PRE9 = goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9);
 
 /**
  * Whether the current document is IE in IE10 (or newer) standards mode.
@@ -159,47 +145,37 @@ bot.userAgent.IE_DOC_PRE9 = goog.userAgent.IE &&
  */
 bot.userAgent.IE_DOC_10 = goog.userAgent.isDocumentModeOrHigher(10);
 
-
 /**
  * Whether the current document is IE in a documentMode older than 10.
  * @type {boolean}
  * @const
  */
-bot.userAgent.IE_DOC_PRE10 = goog.userAgent.IE &&
-  !goog.userAgent.isDocumentModeOrHigher(10);
-
+bot.userAgent.IE_DOC_PRE10 = goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(10);
 
 /**
  * Whether the current browser is Android pre-gingerbread.
  * @type {boolean}
  * @const
  */
-bot.userAgent.ANDROID_PRE_GINGERBREAD = goog.userAgent.product.ANDROID &&
-  !bot.userAgent.isProductVersion(2.3);
-
+bot.userAgent.ANDROID_PRE_GINGERBREAD = goog.userAgent.product.ANDROID && !bot.userAgent.isProductVersion(2.3);
 
 /**
  * Whether the current browser is Android pre-icecreamsandwich
  * @type {boolean}
  * @const
  */
-bot.userAgent.ANDROID_PRE_ICECREAMSANDWICH = goog.userAgent.product.ANDROID &&
-  !bot.userAgent.isProductVersion(4);
-
+bot.userAgent.ANDROID_PRE_ICECREAMSANDWICH = goog.userAgent.product.ANDROID && !bot.userAgent.isProductVersion(4);
 
 /**
  * Whether the current browser is Safari 6.
  * @type {boolean}
  * @const
  */
-bot.userAgent.SAFARI_6 = goog.userAgent.product.SAFARI &&
-  bot.userAgent.isProductVersion(6);
-
+bot.userAgent.SAFARI_6 = goog.userAgent.product.SAFARI && bot.userAgent.isProductVersion(6);
 
 /**
  * Whether the current browser is Windows Phone.
  * @type {boolean}
  * @const
  */
-bot.userAgent.WINDOWS_PHONE = goog.userAgent.IE &&
-  goog.userAgent.getUserAgentString().indexOf('IEMobile') != -1;
+bot.userAgent.WINDOWS_PHONE = goog.userAgent.IE && goog.userAgent.getUserAgentString().indexOf('IEMobile') != -1;

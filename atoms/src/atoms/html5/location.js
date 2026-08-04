@@ -27,7 +27,6 @@ goog.require('bot.Error');
 goog.require('bot.ErrorCode');
 goog.require('bot.html5');
 
-
 /**
  * Default parameters used to configure the geolocation.getCurrentPosition
  * method. These parameters mean retrieval of any cached position with high
@@ -39,9 +38,8 @@ goog.require('bot.html5');
 bot.geolocation.DEFAULT_OPTIONS = /** @type {!GeolocationPositionOptions} */ ({
   enableHighAccuracy: true,
   maximumAge: Infinity,
-  timeout: 5000
+  timeout: 5000,
 });
-
 
 /**
  * Provides a mechanism to retrieve the geolocation of the device.  It invokes
@@ -57,15 +55,13 @@ bot.geolocation.DEFAULT_OPTIONS = /** @type {!GeolocationPositionOptions} */ ({
  *     navigator.geolocation.getCurrentPosition; defaults to
  *     bot.geolocation.DEFAULT_OPTIONS.
  */
-bot.geolocation.getCurrentPosition = function(successCallback,
-    opt_errorCallback, opt_options) {
+bot.geolocation.getCurrentPosition = function (successCallback, opt_errorCallback, opt_options) {
   var win = bot.getWindow();
   var posOptions = opt_options || bot.geolocation.DEFAULT_OPTIONS;
 
   if (bot.html5.isSupported(bot.html5.API.GEOLOCATION, win)) {
     var geolocation = win.navigator.geolocation;
-    geolocation.getCurrentPosition(successCallback,
-        opt_errorCallback, posOptions);
+    geolocation.getCurrentPosition(successCallback, opt_errorCallback, posOptions);
   } else {
     throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Geolocation undefined');
   }

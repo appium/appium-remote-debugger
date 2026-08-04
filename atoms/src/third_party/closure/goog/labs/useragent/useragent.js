@@ -19,16 +19,14 @@ const flags = goog.require('goog.flags');
  * will be overridden by `globalThis.foo.bar` if it is non-null.
  * This flag will be removed in December 2021.
  */
-const USE_CLIENT_HINTS_OVERRIDE =
-    goog.define('goog.labs.userAgent.USE_CLIENT_HINTS_OVERRIDE', '');
+const USE_CLIENT_HINTS_OVERRIDE = goog.define('goog.labs.userAgent.USE_CLIENT_HINTS_OVERRIDE', '');
 
 /**
  * @define {boolean} If true, use navigator.userAgentData.  Note: this overrides
  * the `USE_USER_AGENT_CLIENT_HINTS` runtime flag.  Please prefer the flag when
  * possible.
  */
-const USE_CLIENT_HINTS =
-    goog.define('goog.labs.userAgent.USE_CLIENT_HINTS', false);
+const USE_CLIENT_HINTS = goog.define('goog.labs.userAgent.USE_CLIENT_HINTS', false);
 
 let forceClientHintsInTests = false;
 
@@ -49,9 +47,9 @@ exports.setUseClientHintsForTesting = (use) => {
 };
 
 /** @const {boolean} */
-const useClientHintsRuntimeOverride = USE_CLIENT_HINTS_OVERRIDE ?
-    !!goog.getObjectByName(USE_CLIENT_HINTS_OVERRIDE) :
-    false;
+const useClientHintsRuntimeOverride = USE_CLIENT_HINTS_OVERRIDE
+  ? !!goog.getObjectByName(USE_CLIENT_HINTS_OVERRIDE)
+  : false;
 
 /**
  * Whether to use UserAgent-Client Hints API surfaces in parts of the
@@ -61,6 +59,7 @@ const useClientHintsRuntimeOverride = USE_CLIENT_HINTS_OVERRIDE ?
  * @const {function():boolean}
  */
 exports.useClientHints = () => {
-  return flags.USE_USER_AGENT_CLIENT_HINTS || USE_CLIENT_HINTS ||
-      useClientHintsRuntimeOverride || forceClientHintsInTests;
+  return (
+    flags.USE_USER_AGENT_CLIENT_HINTS || USE_CLIENT_HINTS || useClientHintsRuntimeOverride || forceClientHintsInTests
+  );
 };

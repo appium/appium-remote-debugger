@@ -38,8 +38,6 @@ goog.require('goog.structs.Set');
 goog.require('goog.userAgent');
 goog.require('goog.utils');
 
-
-
 /**
  * A keyboard that provides atomic typing actions.
  *
@@ -63,15 +61,18 @@ bot.Keyboard = function (opt_state) {
   if (opt_state) {
     // If a state is passed, let's assume we were passed an object with
     // the correct properties.
-    goog.array.forEach(opt_state['pressed'], function (key) {
-      this.setKeyPressed_(/** @type {!bot.Keyboard.Key} */(key), true);
-    }, this);
+    goog.array.forEach(
+      opt_state['pressed'],
+      function (key) {
+        this.setKeyPressed_(/** @type {!bot.Keyboard.Key} */ (key), true);
+      },
+      this,
+    );
 
     this.currentPos_ = opt_state['currentPos'] || 0;
   }
 };
 goog.utils.inherits(bot.Keyboard, bot.Device);
-
 
 /**
  * Describes the current state of a keyboard.
@@ -80,7 +81,6 @@ goog.utils.inherits(bot.Keyboard, bot.Device);
  */
 bot.Keyboard.State;
 
-
 /**
  * Maps characters to (key,boolean) pairs, where the key generates the
  * character and the boolean is true when the shift must be pressed.
@@ -88,7 +88,6 @@ bot.Keyboard.State;
  * @const
  */
 bot.Keyboard.CHAR_TO_KEY_ = {};
-
 
 /**
  * Constructs a new key and, if it is a character key, adds a mapping from the
@@ -107,7 +106,8 @@ bot.Keyboard.newKey_ = function (code, opt_char, opt_shiftChar) {
   if (goog.utils.isObject(code)) {
     if (goog.userAgent.GECKO) {
       code = code.gecko;
-    } else {  // IE and Webkit
+    } else {
+      // IE and Webkit
       code = code.ieWebkit;
     }
   }
@@ -118,16 +118,14 @@ bot.Keyboard.newKey_ = function (code, opt_char, opt_shiftChar) {
   // character. To avoid mapping numpad keys, we overwrite a mapping only if
   // the key has a distinct shift character.
   if (opt_char && (!(opt_char in bot.Keyboard.CHAR_TO_KEY_) || opt_shiftChar)) {
-    bot.Keyboard.CHAR_TO_KEY_[opt_char] = { key: key, shift: false };
+    bot.Keyboard.CHAR_TO_KEY_[opt_char] = {key: key, shift: false};
     if (opt_shiftChar) {
-      bot.Keyboard.CHAR_TO_KEY_[opt_shiftChar] = { key: key, shift: true };
+      bot.Keyboard.CHAR_TO_KEY_[opt_shiftChar] = {key: key, shift: true};
     }
   }
 
   return key;
 };
-
-
 
 /**
  * A key on the keyboard.
@@ -150,7 +148,6 @@ bot.Keyboard.Key = function (code, opt_char, opt_shiftChar) {
   /** @type {?string} */
   this.shiftChar = opt_shiftChar || this.character;
 };
-
 
 /**
  * Type definition for the keyboard keys object.
@@ -259,7 +256,6 @@ bot.Keyboard.Key = function (code, opt_char, opt_shiftChar) {
  */
 bot.Keyboard.KeysType;
 
-
 /**
  * The set of keys known to this module.
  *
@@ -330,39 +326,43 @@ bot.Keyboard.Keys = /** @type {!bot.Keyboard.KeysType} */ ({
 
   // Branded keys
   META: bot.Keyboard.newKey_(
-    goog.userAgent.WINDOWS ? { gecko: 91, ieWebkit: 91 } :
-      (goog.userAgent.MAC ? { gecko: 224, ieWebkit: 91 } :
-        { gecko: 0, ieWebkit: 91 })),  // Linux
+    goog.userAgent.WINDOWS
+      ? {gecko: 91, ieWebkit: 91}
+      : goog.userAgent.MAC
+        ? {gecko: 224, ieWebkit: 91}
+        : {gecko: 0, ieWebkit: 91},
+  ), // Linux
   META_RIGHT: bot.Keyboard.newKey_(
-    goog.userAgent.WINDOWS ? { gecko: 92, ieWebkit: 92 } :
-      (goog.userAgent.MAC ? { gecko: 224, ieWebkit: 93 } :
-        { gecko: 0, ieWebkit: 92 })),  // Linux
+    goog.userAgent.WINDOWS
+      ? {gecko: 92, ieWebkit: 92}
+      : goog.userAgent.MAC
+        ? {gecko: 224, ieWebkit: 93}
+        : {gecko: 0, ieWebkit: 92},
+  ), // Linux
   CONTEXT_MENU: bot.Keyboard.newKey_(
-    goog.userAgent.WINDOWS ? { gecko: 93, ieWebkit: 93 } :
-      (goog.userAgent.MAC ? { gecko: 0, ieWebkit: 0 } :
-        { gecko: 93, ieWebkit: null })),  // Linux
+    goog.userAgent.WINDOWS
+      ? {gecko: 93, ieWebkit: 93}
+      : goog.userAgent.MAC
+        ? {gecko: 0, ieWebkit: 0}
+        : {gecko: 93, ieWebkit: null},
+  ), // Linux
 
   // Numpad keys
-  NUM_ZERO: bot.Keyboard.newKey_({ gecko: 96, ieWebkit: 96 }, '0'),
-  NUM_ONE: bot.Keyboard.newKey_({ gecko: 97, ieWebkit: 97 }, '1'),
-  NUM_TWO: bot.Keyboard.newKey_({ gecko: 98, ieWebkit: 98 }, '2'),
-  NUM_THREE: bot.Keyboard.newKey_({ gecko: 99, ieWebkit: 99 }, '3'),
-  NUM_FOUR: bot.Keyboard.newKey_({ gecko: 100, ieWebkit: 100 }, '4'),
-  NUM_FIVE: bot.Keyboard.newKey_({ gecko: 101, ieWebkit: 101 }, '5'),
-  NUM_SIX: bot.Keyboard.newKey_({ gecko: 102, ieWebkit: 102 }, '6'),
-  NUM_SEVEN: bot.Keyboard.newKey_({ gecko: 103, ieWebkit: 103 }, '7'),
-  NUM_EIGHT: bot.Keyboard.newKey_({ gecko: 104, ieWebkit: 104 }, '8'),
-  NUM_NINE: bot.Keyboard.newKey_({ gecko: 105, ieWebkit: 105 }, '9'),
-  NUM_MULTIPLY: bot.Keyboard.newKey_(
-    { gecko: 106, ieWebkit: 106 }, '*'),
-  NUM_PLUS: bot.Keyboard.newKey_(
-    { gecko: 107, ieWebkit: 107 }, '+'),
-  NUM_MINUS: bot.Keyboard.newKey_(
-    { gecko: 109, ieWebkit: 109 }, '-'),
-  NUM_PERIOD: bot.Keyboard.newKey_(
-    { gecko: 110, ieWebkit: 110 }, '.'),
-  NUM_DIVISION: bot.Keyboard.newKey_(
-    { gecko: 111, ieWebkit: 111 }, '/'),
+  NUM_ZERO: bot.Keyboard.newKey_({gecko: 96, ieWebkit: 96}, '0'),
+  NUM_ONE: bot.Keyboard.newKey_({gecko: 97, ieWebkit: 97}, '1'),
+  NUM_TWO: bot.Keyboard.newKey_({gecko: 98, ieWebkit: 98}, '2'),
+  NUM_THREE: bot.Keyboard.newKey_({gecko: 99, ieWebkit: 99}, '3'),
+  NUM_FOUR: bot.Keyboard.newKey_({gecko: 100, ieWebkit: 100}, '4'),
+  NUM_FIVE: bot.Keyboard.newKey_({gecko: 101, ieWebkit: 101}, '5'),
+  NUM_SIX: bot.Keyboard.newKey_({gecko: 102, ieWebkit: 102}, '6'),
+  NUM_SEVEN: bot.Keyboard.newKey_({gecko: 103, ieWebkit: 103}, '7'),
+  NUM_EIGHT: bot.Keyboard.newKey_({gecko: 104, ieWebkit: 104}, '8'),
+  NUM_NINE: bot.Keyboard.newKey_({gecko: 105, ieWebkit: 105}, '9'),
+  NUM_MULTIPLY: bot.Keyboard.newKey_({gecko: 106, ieWebkit: 106}, '*'),
+  NUM_PLUS: bot.Keyboard.newKey_({gecko: 107, ieWebkit: 107}, '+'),
+  NUM_MINUS: bot.Keyboard.newKey_({gecko: 109, ieWebkit: 109}, '-'),
+  NUM_PERIOD: bot.Keyboard.newKey_({gecko: 110, ieWebkit: 110}, '.'),
+  NUM_DIVISION: bot.Keyboard.newKey_({gecko: 111, ieWebkit: 111}, '/'),
   NUM_LOCK: bot.Keyboard.newKey_(144),
 
   // Function keys
@@ -380,11 +380,9 @@ bot.Keyboard.Keys = /** @type {!bot.Keyboard.KeysType} */ ({
   F12: bot.Keyboard.newKey_(123),
 
   // Punctuation keys
-  EQUALS: bot.Keyboard.newKey_(
-    { gecko: 107, ieWebkit: 187 }, '=', '+'),
+  EQUALS: bot.Keyboard.newKey_({gecko: 107, ieWebkit: 187}, '=', '+'),
   SEPARATOR: bot.Keyboard.newKey_(108, ','),
-  HYPHEN: bot.Keyboard.newKey_(
-    { gecko: 109, ieWebkit: 189 }, '-', '_'),
+  HYPHEN: bot.Keyboard.newKey_({gecko: 109, ieWebkit: 189}, '-', '_'),
   COMMA: bot.Keyboard.newKey_(188, ',', '<'),
   PERIOD: bot.Keyboard.newKey_(190, '.', '>'),
   SLASH: bot.Keyboard.newKey_(191, '/', '?'),
@@ -392,11 +390,9 @@ bot.Keyboard.Keys = /** @type {!bot.Keyboard.KeysType} */ ({
   OPEN_BRACKET: bot.Keyboard.newKey_(219, '[', '{'),
   BACKSLASH: bot.Keyboard.newKey_(220, '\\', '|'),
   CLOSE_BRACKET: bot.Keyboard.newKey_(221, ']', '}'),
-  SEMICOLON: bot.Keyboard.newKey_(
-    { gecko: 59, ieWebkit: 186 }, ';', ':'),
-  APOSTROPHE: bot.Keyboard.newKey_(222, '\'', '"')
+  SEMICOLON: bot.Keyboard.newKey_({gecko: 59, ieWebkit: 186}, ';', ':'),
+  APOSTROPHE: bot.Keyboard.newKey_(222, "'", '"'),
 });
-
 
 /**
  * Given a character, returns a pair of a key and a boolean: the key being one
@@ -414,8 +410,7 @@ bot.Keyboard.Keys = /** @type {!bot.Keyboard.KeysType} */ ({
  */
 bot.Keyboard.Key.fromChar = function (ch) {
   if (ch.length != 1) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Argument not a single character: ' + ch);
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Argument not a single character: ' + ch);
   }
   var keyShiftPair = bot.Keyboard.CHAR_TO_KEY_[ch];
   if (!keyShiftPair) {
@@ -425,11 +420,10 @@ bot.Keyboard.Key.fromChar = function (ch) {
     var upperCase = ch.toUpperCase();
     var keyCode = upperCase.charCodeAt(0);
     var key = bot.Keyboard.newKey_(keyCode, ch.toLowerCase(), upperCase);
-    keyShiftPair = { key: key, shift: (ch != key.character) };
+    keyShiftPair = {key: key, shift: ch != key.character};
   }
   return keyShiftPair;
 };
-
 
 /**
  * Array of modifier keys.
@@ -441,9 +435,8 @@ bot.Keyboard.MODIFIERS = [
   bot.Keyboard.Keys.ALT,
   bot.Keyboard.Keys.CONTROL,
   bot.Keyboard.Keys.META,
-  bot.Keyboard.Keys.SHIFT
+  bot.Keyboard.Keys.SHIFT,
 ];
-
 
 /**
  * Map of modifier to key.
@@ -452,18 +445,13 @@ bot.Keyboard.MODIFIERS = [
  */
 bot.Keyboard.MODIFIER_TO_KEY_MAP_ = (function () {
   var modifiersMap = new goog.structs.Map();
-  modifiersMap.set(bot.Device.Modifier.SHIFT,
-    bot.Keyboard.Keys.SHIFT);
-  modifiersMap.set(bot.Device.Modifier.CONTROL,
-    bot.Keyboard.Keys.CONTROL);
-  modifiersMap.set(bot.Device.Modifier.ALT,
-    bot.Keyboard.Keys.ALT);
-  modifiersMap.set(bot.Device.Modifier.META,
-    bot.Keyboard.Keys.META);
+  modifiersMap.set(bot.Device.Modifier.SHIFT, bot.Keyboard.Keys.SHIFT);
+  modifiersMap.set(bot.Device.Modifier.CONTROL, bot.Keyboard.Keys.CONTROL);
+  modifiersMap.set(bot.Device.Modifier.ALT, bot.Keyboard.Keys.ALT);
+  modifiersMap.set(bot.Device.Modifier.META, bot.Keyboard.Keys.META);
 
   return modifiersMap;
 })();
-
 
 /**
  * The reverse map - key to modifier.
@@ -479,7 +467,6 @@ bot.Keyboard.KEY_TO_MODIFIER_ = (function (modifiersMap) {
   return keyToModifierMap;
 })(bot.Keyboard.MODIFIER_TO_KEY_MAP_);
 
-
 /**
  * Set the modifier state if the provided key is one, otherwise just add
  * to the list of pressed keys.
@@ -489,8 +476,7 @@ bot.Keyboard.KEY_TO_MODIFIER_ = (function (modifiersMap) {
  */
 bot.Keyboard.prototype.setKeyPressed_ = function (key, isPressed) {
   if (goog.array.contains(bot.Keyboard.MODIFIERS, key)) {
-    var modifier = /** @type {bot.Device.Modifier}*/ (
-      bot.Keyboard.KEY_TO_MODIFIER_.get(key.code));
+    var modifier = /** @type {bot.Device.Modifier}*/ (bot.Keyboard.KEY_TO_MODIFIER_.get(key.code));
     this.modifiersState.setPressed(modifier, isPressed);
   }
 
@@ -501,7 +487,6 @@ bot.Keyboard.prototype.setKeyPressed_ = function (key, isPressed) {
   }
 };
 
-
 /**
  * The value used for newlines in the current browser/OS combination. Although
  * the line endings look platform dependent, they are browser dependent.
@@ -510,7 +495,6 @@ bot.Keyboard.prototype.setKeyPressed_ = function (key, isPressed) {
  * @const
  */
 bot.Keyboard.NEW_LINE_ = goog.userAgent.IE ? '\r\n' : '\n';
-
 
 /**
  * Returns whether the key is currently pressed.
@@ -522,7 +506,6 @@ bot.Keyboard.prototype.isPressed = function (key) {
   return this.pressed_.contains(key);
 };
 
-
 /**
  * Presses the given key on the keyboard. Keys that are pressed can be pressed
  * again before releasing, to simulate repeated keys, except for modifier keys,
@@ -532,22 +515,18 @@ bot.Keyboard.prototype.isPressed = function (key) {
  */
 bot.Keyboard.prototype.pressKey = function (key) {
   if (goog.array.contains(bot.Keyboard.MODIFIERS, key) && this.isPressed(key)) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot press a modifier key that is already pressed.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot press a modifier key that is already pressed.');
   }
 
   // Note that GECKO is special-cased below because of
   // https://bugzilla.mozilla.org/show_bug.cgi?id=501496. "preventDefault on
   // keydown does not cancel following keypress"
-  var performDefault = key.code !== null &&
-    this.fireKeyEvent_(bot.events.EventType.KEYDOWN, key);
+  var performDefault = key.code !== null && this.fireKeyEvent_(bot.events.EventType.KEYDOWN, key);
 
   // Fires keydown and stops if unsuccessful.
   if (performDefault || goog.userAgent.GECKO) {
     // Fires keypress if required and stops if unsuccessful.
-    if (!this.requiresKeyPress_(key) ||
-      this.fireKeyEvent_(
-        bot.events.EventType.KEYPRESS, key, !performDefault)) {
+    if (!this.requiresKeyPress_(key) || this.fireKeyEvent_(bot.events.EventType.KEYPRESS, key, !performDefault)) {
       if (performDefault) {
         this.maybeSubmitForm_(key);
         if (this.editable_) {
@@ -559,7 +538,6 @@ bot.Keyboard.prototype.pressKey = function (key) {
 
   this.setKeyPressed_(key, true);
 };
-
 
 /**
  * Whether the given key currently requires a keypress.
@@ -576,7 +554,8 @@ bot.Keyboard.prototype.requiresKeyPress_ = function (key) {
     return false;
   } else if (goog.userAgent.IE) {
     return key == bot.Keyboard.Keys.ESC;
-  } else { // Gecko
+  } else {
+    // Gecko
     switch (key) {
       case bot.Keyboard.Keys.SHIFT:
       case bot.Keyboard.Keys.CONTROL:
@@ -592,7 +571,6 @@ bot.Keyboard.prototype.requiresKeyPress_ = function (key) {
   }
 };
 
-
 /**
  * Maybe submit a form if the ENTER key is released.  On non-FF browsers, firing
  * the keyPress and keyRelease events for the ENTER key does not result in a
@@ -605,8 +583,10 @@ bot.Keyboard.prototype.maybeSubmitForm_ = function (key) {
   if (key != bot.Keyboard.Keys.ENTER) {
     return;
   }
-  if ((goog.userAgent.GECKO && !bot.userAgent.isEngineVersion(93)) ||
-    !bot.dom.isElement(this.getElement(), goog.dom.TagName.INPUT)) {
+  if (
+    (goog.userAgent.GECKO && !bot.userAgent.isEngineVersion(93)) ||
+    !bot.dom.isElement(this.getElement(), goog.dom.TagName.INPUT)
+  ) {
     return;
   }
 
@@ -618,13 +598,11 @@ bot.Keyboard.prototype.maybeSubmitForm_ = function (key) {
     });
     // The second part of this if statement will always include forms on Safari
     // version < 5.
-    if (hasSubmit || inputs.length == 1 ||
-      (goog.userAgent.WEBKIT && !bot.userAgent.isEngineVersion(534))) {
+    if (hasSubmit || inputs.length == 1 || (goog.userAgent.WEBKIT && !bot.userAgent.isEngineVersion(534))) {
       this.submitForm(form);
     }
   }
 };
-
 
 /**
  * Maybe edit text when a key is pressed in an editable form.
@@ -656,7 +634,6 @@ bot.Keyboard.prototype.maybeEditText_ = function (key) {
   }
 };
 
-
 /**
  * Releases the given key on the keyboard. Releasing a key that is not
  * pressed results in an exception.
@@ -665,8 +642,7 @@ bot.Keyboard.prototype.maybeEditText_ = function (key) {
  */
 bot.Keyboard.prototype.releaseKey = function (key) {
   if (!this.isPressed(key)) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot release a key that is not pressed. (' + key.code + ')');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot release a key that is not pressed. (' + key.code + ')');
   }
   if (key.code !== null) {
     this.fireKeyEvent_(bot.events.EventType.KEYUP, key);
@@ -674,7 +650,6 @@ bot.Keyboard.prototype.releaseKey = function (key) {
 
   this.setKeyPressed_(key, false);
 };
-
 
 /**
  * Given the current state of the SHIFT and CAPS_LOCK key, returns the
@@ -692,16 +667,13 @@ bot.Keyboard.prototype.getChar_ = function (key) {
   return /** @type {string} */ (shiftPressed ? key.shiftChar : key.character);
 };
 
-
 /**
  * Whether firing a keypress event causes text to be edited without any
  * additional logic to surgically apply the edit.
  * @private {boolean}
  * @const
  */
-bot.Keyboard.KEYPRESS_EDITS_TEXT_ = goog.userAgent.GECKO &&
-  !bot.userAgent.isEngineVersion(12);
-
+bot.Keyboard.KEYPRESS_EDITS_TEXT_ = goog.userAgent.GECKO && !bot.userAgent.isEngineVersion(12);
 
 /**
  * @param {!bot.Keyboard.Key} key Key with character to insert.
@@ -729,7 +701,6 @@ bot.Keyboard.prototype.updateOnCharacter_ = function (key) {
   this.updateCurrentPos_(newPos);
 };
 
-
 /** @private */
 bot.Keyboard.prototype.updateOnEnter_ = function () {
   if (bot.Keyboard.KEYPRESS_EDITS_TEXT_) {
@@ -742,8 +713,7 @@ bot.Keyboard.prototype.updateOnEnter_ = function () {
     this.fireHtmlEvent(bot.events.EventType.TEXTINPUT);
   }
   if (bot.dom.isElement(this.getElement(), goog.dom.TagName.TEXTAREA)) {
-    var newPos = goog.dom.selection.getStart(this.getElement()) +
-      bot.Keyboard.NEW_LINE_.length;
+    var newPos = goog.dom.selection.getStart(this.getElement()) + bot.Keyboard.NEW_LINE_.length;
     if (bot.Keyboard.supportsSelection(this.getElement())) {
       goog.dom.selection.setText(this.getElement(), bot.Keyboard.NEW_LINE_);
       goog.dom.selection.setStart(this.getElement(), newPos);
@@ -756,7 +726,6 @@ bot.Keyboard.prototype.updateOnEnter_ = function () {
     this.updateCurrentPos_(newPos);
   }
 };
-
 
 /**
  * @param {!bot.Keyboard.Key} key Backspace or delete key.
@@ -784,8 +753,7 @@ bot.Keyboard.prototype.updateOnBackspaceOrDelete_ = function (key) {
   // If the endpoints are equal (e.g., the cursor was at the beginning/end
   // of the input), the text field won't be changed.
   endpoints = goog.dom.selection.getEndPoints(this.getElement());
-  var textChanged = !(endpoints[0] == this.getElement().value.length ||
-    endpoints[1] == 0);
+  var textChanged = !(endpoints[0] == this.getElement().value.length || endpoints[1] == 0);
   goog.dom.selection.setText(this.getElement(), '');
 
   // Except for IE and GECKO, we need to fire the input event manually, but
@@ -796,8 +764,7 @@ bot.Keyboard.prototype.updateOnBackspaceOrDelete_ = function (key) {
   //  In a textbox/password box, backspace always sends an input event unless
   //  the box has no text.  Delete behaves the same way in Firefox 3.0, but
   //  in later versions it only fires an input event if no text changes.
-  if (!goog.userAgent.IE && textChanged ||
-    (goog.userAgent.GECKO && key == bot.Keyboard.Keys.BACKSPACE)) {
+  if ((!goog.userAgent.IE && textChanged) || (goog.userAgent.GECKO && key == bot.Keyboard.Keys.BACKSPACE)) {
     this.fireHtmlEvent(bot.events.EventType.INPUT);
   }
 
@@ -805,7 +772,6 @@ bot.Keyboard.prototype.updateOnBackspaceOrDelete_ = function (key) {
   endpoints = goog.dom.selection.getEndPoints(this.getElement());
   this.updateCurrentPos_(endpoints[1]);
 };
-
 
 /**
  * @param {!bot.Keyboard.Key} key Special key to press.
@@ -817,7 +783,9 @@ bot.Keyboard.prototype.updateOnLeftOrRight_ = function (key) {
   var start = goog.dom.selection.getStart(element);
   var end = goog.dom.selection.getEnd(element);
 
-  var newPos, startPos = 0, endPos = 0;
+  var newPos,
+    startPos = 0,
+    endPos = 0;
   if (key == bot.Keyboard.Keys.LEFT) {
     if (this.isPressed(bot.Keyboard.Keys.SHIFT)) {
       // If the current position of the cursor is at the start of the
@@ -840,7 +808,8 @@ bot.Keyboard.prototype.updateOnLeftOrRight_ = function (key) {
       // selection to the beginning of the selection.
       newPos = start == end ? Math.max(start - 1, 0) : start;
     }
-  } else {  // (key == bot.Keyboard.Keys.RIGHT)
+  } else {
+    // (key == bot.Keyboard.Keys.RIGHT)
     if (this.isPressed(bot.Keyboard.Keys.SHIFT)) {
       // If the current position of the cursor is at the end of the selection,
       // pressing right expands the selection one character to the right;
@@ -873,7 +842,6 @@ bot.Keyboard.prototype.updateOnLeftOrRight_ = function (key) {
   this.updateCurrentPos_(newPos);
 };
 
-
 /**
  * @param {!bot.Keyboard.Key} key Special key to press.
  * @private
@@ -897,7 +865,8 @@ bot.Keyboard.prototype.updateOnHomeOrEnd_ = function (key) {
       goog.dom.selection.setCursorPosition(element, 0);
     }
     this.updateCurrentPos_(0);
-  } else {  // (key == bot.Keyboard.Keys.END)
+  } else {
+    // (key == bot.Keyboard.Keys.END)
     if (this.isPressed(bot.Keyboard.Keys.SHIFT)) {
       if (this.currentPos_ == start) {
         // Current position is at the beginning of the selection. Typing end
@@ -912,7 +881,6 @@ bot.Keyboard.prototype.updateOnHomeOrEnd_ = function (key) {
     this.updateCurrentPos_(element.value.length);
   }
 };
-
 
 /**
  * Checks that the cursor position can be updated for the given element.
@@ -933,14 +901,14 @@ bot.Keyboard.checkCanUpdateSelection_ = function (element) {
     // reference to the relevant Chrome bug to provide more context.
     if (ex.message.indexOf('does not support selection.') != -1) {
       // message is a readonly property, so need to rethrow.
-      throw Error(ex.message + ' (For more information, see ' +
-        'https://code.google.com/p/chromium/issues/detail?id=330456)');
+      throw Error(
+        ex.message + ' (For more information, see ' + 'https://code.google.com/p/chromium/issues/detail?id=330456)',
+      );
     }
     throw ex;
   }
   throw Error('Element does not support selection');
 };
-
 
 /**
  * @param {!Element} element The element to test.
@@ -957,28 +925,25 @@ bot.Keyboard.supportsSelection = function (element) {
   return true;
 };
 
-
 /**
-* @param {number} pos New position of the cursor.
-* @private
-*/
+ * @param {number} pos New position of the cursor.
+ * @private
+ */
 bot.Keyboard.prototype.updateCurrentPos_ = function (pos) {
   this.currentPos_ = pos;
 };
 
-
 /**
-* @param {!bot.events.EventFactory_} type Event type.
-* @param {!bot.Keyboard.Key} key Key.
-* @param {boolean=} opt_preventDefault Whether the default event should be
-*     prevented. Defaults to false.
-* @return {boolean} Whether the event fired successfully or was cancelled.
-* @private
-*/
+ * @param {!bot.events.EventFactory_} type Event type.
+ * @param {!bot.Keyboard.Key} key Key.
+ * @param {boolean=} opt_preventDefault Whether the default event should be
+ *     prevented. Defaults to false.
+ * @return {boolean} Whether the event fired successfully or was cancelled.
+ * @private
+ */
 bot.Keyboard.prototype.fireKeyEvent_ = function (type, key, opt_preventDefault) {
   if (key.code === null) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Key must have a keycode to be fired.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Key must have a keycode to be fired.');
   }
 
   var args = {
@@ -987,14 +952,12 @@ bot.Keyboard.prototype.fireKeyEvent_ = function (type, key, opt_preventDefault) 
     metaKey: this.isPressed(bot.Keyboard.Keys.META),
     shiftKey: this.isPressed(bot.Keyboard.Keys.SHIFT),
     keyCode: key.code,
-    charCode: (key.character && type == bot.events.EventType.KEYPRESS) ?
-      this.getChar_(key).charCodeAt(0) : 0,
-    preventDefault: !!opt_preventDefault
+    charCode: key.character && type == bot.events.EventType.KEYPRESS ? this.getChar_(key).charCodeAt(0) : 0,
+    preventDefault: !!opt_preventDefault,
   };
 
   return this.fireKeyboardEvent(type, args);
 };
-
 
 /**
  * Sets focus to the element. If the element does not have focus, place cursor
@@ -1013,7 +976,6 @@ bot.Keyboard.prototype.moveCursor = function (element) {
   }
 };
 
-
 /**
  * Serialize the current state of the keyboard.
  *
@@ -1027,10 +989,9 @@ bot.Keyboard.prototype.getState = function () {
   // renames the internal variable name.
   return {
     'pressed': this.pressed_.getValues(),
-    'currentPos': this.currentPos_
+    'currentPos': this.currentPos_,
   };
 };
-
 
 /**
  * Returns the state of the modifier keys, to be shared with other input

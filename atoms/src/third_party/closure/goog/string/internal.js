@@ -10,9 +10,7 @@
  * delegate to these.
  */
 
-
 goog.provide('goog.string.internal');
-
 
 /**
  * Fast prefix-checker.
@@ -21,11 +19,10 @@ goog.provide('goog.string.internal');
  * @return {boolean} True if `str` begins with `prefix`.
  * @see goog.string.startsWith
  */
-goog.string.internal.startsWith = function(str, prefix) {
+goog.string.internal.startsWith = function (str, prefix) {
   'use strict';
   return str.lastIndexOf(prefix, 0) == 0;
 };
-
 
 /**
  * Fast suffix-checker.
@@ -34,12 +31,11 @@ goog.string.internal.startsWith = function(str, prefix) {
  * @return {boolean} True if `str` ends with `suffix`.
  * @see goog.string.endsWith
  */
-goog.string.internal.endsWith = function(str, suffix) {
+goog.string.internal.endsWith = function (str, suffix) {
   'use strict';
   const l = str.length - suffix.length;
   return l >= 0 && str.indexOf(suffix, l) == l;
 };
-
 
 /**
  * Case-insensitive prefix-checker.
@@ -49,13 +45,10 @@ goog.string.internal.endsWith = function(str, suffix) {
  *     case).
  * @see goog.string.caseInsensitiveStartsWith
  */
-goog.string.internal.caseInsensitiveStartsWith = function(str, prefix) {
+goog.string.internal.caseInsensitiveStartsWith = function (str, prefix) {
   'use strict';
-  return (
-      goog.string.internal.caseInsensitiveCompare(
-          prefix, str.slice(0, prefix.length)) == 0);
+  return goog.string.internal.caseInsensitiveCompare(prefix, str.slice(0, prefix.length)) == 0;
 };
-
 
 /**
  * Case-insensitive suffix-checker.
@@ -65,13 +58,10 @@ goog.string.internal.caseInsensitiveStartsWith = function(str, prefix) {
  *     case).
  * @see goog.string.caseInsensitiveEndsWith
  */
-goog.string.internal.caseInsensitiveEndsWith = function(str, suffix) {
+goog.string.internal.caseInsensitiveEndsWith = function (str, suffix) {
   'use strict';
-  return (
-      goog.string.internal.caseInsensitiveCompare(
-          suffix, str.slice(str.length - suffix.length)) == 0);
+  return goog.string.internal.caseInsensitiveCompare(suffix, str.slice(str.length - suffix.length)) == 0;
 };
-
 
 /**
  * Case-insensitive equality checker.
@@ -81,11 +71,10 @@ goog.string.internal.caseInsensitiveEndsWith = function(str, suffix) {
  *     ignoring case.
  * @see goog.string.caseInsensitiveEquals
  */
-goog.string.internal.caseInsensitiveEquals = function(str1, str2) {
+goog.string.internal.caseInsensitiveEquals = function (str1, str2) {
   'use strict';
   return str1.toLowerCase() == str2.toLowerCase();
 };
-
 
 /**
  * Checks if a string is empty or contains only whitespaces.
@@ -93,7 +82,7 @@ goog.string.internal.caseInsensitiveEquals = function(str1, str2) {
  * @return {boolean} Whether `str` is empty or whitespace only.
  * @see goog.string.isEmptyOrWhitespace
  */
-goog.string.internal.isEmptyOrWhitespace = function(str) {
+goog.string.internal.isEmptyOrWhitespace = function (str) {
   'use strict';
   // testing length == 0 first is actually slower in all browsers (about the
   // same in Opera).
@@ -103,27 +92,27 @@ goog.string.internal.isEmptyOrWhitespace = function(str) {
   return /^[\s\xa0]*$/.test(str);
 };
 
-
 /**
  * Trims white spaces to the left and right of a string.
  * @param {string} str The string to trim.
  * @return {string} A trimmed copy of `str`.
  */
 goog.string.internal.trim =
-    (goog.TRUSTED_SITE && String.prototype.trim) ? function(str) {
-      'use strict';
-      return str.trim();
-    } : function(str) {
-      'use strict';
-      // Since IE doesn't include non-breaking-space (0xa0) in their \s
-      // character class (as required by section 7.2 of the ECMAScript spec),
-      // we explicitly include it in the regexp to enforce consistent
-      // cross-browser behavior.
-      // NOTE: We don't use String#replace because it might have side effects
-      // causing this function to not compile to 0 bytes.
-      return /^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(str)[1];
-    };
-
+  goog.TRUSTED_SITE && String.prototype.trim
+    ? function (str) {
+        'use strict';
+        return str.trim();
+      }
+    : function (str) {
+        'use strict';
+        // Since IE doesn't include non-breaking-space (0xa0) in their \s
+        // character class (as required by section 7.2 of the ECMAScript spec),
+        // we explicitly include it in the regexp to enforce consistent
+        // cross-browser behavior.
+        // NOTE: We don't use String#replace because it might have side effects
+        // causing this function to not compile to 0 bytes.
+        return /^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(str)[1];
+      };
 
 /**
  * A string comparator that ignores case.
@@ -136,7 +125,7 @@ goog.string.internal.trim =
  * @return {number} The comparator result, as described above.
  * @see goog.string.caseInsensitiveCompare
  */
-goog.string.internal.caseInsensitiveCompare = function(str1, str2) {
+goog.string.internal.caseInsensitiveCompare = function (str1, str2) {
   'use strict';
   const test1 = String(str1).toLowerCase();
   const test2 = String(str2).toLowerCase();
@@ -150,7 +139,6 @@ goog.string.internal.caseInsensitiveCompare = function(str1, str2) {
   }
 };
 
-
 /**
  * Converts \n to <br>s or <br />s.
  * @param {string} str The string in which to convert newlines.
@@ -158,11 +146,10 @@ goog.string.internal.caseInsensitiveCompare = function(str1, str2) {
  * @return {string} A copy of `str` with converted newlines.
  * @see goog.string.newLineToBr
  */
-goog.string.internal.newLineToBr = function(str, opt_xml) {
+goog.string.internal.newLineToBr = function (str, opt_xml) {
   'use strict';
   return str.replace(/(\r\n|\r|\n)/g, opt_xml ? '<br />' : '<br>');
 };
-
 
 /**
  * Escapes double quote '"' and single quote '\'' characters in addition to
@@ -173,18 +160,17 @@ goog.string.internal.newLineToBr = function(str, opt_xml) {
  * @return {string} An escaped copy of `str`.
  * @see goog.string.htmlEscape
  */
-goog.string.internal.htmlEscape = function(
-    str, opt_isLikelyToContainHtmlChars) {
+goog.string.internal.htmlEscape = function (str, opt_isLikelyToContainHtmlChars) {
   'use strict';
   if (opt_isLikelyToContainHtmlChars) {
-    str = str.replace(goog.string.internal.AMP_RE_, '&amp;')
-              .replace(goog.string.internal.LT_RE_, '&lt;')
-              .replace(goog.string.internal.GT_RE_, '&gt;')
-              .replace(goog.string.internal.QUOT_RE_, '&quot;')
-              .replace(goog.string.internal.SINGLE_QUOTE_RE_, '&#39;')
-              .replace(goog.string.internal.NULL_RE_, '&#0;');
+    str = str
+      .replace(goog.string.internal.AMP_RE_, '&amp;')
+      .replace(goog.string.internal.LT_RE_, '&lt;')
+      .replace(goog.string.internal.GT_RE_, '&gt;')
+      .replace(goog.string.internal.QUOT_RE_, '&quot;')
+      .replace(goog.string.internal.SINGLE_QUOTE_RE_, '&#39;')
+      .replace(goog.string.internal.NULL_RE_, '&#0;');
     return str;
-
   } else {
     // quick test helps in the case when there are no chars to replace, in
     // worst case this makes barely a difference to the time taken
@@ -203,7 +189,7 @@ goog.string.internal.htmlEscape = function(
     if (str.indexOf('"') != -1) {
       str = str.replace(goog.string.internal.QUOT_RE_, '&quot;');
     }
-    if (str.indexOf('\'') != -1) {
+    if (str.indexOf("'") != -1) {
       str = str.replace(goog.string.internal.SINGLE_QUOTE_RE_, '&#39;');
     }
     if (str.indexOf('\x00') != -1) {
@@ -213,14 +199,12 @@ goog.string.internal.htmlEscape = function(
   }
 };
 
-
 /**
  * Regular expression that matches an ampersand, for use in escaping.
  * @const {!RegExp}
  * @private
  */
 goog.string.internal.AMP_RE_ = /&/g;
-
 
 /**
  * Regular expression that matches a less than sign, for use in escaping.
@@ -229,14 +213,12 @@ goog.string.internal.AMP_RE_ = /&/g;
  */
 goog.string.internal.LT_RE_ = /</g;
 
-
 /**
  * Regular expression that matches a greater than sign, for use in escaping.
  * @const {!RegExp}
  * @private
  */
 goog.string.internal.GT_RE_ = />/g;
-
 
 /**
  * Regular expression that matches a double quote, for use in escaping.
@@ -245,14 +227,12 @@ goog.string.internal.GT_RE_ = />/g;
  */
 goog.string.internal.QUOT_RE_ = /"/g;
 
-
 /**
  * Regular expression that matches a single quote, for use in escaping.
  * @const {!RegExp}
  * @private
  */
 goog.string.internal.SINGLE_QUOTE_RE_ = /'/g;
-
 
 /**
  * Regular expression that matches null character, for use in escaping.
@@ -261,14 +241,12 @@ goog.string.internal.SINGLE_QUOTE_RE_ = /'/g;
  */
 goog.string.internal.NULL_RE_ = /\x00/g;
 
-
 /**
  * Regular expression that matches any character that needs to be escaped.
  * @const {!RegExp}
  * @private
  */
 goog.string.internal.ALL_RE_ = /[\x00&<>"']/;
-
 
 /**
  * Do escaping of whitespace to preserve spatial formatting. We use character
@@ -278,13 +256,11 @@ goog.string.internal.ALL_RE_ = /[\x00&<>"']/;
  * @return {string} An escaped copy of `str`.
  * @see goog.string.whitespaceEscape
  */
-goog.string.internal.whitespaceEscape = function(str, opt_xml) {
+goog.string.internal.whitespaceEscape = function (str, opt_xml) {
   'use strict';
   // This doesn't use goog.string.preserveSpaces for backwards compatibility.
-  return goog.string.internal.newLineToBr(
-      str.replace(/  /g, ' &#160;'), opt_xml);
+  return goog.string.internal.newLineToBr(str.replace(/  /g, ' &#160;'), opt_xml);
 };
-
 
 /**
  * Determines whether a string contains a substring.
@@ -293,11 +269,10 @@ goog.string.internal.whitespaceEscape = function(str, opt_xml) {
  * @return {boolean} Whether `str` contains `subString`.
  * @see goog.string.contains
  */
-goog.string.internal.contains = function(str, subString) {
+goog.string.internal.contains = function (str, subString) {
   'use strict';
   return str.indexOf(subString) != -1;
 };
-
 
 /**
  * Determines whether a string contains a substring, ignoring case.
@@ -306,12 +281,10 @@ goog.string.internal.contains = function(str, subString) {
  * @return {boolean} Whether `str` contains `subString`.
  * @see goog.string.caseInsensitiveContains
  */
-goog.string.internal.caseInsensitiveContains = function(str, subString) {
+goog.string.internal.caseInsensitiveContains = function (str, subString) {
   'use strict';
-  return goog.string.internal.contains(
-      str.toLowerCase(), subString.toLowerCase());
+  return goog.string.internal.contains(str.toLowerCase(), subString.toLowerCase());
 };
-
 
 /**
  * Compares two version numbers.
@@ -324,7 +297,7 @@ goog.string.internal.caseInsensitiveContains = function(str, subString) {
  *                  -1 if `version2` is higher.
  * @see goog.string.compareVersions
  */
-goog.string.internal.compareVersions = function(version1, version2) {
+goog.string.internal.compareVersions = function (version1, version2) {
   'use strict';
   let order = 0;
   // Trim leading and trailing whitespace and split the versions into
@@ -358,10 +331,10 @@ goog.string.internal.compareVersions = function(version1, version2) {
       // precedence. Next, if the numbers are equal, a subversion without any
       // qualifier is always higher than a subversion with any qualifier. Next,
       // the qualifiers are compared as strings.
-      order = goog.string.internal.compareElements_(v1CompNum, v2CompNum) ||
-          goog.string.internal.compareElements_(
-              v1Comp[2].length == 0, v2Comp[2].length == 0) ||
-          goog.string.internal.compareElements_(v1Comp[2], v2Comp[2]);
+      order =
+        goog.string.internal.compareElements_(v1CompNum, v2CompNum) ||
+        goog.string.internal.compareElements_(v1Comp[2].length == 0, v2Comp[2].length == 0) ||
+        goog.string.internal.compareElements_(v1Comp[2], v2Comp[2]);
       // Stop as soon as an inequality is discovered.
 
       v1Sub = v1Comp[3];
@@ -371,7 +344,6 @@ goog.string.internal.compareVersions = function(version1, version2) {
 
   return order;
 };
-
 
 /**
  * Compares elements of a version number.
@@ -384,7 +356,7 @@ goog.string.internal.compareVersions = function(version1, version2) {
  *                  -1 if `right` is higher.
  * @private
  */
-goog.string.internal.compareElements_ = function(left, right) {
+goog.string.internal.compareElements_ = function (left, right) {
   'use strict';
   if (left < right) {
     return -1;

@@ -27,14 +27,12 @@ goog.require('bot.Error');
 goog.require('bot.ErrorCode');
 goog.require('goog.utils');
 
-
 /**
  * Type definition for a response object, as defined by the JSON wire protocol.
  * @typedef {{status: bot.ErrorCode, value: (*|{message: string})}}
  * @see https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol#responses
  */
 bot.response.ResponseObject;
-
 
 /**
  * @param {*} value The value to test.
@@ -43,7 +41,6 @@ bot.response.ResponseObject;
 bot.response.isResponseObject = function (value) {
   return goog.utils.isObject(value) && goog.utils.isNumber(value['status']);
 };
-
 
 /**
  * Creates a new success response object with the provided value.
@@ -56,10 +53,9 @@ bot.response.createResponse = function (value) {
   }
   return {
     'status': bot.ErrorCode.SUCCESS,
-    'value': value
+    'value': value,
   };
 };
-
 
 /**
  * Converts an error value into its JSON representation as defined by the
@@ -72,16 +68,14 @@ bot.response.createErrorResponse = function (error) {
     return /** @type {!bot.response.ResponseObject} */ (error);
   }
 
-  var statusCode = error && goog.utils.isNumber(error.code) ? error.code :
-    bot.ErrorCode.UNKNOWN_ERROR;
+  var statusCode = error && goog.utils.isNumber(error.code) ? error.code : bot.ErrorCode.UNKNOWN_ERROR;
   return {
     'status': /** @type {bot.ErrorCode} */ (statusCode),
     'value': {
-      'message': (error && error.message || error) + ''
-    }
+      'message': ((error && error.message) || error) + '',
+    },
   };
 };
-
 
 /**
  * Checks that a response object does not specify an error as defined by the

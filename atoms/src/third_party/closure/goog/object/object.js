@@ -209,9 +209,7 @@ function getKeys(obj) {
  */
 function getValueByKeys(obj, var_args) {
   const isArrayLike = utils.isArrayLike(var_args);
-  const keys = isArrayLike ?
-      /** @type {!IArrayLike<number|string>} */ (var_args) :
-      arguments;
+  const keys = isArrayLike ? /** @type {!IArrayLike<number|string>} */ (var_args) : arguments;
 
   // Start with the 2nd parameter for the variable parameters syntax.
   for (let i = isArrayLike ? 0 : 1; i < keys.length; i++) {
@@ -317,7 +315,7 @@ function clear(obj) {
  */
 function remove(obj, key) {
   let rv;
-  if (rv = key in /** @type {!Object} */ (obj)) {
+  if ((rv = key in /** @type {!Object} */ (obj))) {
     delete obj[key];
   }
   return rv;
@@ -459,12 +457,14 @@ function unsafeClone(obj) {
   } else if (obj instanceof Date) {
     return new Date(obj.getTime());
   }
-  const clone = Array.isArray(obj) ? [] :
-      typeof ArrayBuffer === 'function' &&
-          typeof ArrayBuffer.isView === 'function' && ArrayBuffer.isView(obj) &&
-          !(obj instanceof DataView) ?
-                                     new obj.constructor(obj.length) :
-                                     {};
+  const clone = Array.isArray(obj)
+    ? []
+    : typeof ArrayBuffer === 'function' &&
+        typeof ArrayBuffer.isView === 'function' &&
+        ArrayBuffer.isView(obj) &&
+        !(obj instanceof DataView)
+      ? new obj.constructor(obj.length)
+      : {};
   for (const key in obj) {
     clone[key] = unsafeClone(obj[key]);
   }
@@ -627,9 +627,7 @@ function isImmutableView(obj) {
  * @return {!Array<string>}
  * @public
  */
-function getAllPropertyNames(
-    obj, includeObjectPrototype = undefined,
-    includeFunctionPrototype = undefined) {
+function getAllPropertyNames(obj, includeObjectPrototype = undefined, includeFunctionPrototype = undefined) {
   if (!obj) {
     return [];
   }
@@ -644,8 +642,11 @@ function getAllPropertyNames(
 
   // Traverse the prototype chain and add all properties to the visited set.
   let proto = obj;
-  while (proto && (proto !== Object.prototype || !!includeObjectPrototype) &&
-         (proto !== Function.prototype || !!includeFunctionPrototype)) {
+  while (
+    proto &&
+    (proto !== Object.prototype || !!includeObjectPrototype) &&
+    (proto !== Function.prototype || !!includeFunctionPrototype)
+  ) {
     const names = Object.getOwnPropertyNames(proto);
     for (let i = 0; i < names.length; i++) {
       visitedSet[names[i]] = true;

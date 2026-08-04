@@ -10,7 +10,6 @@
 
 goog.provide('goog.color.names');
 
-
 /**
  * A map that contains a lot of colors that are recognised by various browsers.
  * This list is way larger than the minimal one dictated by W3C.
@@ -166,5 +165,5 @@ goog.color.names = {
   'white': '#ffffff',
   'whitesmoke': '#f5f5f5',
   'yellow': '#ffff00',
-  'yellowgreen': '#9acd32'
+  'yellowgreen': '#9acd32',
 };

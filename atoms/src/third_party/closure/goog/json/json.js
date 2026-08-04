@@ -8,12 +8,10 @@
  * @fileoverview JSON utility functions.
  */
 
-
 goog.provide('goog.json');
 goog.provide('goog.json.Replacer');
 goog.provide('goog.json.Reviver');
 goog.provide('goog.json.Serializer');
-
 
 /**
  * @define {boolean} If true, use the native JSON parsing API.
@@ -24,14 +22,13 @@ goog.provide('goog.json.Serializer');
  */
 goog.json.USE_NATIVE_JSON = goog.define('goog.json.USE_NATIVE_JSON', false);
 
-
 /**
  * Tests if a string is an invalid JSON string. This only ensures that we are
  * not using any invalid characters
  * @param {string} s The string to test.
  * @return {boolean} True if the input is a valid JSON string.
  */
-goog.json.isValid = function(s) {
+goog.json.isValid = function (s) {
   'use strict';
   // All empty whitespace is not valid.
   if (/^\s*$/.test(s)) {
@@ -65,14 +62,11 @@ goog.json.isValid = function(s) {
   // Don't make these static since they have the global flag.
   const backslashesRe = /\\["\\\/bfnrtu]/g;
   const simpleValuesRe =
-      /(?:"[^"\\\n\r\u2028\u2029\x00-\x08\x0a-\x1f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)[\s\u2028\u2029]*(?=:|,|]|}|$)/g;
+    /(?:"[^"\\\n\r\u2028\u2029\x00-\x08\x0a-\x1f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)[\s\u2028\u2029]*(?=:|,|]|}|$)/g;
   const openBracketsRe = /(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g;
   const remainderRe = /^[\],:{}\s\u2028\u2029]*$/;
 
-  return remainderRe.test(
-      s.replace(backslashesRe, '@')
-          .replace(simpleValuesRe, ']')
-          .replace(openBracketsRe, ''));
+  return remainderRe.test(s.replace(backslashesRe, '@').replace(simpleValuesRe, ']').replace(openBracketsRe, ''));
 };
 
 /**
@@ -82,17 +76,15 @@ goog.json.isValid = function(s) {
  */
 goog.json.errorLogger_ = () => {};
 
-
 /**
  * Sets an error logger to use if there's a recoverable parsing error.
  * @param {function(string, !Error)} errorLogger The first parameter is the
  *     error message, the second is the exception thrown by `JSON.parse`.
  */
-goog.json.setErrorLogger = function(errorLogger) {
+goog.json.setErrorLogger = function (errorLogger) {
   'use strict';
   goog.json.errorLogger_ = errorLogger;
 };
-
 
 /**
  * Parses a JSON string and returns the result. This throws an exception if
@@ -105,9 +97,9 @@ goog.json.setErrorLogger = function(errorLogger) {
  * @return {Object} The object generated from the JSON string, or null.
  * @deprecated Use JSON.parse.
  */
-goog.json.parse = goog.json.USE_NATIVE_JSON ?
-    /** @type {function(*):Object} */ (goog.global['JSON']['parse']) :
-    function(s) {
+goog.json.parse = goog.json.USE_NATIVE_JSON
+  ? /** @type {function(*):Object} */ (goog.global['JSON']['parse'])
+  : function (s) {
       'use strict';
       let error;
       try {
@@ -117,19 +109,16 @@ goog.json.parse = goog.json.USE_NATIVE_JSON ?
       }
       const o = String(s);
       if (goog.json.isValid(o)) {
-
         try {
           const result = /** @type {?Object} */ (eval('(' + o + ')'));
           if (error) {
             goog.json.errorLogger_('Invalid JSON: ' + o, error);
           }
           return result;
-        } catch (ex) {
-        }
+        } catch (ex) {}
       }
       throw new Error('Invalid JSON string: ' + o);
     };
-
 
 /**
  * JSON replacer, as defined in Section 15.12.3 of the ES5 spec.
@@ -141,7 +130,6 @@ goog.json.parse = goog.json.USE_NATIVE_JSON ?
  */
 goog.json.Replacer;
 
-
 /**
  * JSON reviver, as defined in Section 15.12.2 of the ES5 spec.
  * @see http://ecma-international.org/ecma-262/5.1/#sec-15.12.3
@@ -149,7 +137,6 @@ goog.json.Replacer;
  * @typedef {function(this:Object, string, *): *}
  */
 goog.json.Reviver;
-
 
 /**
  * Serializes an object or a value to a JSON string.
@@ -162,10 +149,10 @@ goog.json.Reviver;
  * @throws Error if there are loops in the object graph.
  * @return {string} A JSON string representation of the input.
  */
-goog.json.serialize = goog.json.USE_NATIVE_JSON ?
-    /** @type {function(*, ?goog.json.Replacer=):string} */
-    (goog.global['JSON']['stringify']) :
-    function(object, opt_replacer) {
+goog.json.serialize = goog.json.USE_NATIVE_JSON
+  ? /** @type {function(*, ?goog.json.Replacer=):string} */
+    (goog.global['JSON']['stringify'])
+  : function (object, opt_replacer) {
       'use strict';
       // NOTE(nicksantos): Currently, we never use JSON.stringify.
       //
@@ -179,14 +166,12 @@ goog.json.serialize = goog.json.USE_NATIVE_JSON ?
       return new goog.json.Serializer(opt_replacer).serialize(object);
     };
 
-
-
 /**
  * Class that is used to serialize JSON objects to a string.
  * @param {?goog.json.Replacer=} opt_replacer Replacer.
  * @constructor
  */
-goog.json.Serializer = function(opt_replacer) {
+goog.json.Serializer = function (opt_replacer) {
   'use strict';
   /**
    * @type {goog.json.Replacer|null|undefined}
@@ -195,7 +180,6 @@ goog.json.Serializer = function(opt_replacer) {
   this.replacer_ = opt_replacer;
 };
 
-
 /**
  * Serializes an object or a value to a JSON string.
  *
@@ -203,13 +187,12 @@ goog.json.Serializer = function(opt_replacer) {
  * @throws Error if there are loops in the object graph.
  * @return {string} A JSON string representation of the input.
  */
-goog.json.Serializer.prototype.serialize = function(object) {
+goog.json.Serializer.prototype.serialize = function (object) {
   'use strict';
   const sb = [];
   this.serializeInternal(object, sb);
   return sb.join('');
 };
-
 
 /**
  * Serializes a generic value to a JSON string
@@ -218,7 +201,7 @@ goog.json.Serializer.prototype.serialize = function(object) {
  * @param {Array<string>} sb Array used as a string builder.
  * @throws Error if there are loops in the object graph.
  */
-goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
+goog.json.Serializer.prototype.serializeInternal = function (object, sb) {
   'use strict';
   if (object == null) {
     // undefined == null so this branch covers undefined as well as null
@@ -230,9 +213,7 @@ goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
     if (Array.isArray(object)) {
       this.serializeArray(object, sb);
       return;
-    } else if (
-        object instanceof String || object instanceof Number ||
-        object instanceof Boolean) {
+    } else if (object instanceof String || object instanceof Number || object instanceof Boolean) {
       object = object.valueOf();
       // Fall through to switch below.
     } else {
@@ -259,7 +240,6 @@ goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
   }
 };
 
-
 /**
  * Character mappings used internally for goog.string.quote
  * @private
@@ -275,9 +255,8 @@ goog.json.Serializer.charToJsonCharCache_ = {
   '\r': '\\r',
   '\t': '\\t',
 
-  '\x0B': '\\u000b'  // '\v' is not supported in JScript
+  '\x0B': '\\u000b', // '\v' is not supported in JScript
 };
-
 
 /**
  * Regular expression used to match characters that need to be replaced.
@@ -287,10 +266,9 @@ goog.json.Serializer.charToJsonCharCache_ = {
  * @private
  * @type {!RegExp}
  */
-goog.json.Serializer.charsToReplace_ = /\uffff/.test('\uffff') ?
-    /[\\\"\x00-\x1f\x7f-\uffff]/g :
-    /[\\\"\x00-\x1f\x7f-\xff]/g;
-
+goog.json.Serializer.charsToReplace_ = /\uffff/.test('\uffff')
+  ? /[\\\"\x00-\x1f\x7f-\uffff]/g
+  : /[\\\"\x00-\x1f\x7f-\xff]/g;
 
 /**
  * Serializes a string to a JSON string
@@ -298,22 +276,25 @@ goog.json.Serializer.charsToReplace_ = /\uffff/.test('\uffff') ?
  * @param {string} s The string to serialize.
  * @param {Array<string>} sb Array used as a string builder.
  */
-goog.json.Serializer.prototype.serializeString_ = function(s, sb) {
+goog.json.Serializer.prototype.serializeString_ = function (s, sb) {
   'use strict';
   // The official JSON implementation does not work with international
   // characters.
-  sb.push('"', s.replace(goog.json.Serializer.charsToReplace_, function(c) {
-    'use strict';
-    // caching the result improves performance by a factor 2-3
-    let rv = goog.json.Serializer.charToJsonCharCache_[c];
-    if (!rv) {
-      rv = '\\u' + (c.charCodeAt(0) | 0x10000).toString(16).slice(1);
-      goog.json.Serializer.charToJsonCharCache_[c] = rv;
-    }
-    return rv;
-  }), '"');
+  sb.push(
+    '"',
+    s.replace(goog.json.Serializer.charsToReplace_, function (c) {
+      'use strict';
+      // caching the result improves performance by a factor 2-3
+      let rv = goog.json.Serializer.charToJsonCharCache_[c];
+      if (!rv) {
+        rv = '\\u' + (c.charCodeAt(0) | 0x10000).toString(16).slice(1);
+        goog.json.Serializer.charToJsonCharCache_[c] = rv;
+      }
+      return rv;
+    }),
+    '"',
+  );
 };
-
 
 /**
  * Serializes a number to a JSON string
@@ -321,11 +302,10 @@ goog.json.Serializer.prototype.serializeString_ = function(s, sb) {
  * @param {number} n The number to serialize.
  * @param {Array<string>} sb Array used as a string builder.
  */
-goog.json.Serializer.prototype.serializeNumber_ = function(n, sb) {
+goog.json.Serializer.prototype.serializeNumber_ = function (n, sb) {
   'use strict';
   sb.push(isFinite(n) && !isNaN(n) ? String(n) : 'null');
 };
-
 
 /**
  * Serializes an array to a JSON string
@@ -333,7 +313,7 @@ goog.json.Serializer.prototype.serializeNumber_ = function(n, sb) {
  * @param {Array<string>} sb Array used as a string builder.
  * @protected
  */
-goog.json.Serializer.prototype.serializeArray = function(arr, sb) {
+goog.json.Serializer.prototype.serializeArray = function (arr, sb) {
   'use strict';
   const l = arr.length;
   sb.push('[');
@@ -342,15 +322,12 @@ goog.json.Serializer.prototype.serializeArray = function(arr, sb) {
     sb.push(sep);
 
     const value = arr[i];
-    this.serializeInternal(
-        this.replacer_ ? this.replacer_.call(arr, String(i), value) : value,
-        sb);
+    this.serializeInternal(this.replacer_ ? this.replacer_.call(arr, String(i), value) : value, sb);
 
     sep = ',';
   }
   sb.push(']');
 };
-
 
 /**
  * Serializes an object to a JSON string
@@ -358,7 +335,7 @@ goog.json.Serializer.prototype.serializeArray = function(arr, sb) {
  * @param {!Object} obj The object to serialize.
  * @param {Array<string>} sb Array used as a string builder.
  */
-goog.json.Serializer.prototype.serializeObject_ = function(obj, sb) {
+goog.json.Serializer.prototype.serializeObject_ = function (obj, sb) {
   'use strict';
   sb.push('{');
   let sep = '';
@@ -371,8 +348,7 @@ goog.json.Serializer.prototype.serializeObject_ = function(obj, sb) {
         this.serializeString_(key, sb);
         sb.push(':');
 
-        this.serializeInternal(
-            this.replacer_ ? this.replacer_.call(obj, key, value) : value, sb);
+        this.serializeInternal(this.replacer_ ? this.replacer_.call(obj, key, value) : value, sb);
 
         sep = ',';
       }

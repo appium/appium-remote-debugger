@@ -27,7 +27,6 @@ goog.require('bot.Error');
 goog.require('bot.ErrorCode');
 goog.require('bot.html5');
 
-
 /**
  * Returns the current state of the application cache.
  *
@@ -35,13 +34,12 @@ goog.require('bot.html5');
  *     defaults to the main window.
  * @return {number} The state.
  */
-bot.appcache.getStatus = function(opt_window) {
+bot.appcache.getStatus = function (opt_window) {
   var win = opt_window || bot.getWindow();
 
   if (bot.html5.isSupported(bot.html5.API.APPCACHE, win)) {
     return win.applicationCache.status;
   } else {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-        'Undefined application cache');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Undefined application cache');
   }
 };

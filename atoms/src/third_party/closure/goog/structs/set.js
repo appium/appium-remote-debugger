@@ -14,7 +14,6 @@
  * multiple new Number(1) because these are not equal.
  */
 
-
 goog.provide('goog.structs.Set');
 
 goog.require('goog.structs');
@@ -41,10 +40,9 @@ goog.require('goog.utils');
  * @template T
  * @deprecated This type is misleading: use ES6 Set instead.
  */
-goog.structs.Set = function(opt_values) {
+goog.structs.Set = function (opt_values) {
   'use strict';
   this.map_ = new goog.structs.Map();
-
 
   /**
    * The number of items in this set.
@@ -63,7 +61,6 @@ goog.structs.Set = function(opt_values) {
  */
 goog.structs.Set.getUid_ = goog.utils.getUid;
 
-
 /**
  * Obtains a unique key for an element of the set.  Primitives will yield the
  * same key if they have the same type and convert to the same string.  Object
@@ -72,39 +69,36 @@ goog.structs.Set.getUid_ = goog.utils.getUid;
  * @return {string} A unique key for this value/object.
  * @private
  */
-goog.structs.Set.getKey_ = function(val) {
+goog.structs.Set.getKey_ = function (val) {
   'use strict';
   var type = typeof val;
-  if (type == 'object' && val || type == 'function') {
+  if ((type == 'object' && val) || type == 'function') {
     return 'o' + goog.structs.Set.getUid_(/** @type {Object} */ (val));
   } else {
     return type.slice(0, 1) + val;
   }
 };
 
-
 /**
  * @return {number} The number of elements in the set.
  * @override
  * @deprecated Use the `size` property instead, for alignment with ES6 Set.
  */
-goog.structs.Set.prototype.getCount = function() {
+goog.structs.Set.prototype.getCount = function () {
   'use strict';
   return this.map_.size;
 };
-
 
 /**
  * Add a primitive or an object to the set.
  * @param {T} element The primitive or object to add.
  * @override
  */
-goog.structs.Set.prototype.add = function(element) {
+goog.structs.Set.prototype.add = function (element) {
   'use strict';
   this.map_.set(goog.structs.Set.getKey_(element), element);
   this.setSizeInternal_(this.map_.size);
 };
-
 
 /**
  * Adds all the values in the given collection to this set.
@@ -114,7 +108,7 @@ goog.structs.Set.prototype.add = function(element) {
  *     converting Objects to their values using `Object.values`, for alignment
  *     with ES6 Set.
  */
-goog.structs.Set.prototype.addAll = function(col) {
+goog.structs.Set.prototype.addAll = function (col) {
   'use strict';
   var values = goog.structs.getValues(col);
   var l = values.length;
@@ -124,7 +118,6 @@ goog.structs.Set.prototype.addAll = function(col) {
   this.setSizeInternal_(this.map_.size);
 };
 
-
 /**
  * Removes all values in the given collection from this set.
  * @param {Array<T>|goog.structs.Collection<T>|Object<?,T>} col A collection
@@ -133,7 +126,7 @@ goog.structs.Set.prototype.addAll = function(col) {
  *     converting Objects to their values using `Object.values`, for alignment
  *     with ES6 Set.
  */
-goog.structs.Set.prototype.removeAll = function(col) {
+goog.structs.Set.prototype.removeAll = function (col) {
   'use strict';
   var values = goog.structs.getValues(col);
   var l = values.length;
@@ -143,13 +136,12 @@ goog.structs.Set.prototype.removeAll = function(col) {
   this.setSizeInternal_(this.map_.size);
 };
 
-
 /**
  * Removes the given element from this set.
  * @param {T} element The primitive or object to remove.
  * @return {boolean} Whether the element was found and removed.
  */
-goog.structs.Set.prototype.delete = function(element) {
+goog.structs.Set.prototype.delete = function (element) {
   'use strict';
   const rv = this.map_.remove(goog.structs.Set.getKey_(element));
   this.setSizeInternal_(this.map_.size);
@@ -163,21 +155,19 @@ goog.structs.Set.prototype.delete = function(element) {
  * @override
  * @deprecated Use `delete`, for alignment with ES6 Set.
  */
-goog.structs.Set.prototype.remove = function(element) {
+goog.structs.Set.prototype.remove = function (element) {
   'use strict';
   return this.delete(element);
 };
 
-
 /**
  * Removes all elements from this set.
  */
-goog.structs.Set.prototype.clear = function() {
+goog.structs.Set.prototype.clear = function () {
   'use strict';
   this.map_.clear();
   this.setSizeInternal_(0);
 };
-
 
 /**
  * Tests whether this set is empty.
@@ -185,18 +175,17 @@ goog.structs.Set.prototype.clear = function() {
  * @deprecated Use the size property and compare against 0, for alignment with
  *     ES6 Set.
  */
-goog.structs.Set.prototype.isEmpty = function() {
+goog.structs.Set.prototype.isEmpty = function () {
   'use strict';
   return this.map_.size === 0;
 };
-
 
 /**
  * Tests whether this set contains the given element.
  * @param {T} element The primitive or object to test for.
  * @return {boolean} True if this set contains the given element.
  */
-goog.structs.Set.prototype.has = function(element) {
+goog.structs.Set.prototype.has = function (element) {
   'use strict';
   return this.map_.containsKey(goog.structs.Set.getKey_(element));
 };
@@ -208,11 +197,10 @@ goog.structs.Set.prototype.has = function(element) {
  * @override
  * @deprecated Use `has` instead, for alignment with ES6 Set.
  */
-goog.structs.Set.prototype.contains = function(element) {
+goog.structs.Set.prototype.contains = function (element) {
   'use strict';
   return this.map_.containsKey(goog.structs.Set.getKey_(element));
 };
-
 
 /**
  * Tests whether this set contains all the values in a given collection.
@@ -223,11 +211,10 @@ goog.structs.Set.prototype.contains = function(element) {
  * @deprecated Use `goog.collections.sets.hasAll(thisSet, col)`, converting
  *     Objects to arrays using Object.values, for alignment with ES6 Set.
  */
-goog.structs.Set.prototype.containsAll = function(col) {
+goog.structs.Set.prototype.containsAll = function (col) {
   'use strict';
   return goog.structs.every(col, this.contains, this);
 };
-
 
 /**
  * Finds all values that are present in both this set and the given collection.
@@ -240,7 +227,7 @@ goog.structs.Set.prototype.containsAll = function(col) {
  *     converting Objects to arrays using Object.values, instead for alignment
  *     with ES6 Set.
  */
-goog.structs.Set.prototype.intersection = function(col) {
+goog.structs.Set.prototype.intersection = function (col) {
   'use strict';
   var result = new goog.structs.Set();
 
@@ -255,7 +242,6 @@ goog.structs.Set.prototype.intersection = function(col) {
   return result;
 };
 
-
 /**
  * Finds all values that are present in this set and not in the given
  * collection.
@@ -264,13 +250,12 @@ goog.structs.Set.prototype.intersection = function(col) {
  *     (primitives or objects) present in this set but not in the given
  *     collection.
  */
-goog.structs.Set.prototype.difference = function(col) {
+goog.structs.Set.prototype.difference = function (col) {
   'use strict';
   var result = this.clone();
   result.removeAll(col);
   return result;
 };
-
 
 /**
  * Returns an array containing all the elements in this set.
@@ -278,7 +263,7 @@ goog.structs.Set.prototype.difference = function(col) {
  * @deprecated Use `Array.from(set.values())` instead, for alignment with ES6
  *     Set.
  */
-goog.structs.Set.prototype.getValues = function() {
+goog.structs.Set.prototype.getValues = function () {
   'use strict';
   return this.map_.getValues();
 };
@@ -287,7 +272,7 @@ goog.structs.Set.prototype.getValues = function() {
  * @returns {!IteratorIterable<T>} An ES6 Iterator that iterates over the values
  *     in the set.
  */
-goog.structs.Set.prototype.values = function() {
+goog.structs.Set.prototype.values = function () {
   'use strict';
   return this.map_.values();
 };
@@ -298,11 +283,10 @@ goog.structs.Set.prototype.values = function() {
  *     this set.
  * @deprecated Use `new Set(thisSet.values())` for alignment with ES6 Set.
  */
-goog.structs.Set.prototype.clone = function() {
+goog.structs.Set.prototype.clone = function () {
   'use strict';
   return new goog.structs.Set(this);
 };
-
 
 /**
  * Tests whether the given collection consists of the same elements as this set,
@@ -315,11 +299,10 @@ goog.structs.Set.prototype.clone = function() {
  * @deprecated Use `goog.collections.equals(thisSet, col)`, converting Objects
  *     to arrays using Object.values,  instead for alignment with ES6 Set.
  */
-goog.structs.Set.prototype.equals = function(col) {
+goog.structs.Set.prototype.equals = function (col) {
   'use strict';
   return this.getCount() == goog.structs.getCount(col) && this.isSubsetOf(col);
 };
-
 
 /**
  * Tests whether the given collection contains all the elements in this set.
@@ -332,7 +315,7 @@ goog.structs.Set.prototype.equals = function(col) {
  *     Objects to arrays using Object.values, instead for alignment with ES6
  *     Set.
  */
-goog.structs.Set.prototype.isSubsetOf = function(col) {
+goog.structs.Set.prototype.isSubsetOf = function (col) {
   'use strict';
   var colCount = goog.structs.getCount(col);
   if (this.getCount() > colCount) {
@@ -343,12 +326,11 @@ goog.structs.Set.prototype.isSubsetOf = function(col) {
     // O(1) time instead of O(n) time.
     col = new goog.structs.Set(col);
   }
-  return goog.structs.every(this, function(value) {
+  return goog.structs.every(this, function (value) {
     'use strict';
     return goog.structs.contains(col, value);
   });
 };
-
 
 /**
  * Returns an iterator that iterates over the elements in this set.
@@ -357,7 +339,7 @@ goog.structs.Set.prototype.isSubsetOf = function(col) {
  * @deprecated Call `values` and use native iteration, for alignment with ES6
  *     Set.
  */
-goog.structs.Set.prototype.__iterator__ = function(opt_keys) {
+goog.structs.Set.prototype.__iterator__ = function (opt_keys) {
   'use strict';
   return this.map_.__iterator__(false);
 };
@@ -366,7 +348,7 @@ goog.structs.Set.prototype.__iterator__ = function(opt_keys) {
  * @return {!IteratorIterable<T>} An ES6 Iterator that iterates over the values
  *     in the set.
  */
-goog.structs.Set.prototype[Symbol.iterator] = function() {
+goog.structs.Set.prototype[Symbol.iterator] = function () {
   return this.values();
 };
 
@@ -376,7 +358,7 @@ goog.structs.Set.prototype[Symbol.iterator] = function() {
  * @param {number} newSize The size to update to.
  * @private
  */
-goog.structs.Set.prototype.setSizeInternal_ = function(newSize) {
+goog.structs.Set.prototype.setSizeInternal_ = function (newSize) {
   /** @suppress {const} */
   this.size = newSize;
 };

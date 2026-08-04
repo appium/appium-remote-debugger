@@ -25,7 +25,6 @@ goog.provide('bot.ErrorCode');
 
 goog.require('goog.utils');
 
-
 /**
  * Error codes from the Selenium WebDriver protocol:
  * https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol#response-status-codes
@@ -34,12 +33,12 @@ goog.require('goog.utils');
  * @suppress {lintChecks}
  */
 bot.ErrorCode = {
-  SUCCESS: 0,  // Included for completeness
+  SUCCESS: 0, // Included for completeness
 
   NO_SUCH_ELEMENT: 7,
   NO_SUCH_FRAME: 8,
   UNKNOWN_COMMAND: 9,
-  UNSUPPORTED_OPERATION: 9,  // Alias.
+  UNSUPPORTED_OPERATION: 9, // Alias.
   STALE_ELEMENT_REFERENCE: 10,
   ELEMENT_NOT_VISIBLE: 11,
   INVALID_ELEMENT_STATE: 12,
@@ -65,9 +64,8 @@ bot.ErrorCode = {
   INVALID_XPATH_SELECTOR_RETURN_TYPE: 52,
   INVALID_ARGUMENT: 61,
   // The following error codes are derived straight from HTTP return codes.
-  METHOD_NOT_ALLOWED: 405
+  METHOD_NOT_ALLOWED: 405,
 };
-
 
 /**
  * Represents an error returned from a WebDriver command request.
@@ -78,7 +76,6 @@ bot.ErrorCode = {
  * @extends {Error}
  */
 bot.Error = function (code, opt_message) {
-
   /**
    * This error's status code.
    * @type {!bot.ErrorCode}
@@ -86,8 +83,7 @@ bot.Error = function (code, opt_message) {
   this.code = code;
 
   /** @type {string} */
-  this.state =
-    bot.Error.CODE_TO_STATE_[code] || bot.Error.State.UNKNOWN_ERROR;
+  this.state = bot.Error.CODE_TO_STATE_[code] || bot.Error.State.UNKNOWN_ERROR;
 
   /** @override */
   this.message = opt_message || '';
@@ -116,7 +112,6 @@ bot.Error = function (code, opt_message) {
   this.stack = template.stack || '';
 };
 goog.utils.inherits(bot.Error, Error);
-
 
 /**
  * Status strings enumerated in the W3C WebDriver protocol.
@@ -147,9 +142,8 @@ bot.Error.State = {
   UNKNOWN_COMMAND: 'unknown command',
   UNKNOWN_ERROR: 'unknown error',
   UNKNOWN_METHOD: 'unknown method',
-  UNSUPPORTED_OPERATION: 'unsupported operation'
+  UNSUPPORTED_OPERATION: 'unsupported operation',
 };
-
 
 /**
  * A map of error codes to state string.
@@ -186,8 +180,7 @@ goog.scope(function () {
   map[code.UNEXPECTED_ALERT_OPEN] = state.UNEXPECTED_ALERT_OPEN;
   map[code.UNKNOWN_ERROR] = state.UNKNOWN_ERROR;
   map[code.UNSUPPORTED_OPERATION] = state.UNKNOWN_COMMAND;
-});  // goog.scope
-
+}); // goog.scope
 
 /**
  * Flag used for duck-typing when this code is embedded in a Firefox extension.
@@ -196,7 +189,6 @@ goog.scope(function () {
  * @type {boolean}
  */
 bot.Error.prototype.isAutomationError = true;
-
 
 if (goog.DEBUG) {
   /**

@@ -31,7 +31,6 @@ goog.require('goog.dom');
 goog.require('goog.dom.NodeType');
 goog.require('goog.dom.TagName');
 
-
 /**
  * Get the user-specified value of the given attribute of the element, or null
  * if the attribute is not present.
@@ -66,8 +65,11 @@ bot.dom.core.getAttribute = function (element, attributeName) {
 
   // In IE doc mode < 8, the "value" attribute of an <input> is only accessible
   // as a property.
-  if (bot.userAgent.IE_DOC_PRE8 && attributeName == 'value' &&
-    bot.dom.core.isElement(element, goog.dom.TagName.INPUT)) {
+  if (
+    bot.userAgent.IE_DOC_PRE8 &&
+    attributeName == 'value' &&
+    bot.dom.core.isElement(element, goog.dom.TagName.INPUT)
+  ) {
     return element['value'];
   }
 
@@ -84,9 +86,8 @@ bot.dom.core.getAttribute = function (element, attributeName) {
   // When the attribute is not present, either attr will be null or
   // attr.specified will be false.
   var attr = element.getAttributeNode(attributeName);
-  return (attr && attr.specified) ? attr.value : null;
+  return attr && attr.specified ? attr.value : null;
 };
-
 
 /**
  * Regex to split on semicolons, but not when enclosed in parens or quotes.
@@ -96,12 +97,9 @@ bot.dom.core.getAttribute = function (element, attributeName) {
  * @private {!RegExp}
  * @const
  */
-bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_ =
-  new RegExp('[;]+' +
-    '(?=(?:(?:[^"]*"){2})*[^"]*$)' +
-    '(?=(?:(?:[^\']*\'){2})*[^\']*$)' +
-    '(?=(?:[^()]*\\([^()]*\\))*[^()]*$)');
-
+bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_ = new RegExp(
+  '[;]+' + '(?=(?:(?:[^"]*"){2})*[^"]*$)' + "(?=(?:(?:[^']*'){2})*[^']*$)" + '(?=(?:[^()]*\\([^()]*\\))*[^()]*$)',
+);
 
 /**
  * Standardize a style attribute value, which includes:
@@ -113,8 +111,7 @@ bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_ =
  * @private
  */
 bot.dom.core.standardizeStyleAttribute_ = function (value) {
-  var styleArray = value.split(
-    bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_);
+  var styleArray = value.split(bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_);
   var css = [];
   goog.array.forEach(styleArray, function (pair) {
     var i = pair.indexOf(':');
@@ -130,7 +127,6 @@ bot.dom.core.standardizeStyleAttribute_ = function (value) {
   return css;
 };
 
-
 /**
  * Looks up the given property (not to be confused with an attribute) on the
  * given element.
@@ -143,15 +139,16 @@ bot.dom.core.getProperty = function (element, propertyName) {
   // When an <option>'s value attribute is not set, its value property should be
   // its text content, but IE < 8 does not adhere to that behavior, so fix it.
   // http://www.w3.org/TR/1999/REC-html401-19991224/interact/forms.html#adef-value-OPTION
-  if (bot.userAgent.IE_DOC_PRE8 && propertyName == 'value' &&
+  if (
+    bot.userAgent.IE_DOC_PRE8 &&
+    propertyName == 'value' &&
     bot.dom.core.isElement(element, goog.dom.TagName.OPTION) &&
-    bot.dom.core.getAttribute(element, 'value') === null) {
+    bot.dom.core.getAttribute(element, 'value') === null
+  ) {
     return goog.dom.getRawTextContent(element);
   }
   return element[propertyName];
 };
-
-
 
 /**
  * Returns whether the given node is an element and, optionally, whether it has
@@ -165,18 +162,17 @@ bot.dom.core.getProperty = function (element, propertyName) {
  */
 bot.dom.core.isElement = function (node, opt_tagName) {
   // because we call this with deprecated tags such as SHADOW
-  if (opt_tagName && (typeof opt_tagName !== 'string')) {
+  if (opt_tagName && typeof opt_tagName !== 'string') {
     opt_tagName = opt_tagName.toString();
   }
   // because node.tagName.toUpperCase() fails when tagName is "tagName"
   if (node instanceof HTMLFormElement) {
-    return !!node && node.nodeType == goog.dom.NodeType.ELEMENT &&
-    (!opt_tagName || "FORM" == opt_tagName);
+    return !!node && node.nodeType == goog.dom.NodeType.ELEMENT && (!opt_tagName || 'FORM' == opt_tagName);
   }
-  return !!node && node.nodeType == goog.dom.NodeType.ELEMENT &&
-    (!opt_tagName || node.tagName.toUpperCase() == opt_tagName);
+  return (
+    !!node && node.nodeType == goog.dom.NodeType.ELEMENT && (!opt_tagName || node.tagName.toUpperCase() == opt_tagName)
+  );
 };
-
 
 /**
  * Returns whether the element can be checked or selected.
@@ -197,7 +193,6 @@ bot.dom.core.isSelectable = function (element) {
   return false;
 };
 
-
 /**
  * Returns whether the element is checked or selected.
  *
@@ -206,8 +201,7 @@ bot.dom.core.isSelectable = function (element) {
  */
 bot.dom.core.isSelected = function (element) {
   if (!bot.dom.core.isSelectable(element)) {
-    throw new bot.Error(bot.ErrorCode.ELEMENT_NOT_SELECTABLE,
-      'Element is not selectable');
+    throw new bot.Error(bot.ErrorCode.ELEMENT_NOT_SELECTABLE, 'Element is not selectable');
   }
 
   var propertyName = 'selected';

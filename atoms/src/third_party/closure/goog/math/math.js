@@ -12,17 +12,15 @@ goog.provide('goog.math');
 
 goog.require('goog.asserts');
 
-
 /**
  * Returns a random integer greater than or equal to 0 and less than `a`.
  * @param {number} a  The upper bound for the random integer (exclusive).
  * @return {number} A random integer N such that 0 <= N < a.
  */
-goog.math.randomInt = function(a) {
+goog.math.randomInt = function (a) {
   'use strict';
   return Math.floor(Math.random() * a);
 };
-
 
 /**
  * Returns a random number greater than or equal to `a` and less than
@@ -31,11 +29,10 @@ goog.math.randomInt = function(a) {
  * @param {number} b  The upper bound for the random number (exclusive).
  * @return {number} A random number N such that a <= N < b.
  */
-goog.math.uniformRandom = function(a, b) {
+goog.math.uniformRandom = function (a, b) {
   'use strict';
   return a + Math.random() * (b - a);
 };
-
 
 /**
  * Takes a number and clamps it to within the provided bounds.
@@ -45,11 +42,10 @@ goog.math.uniformRandom = function(a, b) {
  * @return {number} The input number if it is within bounds, or the nearest
  *     number within the bounds.
  */
-goog.math.clamp = function(value, min, max) {
+goog.math.clamp = function (value, min, max) {
   'use strict';
   return Math.min(Math.max(value, min), max);
 };
-
 
 /**
  * The % operator in JavaScript returns the remainder of a / b, but differs from
@@ -64,13 +60,12 @@ goog.math.clamp = function(value, min, max) {
  * @return {number} a % b where the result is between 0 and b (either 0 <= x < b
  *     or b < x <= 0, depending on the sign of b).
  */
-goog.math.modulo = function(a, b) {
+goog.math.modulo = function (a, b) {
   'use strict';
   var r = a % b;
   // If r and b differ in sign, add b to wrap the result to the correct sign.
-  return (r * b < 0) ? r + b : r;
+  return r * b < 0 ? r + b : r;
 };
-
 
 /**
  * Performs linear interpolation between values a and b. Returns the value
@@ -81,11 +76,10 @@ goog.math.modulo = function(a, b) {
  * @param {number} x The proportion between a and b.
  * @return {number} The interpolated value between a and b.
  */
-goog.math.lerp = function(a, b, x) {
+goog.math.lerp = function (a, b, x) {
   'use strict';
   return a + x * (b - a);
 };
-
 
 /**
  * Tests whether the two values are equal to each other, within a certain
@@ -96,11 +90,10 @@ goog.math.lerp = function(a, b, x) {
  *     to 0.000001. If specified, should be greater than 0.
  * @return {boolean} Whether `a` and `b` are nearly equal.
  */
-goog.math.nearlyEquals = function(a, b, opt_tolerance) {
+goog.math.nearlyEquals = function (a, b, opt_tolerance) {
   'use strict';
   return Math.abs(a - b) <= (opt_tolerance || 0.000001);
 };
-
 
 // TODO(user): Rename to normalizeAngle, retaining old name as deprecated
 // alias.
@@ -110,11 +103,10 @@ goog.math.nearlyEquals = function(a, b, opt_tolerance) {
  * @param {number} angle Angle in degrees.
  * @return {number} Standardized angle.
  */
-goog.math.standardAngle = function(angle) {
+goog.math.standardAngle = function (angle) {
   'use strict';
   return goog.math.modulo(angle, 360);
 };
-
 
 /**
  * Normalizes an angle to be in range [0-2*PI). Angles outside this range will
@@ -122,33 +114,30 @@ goog.math.standardAngle = function(angle) {
  * @param {number} angle Angle in radians.
  * @return {number} Standardized angle.
  */
-goog.math.standardAngleInRadians = function(angle) {
+goog.math.standardAngleInRadians = function (angle) {
   'use strict';
   return goog.math.modulo(angle, 2 * Math.PI);
 };
-
 
 /**
  * Converts degrees to radians.
  * @param {number} angleDegrees Angle in degrees.
  * @return {number} Angle in radians.
  */
-goog.math.toRadians = function(angleDegrees) {
+goog.math.toRadians = function (angleDegrees) {
   'use strict';
-  return angleDegrees * Math.PI / 180;
+  return (angleDegrees * Math.PI) / 180;
 };
-
 
 /**
  * Converts radians to degrees.
  * @param {number} angleRadians Angle in radians.
  * @return {number} Angle in degrees.
  */
-goog.math.toDegrees = function(angleRadians) {
+goog.math.toDegrees = function (angleRadians) {
   'use strict';
-  return angleRadians * 180 / Math.PI;
+  return (angleRadians * 180) / Math.PI;
 };
-
 
 /**
  * For a given angle and radius, finds the X portion of the offset.
@@ -156,11 +145,10 @@ goog.math.toDegrees = function(angleRadians) {
  * @param {number} radius Radius.
  * @return {number} The x-distance for the angle and radius.
  */
-goog.math.angleDx = function(degrees, radius) {
+goog.math.angleDx = function (degrees, radius) {
   'use strict';
   return radius * Math.cos(goog.math.toRadians(degrees));
 };
-
 
 /**
  * For a given angle and radius, finds the Y portion of the offset.
@@ -168,11 +156,10 @@ goog.math.angleDx = function(degrees, radius) {
  * @param {number} radius Radius.
  * @return {number} The y-distance for the angle and radius.
  */
-goog.math.angleDy = function(degrees, radius) {
+goog.math.angleDy = function (degrees, radius) {
   'use strict';
   return radius * Math.sin(goog.math.toRadians(degrees));
 };
-
 
 /**
  * Computes the angle between two points (x1,y1) and (x2,y2).
@@ -185,12 +172,10 @@ goog.math.angleDy = function(degrees, radius) {
  * @return {number} Standardized angle in degrees of the vector from
  *     x1,y1 to x2,y2.
  */
-goog.math.angle = function(x1, y1, x2, y2) {
+goog.math.angle = function (x1, y1, x2, y2) {
   'use strict';
-  return goog.math.standardAngle(
-      goog.math.toDegrees(Math.atan2(y2 - y1, x2 - x1)));
+  return goog.math.standardAngle(goog.math.toDegrees(Math.atan2(y2 - y1, x2 - x1)));
 };
-
 
 /**
  * Computes the difference between startAngle and endAngle (angles in degrees).
@@ -206,10 +191,9 @@ goog.math.angle = function(x1, y1, x2, y2) {
  *     angleDifference(30, 40) is 10, and angleDifference(40, 30) is -10.
  *     angleDifference(350, 10) is 20, and angleDifference(10, 350) is -20.
  */
-goog.math.angleDifference = function(startAngle, endAngle) {
+goog.math.angleDifference = function (startAngle, endAngle) {
   'use strict';
-  var d =
-      goog.math.standardAngle(endAngle) - goog.math.standardAngle(startAngle);
+  var d = goog.math.standardAngle(endAngle) - goog.math.standardAngle(startAngle);
   if (d > 180) {
     d = d - 360;
   } else if (d <= -180) {
@@ -218,14 +202,13 @@ goog.math.angleDifference = function(startAngle, endAngle) {
   return d;
 };
 
-
 /**
  * Returns the sign of a number as per the "sign" or "signum" function.
  * @param {number} x The number to take the sign of.
  * @return {number} -1 when negative, 1 when positive, 0 when 0. Preserves
  *     signed zeros and NaN.
  */
-goog.math.sign = function(x) {
+goog.math.sign = function (x) {
   'use strict';
   if (x > 0) {
     return 1;
@@ -233,9 +216,8 @@ goog.math.sign = function(x) {
   if (x < 0) {
     return -1;
   }
-  return x;  // Preserves signed zeros and NaN.
+  return x; // Preserves signed zeros and NaN.
 };
-
 
 /**
  * JavaScript implementation of Longest Common Subsequence problem.
@@ -257,18 +239,21 @@ goog.math.sign = function(x) {
  *     length of the list.
  * @template S,T
  */
-goog.math.longestCommonSubsequence = function(
-    array1, array2, opt_compareFn, opt_collectorFn) {
+goog.math.longestCommonSubsequence = function (array1, array2, opt_compareFn, opt_collectorFn) {
   'use strict';
-  var compare = opt_compareFn || function(a, b) {
-    'use strict';
-    return a == b;
-  };
+  var compare =
+    opt_compareFn ||
+    function (a, b) {
+      'use strict';
+      return a == b;
+    };
 
-  var collect = opt_collectorFn || function(i1, i2) {
-    'use strict';
-    return array1[i1];
-  };
+  var collect =
+    opt_collectorFn ||
+    function (i1, i2) {
+      'use strict';
+      return array1[i1];
+    };
 
   var length1 = array1.length;
   var length2 = array2.length;
@@ -295,7 +280,8 @@ goog.math.longestCommonSubsequence = function(
 
   // Backtracking
   var result = [];
-  var i = length1, j = length2;
+  var i = length1,
+    j = length2;
   while (i > 0 && j > 0) {
     if (compare(array1[i - 1], array2[j - 1])) {
       result.unshift(collect(i - 1, j - 1));
@@ -313,22 +299,25 @@ goog.math.longestCommonSubsequence = function(
   return result;
 };
 
-
 /**
  * Returns the sum of the arguments.
  * @param {...number} var_args Numbers to add.
  * @return {number} The sum of the arguments (0 if no arguments were provided,
  *     `NaN` if any of the arguments is not a valid number).
  */
-goog.math.sum = function(var_args) {
+goog.math.sum = function (var_args) {
   'use strict';
   return /** @type {number} */ (
-      Array.prototype.reduce.call(arguments, function(sum, value) {
+    Array.prototype.reduce.call(
+      arguments,
+      function (sum, value) {
         'use strict';
         return sum + value;
-      }, 0));
+      },
+      0,
+    )
+  );
 };
-
 
 /**
  * Returns the arithmetic mean of the arguments.
@@ -336,11 +325,10 @@ goog.math.sum = function(var_args) {
  * @return {number} The average of the arguments (`NaN` if no arguments
  *     were provided or any of the arguments is not a valid number).
  */
-goog.math.average = function(var_args) {
+goog.math.average = function (var_args) {
   'use strict';
   return goog.math.sum.apply(null, arguments) / arguments.length;
 };
-
 
 /**
  * Returns the unbiased sample variance of the arguments. For a definition,
@@ -350,7 +338,7 @@ goog.math.average = function(var_args) {
  *     than two samples were provided, or `NaN` if any of the samples is
  *     not a valid number).
  */
-goog.math.sampleVariance = function(var_args) {
+goog.math.sampleVariance = function (var_args) {
   'use strict';
   var sampleSize = arguments.length;
   if (sampleSize < 2) {
@@ -358,19 +346,18 @@ goog.math.sampleVariance = function(var_args) {
   }
 
   var mean = goog.math.average.apply(null, arguments);
-  var variance = goog.math.sum.apply(
-                     null,
-                     Array.prototype.map.call(
-                         arguments,
-                         function(val) {
-                           'use strict';
-                           return Math.pow(val - mean, 2);
-                         })) /
-      (sampleSize - 1);
+  var variance =
+    goog.math.sum.apply(
+      null,
+      Array.prototype.map.call(arguments, function (val) {
+        'use strict';
+        return Math.pow(val - mean, 2);
+      }),
+    ) /
+    (sampleSize - 1);
 
   return variance;
 };
-
 
 /**
  * Returns the sample standard deviation of the arguments.  For a definition of
@@ -381,11 +368,10 @@ goog.math.sampleVariance = function(var_args) {
  *     than two samples were provided, or `NaN` if any of the samples is
  *     not a valid number).
  */
-goog.math.standardDeviation = function(var_args) {
+goog.math.standardDeviation = function (var_args) {
   'use strict';
   return Math.sqrt(goog.math.sampleVariance.apply(null, arguments));
 };
-
 
 /**
  * Returns whether the supplied number represents an integer, i.e. that is has
@@ -393,11 +379,10 @@ goog.math.standardDeviation = function(var_args) {
  * @param {number} num The number to test.
  * @return {boolean} Whether `num` is an integer.
  */
-goog.math.isInt = function(num) {
+goog.math.isInt = function (num) {
   'use strict';
   return isFinite(num) && num % 1 == 0;
 };
-
 
 /**
  * Returns whether the supplied number is finite and not NaN.
@@ -405,21 +390,19 @@ goog.math.isInt = function(num) {
  * @return {boolean} Whether `num` is a finite number.
  * @deprecated Use {@link isFinite} instead.
  */
-goog.math.isFiniteNumber = function(num) {
+goog.math.isFiniteNumber = function (num) {
   'use strict';
   return isFinite(num);
 };
-
 
 /**
  * @param {number} num The number to test.
  * @return {boolean} Whether it is negative zero.
  */
-goog.math.isNegativeZero = function(num) {
+goog.math.isNegativeZero = function (num) {
   'use strict';
   return num == 0 && 1 / num < 0;
 };
-
 
 /**
  * Returns the precise value of floor(log10(num)).
@@ -434,7 +417,7 @@ goog.math.isNegativeZero = function(num) {
  * @return {number} Its logarithm to base 10 rounded down to the nearest
  *     integer if num > 0. -Infinity if num == 0. NaN if num < 0.
  */
-goog.math.log10Floor = function(num) {
+goog.math.log10Floor = function (num) {
   'use strict';
   if (num > 0) {
     var x = Math.round(Math.log(num) * Math.LOG10E);
@@ -442,7 +425,6 @@ goog.math.log10Floor = function(num) {
   }
   return num == 0 ? -Infinity : NaN;
 };
-
 
 /**
  * A tweaked variant of `Math.floor` which tolerates if the passed number
@@ -455,12 +437,11 @@ goog.math.log10Floor = function(num) {
  *     rounding error to tolerate.
  * @return {number} The largest integer less than or equal to `num`.
  */
-goog.math.safeFloor = function(num, opt_epsilon) {
+goog.math.safeFloor = function (num, opt_epsilon) {
   'use strict';
   goog.asserts.assert(opt_epsilon === undefined || opt_epsilon > 0);
   return Math.floor(num + (opt_epsilon || 2e-15));
 };
-
 
 /**
  * A tweaked variant of `Math.ceil`. See `goog.math.safeFloor` for
@@ -470,7 +451,7 @@ goog.math.safeFloor = function(num, opt_epsilon) {
  *     rounding error to tolerate.
  * @return {number} The smallest integer greater than or equal to `num`.
  */
-goog.math.safeCeil = function(num, opt_epsilon) {
+goog.math.safeCeil = function (num, opt_epsilon) {
   'use strict';
   goog.asserts.assert(opt_epsilon === undefined || opt_epsilon > 0);
   return Math.ceil(num - (opt_epsilon || 2e-15));

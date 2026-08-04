@@ -19,7 +19,6 @@
  * @fileoverview Element locator functions.
  */
 
-
 goog.provide('bot.locators');
 
 goog.require('bot');
@@ -35,13 +34,11 @@ goog.require('bot.locators.relative');
 goog.require('bot.locators.tagName');
 goog.require('bot.locators.xpath');
 
-
 /**
  * @typedef {{single:function(string,!(Document|Element)):Element,
  *     many:function(string,!(Document|Element)):!IArrayLike}}
  */
 bot.locators.strategy;
-
 
 /**
  * Known element location strategies. The returned objects have two
@@ -76,9 +73,8 @@ bot.locators.STRATEGIES_ = {
   'tagName': bot.locators.tagName,
   'tag name': bot.locators.tagName,
 
-  'xpath': bot.locators.xpath
+  'xpath': bot.locators.xpath,
 };
-
 
 /**
  * Add or override an existing strategy for locating elements.
@@ -89,7 +85,6 @@ bot.locators.STRATEGIES_ = {
 bot.locators.add = function (name, strategy) {
   bot.locators.STRATEGIES_[name] = strategy;
 };
-
 
 /**
  * Returns one key from the object map that is not present in the
@@ -106,7 +101,6 @@ bot.locators.getOnlyKey = function (target) {
   }
   return null;
 };
-
 
 /**
  * Find the first element in the DOM matching the target. The target
@@ -131,10 +125,8 @@ bot.locators.findElement = function (target, opt_root) {
       return strategy.single(target[key], root);
     }
   }
-  throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT,
-    'Unsupported locator strategy: ' + key);
+  throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Unsupported locator strategy: ' + key);
 };
-
 
 /**
  * Find all elements in the DOM matching the target. The target object
@@ -159,6 +151,5 @@ bot.locators.findElements = function (target, opt_root) {
       return strategy.many(target[key], root);
     }
   }
-  throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT,
-    'Unsupported locator strategy: ' + key);
+  throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Unsupported locator strategy: ' + key);
 };

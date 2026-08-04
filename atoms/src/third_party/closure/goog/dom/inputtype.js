@@ -19,7 +19,6 @@
  */
 goog.provide('goog.dom.InputType');
 
-
 /**
  * Enum of all input types (for INPUT, BUTTON, SELECT and TEXTAREA elements)
  * specified by the W3C HTML4.01 and HTML5 specifications.
@@ -52,5 +51,5 @@ goog.dom.InputType = {
   TEXTAREA: 'textarea',
   TIME: 'time',
   URL: 'url',
-  WEEK: 'week'
+  WEEK: 'week',
 };

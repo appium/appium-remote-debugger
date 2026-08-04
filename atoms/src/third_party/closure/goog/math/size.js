@@ -8,10 +8,7 @@
  * @fileoverview A utility class for representing two-dimensional sizes.
  */
 
-
 goog.provide('goog.math.Size');
-
-
 
 /**
  * Class for representing sizes consisting of a width and height. Undefined
@@ -21,7 +18,7 @@ goog.provide('goog.math.Size');
  * @struct
  * @constructor
  */
-goog.math.Size = function(width, height) {
+goog.math.Size = function (width, height) {
   'use strict';
   /**
    * Width
@@ -36,7 +33,6 @@ goog.math.Size = function(width, height) {
   this.height = height;
 };
 
-
 /**
  * Compares sizes for equality.
  * @param {goog.math.Size} a A Size.
@@ -44,7 +40,7 @@ goog.math.Size = function(width, height) {
  * @return {boolean} True iff the sizes have equal widths and equal
  *     heights, or if both are null.
  */
-goog.math.Size.equals = function(a, b) {
+goog.math.Size.equals = function (a, b) {
   'use strict';
   if (a == b) {
     return true;
@@ -55,15 +51,13 @@ goog.math.Size.equals = function(a, b) {
   return a.width == b.width && a.height == b.height;
 };
 
-
 /**
  * @return {!goog.math.Size} A new copy of the Size.
  */
-goog.math.Size.prototype.clone = function() {
+goog.math.Size.prototype.clone = function () {
   'use strict';
   return new goog.math.Size(this.width, this.height);
 };
-
 
 if (goog.DEBUG) {
   /**
@@ -71,114 +65,103 @@ if (goog.DEBUG) {
    * @return {string} In the form (50 x 73).
    * @override
    */
-  goog.math.Size.prototype.toString = function() {
+  goog.math.Size.prototype.toString = function () {
     'use strict';
     return '(' + this.width + ' x ' + this.height + ')';
   };
 }
 
-
 /**
  * @return {number} The longer of the two dimensions in the size.
  */
-goog.math.Size.prototype.getLongest = function() {
+goog.math.Size.prototype.getLongest = function () {
   'use strict';
   return Math.max(this.width, this.height);
 };
 
-
 /**
  * @return {number} The shorter of the two dimensions in the size.
  */
-goog.math.Size.prototype.getShortest = function() {
+goog.math.Size.prototype.getShortest = function () {
   'use strict';
   return Math.min(this.width, this.height);
 };
 
-
 /**
  * @return {number} The area of the size (width * height).
  */
-goog.math.Size.prototype.area = function() {
+goog.math.Size.prototype.area = function () {
   'use strict';
   return this.width * this.height;
 };
 
-
 /**
  * @return {number} The perimeter of the size (width + height) * 2.
  */
-goog.math.Size.prototype.perimeter = function() {
+goog.math.Size.prototype.perimeter = function () {
   'use strict';
   return (this.width + this.height) * 2;
 };
 
-
 /**
  * @return {number} The ratio of the size's width to its height.
  */
-goog.math.Size.prototype.aspectRatio = function() {
+goog.math.Size.prototype.aspectRatio = function () {
   'use strict';
   return this.width / this.height;
 };
-
 
 /**
  * @return {boolean} True if the size has zero area, false if both dimensions
  *     are non-zero numbers.
  */
-goog.math.Size.prototype.isEmpty = function() {
+goog.math.Size.prototype.isEmpty = function () {
   'use strict';
   return !this.area();
 };
-
 
 /**
  * Clamps the width and height parameters upward to integer values.
  * @return {!goog.math.Size} This size with ceil'd components.
  */
-goog.math.Size.prototype.ceil = function() {
+goog.math.Size.prototype.ceil = function () {
   'use strict';
   this.width = Math.ceil(this.width);
   this.height = Math.ceil(this.height);
   return this;
 };
 
-
 /**
  * @param {!goog.math.Size} target The target size.
  * @return {boolean} True if this Size is the same size or smaller than the
  *     target size in both dimensions.
  */
-goog.math.Size.prototype.fitsInside = function(target) {
+goog.math.Size.prototype.fitsInside = function (target) {
   'use strict';
   return this.width <= target.width && this.height <= target.height;
 };
-
 
 /**
  * Clamps the width and height parameters downward to integer values.
  * @return {!goog.math.Size} This size with floored components.
  */
-goog.math.Size.prototype.floor = function() {
+goog.math.Size.prototype.floor = function () {
   'use strict';
   this.width = Math.floor(this.width);
   this.height = Math.floor(this.height);
   return this;
 };
 
-
 /**
  * Rounds the width and height parameters to integer values.
  * @return {!goog.math.Size} This size with rounded components.
  */
-goog.math.Size.prototype.round = function() {
+goog.math.Size.prototype.round = function () {
   'use strict';
   this.width = Math.round(this.width);
   this.height = Math.round(this.height);
   return this;
 };
-
 
 /**
  * Scales this size by the given scale factors. The width and height are scaled
@@ -188,14 +171,13 @@ goog.math.Size.prototype.round = function() {
  * @param {number=} opt_sy The scale factor to use for the height.
  * @return {!goog.math.Size} This Size object after scaling.
  */
-goog.math.Size.prototype.scale = function(sx, opt_sy) {
+goog.math.Size.prototype.scale = function (sx, opt_sy) {
   'use strict';
-  const sy = (typeof opt_sy === 'number') ? opt_sy : sx;
+  const sy = typeof opt_sy === 'number' ? opt_sy : sx;
   this.width *= sx;
   this.height *= sy;
   return this;
 };
-
 
 /**
  * Uniformly scales the size to perfectly cover the dimensions of a given size.
@@ -207,15 +189,12 @@ goog.math.Size.prototype.scale = function(sx, opt_sy) {
  * @param {!goog.math.Size} target The target size.
  * @return {!goog.math.Size} This Size object, after optional scaling.
  */
-goog.math.Size.prototype.scaleToCover = function(target) {
+goog.math.Size.prototype.scaleToCover = function (target) {
   'use strict';
-  const s = this.aspectRatio() <= target.aspectRatio() ?
-      target.width / this.width :
-      target.height / this.height;
+  const s = this.aspectRatio() <= target.aspectRatio() ? target.width / this.width : target.height / this.height;
 
   return this.scale(s);
 };
-
 
 /**
  * Uniformly scales the size to fit inside the dimensions of a given size. The
@@ -225,11 +204,9 @@ goog.math.Size.prototype.scaleToCover = function(target) {
  * @param {!goog.math.Size} target The target size.
  * @return {!goog.math.Size} This Size object, after optional scaling.
  */
-goog.math.Size.prototype.scaleToFit = function(target) {
+goog.math.Size.prototype.scaleToFit = function (target) {
   'use strict';
-  const s = this.aspectRatio() > target.aspectRatio() ?
-      target.width / this.width :
-      target.height / this.height;
+  const s = this.aspectRatio() > target.aspectRatio() ? target.width / this.width : target.height / this.height;
 
   return this.scale(s);
 };

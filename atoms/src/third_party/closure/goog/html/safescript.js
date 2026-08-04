@@ -118,8 +118,7 @@ class SafeScript {
     if (scriptString.length === 0) {
       return SafeScript.EMPTY;
     }
-    return SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(
-        scriptString);
+    return SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(scriptString);
   }
 
   /**
@@ -129,8 +128,7 @@ class SafeScript {
    * @return {!SafeScript}
    */
   static fromJson(val) {
-    return SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(
-        SafeScript.stringify_(val));
+    return SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(SafeScript.stringify_(val));
   }
 
   /**
@@ -186,13 +184,10 @@ class SafeScript {
     // Specifically, the following checks are performed:
     // 1. The object is an instance of the expected type.
     // 2. The object is not an instance of a subclass.
-    if (safeScript instanceof SafeScript &&
-        safeScript.constructor === SafeScript) {
+    if (safeScript instanceof SafeScript && safeScript.constructor === SafeScript) {
       return safeScript.privateDoNotAccessOrElseSafeScriptWrappedValue_;
     } else {
-      fail(
-          'expected object of type SafeScript, got \'' + safeScript +
-          '\' of type ' + utils.typeOf(safeScript));
+      fail("expected object of type SafeScript, got '" + safeScript + "' of type " + utils.typeOf(safeScript));
       return 'type_error:SafeScript';
     }
   }
@@ -222,8 +217,7 @@ class SafeScript {
     /** @noinline */
     const noinlineScript = script;
     const policy = trustedtypes.getPolicyPrivateDoNotAccessOrElse();
-    const trustedScript =
-        policy ? policy.createScript(noinlineScript) : noinlineScript;
+    const trustedScript = policy ? policy.createScript(noinlineScript) : noinlineScript;
     return new SafeScript(trustedScript, CONSTRUCTOR_TOKEN_PRIVATE);
   }
 }
@@ -232,14 +226,15 @@ class SafeScript {
  * A SafeScript instance corresponding to the empty string.
  * @const {!SafeScript}
  */
-SafeScript.EMPTY = /** @type {!SafeScript} */ ({
-  // NOTE: this compiles to nothing, but hides the possible side effect of
-  // SafeScript creation (due to calling trustedTypes.createPolicy) from the
-  // compiler so that the entire call can be removed if the result is not used.
-  valueOf: function() {
-    return SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse('');
-  },
-}.valueOf());
-
+SafeScript.EMPTY = /** @type {!SafeScript} */ (
+  {
+    // NOTE: this compiles to nothing, but hides the possible side effect of
+    // SafeScript creation (due to calling trustedTypes.createPolicy) from the
+    // compiler so that the entire call can be removed if the result is not used.
+    valueOf: function () {
+      return SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse('');
+    },
+  }.valueOf()
+);
 
 exports = SafeScript;

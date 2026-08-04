@@ -20,3 +20,13 @@ Licensing: files under `atoms/` and `webdriver/` here retain their original Soft
 Conservancy / Selenium contributors header (Apache License 2.0). Files under `third_party/closure`
 are from the Google Closure Library (Apache License 2.0). Do not remove the license headers from
 individual files.
+
+Formatting: `npm run format`/`format:check` do apply to this directory, with `quoteProps: 'preserve'`
+(see the `overrides` entry in `oxfmt.config.mjs`). This is not optional stylistic preference — do
+not remove that override or manually strip "unnecessary" quotes from object-literal keys here.
+Closure Compiler's `ADVANCED_OPTIMIZATIONS` treats quoted keys as protected from property renaming
+and unquoted keys as fair game; some vendored code (e.g. `webdriver/atoms/attribute.js`'s
+`PROPERTY_ALIASES`) relies on that to keep working when looked up by a runtime string. Stripping
+those quotes compiles fine but silently breaks the lookup at runtime. If you touch this override,
+rebuild (`npm run build:atoms`) and diff `atoms/*.js` against what's committed before assuming a
+formatting change here is safe.

@@ -21,7 +21,6 @@ goog.require('bot.dom');
 goog.require('goog.array');
 goog.require('goog.dom');
 
-
 /**
  * Find an element by the value of the name attribute
  *
@@ -39,7 +38,6 @@ bot.locators.name.single = function (target, root) {
   });
   return /**@type{Element}*/ (element);
 };
-
 
 /**
  * Find all elements by the value of the name attribute

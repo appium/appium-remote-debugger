@@ -10,7 +10,6 @@
 
 goog.provide('goog.reflect');
 
-
 /**
  * Syntax for object literal casts.
  * @see http://go/jscompiler-renaming
@@ -23,7 +22,7 @@ goog.provide('goog.reflect');
  * @param {Object} object Object literal to cast.
  * @return {Object} The object literal.
  */
-goog.reflect.object = function(type, object) {
+goog.reflect.object = function (type, object) {
   'use strict';
   return object;
 };
@@ -44,7 +43,7 @@ goog.reflect.object = function(type, object) {
  *     for renaming
  * @return {string} The renamed property.
  */
-goog.reflect.objectProperty = function(prop, object) {
+goog.reflect.objectProperty = function (prop, object) {
   'use strict';
   return prop;
 };
@@ -60,19 +59,17 @@ goog.reflect.objectProperty = function(prop, object) {
  * @return {T}
  * @template T
  */
-goog.reflect.sinkValue = function(x) {
+goog.reflect.sinkValue = function (x) {
   'use strict';
   goog.reflect.sinkValue[' '](x);
   return x;
 };
 
-
 /**
  * The compiler should optimize this function away iff no one ever uses
  * goog.reflect.sinkValue.
  */
-goog.reflect.sinkValue[' '] = function() {};
-
+goog.reflect.sinkValue[' '] = function () {};
 
 /**
  * Check if a property can be accessed without throwing an exception.
@@ -81,16 +78,14 @@ goog.reflect.sinkValue[' '] = function() {};
  * @return {boolean} Whether the property is accessible. Will also return true
  *     if obj is null.
  */
-goog.reflect.canAccessProperty = function(obj, prop) {
+goog.reflect.canAccessProperty = function (obj, prop) {
   'use strict';
   try {
     goog.reflect.sinkValue(obj[prop]);
     return true;
-  } catch (e) {
-  }
+  } catch (e) {}
   return false;
 };
-
 
 /**
  * Retrieves a value from a cache given a key. The compiler provides special
@@ -120,7 +115,7 @@ goog.reflect.canAccessProperty = function(obj, prop) {
  * @template K
  * @template V
  */
-goog.reflect.cache = function(cacheObj, key, valueFn, opt_keyFn) {
+goog.reflect.cache = function (cacheObj, key, valueFn, opt_keyFn) {
   'use strict';
   const storedKey = opt_keyFn ? opt_keyFn(key) : key;
 

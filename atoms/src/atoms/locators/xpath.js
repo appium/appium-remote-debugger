@@ -60,21 +60,19 @@ goog.require('goog.userAgent.product');
 // use goog.exportSymbol to export the public methods and get rid of the alias.
 bot.locators.XPathResult_ = {
   ORDERED_NODE_SNAPSHOT_TYPE: 7,
-  FIRST_ORDERED_NODE_TYPE: 9
+  FIRST_ORDERED_NODE_TYPE: 9,
 };
-
 
 /**
  * Default XPath namespace resolver.
  * @private
  */
 bot.locators.xpath.DEFAULT_RESOLVER_ = (function () {
-  var namespaces = { svg: 'http://www.w3.org/2000/svg' };
+  var namespaces = {svg: 'http://www.w3.org/2000/svg'};
   return function (prefix) {
     return namespaces[prefix] || null;
   };
 })();
-
 
 /**
  * Evaluates an XPath expression using a W3 XPathEvaluator.
@@ -96,20 +94,19 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
   }
 
   try {
-    var resolver = doc.createNSResolver ?
-      doc.createNSResolver(doc.documentElement) :
-      bot.locators.xpath.DEFAULT_RESOLVER_;
+    var resolver = doc.createNSResolver
+      ? doc.createNSResolver(doc.documentElement)
+      : bot.locators.xpath.DEFAULT_RESOLVER_;
 
     if (goog.userAgent.IE && !goog.userAgent.isVersionOrHigher(7)) {
       // IE6, and only IE6, has an issue where calling a custom function
       // directly attached to the document object does not correctly propagate
       // thrown errors. So in that case *only* we will use apply().
       return doc.evaluate.call(doc, path, node, resolver, resultType, null);
-
     } else {
       if (!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9)) {
         var reversedNamespaces = {};
-        var allNodes = doc.getElementsByTagName("*");
+        var allNodes = doc.getElementsByTagName('*');
         for (var i = 0; i < allNodes.length; ++i) {
           var n = allNodes[i];
           var ns = n.namespaceURI;
@@ -140,9 +137,9 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
       } catch (te) {
         if (te.name === 'TypeError') {
           // fallback to simplified implementation
-          resolver = doc.createNSResolver ?
-            doc.createNSResolver(doc.documentElement) :
-            bot.locators.xpath.DEFAULT_RESOLVER_;
+          resolver = doc.createNSResolver
+            ? doc.createNSResolver(doc.documentElement)
+            : bot.locators.xpath.DEFAULT_RESOLVER_;
           return doc.evaluate(path, node, resolver, resultType, null);
         } else {
           throw te;
@@ -154,13 +151,13 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
     // queried while it's in the midst of reloading, so we ignore it. In all
     // other cases, we assume an invalid xpath has caused the exception.
     if (!(goog.userAgent.GECKO && ex.name == 'NS_ERROR_ILLEGAL_VALUE')) {
-      throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-        'Unable to locate an element with the xpath expression ' + path +
-        ' because of the following error:\n' + ex);
+      throw new bot.Error(
+        bot.ErrorCode.INVALID_SELECTOR_ERROR,
+        'Unable to locate an element with the xpath expression ' + path + ' because of the following error:\n' + ex,
+      );
     }
   }
 };
-
 
 /**
  * @param {Node|undefined} node Node to check whether it is an Element.
@@ -169,12 +166,12 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
  */
 bot.locators.xpath.checkElement_ = function (node, path) {
   if (!node || node.nodeType != goog.dom.NodeType.ELEMENT) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'The result of the xpath expression "' + path +
-      '" is: ' + node + '. It should be an element.');
+    throw new bot.Error(
+      bot.ErrorCode.INVALID_SELECTOR_ERROR,
+      'The result of the xpath expression "' + path + '" is: ' + node + '. It should be an element.',
+    );
   }
 };
-
 
 /**
  * Find an element by using an xpath expression
@@ -185,10 +182,8 @@ bot.locators.xpath.checkElement_ = function (node, path) {
  *     such element could be found.
  */
 bot.locators.xpath.single = function (target, root) {
-
   function selectSingleNode() {
-    var result = bot.locators.xpath.evaluate_(root, target,
-      bot.locators.XPathResult_.FIRST_ORDERED_NODE_TYPE);
+    var result = bot.locators.xpath.evaluate_(root, target, bot.locators.XPathResult_.FIRST_ORDERED_NODE_TYPE);
 
     if (result) {
       var node = result.singleNodeValue;
@@ -210,7 +205,6 @@ bot.locators.xpath.single = function (target, root) {
   return /** @type {Element} */ (node);
 };
 
-
 /**
  * Find elements by using an xpath expression
  * @param {string} target The xpath to search for.
@@ -219,10 +213,8 @@ bot.locators.xpath.single = function (target, root) {
  * @return {!IArrayLike} All matching elements, or an empty list.
  */
 bot.locators.xpath.many = function (target, root) {
-
   function selectNodes() {
-    var result = bot.locators.xpath.evaluate_(root, target,
-      bot.locators.XPathResult_.ORDERED_NODE_SNAPSHOT_TYPE);
+    var result = bot.locators.xpath.evaluate_(root, target, bot.locators.XPathResult_.ORDERED_NODE_SNAPSHOT_TYPE);
     if (result) {
       var count = result.snapshotLength;
       var results = [];

@@ -36,8 +36,6 @@ goog.require('goog.math.Coordinate');
 goog.require('goog.userAgent');
 goog.require('goog.utils');
 
-
-
 /**
  * A mouse that provides atomic mouse actions. This mouse currently only
  * supports having one button pressed at a time.
@@ -82,16 +80,14 @@ bot.Mouse = function (opt_state, opt_modifiersState, opt_eventEmitter) {
       this.buttonPressed_ = null;
     }
 
-    this.clientXY_ = new goog.math.Coordinate(
-      opt_state['clientXY']['x'],
-      opt_state['clientXY']['y']);
+    this.clientXY_ = new goog.math.Coordinate(opt_state['clientXY']['x'], opt_state['clientXY']['y']);
 
     this.nextClickIsDoubleClick_ = !!opt_state['nextClickIsDoubleClick'];
     this.hasEverInteracted_ = !!opt_state['hasEverInteracted'];
 
     try {
       if (opt_state['element'] && bot.dom.isElement(opt_state['element'])) {
-        this.setElement(/** @type {!Element} */(opt_state['element']));
+        this.setElement(/** @type {!Element} */ (opt_state['element']));
       }
     } catch (ignored) {
       this.buttonPressed_ = null;
@@ -100,20 +96,18 @@ bot.Mouse = function (opt_state, opt_modifiersState, opt_eventEmitter) {
 };
 goog.utils.inherits(bot.Mouse, bot.Device);
 
-
 /**
-  * Describes the state of the mouse. This type should be treated as a
-  * dictionary with all properties accessed using array notation to
-  * ensure properties are not renamed by the compiler.
-  * @typedef {{buttonPressed: ?bot.Mouse.Button,
-  *           elementPressed: Element,
-  *           clientXY: {x: number, y: number},
-  *           nextClickIsDoubleClick: boolean,
-  *           hasEverInteracted: boolean,
-  *           element: Element}}
-  */
+ * Describes the state of the mouse. This type should be treated as a
+ * dictionary with all properties accessed using array notation to
+ * ensure properties are not renamed by the compiler.
+ * @typedef {{buttonPressed: ?bot.Mouse.Button,
+ *           elementPressed: Element,
+ *           clientXY: {x: number, y: number},
+ *           nextClickIsDoubleClick: boolean,
+ *           hasEverInteracted: boolean,
+ *           element: Element}}
+ */
 bot.Mouse.State;
-
 
 /**
  * Enumeration of mouse buttons that can be pressed.
@@ -123,9 +117,8 @@ bot.Mouse.State;
 bot.Mouse.Button = {
   LEFT: 0,
   MIDDLE: 1,
-  RIGHT: 2
+  RIGHT: 2,
 };
-
 
 /**
  * Index to indicate no button pressed in bot.Mouse.MOUSE_BUTTON_VALUE_MAP_.
@@ -133,7 +126,6 @@ bot.Mouse.Button = {
  * @const
  */
 bot.Mouse.NO_BUTTON_VALUE_INDEX_ = 3;
-
 
 /**
  * Maps mouse events to an array of button argument value for each mouse button.
@@ -174,26 +166,18 @@ bot.Mouse.MOUSE_BUTTON_VALUE_MAP_ = (function () {
   }
 
   if (bot.userAgent.IE_DOC_10) {
-    buttonValueMap[bot.events.EventType.MSPOINTERDOWN] =
-      buttonValueMap[bot.events.EventType.MOUSEUP];
-    buttonValueMap[bot.events.EventType.MSPOINTERUP] =
-      buttonValueMap[bot.events.EventType.MOUSEUP];
+    buttonValueMap[bot.events.EventType.MSPOINTERDOWN] = buttonValueMap[bot.events.EventType.MOUSEUP];
+    buttonValueMap[bot.events.EventType.MSPOINTERUP] = buttonValueMap[bot.events.EventType.MOUSEUP];
     buttonValueMap[bot.events.EventType.MSPOINTERMOVE] = [-1, -1, -1, -1];
-    buttonValueMap[bot.events.EventType.MSPOINTEROUT] =
-      buttonValueMap[bot.events.EventType.MSPOINTERMOVE];
-    buttonValueMap[bot.events.EventType.MSPOINTEROVER] =
-      buttonValueMap[bot.events.EventType.MSPOINTERMOVE];
+    buttonValueMap[bot.events.EventType.MSPOINTEROUT] = buttonValueMap[bot.events.EventType.MSPOINTERMOVE];
+    buttonValueMap[bot.events.EventType.MSPOINTEROVER] = buttonValueMap[bot.events.EventType.MSPOINTERMOVE];
   }
 
-  buttonValueMap[bot.events.EventType.DBLCLICK] =
-    buttonValueMap[bot.events.EventType.CLICK];
-  buttonValueMap[bot.events.EventType.MOUSEDOWN] =
-    buttonValueMap[bot.events.EventType.MOUSEUP];
-  buttonValueMap[bot.events.EventType.MOUSEOVER] =
-    buttonValueMap[bot.events.EventType.MOUSEOUT];
+  buttonValueMap[bot.events.EventType.DBLCLICK] = buttonValueMap[bot.events.EventType.CLICK];
+  buttonValueMap[bot.events.EventType.MOUSEDOWN] = buttonValueMap[bot.events.EventType.MOUSEUP];
+  buttonValueMap[bot.events.EventType.MOUSEOVER] = buttonValueMap[bot.events.EventType.MOUSEOUT];
   return buttonValueMap;
 })();
-
 
 /**
  * Maps mouse events to corresponding MSPointer event.
@@ -209,7 +193,6 @@ bot.Mouse.MOUSE_EVENT_MAP_ = (function () {
   return map;
 })();
 
-
 /**
  * Attempts to fire a mousedown event and then returns whether or not the
  * element should receive focus as a result of the mousedown.
@@ -224,7 +207,8 @@ bot.Mouse.prototype.fireMousedown_ = function (opt_count) {
   // and so needs to be detected. We always focus in this case.
   // TODO: This is a nasty way to avoid locking the browser
   var isFirefox3 = goog.userAgent.GECKO && !bot.userAgent.isProductVersion(4);
-  var blocksOnMousedown = (goog.userAgent.WEBKIT || isFirefox3) &&
+  var blocksOnMousedown =
+    (goog.userAgent.WEBKIT || isFirefox3) &&
     (bot.dom.isElement(this.getElement(), goog.dom.TagName.OPTION) ||
       bot.dom.isElement(this.getElement(), goog.dom.TagName.SELECT));
   if (blocksOnMousedown) {
@@ -240,41 +224,44 @@ bot.Mouse.prototype.fireMousedown_ = function (opt_count) {
     beforeActiveElement = bot.dom.getActiveElement(this.getElement());
   }
   var performFocus = this.fireMouseEvent_(bot.events.EventType.MOUSEDOWN, null, null, false, opt_count);
-  if (performFocus && mousedownCanPreemptFocus &&
-    beforeActiveElement != bot.dom.getActiveElement(this.getElement())) {
+  if (performFocus && mousedownCanPreemptFocus && beforeActiveElement != bot.dom.getActiveElement(this.getElement())) {
     return false;
   }
   return performFocus;
 };
-
 
 /**
  * Press a mouse button on an element that the mouse is interacting with.
  *
  * @param {!bot.Mouse.Button} button Button.
  * @param {?number=} opt_count Number of clicks that have been performed.
-*/
+ */
 bot.Mouse.prototype.pressButton = function (button, opt_count) {
   if (this.buttonPressed_ !== null) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot press more than one button or an already pressed button.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot press more than one button or an already pressed button.');
   }
   this.buttonPressed_ = button;
   this.elementPressed_ = this.getElement();
 
   var performFocus = this.fireMousedown_(opt_count);
   if (performFocus) {
-    if (bot.userAgent.IE_DOC_10 &&
+    if (
+      bot.userAgent.IE_DOC_10 &&
       this.buttonPressed_ == bot.Mouse.Button.LEFT &&
-      bot.dom.isElement(this.elementPressed_, goog.dom.TagName.OPTION)) {
-      this.fireMSPointerEvent(bot.events.EventType.MSGOTPOINTERCAPTURE,
-        this.clientXY_, 0, bot.Device.MOUSE_MS_POINTER_ID,
-        MSPointerEvent.MSPOINTER_TYPE_MOUSE, true);
+      bot.dom.isElement(this.elementPressed_, goog.dom.TagName.OPTION)
+    ) {
+      this.fireMSPointerEvent(
+        bot.events.EventType.MSGOTPOINTERCAPTURE,
+        this.clientXY_,
+        0,
+        bot.Device.MOUSE_MS_POINTER_ID,
+        MSPointerEvent.MSPOINTER_TYPE_MOUSE,
+        true,
+      );
     }
     this.focusOnElement();
   }
 };
-
 
 /**
  * Releases the pressed mouse button. Throws exception if no button pressed.
@@ -285,8 +272,7 @@ bot.Mouse.prototype.pressButton = function (button, opt_count) {
  */
 bot.Mouse.prototype.releaseButton = function (opt_force, opt_count) {
   if (this.buttonPressed_ === null) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot release a button when no button is pressed.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot release a button when no button is pressed.');
   }
 
   this.maybeToggleOption();
@@ -294,39 +280,44 @@ bot.Mouse.prototype.releaseButton = function (opt_force, opt_count) {
   // If a mouseup event is dispatched to an interactable event, and that mouseup
   // would complete a click, then the click event must be dispatched even if the
   // element becomes non-interactable after the mouseup.
-  var elementInteractableBeforeMouseup =
-    bot.dom.isInteractable(this.getElement());
+  var elementInteractableBeforeMouseup = bot.dom.isInteractable(this.getElement());
   this.fireMouseEvent_(bot.events.EventType.MOUSEUP, null, null, opt_force, opt_count);
 
-  try { // https://github.com/SeleniumHQ/selenium/issues/1509
+  try {
+    // https://github.com/SeleniumHQ/selenium/issues/1509
     // TODO: Middle button can also trigger click.
-    if (this.buttonPressed_ == bot.Mouse.Button.LEFT &&
-      this.getElement() == this.elementPressed_) {
-      if (!(bot.userAgent.WINDOWS_PHONE &&
-        bot.dom.isElement(this.elementPressed_, goog.dom.TagName.OPTION))) {
-        this.clickElement(this.clientXY_,
+    if (this.buttonPressed_ == bot.Mouse.Button.LEFT && this.getElement() == this.elementPressed_) {
+      if (!(bot.userAgent.WINDOWS_PHONE && bot.dom.isElement(this.elementPressed_, goog.dom.TagName.OPTION))) {
+        this.clickElement(
+          this.clientXY_,
           this.getButtonValue_(bot.events.EventType.CLICK),
-                          /* opt_force */ elementInteractableBeforeMouseup);
+          /* opt_force */ elementInteractableBeforeMouseup,
+        );
       }
       this.maybeDoubleClickElement_();
-      if (bot.userAgent.IE_DOC_10 &&
+      if (
+        bot.userAgent.IE_DOC_10 &&
         this.buttonPressed_ == bot.Mouse.Button.LEFT &&
-        bot.dom.isElement(this.elementPressed_, goog.dom.TagName.OPTION)) {
-        this.fireMSPointerEvent(bot.events.EventType.MSLOSTPOINTERCAPTURE,
-          new goog.math.Coordinate(0, 0), 0, bot.Device.MOUSE_MS_POINTER_ID,
-          MSPointerEvent.MSPOINTER_TYPE_MOUSE, false);
+        bot.dom.isElement(this.elementPressed_, goog.dom.TagName.OPTION)
+      ) {
+        this.fireMSPointerEvent(
+          bot.events.EventType.MSLOSTPOINTERCAPTURE,
+          new goog.math.Coordinate(0, 0),
+          0,
+          bot.Device.MOUSE_MS_POINTER_ID,
+          MSPointerEvent.MSPOINTER_TYPE_MOUSE,
+          false,
+        );
       }
       // TODO: In Linux, this fires after mousedown event.
     } else if (this.buttonPressed_ == bot.Mouse.Button.RIGHT) {
       this.fireMouseEvent_(bot.events.EventType.CONTEXTMENU);
     }
-  } catch (ignored) {
-  }
+  } catch (ignored) {}
   bot.Device.clearPointerMap();
   this.buttonPressed_ = null;
   this.elementPressed_ = null;
 };
-
 
 /**
  * A helper function to fire mouse double click events.
@@ -340,7 +331,6 @@ bot.Mouse.prototype.maybeDoubleClickElement_ = function () {
   }
   this.nextClickIsDoubleClick_ = !this.nextClickIsDoubleClick_;
 };
-
 
 /**
  * Given a coordinates (x,y) related to an element, move mouse to (x,y) of the
@@ -381,32 +371,27 @@ bot.Mouse.prototype.move = function (element, coords) {
       // as if it's on a new page. Accordingly, for complex actions (e.g.
       // drag-and-drop), a single Mouse instance should be used for the whole
       // action, to ensure the correct relatedTargets are fired for any events.
-      var isRoot = fromElement === bot.getDocument().documentElement ||
-        fromElement === bot.getDocument().body;
-      fromElement = (!this.hasEverInteracted_ && isRoot) ? null : fromElement;
+      var isRoot = fromElement === bot.getDocument().documentElement || fromElement === bot.getDocument().body;
+      fromElement = !this.hasEverInteracted_ && isRoot ? null : fromElement;
       this.fireMouseEvent_(bot.events.EventType.MOUSEOUT, element);
     }
     this.setElement(element);
 
     // All browsers except IE fire the mouseover before the mousemove.
     if (!goog.userAgent.IE) {
-      this.fireMouseEvent_(bot.events.EventType.MOUSEOVER, fromElement, null,
-        toElemWasInteractable);
+      this.fireMouseEvent_(bot.events.EventType.MOUSEOVER, fromElement, null, toElemWasInteractable);
     }
   }
 
-  this.fireMouseEvent_(bot.events.EventType.MOUSEMOVE, null, null,
-    toElemWasInteractable);
+  this.fireMouseEvent_(bot.events.EventType.MOUSEMOVE, null, null, toElemWasInteractable);
 
   // IE fires the mouseover event after the mousemove.
   if (goog.userAgent.IE && element != fromElement) {
-    this.fireMouseEvent_(bot.events.EventType.MOUSEOVER, fromElement, null,
-      toElemWasInteractable);
+    this.fireMouseEvent_(bot.events.EventType.MOUSEOVER, fromElement, null, toElemWasInteractable);
   }
 
   this.nextClickIsDoubleClick_ = false;
 };
-
 
 /**
  * Scrolls the wheel of the mouse by the given number of ticks, where a positive
@@ -416,8 +401,7 @@ bot.Mouse.prototype.move = function (element, coords) {
  */
 bot.Mouse.prototype.scroll = function (ticks) {
   if (ticks == 0) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Must scroll a non-zero number of ticks.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Must scroll a non-zero number of ticks.');
   }
 
   // The wheelDelta value for a single up-tick of the mouse wheel is 120, and
@@ -430,12 +414,10 @@ bot.Mouse.prototype.scroll = function (ticks) {
   for (var i = 0; i < Math.abs(ticks); i++) {
     this.fireMouseEvent_(bot.events.EventType.MOUSEWHEEL, null, wheelDelta);
     if (goog.userAgent.GECKO) {
-      this.fireMouseEvent_(bot.events.EventType.MOUSEPIXELSCROLL, null,
-        pixelDelta);
+      this.fireMouseEvent_(bot.events.EventType.MOUSEPIXELSCROLL, null, pixelDelta);
     }
   }
 };
-
 
 /**
  * A helper function to fire mouse events.
@@ -449,26 +431,40 @@ bot.Mouse.prototype.scroll = function (ticks) {
  * @return {boolean} Whether the event fired successfully or was cancelled.
  * @private
  */
-bot.Mouse.prototype.fireMouseEvent_ = function (type, opt_related,
-  opt_wheelDelta, opt_force, opt_count) {
+bot.Mouse.prototype.fireMouseEvent_ = function (type, opt_related, opt_wheelDelta, opt_force, opt_count) {
   this.hasEverInteracted_ = true;
   if (bot.userAgent.IE_DOC_10) {
     var msPointerEvent = bot.Mouse.MOUSE_EVENT_MAP_[type];
     if (msPointerEvent) {
       // The pointerId for mouse events is always 1 and the mouse event is never
       // fired if the MSPointer event fails.
-      if (!this.fireMSPointerEvent(msPointerEvent, this.clientXY_,
-        this.getButtonValue_(msPointerEvent), bot.Device.MOUSE_MS_POINTER_ID,
-        MSPointerEvent.MSPOINTER_TYPE_MOUSE, /* isPrimary */ true,
-        opt_related, opt_force)) {
+      if (
+        !this.fireMSPointerEvent(
+          msPointerEvent,
+          this.clientXY_,
+          this.getButtonValue_(msPointerEvent),
+          bot.Device.MOUSE_MS_POINTER_ID,
+          MSPointerEvent.MSPOINTER_TYPE_MOUSE,
+          /* isPrimary */ true,
+          opt_related,
+          opt_force,
+        )
+      ) {
         return false;
       }
     }
   }
-  return this.fireMouseEvent(type, this.clientXY_,
-    this.getButtonValue_(type), opt_related, opt_wheelDelta, opt_force, null, opt_count);
+  return this.fireMouseEvent(
+    type,
+    this.clientXY_,
+    this.getButtonValue_(type),
+    opt_related,
+    opt_wheelDelta,
+    opt_force,
+    null,
+    opt_count,
+  );
 };
-
 
 /**
  * Given an event type and a mouse button, sets the mouse button value used
@@ -478,22 +474,19 @@ bot.Mouse.prototype.fireMouseEvent_ = function (type, opt_related,
  * @param {!bot.events.EventFactory_} eventType Type of mouse event.
  * @return {number} The mouse button ID value to the current browser.
  * @private
-*/
+ */
 bot.Mouse.prototype.getButtonValue_ = function (eventType) {
   if (!(eventType in bot.Mouse.MOUSE_BUTTON_VALUE_MAP_)) {
     return 0;
   }
 
-  var buttonIndex = this.buttonPressed_ === null ?
-    bot.Mouse.NO_BUTTON_VALUE_INDEX_ : this.buttonPressed_;
+  var buttonIndex = this.buttonPressed_ === null ? bot.Mouse.NO_BUTTON_VALUE_INDEX_ : this.buttonPressed_;
   var buttonValue = bot.Mouse.MOUSE_BUTTON_VALUE_MAP_[eventType][buttonIndex];
   if (buttonValue === null) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Event does not permit the specified mouse button.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Event does not permit the specified mouse button.');
   }
   return buttonValue;
 };
-
 
 /**
  * Serialize the current state of the mouse.
@@ -508,9 +501,9 @@ bot.Mouse.prototype.getState = function () {
   return {
     'buttonPressed': this.buttonPressed_,
     'elementPressed': this.elementPressed_,
-    'clientXY': { 'x': this.clientXY_.x, 'y': this.clientXY_.y },
+    'clientXY': {'x': this.clientXY_.x, 'y': this.clientXY_.y},
     'nextClickIsDoubleClick': this.nextClickIsDoubleClick_,
     'hasEverInteracted': this.hasEverInteracted_,
-    'element': this.getElement()
+    'element': this.getElement(),
   };
 };

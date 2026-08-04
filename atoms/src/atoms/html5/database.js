@@ -27,7 +27,6 @@ goog.require('bot');
 goog.require('bot.Error');
 goog.require('bot.ErrorCode');
 
-
 /**
  * Opens the database to access its contents. This function will create the
  * database if it does not exist. For details,
@@ -45,16 +44,14 @@ goog.require('bot.ErrorCode');
  * @return {!Database} The object to access the web database.
  *
  */
-bot.storage.database.openOrCreate = function(databaseName, opt_version,
-    opt_displayName, opt_size, opt_window) {
+bot.storage.database.openOrCreate = function (databaseName, opt_version, opt_displayName, opt_size, opt_window) {
   var version = opt_version || '';
-  var displayName = opt_displayName || (databaseName + 'name');
+  var displayName = opt_displayName || databaseName + 'name';
   var size = opt_size || 5 * 1024 * 1024;
   var win = opt_window || bot.getWindow();
 
   return win.openDatabase(databaseName, version, displayName, size);
 };
-
 
 /**
  * It executes a single SQL query on a given web database storage.
@@ -73,10 +70,15 @@ bot.storage.database.openOrCreate = function(databaseName, opt_version,
  *     Callback function to be invoked on successful query statement execution.
  * @see http://www.w3.org/TR/webdatabase/#executing-sql-statements
  */
-bot.storage.database.executeSql = function(databaseName, query, args,
-    queryResultCallback, txErrorCallback, opt_txSuccessCallback,
-    opt_queryErrorCallback) {
-
+bot.storage.database.executeSql = function (
+  databaseName,
+  query,
+  args,
+  queryResultCallback,
+  txErrorCallback,
+  opt_txSuccessCallback,
+  opt_queryErrorCallback,
+) {
   var db;
 
   try {
@@ -85,20 +87,17 @@ bot.storage.database.executeSql = function(databaseName, query, args,
     throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, e.message);
   }
 
-  var queryCallback = function(tx, result) {
+  var queryCallback = function (tx, result) {
     var wrappedResult = new bot.storage.database.ResultSet(result);
     queryResultCallback(tx, wrappedResult);
   };
 
-  var transactionCallback = function(tx) {
+  var transactionCallback = function (tx) {
     tx.executeSql(query, args, queryCallback, opt_queryErrorCallback);
   };
 
-  db.transaction(transactionCallback, txErrorCallback,
-      opt_txSuccessCallback);
+  db.transaction(transactionCallback, txErrorCallback, opt_txSuccessCallback);
 };
-
-
 
 /**
  * A wrapper of the SQLResultSet object returned by the SQL statement.
@@ -106,8 +105,7 @@ bot.storage.database.executeSql = function(databaseName, query, args,
  * @param {!SQLResultSet} sqlResultSet The original SQLResultSet object.
  * @constructor
  */
-bot.storage.database.ResultSet = function(sqlResultSet) {
-
+bot.storage.database.ResultSet = function (sqlResultSet) {
   /**
    * The database rows returned from the SQL query.
    * @type {!Array.<*>}

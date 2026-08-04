@@ -62,8 +62,6 @@ goog.dom.TagName = class {
   toString() {}
 };
 
-
-
 /** @const {!goog.dom.TagName<!HTMLAnchorElement>} */
 goog.dom.TagName.A = /** @type {?} */ ('A');
 

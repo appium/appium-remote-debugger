@@ -14,7 +14,6 @@ goog.module.declareLegacyNamespace();
 const GoogIterable = goog.require('goog.iter.Iterable');
 const GoogIterator = goog.require('goog.iter.Iterator');
 
-
 /**
  * Common interface extending both `goog.iter.Iterable` and ES6 `Iterable`,
  * and providing `toGoog()` and `toEs6()` methods to get either kind
@@ -53,23 +52,18 @@ class ShimIterable {
    * @template VALUE
    */
   static of(iter) {
-    if (iter instanceof ShimIterableImpl || iter instanceof ShimGoogIterator ||
-        iter instanceof ShimEs6Iterator) {
+    if (iter instanceof ShimIterableImpl || iter instanceof ShimGoogIterator || iter instanceof ShimEs6Iterator) {
       return iter;
     } else if (typeof iter.next == 'function') {
-      return new ShimIterableImpl(
-          () => /** @type {!Iterator|!GoogIterator} */ (iter));
+      return new ShimIterableImpl(() => /** @type {!Iterator|!GoogIterator} */ (iter));
     } else if (typeof iter[Symbol.iterator] == 'function') {
       return new ShimIterableImpl(() => iter[Symbol.iterator]());
     } else if (typeof iter.__iterator__ == 'function') {
-      return new ShimIterableImpl(
-          () => /** @type {{__iterator__:function(this:?, boolean=)}} */ (iter)
-                    .__iterator__());
+      return new ShimIterableImpl(() => /** @type {{__iterator__:function(this:?, boolean=)}} */ (iter).__iterator__());
     }
     throw new Error('Not an iterator or iterable.');
   }
 }
-
 
 /**
  * Concrete (private) implementation of a non-iterator iterable.  This is
@@ -106,7 +100,6 @@ class ShimIterableImpl {
   }
 }
 
-
 /**
  * Concrete `goog.iter.Iterator` subclass that also implements `ShimIterable`.
  * @extends {GoogIterator<VALUE>}
@@ -128,7 +121,6 @@ class ShimGoogIterator extends GoogIterator {
     return this.iter_.next();
   }
 
-
   /** @override */
   toGoog() {
     return this;
@@ -144,7 +136,6 @@ class ShimGoogIterator extends GoogIterator {
     return new ShimEs6Iterator(this.iter_);
   }
 }
-
 
 /**
  * Concrete ES6 `Iterator` that also implements `ShimIterable`.
@@ -165,7 +156,6 @@ class ShimEs6Iterator extends ShimIterableImpl {
     return this.iter_.next();
   }
 }
-
 
 exports = {
   ShimIterable,

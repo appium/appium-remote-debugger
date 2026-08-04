@@ -19,9 +19,7 @@
  * @fileoverview Overall configuration of the browser automation atoms.
  */
 
-
 goog.provide('bot');
-
 
 /**
  * Frameworks using the atoms keep track of which window or frame is currently
@@ -38,7 +36,6 @@ try {
   bot.window_ = goog.global;
 }
 
-
 /**
  * Returns the window currently being used for command execution.
  *
@@ -48,7 +45,6 @@ bot.getWindow = function () {
   return bot.window_;
 };
 
-
 /**
  * Sets the window to be used for command execution.
  *
@@ -57,7 +53,6 @@ bot.getWindow = function () {
 bot.setWindow = function (win) {
   bot.window_ = win;
 };
-
 
 /**
  * Returns the document of the window currently being used for

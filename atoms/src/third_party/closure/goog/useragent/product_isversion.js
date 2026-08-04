@@ -13,15 +13,12 @@
  * TODO(nnaze): Move to more appropriate filename/namespace.
  */
 
-
 goog.provide('goog.userAgent.product.isVersion');
-
 
 goog.require('goog.labs.userAgent.platform');
 goog.require('goog.string');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.product');
-
 
 /**
  * @return {string} The string that describes the version number of the user
@@ -29,7 +26,7 @@ goog.require('goog.userAgent.product');
  *     contain 'b', 'a', and so on.
  * @private
  */
-goog.userAgent.product.determineVersion_ = function() {
+goog.userAgent.product.determineVersion_ = function () {
   'use strict';
   // All browsers have different ways to detect the version and they all have
   // different naming schemes.
@@ -39,19 +36,16 @@ goog.userAgent.product.determineVersion_ = function() {
     return goog.userAgent.product.getFirstRegExpGroup_(/Firefox\/([0-9.]+)/);
   }
 
-  if (goog.userAgent.product.IE || goog.userAgent.product.EDGE ||
-      goog.userAgent.product.OPERA) {
+  if (goog.userAgent.product.IE || goog.userAgent.product.EDGE || goog.userAgent.product.OPERA) {
     return goog.userAgent.VERSION;
   }
 
   if (goog.userAgent.product.CHROME) {
     // CriOS is Chrome on iOS, but iPadOS 13+ spoofs macOS by default.
     // So it's possible that CriOS appears to be running on macOS.
-    if (goog.labs.userAgent.platform.isIos() ||
-        goog.labs.userAgent.platform.isMacintosh()) {
+    if (goog.labs.userAgent.platform.isIos() || goog.labs.userAgent.platform.isMacintosh()) {
       // CriOS/56.0.2924.79
-      const chromeIosVersion =
-          goog.userAgent.product.getFirstRegExpGroup_(/CriOS\/([0-9.]+)/);
+      const chromeIosVersion = goog.userAgent.product.getFirstRegExpGroup_(/CriOS\/([0-9.]+)/);
       if (chromeIosVersion) {
         return chromeIosVersion;
       }
@@ -76,8 +70,7 @@ goog.userAgent.product.determineVersion_ = function() {
     // (KHTML, like Gecko) Version/3.0 Mobile/3A100a Safari/419.3
     // Version is the browser version, Mobile is the build number. We combine
     // the version string with the build number: 3.0.3A100a for the example.
-    var arr =
-        goog.userAgent.product.execRegExp_(/Version\/(\S+).*Mobile\/(\S+)/);
+    var arr = goog.userAgent.product.execRegExp_(/Version\/(\S+).*Mobile\/(\S+)/);
     if (arr) {
       return arr[1] + '.' + arr[2];
     }
@@ -89,8 +82,7 @@ goog.userAgent.product.determineVersion_ = function() {
     // (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2
     //
     // Prefer Version number if present, else make do with the OS number
-    var version =
-        goog.userAgent.product.getFirstRegExpGroup_(/Android\s+([0-9.]+)/);
+    var version = goog.userAgent.product.getFirstRegExpGroup_(/Android\s+([0-9.]+)/);
     if (version) {
       return version;
     }
@@ -101,19 +93,17 @@ goog.userAgent.product.determineVersion_ = function() {
   return '';
 };
 
-
 /**
  * Return the first group of the given regex.
  * @param {!RegExp} re Regular expression with at least one group.
  * @return {string} Contents of the first group or an empty string if no match.
  * @private
  */
-goog.userAgent.product.getFirstRegExpGroup_ = function(re) {
+goog.userAgent.product.getFirstRegExpGroup_ = function (re) {
   'use strict';
   var arr = goog.userAgent.product.execRegExp_(re);
   return arr ? arr[1] : '';
 };
-
 
 /**
  * Run regexp's exec() on the userAgent string.
@@ -121,11 +111,10 @@ goog.userAgent.product.getFirstRegExpGroup_ = function(re) {
  * @return {?IArrayLike<string>} A result array, or null for no match.
  * @private
  */
-goog.userAgent.product.execRegExp_ = function(re) {
+goog.userAgent.product.execRegExp_ = function (re) {
   'use strict';
   return re.exec(goog.userAgent.getUserAgentString());
 };
-
 
 /**
  * The version of the user agent. This is a string because it might contain
@@ -133,7 +122,6 @@ goog.userAgent.product.execRegExp_ = function(re) {
  * @type {string}
  */
 goog.userAgent.product.VERSION = goog.userAgent.product.determineVersion_();
-
 
 /**
  * Whether the user agent product version is higher or the same as the given
@@ -143,8 +131,7 @@ goog.userAgent.product.VERSION = goog.userAgent.product.determineVersion_();
  * @return {boolean} Whether the user agent product version is higher or the
  *     same as the given version.
  */
-goog.userAgent.product.isVersion = function(version) {
+goog.userAgent.product.isVersion = function (version) {
   'use strict';
-  return goog.string.compareVersions(goog.userAgent.product.VERSION, version) >=
-      0;
+  return goog.string.compareVersions(goog.userAgent.product.VERSION, version) >= 0;
 };

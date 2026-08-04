@@ -99,11 +99,8 @@ class HighEntropyValue {
       this.pending_ = true;
       this.promise_ = (async () => {
         try {
-          const dataValues =
-              await userAgentData.getHighEntropyValues([this.key_]);
-          this.value_ =
-              /** @type {!Object<string, VALUE_TYPE>} */ (
-                  dataValues)[this.key_];
+          const dataValues = await userAgentData.getHighEntropyValues([this.key_]);
+          this.value_ = /** @type {!Object<string, VALUE_TYPE>} */ (dataValues)[this.key_];
           return this.value_;
         } finally {
           this.pending_ = false;

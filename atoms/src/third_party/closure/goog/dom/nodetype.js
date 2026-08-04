@@ -10,7 +10,6 @@
 
 goog.provide('goog.dom.NodeType');
 
-
 /**
  * Constants for the nodeType attribute in the Node interface.
  *
@@ -36,5 +35,5 @@ goog.dom.NodeType = {
   DOCUMENT: 9,
   DOCUMENT_TYPE: 10,
   DOCUMENT_FRAGMENT: 11,
-  NOTATION: 12
+  NOTATION: 12,
 };

@@ -14,67 +14,55 @@ goog.require('goog.labs.userAgent.browser');
 goog.require('goog.labs.userAgent.platform');
 goog.require('goog.userAgent');
 
-
 /**
  * @define {boolean} Whether the code is running on the Firefox web browser.
  */
-goog.userAgent.product.ASSUME_FIREFOX =
-    goog.define('goog.userAgent.product.ASSUME_FIREFOX', false);
-
+goog.userAgent.product.ASSUME_FIREFOX = goog.define('goog.userAgent.product.ASSUME_FIREFOX', false);
 
 /**
  * @define {boolean} Whether we know at compile-time that the product is an
  *     iPhone.
  */
-goog.userAgent.product.ASSUME_IPHONE =
-    goog.define('goog.userAgent.product.ASSUME_IPHONE', false);
-
+goog.userAgent.product.ASSUME_IPHONE = goog.define('goog.userAgent.product.ASSUME_IPHONE', false);
 
 /**
  * @define {boolean} Whether we know at compile-time that the product is an
  *     iPad.
  */
-goog.userAgent.product.ASSUME_IPAD =
-    goog.define('goog.userAgent.product.ASSUME_IPAD', false);
-
+goog.userAgent.product.ASSUME_IPAD = goog.define('goog.userAgent.product.ASSUME_IPAD', false);
 
 /**
  * @define {boolean} Whether we know at compile-time that the product is an
  *     AOSP browser or WebView inside a pre KitKat Android phone or tablet.
  */
-goog.userAgent.product.ASSUME_ANDROID =
-    goog.define('goog.userAgent.product.ASSUME_ANDROID', false);
-
+goog.userAgent.product.ASSUME_ANDROID = goog.define('goog.userAgent.product.ASSUME_ANDROID', false);
 
 /**
  * @define {boolean} Whether the code is running on the Chrome web browser on
  * any platform or AOSP browser or WebView in a KitKat+ Android phone or tablet.
  */
-goog.userAgent.product.ASSUME_CHROME =
-    goog.define('goog.userAgent.product.ASSUME_CHROME', false);
-
+goog.userAgent.product.ASSUME_CHROME = goog.define('goog.userAgent.product.ASSUME_CHROME', false);
 
 /**
  * @define {boolean} Whether the code is running on the Safari web browser.
  */
-goog.userAgent.product.ASSUME_SAFARI =
-    goog.define('goog.userAgent.product.ASSUME_SAFARI', false);
-
+goog.userAgent.product.ASSUME_SAFARI = goog.define('goog.userAgent.product.ASSUME_SAFARI', false);
 
 /**
  * Whether we know the product type at compile-time.
  * @type {boolean}
  * @private
  */
-goog.userAgent.product.PRODUCT_KNOWN_ = goog.userAgent.ASSUME_IE ||
-    goog.userAgent.ASSUME_EDGE || goog.userAgent.ASSUME_OPERA ||
-    goog.userAgent.product.ASSUME_FIREFOX ||
-    goog.userAgent.product.ASSUME_IPHONE ||
-    goog.userAgent.product.ASSUME_IPAD ||
-    goog.userAgent.product.ASSUME_ANDROID ||
-    goog.userAgent.product.ASSUME_CHROME ||
-    goog.userAgent.product.ASSUME_SAFARI;
-
+goog.userAgent.product.PRODUCT_KNOWN_ =
+  goog.userAgent.ASSUME_IE ||
+  goog.userAgent.ASSUME_EDGE ||
+  goog.userAgent.ASSUME_OPERA ||
+  goog.userAgent.product.ASSUME_FIREFOX ||
+  goog.userAgent.product.ASSUME_IPHONE ||
+  goog.userAgent.product.ASSUME_IPAD ||
+  goog.userAgent.product.ASSUME_ANDROID ||
+  goog.userAgent.product.ASSUME_CHROME ||
+  goog.userAgent.product.ASSUME_SAFARI;
 
 /**
  * Whether the code is running on the Opera web browser.
@@ -82,13 +70,11 @@ goog.userAgent.product.PRODUCT_KNOWN_ = goog.userAgent.ASSUME_IE ||
  */
 goog.userAgent.product.OPERA = goog.userAgent.OPERA;
 
-
 /**
  * Whether the code is running on an IE web browser.
  * @type {boolean}
  */
 goog.userAgent.product.IE = goog.userAgent.IE;
-
 
 /**
  * Whether the code is running on an Edge web browser (EdgeHTML based).
@@ -96,27 +82,23 @@ goog.userAgent.product.IE = goog.userAgent.IE;
  */
 goog.userAgent.product.EDGE = goog.userAgent.EDGE;
 
-
 /**
  * Whether the code is running on the Firefox web browser.
  * @type {boolean}
  */
-goog.userAgent.product.FIREFOX = goog.userAgent.product.PRODUCT_KNOWN_ ?
-    goog.userAgent.product.ASSUME_FIREFOX :
-    goog.labs.userAgent.browser.isFirefox();
-
+goog.userAgent.product.FIREFOX = goog.userAgent.product.PRODUCT_KNOWN_
+  ? goog.userAgent.product.ASSUME_FIREFOX
+  : goog.labs.userAgent.browser.isFirefox();
 
 /**
  * Whether the user agent is an iPhone or iPod (as in iPod touch).
  * @return {boolean}
  * @private
  */
-goog.userAgent.product.isIphoneOrIpod_ = function() {
+goog.userAgent.product.isIphoneOrIpod_ = function () {
   'use strict';
-  return goog.labs.userAgent.platform.isIphone() ||
-      goog.labs.userAgent.platform.isIpod();
+  return goog.labs.userAgent.platform.isIphone() || goog.labs.userAgent.platform.isIpod();
 };
-
 
 /**
  * Whether the code is running on an iPhone or iPod touch.
@@ -124,50 +106,44 @@ goog.userAgent.product.isIphoneOrIpod_ = function() {
  * iPod touch is considered an iPhone for legacy reasons.
  * @type {boolean}
  */
-goog.userAgent.product.IPHONE = goog.userAgent.product.PRODUCT_KNOWN_ ?
-    goog.userAgent.product.ASSUME_IPHONE :
-    goog.userAgent.product.isIphoneOrIpod_();
-
+goog.userAgent.product.IPHONE = goog.userAgent.product.PRODUCT_KNOWN_
+  ? goog.userAgent.product.ASSUME_IPHONE
+  : goog.userAgent.product.isIphoneOrIpod_();
 
 /**
  * Whether the code is running on an iPad.
  * @type {boolean}
  */
-goog.userAgent.product.IPAD = goog.userAgent.product.PRODUCT_KNOWN_ ?
-    goog.userAgent.product.ASSUME_IPAD :
-    goog.labs.userAgent.platform.isIpad();
-
+goog.userAgent.product.IPAD = goog.userAgent.product.PRODUCT_KNOWN_
+  ? goog.userAgent.product.ASSUME_IPAD
+  : goog.labs.userAgent.platform.isIpad();
 
 /**
  * Whether the code is running on AOSP browser or WebView inside
  * a pre KitKat Android phone or tablet.
  * @type {boolean}
  */
-goog.userAgent.product.ANDROID = goog.userAgent.product.PRODUCT_KNOWN_ ?
-    goog.userAgent.product.ASSUME_ANDROID :
-    goog.labs.userAgent.browser.isAndroidBrowser();
-
+goog.userAgent.product.ANDROID = goog.userAgent.product.PRODUCT_KNOWN_
+  ? goog.userAgent.product.ASSUME_ANDROID
+  : goog.labs.userAgent.browser.isAndroidBrowser();
 
 /**
  * Whether the code is running on any Chromium-based web browser on any platform
  * or AOSP browser or WebView in a KitKat+ Android phone or tablet.
  * @type {boolean}
  */
-goog.userAgent.product.CHROME = goog.userAgent.product.PRODUCT_KNOWN_ ?
-    goog.userAgent.product.ASSUME_CHROME :
-    goog.labs.userAgent.browser.isChrome();
-
+goog.userAgent.product.CHROME = goog.userAgent.product.PRODUCT_KNOWN_
+  ? goog.userAgent.product.ASSUME_CHROME
+  : goog.labs.userAgent.browser.isChrome();
 
 /**
  * @return {boolean} Whether the browser is Safari on desktop.
  * @private
  */
-goog.userAgent.product.isSafariDesktop_ = function() {
+goog.userAgent.product.isSafariDesktop_ = function () {
   'use strict';
-  return goog.labs.userAgent.browser.isSafari() &&
-      !goog.labs.userAgent.platform.isIos();
+  return goog.labs.userAgent.browser.isSafari() && !goog.labs.userAgent.platform.isIos();
 };
-
 
 /**
  * Whether the code is running on the desktop Safari web browser.
@@ -175,6 +151,6 @@ goog.userAgent.product.isSafariDesktop_ = function() {
  * on iOS.
  * @type {boolean}
  */
-goog.userAgent.product.SAFARI = goog.userAgent.product.PRODUCT_KNOWN_ ?
-    goog.userAgent.product.ASSUME_SAFARI :
-    goog.userAgent.product.isSafariDesktop_();
+goog.userAgent.product.SAFARI = goog.userAgent.product.PRODUCT_KNOWN_
+  ? goog.userAgent.product.ASSUME_SAFARI
+  : goog.userAgent.product.isSafariDesktop_();

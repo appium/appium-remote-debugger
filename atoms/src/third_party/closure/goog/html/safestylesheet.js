@@ -125,29 +125,23 @@ class SafeStyleSheet {
     }
 
     // Remove strings.
-    const selectorToCheck =
-        selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, '');
+    const selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, '');
 
     // Check characters allowed in CSS3 selectors.
     if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=\\^$|]+$/.test(selectorToCheck)) {
-      throw new Error(
-          'Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=\\^$|] and ' +
-          'strings, got: ' + selector);
+      throw new Error('Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=\\^$|] and ' + 'strings, got: ' + selector);
     }
 
     // Check balanced () and [].
     if (!SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
-      throw new Error(
-          '() and [] in selector must be balanced, got: ' + selector);
+      throw new Error('() and [] in selector must be balanced, got: ' + selector);
     }
 
     if (!(style instanceof SafeStyle)) {
       style = SafeStyle.create(style);
     }
-    const styleSheet =
-        `${selector}{` + SafeStyle.unwrap(style).replace(/</g, '\\3C ') + '}';
-    return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(
-        styleSheet);
+    const styleSheet = `${selector}{` + SafeStyle.unwrap(style).replace(/</g, '\\3C ') + '}';
+    return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
   }
 
   /**
@@ -185,7 +179,7 @@ class SafeStyleSheet {
      * @param {!SafeStyleSheet|!Array<!SafeStyleSheet>}
      *     argument
      */
-    const addArgument = argument => {
+    const addArgument = (argument) => {
       if (Array.isArray(argument)) {
         argument.forEach(addArgument);
       } else {
@@ -194,8 +188,7 @@ class SafeStyleSheet {
     };
 
     Array.prototype.forEach.call(arguments, addArgument);
-    return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(
-        result);
+    return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(result);
   }
 
   /**
@@ -216,11 +209,8 @@ class SafeStyleSheet {
     }
     // > is a valid character in CSS selectors and there's no strict need to
     // block it if we already block <.
-    assert(
-        !contains(styleSheetString, '<'),
-        `Forbidden '<' character in style sheet string: ${styleSheetString}`);
-    return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(
-        styleSheetString);
+    assert(!contains(styleSheetString, '<'), `Forbidden '<' character in style sheet string: ${styleSheetString}`);
+    return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
   }
 
   /**
@@ -266,13 +256,12 @@ class SafeStyleSheet {
     // Specifically, the following checks are performed:
     // 1. The object is an instance of the expected type.
     // 2. The object is not an instance of a subclass.
-    if (safeStyleSheet instanceof SafeStyleSheet &&
-        safeStyleSheet.constructor === SafeStyleSheet) {
+    if (safeStyleSheet instanceof SafeStyleSheet && safeStyleSheet.constructor === SafeStyleSheet) {
       return safeStyleSheet.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
     } else {
       fail(
-          'expected object of type SafeStyleSheet, got \'' + safeStyleSheet +
-          '\' of type ' + utils.typeOf(safeStyleSheet));
+        "expected object of type SafeStyleSheet, got '" + safeStyleSheet + "' of type " + utils.typeOf(safeStyleSheet),
+      );
       return 'type_error:SafeStyleSheet';
     }
   }
@@ -294,8 +283,6 @@ class SafeStyleSheet {
  * A SafeStyleSheet instance corresponding to the empty string.
  * @const {!SafeStyleSheet}
  */
-SafeStyleSheet.EMPTY =
-    SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse('');
-
+SafeStyleSheet.EMPTY = SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse('');
 
 exports = SafeStyleSheet;

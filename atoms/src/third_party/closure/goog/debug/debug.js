@@ -17,24 +17,16 @@ goog.require('goog.debug.errorcontext');
 
 goog.require('goog.utils');
 
-
 /** @define {boolean} Whether logging should be enabled. */
-goog.debug.LOGGING_ENABLED =
-    goog.define('goog.debug.LOGGING_ENABLED', goog.DEBUG);
-
+goog.debug.LOGGING_ENABLED = goog.define('goog.debug.LOGGING_ENABLED', goog.DEBUG);
 
 /** @define {boolean} Whether to force "sloppy" stack building. */
-goog.debug.FORCE_SLOPPY_STACKS =
-    goog.define('goog.debug.FORCE_SLOPPY_STACKS', false);
-
+goog.debug.FORCE_SLOPPY_STACKS = goog.define('goog.debug.FORCE_SLOPPY_STACKS', false);
 
 /**
  * @define {boolean} TODO(user): Remove this hack once bug is resolved.
  */
-goog.debug.CHECK_FOR_THROWN_EVENT =
-    goog.define('goog.debug.CHECK_FOR_THROWN_EVENT', false);
-
-
+goog.debug.CHECK_FOR_THROWN_EVENT = goog.define('goog.debug.CHECK_FOR_THROWN_EVENT', false);
 
 /**
  * Catches onerror events fired by windows and similar objects.
@@ -46,7 +38,7 @@ goog.debug.CHECK_FOR_THROWN_EVENT =
  * @suppress {strictMissingProperties} onerror is not defined as a property
  *    on Object.
  */
-goog.debug.catchErrors = function(logFunc, opt_cancel, opt_target) {
+goog.debug.catchErrors = function (logFunc, opt_cancel, opt_target) {
   'use strict';
   var target = opt_target || goog.global;
   var oldErrorHandler = target.onerror;
@@ -79,7 +71,7 @@ goog.debug.catchErrors = function(logFunc, opt_cancel, opt_target) {
    *     to the latest spec will inlude this parameter.
    * @return {boolean} Whether to prevent the error from reaching the browser.
    */
-  target.onerror = function(message, url, line, opt_col, opt_error) {
+  target.onerror = function (message, url, line, opt_col, opt_error) {
     'use strict';
     if (oldErrorHandler) {
       oldErrorHandler(message, url, line, opt_col, opt_error);
@@ -90,12 +82,11 @@ goog.debug.catchErrors = function(logFunc, opt_cancel, opt_target) {
       line: line,
       lineNumber: line,
       col: opt_col,
-      error: opt_error
+      error: opt_error,
     });
     return retVal;
   };
 };
-
 
 /**
  * Creates a string representing an object and all its properties.
@@ -104,7 +95,7 @@ goog.debug.catchErrors = function(logFunc, opt_cancel, opt_target) {
  *     default is false.
  * @return {string} The string representation of `obj`.
  */
-goog.debug.expose = function(obj, opt_showFn) {
+goog.debug.expose = function (obj, opt_showFn) {
   'use strict';
   if (typeof obj == 'undefined') {
     return 'undefined';
@@ -130,7 +121,6 @@ goog.debug.expose = function(obj, opt_showFn) {
   return str.join('\n');
 };
 
-
 /**
  * Creates a string representing a given primitive or object, and for an
  * object, all its properties and nested objects. NOTE: The output will include
@@ -141,7 +131,7 @@ goog.debug.expose = function(obj, opt_showFn) {
  *     default, functions are omitted).
  * @return {string} A string representation of `obj`.
  */
-goog.debug.deepExpose = function(obj, opt_showFn) {
+goog.debug.deepExpose = function (obj, opt_showFn) {
   'use strict';
   var str = [];
 
@@ -151,15 +141,14 @@ goog.debug.deepExpose = function(obj, opt_showFn) {
   var uidsToCleanup = [];
   var ancestorUids = {};
 
-  var helper = function(obj, space) {
+  var helper = function (obj, space) {
     'use strict';
     var nestspace = space + '  ';
 
-    var indentMultiline = function(str) {
+    var indentMultiline = function (str) {
       'use strict';
       return str.replace(/\n/g, '\n' + space);
     };
-
 
     try {
       if (obj === undefined) {
@@ -211,13 +200,12 @@ goog.debug.deepExpose = function(obj, opt_showFn) {
   return str.join('');
 };
 
-
 /**
  * Recursively outputs a nested array as a string.
  * @param {Array<?>} arr The array.
  * @return {string} String representing nested array.
  */
-goog.debug.exposeArray = function(arr) {
+goog.debug.exposeArray = function (arr) {
   'use strict';
   var str = [];
   for (var i = 0; i < arr.length; i++) {
@@ -229,7 +217,6 @@ goog.debug.exposeArray = function(arr) {
   }
   return '[ ' + str.join(', ') + ' ]';
 };
-
 
 /**
  * Normalizes the error/exception object between browsers.
@@ -243,7 +230,7 @@ goog.debug.exposeArray = function(arr) {
  * }} Representation of err as an Object. It will never return err.
  * @suppress {strictMissingProperties} properties not defined on err
  */
-goog.debug.normalizeErrorObject = function(err) {
+goog.debug.normalizeErrorObject = function (err) {
   'use strict';
   var href = goog.getObjectByName('window.location.href');
   if (err == null) {
@@ -255,7 +242,7 @@ goog.debug.normalizeErrorObject = function(err) {
       'name': 'Unknown error',
       'lineNumber': 'Not available',
       'fileName': href,
-      'stack': 'Not available'
+      'stack': 'Not available',
     };
   }
 
@@ -272,10 +259,14 @@ goog.debug.normalizeErrorObject = function(err) {
   }
 
   try {
-    fileName = err.fileName || err.filename || err.sourceURL ||
-        // $googDebugFname may be set before a call to eval to set the filename
-        // that the eval is supposed to present.
-        goog.global['$googDebugFname'] || href;
+    fileName =
+      err.fileName ||
+      err.filename ||
+      err.sourceURL ||
+      // $googDebugFname may be set before a call to eval to set the filename
+      // that the eval is supposed to present.
+      goog.global['$googDebugFname'] ||
+      href;
   } catch (e) {
     // Firefox 2 may also throw an error when accessing 'filename'.
     fileName = 'Not available';
@@ -286,14 +277,11 @@ goog.debug.normalizeErrorObject = function(err) {
 
   // The IE Error object contains only the name and the message.
   // The Safari Error object uses the line and sourceURL fields.
-  if (threwError || !err.lineNumber || !err.fileName || !err.stack ||
-      !err.message || !err.name) {
+  if (threwError || !err.lineNumber || !err.fileName || !err.stack || !err.message || !err.name) {
     var message = err.message;
     if (message == null) {
       if (err.constructor && err.constructor instanceof Function) {
-        var ctorName = err.constructor.name ?
-            err.constructor.name :
-            goog.debug.getFunctionName(err.constructor);
+        var ctorName = err.constructor.name ? err.constructor.name : goog.debug.getFunctionName(err.constructor);
         message = 'Unknown Error of type "' + ctorName + '"';
         // TODO(user): Remove this hack once bug is resolved.
         if (goog.debug.CHECK_FOR_THROWN_EVENT && ctorName == 'Event') {
@@ -309,8 +297,7 @@ goog.debug.normalizeErrorObject = function(err) {
 
       // Avoid TypeError since toString could be missing from the instance
       // (e.g. if created Object.create(null)).
-      if (typeof err.toString === 'function' &&
-          Object.prototype.toString !== err.toString) {
+      if (typeof err.toString === 'function' && Object.prototype.toString !== err.toString) {
         message += ': ' + err.toString();
       }
     }
@@ -319,7 +306,7 @@ goog.debug.normalizeErrorObject = function(err) {
       'name': err.name || 'UnknownError',
       'lineNumber': lineNumber,
       'fileName': fileName,
-      'stack': stack || 'Not available'
+      'stack': stack || 'Not available',
     };
   }
   // Standards error object
@@ -332,10 +319,9 @@ goog.debug.normalizeErrorObject = function(err) {
     'name': err.name,
     'lineNumber': err.lineNumber,
     'fileName': err.fileName,
-    'stack': err.stack
+    'stack': err.stack,
   };
 };
-
 
 /**
  * Serialize stack by including the cause chain of the exception if it exists.
@@ -347,7 +333,7 @@ goog.debug.normalizeErrorObject = function(err) {
  * @private
  * @suppress {missingProperties} properties not defined on cause and e
  */
-goog.debug.serializeErrorStack_ = function(e, seen) {
+goog.debug.serializeErrorStack_ = function (e, seen) {
   'use strict';
   if (!seen) {
     seen = {};
@@ -364,7 +350,7 @@ goog.debug.serializeErrorStack_ = function(e, seen) {
     // stack, In this case we don't need to add it. Note: we don't use
     // String.startsWith method because it might have to be polyfilled.
     if (!cause.stack || cause.stack.indexOf(cause.toString()) != 0) {
-      stack += (typeof cause === 'string') ? cause : cause.message + '\n';
+      stack += typeof cause === 'string' ? cause : cause.message + '\n';
     }
     stack += goog.debug.serializeErrorStack_(cause, seen);
   }
@@ -378,7 +364,7 @@ goog.debug.serializeErrorStack_ = function(e, seen) {
  * @return {string}
  * @private
  */
-goog.debug.serializeErrorAsKey_ = function(e) {
+goog.debug.serializeErrorAsKey_ = function (e) {
   'use strict';
   var keyPrefix = '';
 
@@ -388,7 +374,6 @@ goog.debug.serializeErrorAsKey_ = function(e) {
 
   return keyPrefix + e['stack'];
 };
-
 
 /**
  * Converts an object to an Error using the object's toString if it's not
@@ -400,7 +385,7 @@ goog.debug.serializeErrorAsKey_ = function(e) {
  * @return {!Error} If err is an Error, it is enhanced and returned. Otherwise,
  *     it is converted to an Error which is enhanced and returned.
  */
-goog.debug.enhanceError = function(err, opt_message) {
+goog.debug.enhanceError = function (err, opt_message) {
   'use strict';
   var error;
   if (!(err instanceof Error)) {
@@ -427,7 +412,6 @@ goog.debug.enhanceError = function(err, opt_message) {
   return error;
 };
 
-
 /**
  * Converts an object to an Error using the object's toString if it's not
  * already an Error, adds a stacktrace if there isn't one, and optionally adds
@@ -438,7 +422,7 @@ goog.debug.enhanceError = function(err, opt_message) {
  * @return {!Error} If err is an Error, it is enhanced and returned. Otherwise,
  *     it is converted to an Error which is enhanced and returned.
  */
-goog.debug.enhanceErrorWithContext = function(err, opt_context) {
+goog.debug.enhanceErrorWithContext = function (err, opt_context) {
   'use strict';
   var error = goog.debug.enhanceError(err);
   if (opt_context) {
@@ -449,7 +433,6 @@ goog.debug.enhanceErrorWithContext = function(err, opt_context) {
   return error;
 };
 
-
 /**
  * Gets the current stack trace. Simple and iterative - doesn't worry about
  * catching circular references or getting the args.
@@ -458,7 +441,7 @@ goog.debug.enhanceErrorWithContext = function(err, opt_context) {
  *     stack, separated by \n.
  * @suppress {es5Strict}
  */
-goog.debug.getStacktraceSimple = function(opt_depth) {
+goog.debug.getStacktraceSimple = function (opt_depth) {
   'use strict';
   if (!goog.debug.FORCE_SLOPPY_STACKS) {
     var stack = goog.debug.getNativeStackTrace_(goog.debug.getStacktraceSimple);
@@ -498,20 +481,18 @@ goog.debug.getStacktraceSimple = function(opt_depth) {
   return sb.join('');
 };
 
-
 /**
  * Max length of stack to try and output
  * @type {number}
  */
 goog.debug.MAX_STACK_DEPTH = 50;
 
-
 /**
  * @param {Function} fn The function to start getting the trace from.
  * @return {?string}
  * @private
  */
-goog.debug.getNativeStackTrace_ = function(fn) {
+goog.debug.getNativeStackTrace_ = function (fn) {
   'use strict';
   var tempErr = new Error();
   if (Error.captureStackTrace) {
@@ -532,7 +513,6 @@ goog.debug.getNativeStackTrace_ = function(fn) {
   return null;
 };
 
-
 /**
  * Gets the current stack trace, either starting from the caller or starting
  * from a specified function that's currently on the call stack.
@@ -542,7 +522,7 @@ goog.debug.getNativeStackTrace_ = function(fn) {
  * @return {string} Stack trace.
  * @suppress {es5Strict}
  */
-goog.debug.getStacktrace = function(fn) {
+goog.debug.getStacktrace = function (fn) {
   'use strict';
   var stack;
   if (!goog.debug.FORCE_SLOPPY_STACKS) {
@@ -558,7 +538,6 @@ goog.debug.getStacktrace = function(fn) {
   return stack;
 };
 
-
 /**
  * Private helper for getStacktrace().
  * @param {?Function} fn If provided, when collecting the stack trace all
@@ -569,7 +548,7 @@ goog.debug.getStacktrace = function(fn) {
  * @suppress {es5Strict}
  * @private
  */
-goog.debug.getStacktraceHelper_ = function(fn, visited) {
+goog.debug.getStacktraceHelper_ = function (fn, visited) {
   'use strict';
   var sb = [];
 
@@ -630,7 +609,6 @@ goog.debug.getStacktraceHelper_ = function(fn, visited) {
     } catch (e) {
       sb.push('[exception trying to get caller]\n');
     }
-
   } else if (fn) {
     sb.push('[...long stack...]');
   } else {
@@ -639,13 +617,12 @@ goog.debug.getStacktraceHelper_ = function(fn, visited) {
   return sb.join('');
 };
 
-
 /**
  * Gets a function name
  * @param {Function} fn Function to get name of.
  * @return {string} Function's name.
  */
-goog.debug.getFunctionName = function(fn) {
+goog.debug.getFunctionName = function (fn) {
   'use strict';
   if (goog.debug.fnNameCache_[fn]) {
     return goog.debug.fnNameCache_[fn];
@@ -666,7 +643,6 @@ goog.debug.getFunctionName = function(fn) {
   return goog.debug.fnNameCache_[functionSource];
 };
 
-
 /**
  * Makes whitespace visible by replacing it with printable characters.
  * This is useful in finding diffrences between the expected and the actual
@@ -674,15 +650,15 @@ goog.debug.getFunctionName = function(fn) {
  * @param {string} string whose whitespace needs to be made visible.
  * @return {string} string whose whitespace is made visible.
  */
-goog.debug.makeWhitespaceVisible = function(string) {
+goog.debug.makeWhitespaceVisible = function (string) {
   'use strict';
-  return string.replace(/ /g, '[_]')
-      .replace(/\f/g, '[f]')
-      .replace(/\n/g, '[n]\n')
-      .replace(/\r/g, '[r]')
-      .replace(/\t/g, '[t]');
+  return string
+    .replace(/ /g, '[_]')
+    .replace(/\f/g, '[f]')
+    .replace(/\n/g, '[n]\n')
+    .replace(/\r/g, '[r]')
+    .replace(/\t/g, '[t]');
 };
-
 
 /**
  * Returns the type of a value. If a constructor is passed, and a suitable
@@ -693,18 +669,20 @@ goog.debug.makeWhitespaceVisible = function(string) {
  * @param {*} value A constructor, object, or primitive.
  * @return {string} The best display name for the value, or 'unknown type name'.
  */
-goog.debug.runtimeType = function(value) {
+goog.debug.runtimeType = function (value) {
   'use strict';
   if (value instanceof Function) {
     return value.displayName || value.name || 'unknown type name';
   } else if (value instanceof Object) {
-    return /** @type {string} */ (value.constructor.displayName) ||
-        value.constructor.name || Object.prototype.toString.call(value);
+    return (
+      /** @type {string} */ (value.constructor.displayName) ||
+      value.constructor.name ||
+      Object.prototype.toString.call(value)
+    );
   } else {
     return value === null ? 'null' : typeof value;
   }
 };
-
 
 /**
  * Hash map for storing function names that have already been looked up.
@@ -713,7 +691,6 @@ goog.debug.runtimeType = function(value) {
  */
 goog.debug.fnNameCache_ = {};
 
-
 /**
  * Private internal function to support goog.debug.freeze.
  * @param {T} arg
@@ -721,11 +698,12 @@ goog.debug.fnNameCache_ = {};
  * @template T
  * @private
  */
-goog.debug.freezeInternal_ = goog.DEBUG && Object.freeze || function(arg) {
-  'use strict';
-  return arg;
-};
-
+goog.debug.freezeInternal_ =
+  (goog.DEBUG && Object.freeze) ||
+  function (arg) {
+    'use strict';
+    return arg;
+  };
 
 /**
  * Freezes the given object, but only in debug mode (and in browsers that
@@ -735,15 +713,15 @@ goog.debug.freezeInternal_ = goog.DEBUG && Object.freeze || function(arg) {
  * @return {T}
  * @template T
  */
-goog.debug.freeze = function(arg) {
+goog.debug.freeze = function (arg) {
   'use strict';
   // NOTE: this compiles to nothing, but hides the possible side effect of
   // freezeInternal_ from the compiler so that the entire call can be
   // removed if the result is not used.
   return {
-    valueOf: function() {
+    valueOf: function () {
       'use strict';
       return goog.debug.freezeInternal_(arg);
-    }
+    },
   }.valueOf();
 };

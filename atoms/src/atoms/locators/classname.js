@@ -22,7 +22,6 @@ goog.require('bot.ErrorCode');
 goog.require('goog.dom');
 goog.require('goog.string');
 
-
 /**
  * Tests whether the standardized W3C Selectors API are available on an
  * element.
@@ -36,7 +35,6 @@ bot.locators.className.canUseQuerySelector_ = function (root) {
   return !!(root.querySelectorAll && root.querySelector);
 };
 
-
 /**
  * Find an element by its class name.
  * @param {string} target The class name to search for.
@@ -47,14 +45,12 @@ bot.locators.className.canUseQuerySelector_ = function (root) {
  */
 bot.locators.className.single = function (target, root) {
   if (!target) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'No class name specified');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'No class name specified');
   }
 
   target = goog.string.trim(target);
   if (target.indexOf(' ') !== -1) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'Compound class names not permitted');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'Compound class names not permitted');
   }
 
   // Closure will not properly escape class names that contain a '.' when using
@@ -63,15 +59,14 @@ bot.locators.className.single = function (target, root) {
     try {
       return root.querySelector('.' + target.replace(/\./g, '\\.')) || null;
     } catch (e) {
-      throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-        'An invalid or illegal class name was specified');
+      throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'An invalid or illegal class name was specified');
     }
   }
-  var elements = goog.dom.getDomHelper(root).getElementsByTagNameAndClass(
-      /*tagName=*/'*', /*className=*/target, root);
+  var elements = goog.dom
+    .getDomHelper(root)
+    .getElementsByTagNameAndClass(/*tagName=*/ '*', /*className=*/ target, root);
   return elements.length ? elements[0] : null;
 };
-
 
 /**
  * Find an element by its class name.
@@ -82,14 +77,12 @@ bot.locators.className.single = function (target, root) {
  */
 bot.locators.className.many = function (target, root) {
   if (!target) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'No class name specified');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'No class name specified');
   }
 
   target = goog.string.trim(target);
   if (target.indexOf(' ') !== -1) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'Compound class names not permitted');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'Compound class names not permitted');
   }
 
   // Closure will not properly escape class names that contain a '.' when using
@@ -98,10 +91,8 @@ bot.locators.className.many = function (target, root) {
     try {
       return root.querySelectorAll('.' + target.replace(/\./g, '\\.'));
     } catch (e) {
-      throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-        'An invalid or illegal class name was specified');
+      throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'An invalid or illegal class name was specified');
     }
   }
-  return goog.dom.getDomHelper(root).getElementsByTagNameAndClass(
-      /*tagName=*/'*', /*className=*/target, root);
+  return goog.dom.getDomHelper(root).getElementsByTagNameAndClass(/*tagName=*/ '*', /*className=*/ target, root);
 };

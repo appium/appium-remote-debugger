@@ -29,7 +29,6 @@ goog.require('bot.userAgent');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.product');
 
-
 /**
  * Identifier for supported HTML5 API in Webdriver.
  *
@@ -44,47 +43,40 @@ bot.html5.API = {
   SESSION_STORAGE: 'session_storage',
   VIDEO: 'video',
   AUDIO: 'audio',
-  CANVAS: 'canvas'
+  CANVAS: 'canvas',
 };
-
 
 /**
  * True if the current browser is IE version 8 or earlier.
  * @private {boolean}
  * @const
  */
-bot.html5.IS_IE8_OR_EARLIER_ = goog.userAgent.IE &&
-    !bot.userAgent.isEngineVersion(9);
-
+bot.html5.IS_IE8_OR_EARLIER_ = goog.userAgent.IE && !bot.userAgent.isEngineVersion(9);
 
 /**
  * True if the current browser is Safari version 4 or earlier.
  * @private {boolean}
  * @const
  */
-bot.html5.IS_SAFARI4_OR_EARLIER_ = goog.userAgent.product.SAFARI &&
-    !bot.userAgent.isProductVersion(5);
-
+bot.html5.IS_SAFARI4_OR_EARLIER_ = goog.userAgent.product.SAFARI && !bot.userAgent.isProductVersion(5);
 
 /**
  * True if the browser is Android version 2.2 (Froyo) or earlier.
  * @private {boolean}
  * @const
  */
-bot.html5.IS_ANDROID_FROYO_OR_EARLIER_ = goog.userAgent.product.ANDROID &&
-    !bot.userAgent.isProductVersion(2.3);
-
+bot.html5.IS_ANDROID_FROYO_OR_EARLIER_ = goog.userAgent.product.ANDROID && !bot.userAgent.isProductVersion(2.3);
 
 /**
  * True if the current browser is Safari 5 on Windows.
  * @private {boolean}
  * @const
  */
-bot.html5.IS_SAFARI_WINDOWS_ = goog.userAgent.WINDOWS &&
-    goog.userAgent.product.SAFARI &&
-    (bot.userAgent.isProductVersion(4)) &&
-    !bot.userAgent.isProductVersion(6);
-
+bot.html5.IS_SAFARI_WINDOWS_ =
+  goog.userAgent.WINDOWS &&
+  goog.userAgent.product.SAFARI &&
+  bot.userAgent.isProductVersion(4) &&
+  !bot.userAgent.isProductVersion(6);
 
 /**
  * Checks if the browser supports an HTML5 feature.
@@ -94,7 +86,7 @@ bot.html5.IS_SAFARI_WINDOWS_ = goog.userAgent.WINDOWS &&
  *     defaults to the main window.
  * @return {boolean} Whether the browser supports the feature.
  */
-bot.html5.isSupported = function(api, opt_window) {
+bot.html5.isSupported = function (api, opt_window) {
   var win = opt_window || bot.getWindow();
 
   switch (api) {
@@ -106,8 +98,7 @@ bot.html5.isSupported = function(api, opt_window) {
       return win.applicationCache != null;
 
     case bot.html5.API.BROWSER_CONNECTION:
-      return win.navigator != null &&
-          win.navigator.onLine != null;
+      return win.navigator != null && win.navigator.onLine != null;
 
     case bot.html5.API.DATABASE:
       // Safari4 database API does not allow writes.
@@ -126,8 +117,7 @@ bot.html5.isSupported = function(api, opt_window) {
       if (bot.html5.IS_SAFARI_WINDOWS_) {
         return false;
       }
-      return win.navigator != null &&
-          win.navigator.geolocation != null;
+      return win.navigator != null && win.navigator.geolocation != null;
 
     case bot.html5.API.LOCAL_STORAGE:
       // IE8 does not support local storage, though the APIs exist.
@@ -141,13 +131,14 @@ bot.html5.isSupported = function(api, opt_window) {
       if (bot.html5.IS_IE8_OR_EARLIER_) {
         return false;
       }
-      return win.sessionStorage != null &&
-          // To avoid browsers that only support this API partially
-          // like some versions of FF.
-          win.sessionStorage.clear != null;
+      return (
+        win.sessionStorage != null &&
+        // To avoid browsers that only support this API partially
+        // like some versions of FF.
+        win.sessionStorage.clear != null
+      );
 
     default:
-      throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-          'Unsupported API identifier provided as parameter');
+      throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Unsupported API identifier provided as parameter');
   }
 };

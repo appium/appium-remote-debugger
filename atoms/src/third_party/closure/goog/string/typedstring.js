@@ -6,8 +6,6 @@
 
 goog.provide('goog.string.TypedString');
 
-
-
 /**
  * Wrapper for strings that conform to a data type or language.
  *
@@ -19,8 +17,7 @@ goog.provide('goog.string.TypedString');
  * to assert type membership, such as `goog.html.SafeHtml.unwrap`.
  * @interface
  */
-goog.string.TypedString = function() {};
-
+goog.string.TypedString = function () {};
 
 /**
  * Interface marker of the TypedString interface.
@@ -31,7 +28,6 @@ goog.string.TypedString = function() {};
  * @type {boolean}
  */
 goog.string.TypedString.prototype.implementsGoogStringTypedString;
-
 
 /**
  * Retrieves this wrapped string's value.

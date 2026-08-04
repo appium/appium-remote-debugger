@@ -8,26 +8,22 @@
  * @fileoverview Browser capability checks for the dom package.
  */
 
-
 goog.provide('goog.dom.BrowserFeature');
 
 goog.require('goog.userAgent');
-
 
 /**
  * @define {boolean} Whether we know at compile time that the browser doesn't
  * support OffscreenCanvas.
  */
-goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS =
-    goog.define('goog.dom.ASSUME_NO_OFFSCREEN_CANVAS', false);
+goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS = goog.define('goog.dom.ASSUME_NO_OFFSCREEN_CANVAS', false);
 
 /**
  * @define {boolean} Whether we know at compile time that the browser supports
  * all OffscreenCanvas contexts.
  */
 // TODO(user): Eventually this should default to "FEATURESET_YEAR >= 202X".
-goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS =
-    goog.define('goog.dom.ASSUME_OFFSCREEN_CANVAS', false);
+goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS = goog.define('goog.dom.ASSUME_OFFSCREEN_CANVAS', false);
 
 /**
  * Detects if a particular OffscreenCanvas context is supported.
@@ -35,14 +31,13 @@ goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS =
  * @return {boolean} Whether the browser supports this OffscreenCanvas context.
  * @private
  */
-goog.dom.BrowserFeature.detectOffscreenCanvas_ = function(contextName) {
+goog.dom.BrowserFeature.detectOffscreenCanvas_ = function (contextName) {
   'use strict';
   // This code only gets removed because we forced @nosideeffects on
   // the functions. See: b/138802376
   try {
     return Boolean(new self.OffscreenCanvas(0, 0).getContext(contextName));
-  } catch (ex) {
-  }
+  } catch (ex) {}
   return false;
 };
 
@@ -51,9 +46,8 @@ goog.dom.BrowserFeature.detectOffscreenCanvas_ = function(contextName) {
  * @const {boolean}
  */
 goog.dom.BrowserFeature.OFFSCREEN_CANVAS_2D =
-    !goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS &&
-    (goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS ||
-     goog.dom.BrowserFeature.detectOffscreenCanvas_('2d'));
+  !goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS &&
+  (goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS || goog.dom.BrowserFeature.detectOffscreenCanvas_('2d'));
 
 /**
  * Whether attributes 'name' and 'type' can be added to an element after it's
@@ -82,8 +76,7 @@ goog.dom.BrowserFeature.CAN_USE_INNER_TEXT = false;
  * element's parent if it is an Element.
  * @const {boolean}
  */
-goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY =
-    goog.userAgent.IE || goog.userAgent.WEBKIT;
+goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY = goog.userAgent.IE || goog.userAgent.WEBKIT;
 
 /**
  * Whether NoScope elements need a scoped element written before them in

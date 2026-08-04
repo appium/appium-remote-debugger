@@ -16,8 +16,6 @@
 
 goog.provide('goog.fs.blob');
 
-
-
 /**
  * Concatenates one or more values together and converts them to a Blob.
  *
@@ -25,7 +23,7 @@ goog.provide('goog.fs.blob');
  *     the resulting blob.
  * @return {!Blob} The blob.
  */
-goog.fs.blob.getBlob = function(var_args) {
+goog.fs.blob.getBlob = function (var_args) {
   'use strict';
   const BlobBuilder = goog.global.BlobBuilder || goog.global.WebKitBlobBuilder;
 
@@ -36,11 +34,9 @@ goog.fs.blob.getBlob = function(var_args) {
     }
     return bb.getBlob();
   } else {
-    return goog.fs.blob.getBlobWithProperties(
-        Array.prototype.slice.call(arguments));
+    return goog.fs.blob.getBlobWithProperties(Array.prototype.slice.call(arguments));
   }
 };
-
 
 /**
  * Creates a blob with the given properties.
@@ -54,7 +50,7 @@ goog.fs.blob.getBlob = function(var_args) {
  *     be written out.
  * @return {!Blob} The blob.
  */
-goog.fs.blob.getBlobWithProperties = function(parts, opt_type, opt_endings) {
+goog.fs.blob.getBlobWithProperties = function (parts, opt_type, opt_endings) {
   'use strict';
   const BlobBuilder = goog.global.BlobBuilder || goog.global.WebKitBlobBuilder;
 
@@ -74,6 +70,6 @@ goog.fs.blob.getBlobWithProperties = function(parts, opt_type, opt_endings) {
     }
     return new Blob(parts, properties);
   } else {
-    throw new Error('This browser doesn\'t seem to support creating Blobs');
+    throw new Error("This browser doesn't seem to support creating Blobs");
   }
 };

@@ -26,7 +26,6 @@ goog.provide('bot.color');
 goog.require('goog.array');
 goog.require('goog.color.names');
 
-
 /**
  * Returns a property, with a standardized color if it contains a
  * convertible color.
@@ -46,7 +45,6 @@ bot.color.standardizeColor = function (propertyName, propertyValue) {
   return rgba ? 'rgba(' + rgba.join(', ') + ')' : propertyValue;
 };
 
-
 /**
  * Used to determine whether a css property contains a color and
  * should therefore be standardized to rgba.
@@ -64,9 +62,8 @@ bot.color.COLOR_PROPERTIES_ = [
   'borderBottomColor',
   'borderLeftColor',
   'color',
-  'outlineColor'
+  'outlineColor',
 ];
-
 
 /**
  * Regular expression for extracting the digits in a hex color triplet.
@@ -74,7 +71,6 @@ bot.color.COLOR_PROPERTIES_ = [
  * @const
  */
 bot.color.HEX_TRIPLET_RE_ = /#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/;
-
 
 /**
  * Converts a hex representation of a color to RGB.
@@ -87,9 +83,9 @@ bot.color.maybeConvertHexOrColorName_ = function (hexOrColorName) {
   hexOrColorName = hexOrColorName.toLowerCase();
   var hex = goog.color.names[hexOrColorName.toLowerCase()];
   if (!hex) {
-    hex = hexOrColorName.charAt(0) == '#' ?
-      hexOrColorName : '#' + hexOrColorName;
-    if (hex.length == 4) { // of the form #RGB
+    hex = hexOrColorName.charAt(0) == '#' ? hexOrColorName : '#' + hexOrColorName;
+    if (hex.length == 4) {
+      // of the form #RGB
       hex = hex.replace(bot.color.HEX_TRIPLET_RE_, '#$1$1$2$2$3$3');
     }
 
@@ -105,7 +101,6 @@ bot.color.maybeConvertHexOrColorName_ = function (hexOrColorName) {
   return [r, g, b, 1];
 };
 
-
 /**
  * Helper for isValidHexColor_.
  * @private {!RegExp}
@@ -113,15 +108,12 @@ bot.color.maybeConvertHexOrColorName_ = function (hexOrColorName) {
  */
 bot.color.VALID_HEX_COLOR_RE_ = /^#(?:[0-9a-f]{3}){1,2}$/i;
 
-
 /**
  * Regular expression for matching and capturing RGBA style strings.
  * @private {!RegExp}
  * @const
  */
-bot.color.RGBA_COLOR_RE_ =
-  /^(?:rgba)?\((\d{1,3}),\s?(\d{1,3}),\s?(\d{1,3}),\s?(0|1|0\.\d*)\)$/i;
-
+bot.color.RGBA_COLOR_RE_ = /^(?:rgba)?\((\d{1,3}),\s?(\d{1,3}),\s?(\d{1,3}),\s?(0|1|0\.\d*)\)$/i;
 
 /**
  * Attempts to parse a string as an rgba color.  We expect strings of the
@@ -142,25 +134,19 @@ bot.color.maybeParseRgbaColor_ = function (str) {
     var g = Number(regExpResultArray[2]);
     var b = Number(regExpResultArray[3]);
     var a = Number(regExpResultArray[4]);
-    if (r >= 0 && r <= 255 &&
-      g >= 0 && g <= 255 &&
-      b >= 0 && b <= 255 &&
-      a >= 0 && a <= 1) {
+    if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 1) {
       return [r, g, b, a];
     }
   }
   return null;
 };
 
-
 /**
  * Regular expression for matching and capturing RGB style strings.
  * @private {!RegExp}
  * @const
  */
-bot.color.RGB_COLOR_RE_ =
-  /^(?:rgb)?\((0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2})\)$/i;
-
+bot.color.RGB_COLOR_RE_ = /^(?:rgb)?\((0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2})\)$/i;
 
 /**
  * Attempts to parse a string as an rgb color.  We expect strings of the format
@@ -180,9 +166,7 @@ bot.color.maybeParseRgbColor_ = function (str) {
     var r = Number(regExpResultArray[1]);
     var g = Number(regExpResultArray[2]);
     var b = Number(regExpResultArray[3]);
-    if (r >= 0 && r <= 255 &&
-      g >= 0 && g <= 255 &&
-      b >= 0 && b <= 255) {
+    if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
       return [r, g, b, 1];
     }
   }

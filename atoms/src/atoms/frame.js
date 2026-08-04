@@ -20,7 +20,6 @@
  *
  */
 
-
 goog.provide('bot.frame');
 
 goog.require('bot');
@@ -31,7 +30,6 @@ goog.require('bot.locators');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 
-
 /**
  * @return {!Window} The top window.
  */
@@ -39,14 +37,12 @@ bot.frame.defaultContent = function () {
   return bot.getWindow().top;
 };
 
-
 /**
  * @return {!Element} The currently active element.
  */
 bot.frame.activeElement = function () {
   return document.activeElement || document.body;
 };
-
 
 /**
  * Gets the parent frame of the specified frame.
@@ -59,7 +55,6 @@ bot.frame.parentFrame = function (opt_root) {
   var domWindow = opt_root || bot.getWindow();
   return domWindow.parent;
 };
-
 
 /**
  * Returns a reference to the window object corresponding to the given element.
@@ -74,10 +69,8 @@ bot.frame.getFrameWindow = function (element) {
     var frame = /** @type {HTMLFrameElement|HTMLIFrameElement} */ (element);
     return goog.dom.getFrameContentWindow(frame);
   }
-  throw new bot.Error(bot.ErrorCode.NO_SUCH_FRAME,
-    "The given element isn't a frame or an iframe.");
+  throw new bot.Error(bot.ErrorCode.NO_SUCH_FRAME, "The given element isn't a frame or an iframe.");
 };
-
 
 /**
  * Returns whether an element is a frame (or iframe).
@@ -87,10 +80,8 @@ bot.frame.getFrameWindow = function (element) {
  * @private
  */
 bot.frame.isFrame_ = function (element) {
-  return bot.dom.isElement(element, goog.dom.TagName.FRAME) ||
-    bot.dom.isElement(element, goog.dom.TagName.IFRAME);
+  return bot.dom.isElement(element, goog.dom.TagName.FRAME) || bot.dom.isElement(element, goog.dom.TagName.IFRAME);
 };
-
 
 /**
  * Looks for a frame by its name or id (preferring name over id)
@@ -123,7 +114,7 @@ bot.frame.findFrameByNameOrId = function (nameOrId, opt_root) {
   }
 
   // Lookup frame by id
-  var elements = bot.locators.findElements({ id: nameOrId }, domWindow.document);
+  var elements = bot.locators.findElements({id: nameOrId}, domWindow.document);
   for (var i = 0; i < elements.length; i++) {
     var frameElement = elements[i];
     if (frameElement && bot.frame.isFrame_(frameElement)) {
@@ -132,7 +123,6 @@ bot.frame.findFrameByNameOrId = function (nameOrId, opt_root) {
   }
   return null;
 };
-
 
 /**
  * Looks for a frame by its index under the given root.
@@ -146,7 +136,6 @@ bot.frame.findFrameByIndex = function (index, opt_root) {
   var domWindow = opt_root || bot.getWindow();
   return domWindow.frames[index] || null;
 };
-
 
 /**
  * Gets the index of a frame in the given window. Note that the element must

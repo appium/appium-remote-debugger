@@ -42,7 +42,6 @@ goog.require('goog.object');
 goog.require('goog.userAgent');
 goog.require('goog.utils');
 
-
 /**
  * Type definition for the WebDriver's JSON wire protocol representation
  * of a DOM element.
@@ -51,7 +50,6 @@ goog.require('goog.utils');
  * @see https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol
  */
 bot.inject.JsonElement;
-
 
 /**
  * Type definition for a cached Window object that can be referenced in
@@ -62,7 +60,6 @@ bot.inject.JsonElement;
  */
 bot.inject.JsonWindow;
 
-
 /**
  * Key used to identify DOM elements in the WebDriver wire protocol.
  * @type {string}
@@ -71,14 +68,12 @@ bot.inject.JsonWindow;
  */
 bot.inject.ELEMENT_KEY = 'ELEMENT';
 
-
 /**
  * Key used to identify Window objects in the WebDriver wire protocol.
  * @type {string}
  * @const
  */
 bot.inject.WINDOW_KEY = 'WINDOW';
-
 
 /**
  * Converts an element to a JSON friendly value so that it can be
@@ -112,8 +107,9 @@ bot.inject.wrapValue = function (value) {
         return value.toString();
 
       case 'array':
-        return goog.array.map(/**@type {IArrayLike}*/(value),
-          function (v) { return _wrap(v, seen); });
+        return goog.array.map(/**@type {IArrayLike}*/ (value), function (v) {
+          return _wrap(v, seen);
+        });
 
       case 'object':
         // Since {*} expands to {Object|boolean|number|string|undefined}, the
@@ -122,48 +118,48 @@ bot.inject.wrapValue = function (value) {
         // a ton of compiler warnings.
         value = /**@type {!Object}*/ (value);
         if (seen.indexOf(value) >= 0) {
-          throw new bot.Error(bot.ErrorCode.JAVASCRIPT_ERROR,
-            'Recursive object cannot be transferred');
+          throw new bot.Error(bot.ErrorCode.JAVASCRIPT_ERROR, 'Recursive object cannot be transferred');
         }
 
         // Sniff out DOM elements. We're using duck-typing instead of an
         // instanceof check since the instanceof might not always work
         // (e.g. if the value originated from another Firefox component)
-        if (goog.object.containsKey(value, 'nodeType') &&
-          (value['nodeType'] == goog.dom.NodeType.ELEMENT ||
-            value['nodeType'] == goog.dom.NodeType.DOCUMENT)) {
+        if (
+          goog.object.containsKey(value, 'nodeType') &&
+          (value['nodeType'] == goog.dom.NodeType.ELEMENT || value['nodeType'] == goog.dom.NodeType.DOCUMENT)
+        ) {
           var ret = {};
-          ret[bot.inject.ELEMENT_KEY] =
-            bot.inject.cache.addElement(/**@type {!Element}*/(value));
+          ret[bot.inject.ELEMENT_KEY] = bot.inject.cache.addElement(/**@type {!Element}*/ (value));
           return ret;
         }
 
         // Check if this is a Window
         if (goog.object.containsKey(value, 'document')) {
           var ret = {};
-          ret[bot.inject.WINDOW_KEY] =
-            bot.inject.cache.addElement(/**@type{!Window}*/(value));
+          ret[bot.inject.WINDOW_KEY] = bot.inject.cache.addElement(/**@type{!Window}*/ (value));
           return ret;
         }
 
         seen.push(value);
         if (goog.utils.isArrayLike(value)) {
-          return goog.array.map(/**@type {IArrayLike}*/(value),
-            function (v) { return _wrap(v, seen); });
+          return goog.array.map(/**@type {IArrayLike}*/ (value), function (v) {
+            return _wrap(v, seen);
+          });
         }
 
         var filtered = goog.object.filter(value, function (val, key) {
           return typeof key === 'number' || typeof key === 'string';
         });
-        return goog.object.map(filtered, function (v) { return _wrap(v, seen); });
+        return goog.object.map(filtered, function (v) {
+          return _wrap(v, seen);
+        });
 
-      default:  // goog.typeOf(value) == 'undefined' || 'null'
+      default: // goog.typeOf(value) == 'undefined' || 'null'
         return null;
     }
   };
   return _wrap(value, []);
 };
-
 
 /**
  * Unwraps any DOM element's encoded in the given `value`.
@@ -174,8 +170,9 @@ bot.inject.wrapValue = function (value) {
  */
 bot.inject.unwrapValue = function (value, opt_doc) {
   if (Array.isArray(value)) {
-    return goog.array.map(/**@type {IArrayLike}*/(value),
-      function (v) { return bot.inject.unwrapValue(v, opt_doc); });
+    return goog.array.map(/**@type {IArrayLike}*/ (value), function (v) {
+      return bot.inject.unwrapValue(v, opt_doc);
+    });
   } else if (goog.utils.isObject(value)) {
     if (typeof value == 'function') {
       return value;
@@ -183,13 +180,11 @@ bot.inject.unwrapValue = function (value, opt_doc) {
 
     var obj = /** @type {!Object} */ (value);
     if (goog.object.containsKey(obj, bot.inject.ELEMENT_KEY)) {
-      return bot.inject.cache.getElement(obj[bot.inject.ELEMENT_KEY],
-        opt_doc);
+      return bot.inject.cache.getElement(obj[bot.inject.ELEMENT_KEY], opt_doc);
     }
 
     if (goog.object.containsKey(obj, bot.inject.WINDOW_KEY)) {
-      return bot.inject.cache.getElement(obj[bot.inject.WINDOW_KEY],
-        opt_doc);
+      return bot.inject.cache.getElement(obj[bot.inject.WINDOW_KEY], opt_doc);
     }
 
     return goog.object.map(obj, function (val) {
@@ -198,7 +193,6 @@ bot.inject.unwrapValue = function (value, opt_doc) {
   }
   return value;
 };
-
 
 /**
  * Recompiles `fn` in the context of another window so that the
@@ -228,10 +222,8 @@ bot.inject.recompileFunction_ = function (fn, theWindow) {
       throw ex;
     }
   }
-  return theWindow == window ? fn : new theWindow['Function'](
-    'return (' + fn + ').apply(null,arguments);');
+  return theWindow == window ? fn : new theWindow['Function']('return (' + fn + ').apply(null,arguments);');
 };
-
 
 /**
  * Executes an injected script. This function should never be called from
@@ -275,15 +267,13 @@ bot.inject.executeScript = function (fn, args, opt_stringify, opt_window) {
   var ret;
   try {
     fn = bot.inject.recompileFunction_(fn, win);
-    var unwrappedArgs = /**@type {Object}*/ (bot.inject.unwrapValue(args,
-      win.document));
+    var unwrappedArgs = /**@type {Object}*/ (bot.inject.unwrapValue(args, win.document));
     ret = bot.inject.wrapResponse(fn.apply(null, unwrappedArgs));
   } catch (ex) {
     ret = bot.inject.wrapError(ex);
   }
   return opt_stringify ? bot.json.stringify(ret) : ret;
 };
-
 
 /**
  * Executes an injected script, which is expected to finish asynchronously
@@ -321,8 +311,7 @@ bot.inject.executeScript = function (fn, args, opt_stringify, opt_window) {
  * @param {!Window=} opt_window The window to synchronize the script with;
  *     defaults to the current window.
  */
-bot.inject.executeAsyncScript = function (fn, args, timeout, onDone,
-  opt_stringify, opt_window) {
+bot.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_stringify, opt_window) {
   var win = opt_window || window;
   var timeoutId;
   var responseSent = false;
@@ -372,22 +361,28 @@ bot.inject.executeAsyncScript = function (fn, args, timeout, onDone,
     // Register our timeout *after* the function has been invoked. This will
     // ensure we don't timeout on a function that invokes its callback after
     // a 0-based timeout.
-    timeoutId = win.setTimeout(function () {
-      sendResponse(bot.ErrorCode.SCRIPT_TIMEOUT,
-        Error('Timed out waiting for asynchronous script result ' +
-          'after ' + (goog.utils.now() - startTime) + ' ms'));
-    }, Math.max(0, timeout));
+    timeoutId = win.setTimeout(
+      function () {
+        sendResponse(
+          bot.ErrorCode.SCRIPT_TIMEOUT,
+          Error(
+            'Timed out waiting for asynchronous script result ' + 'after ' + (goog.utils.now() - startTime) + ' ms',
+          ),
+        );
+      },
+      Math.max(0, timeout),
+    );
   } catch (ex) {
     sendResponse(ex.code || bot.ErrorCode.UNKNOWN_ERROR, ex);
   }
 
   function onunload() {
-    sendResponse(bot.ErrorCode.UNKNOWN_ERROR,
-      Error('Detected a page unload event; asynchronous script ' +
-        'execution does not work across page loads.'));
+    sendResponse(
+      bot.ErrorCode.UNKNOWN_ERROR,
+      Error('Detected a page unload event; asynchronous script ' + 'execution does not work across page loads.'),
+    );
   }
 };
-
 
 /**
  * Wraps the response to an injected script that executed successfully so it
@@ -400,10 +395,9 @@ bot.inject.executeAsyncScript = function (fn, args, timeout, onDone,
 bot.inject.wrapResponse = function (value) {
   return {
     'status': bot.ErrorCode.SUCCESS,
-    'value': bot.inject.wrapValue(value)
+    'value': bot.inject.wrapValue(value),
   };
 };
-
 
 /**
  * Wraps a JavaScript error in an object-literal so that it can be JSON-ified
@@ -415,15 +409,13 @@ bot.inject.wrapResponse = function (value) {
 bot.inject.wrapError = function (err) {
   // TODO: Parse stackTrace
   return {
-    'status': goog.object.containsKey(err, 'code') ?
-      err['code'] : bot.ErrorCode.UNKNOWN_ERROR,
+    'status': goog.object.containsKey(err, 'code') ? err['code'] : bot.ErrorCode.UNKNOWN_ERROR,
     // TODO: Parse stackTrace
     'value': {
-      'message': err.message
-    }
+      'message': err.message,
+    },
   };
 };
-
 
 /**
  * The property key used to store the element cache on the DOCUMENT node
@@ -435,14 +427,12 @@ bot.inject.wrapError = function (err) {
  */
 bot.inject.cache.CACHE_KEY_ = '$wdc_';
 
-
 /**
  * The prefix for each key stored in an cache.
  * @type {string}
  * @const
  */
 bot.inject.cache.ELEMENT_KEY_PREFIX = ':wdc:';
-
 
 /**
  * Retrieves the cache object for the given window. Will initialize the cache
@@ -469,7 +459,6 @@ bot.inject.cache.getCache_ = function (opt_doc) {
   return cache;
 };
 
-
 /**
  * Adds an element to its ownerDocument's cache.
  * @param {(Element|Window)} el The element or Window object to add.
@@ -488,7 +477,6 @@ bot.inject.cache.addElement = function (el) {
   return id;
 };
 
-
 /**
  * Retrieves an element from the cache. Will verify that the element is
  * still attached to the DOM before returning.
@@ -504,8 +492,7 @@ bot.inject.cache.getElement = function (key, opt_doc) {
   if (!goog.object.containsKey(cache, key)) {
     // Throw STALE_ELEMENT_REFERENCE instead of NO_SUCH_ELEMENT since the
     // key may have been defined by a prior document's cache.
-    throw new bot.Error(bot.ErrorCode.STALE_ELEMENT_REFERENCE,
-      'Element does not exist in cache');
+    throw new bot.Error(bot.ErrorCode.STALE_ELEMENT_REFERENCE, 'Element does not exist in cache');
   }
 
   var el = cache[key];
@@ -514,8 +501,7 @@ bot.inject.cache.getElement = function (key, opt_doc) {
   if (goog.object.containsKey(el, 'setInterval')) {
     if (el.closed) {
       delete cache[key];
-      throw new bot.Error(bot.ErrorCode.NO_SUCH_WINDOW,
-        'Window has been closed.');
+      throw new bot.Error(bot.ErrorCode.NO_SUCH_WINDOW, 'Window has been closed.');
     }
     return el;
   }
@@ -532,6 +518,5 @@ bot.inject.cache.getElement = function (key, opt_doc) {
     node = node.parentNode;
   }
   delete cache[key];
-  throw new bot.Error(bot.ErrorCode.STALE_ELEMENT_REFERENCE,
-    'Element is no longer attached to the DOM');
+  throw new bot.Error(bot.ErrorCode.STALE_ELEMENT_REFERENCE, 'Element is no longer attached to the DOM');
 };

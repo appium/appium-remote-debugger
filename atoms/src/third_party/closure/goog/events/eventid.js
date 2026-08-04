@@ -6,8 +6,6 @@
 
 goog.provide('goog.events.EventId');
 
-
-
 /**
  * A templated class that is used when registering for events. Typical usage:
  *
@@ -25,17 +23,16 @@ goog.provide('goog.events.EventId');
  * @struct
  * @final
  */
-goog.events.EventId = function(eventId) {
+goog.events.EventId = function (eventId) {
   'use strict';
   /** @const */ this.id = eventId;
 };
-
 
 /**
  * @override
  * @return {string}
  */
-goog.events.EventId.prototype.toString = function() {
+goog.events.EventId.prototype.toString = function () {
   'use strict';
   return this.id;
 };

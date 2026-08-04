@@ -24,7 +24,6 @@ goog.provide('webdriver.atoms.inject.storage.local');
 goog.require('webdriver.atoms.inject');
 goog.require('webdriver.atoms.storage.local');
 
-
 /**
  * Sets an item in the local storage.
  *
@@ -33,11 +32,9 @@ goog.require('webdriver.atoms.storage.local');
  * @return {string} The stringified result wrapped according to the wire
  *     protocol.
  */
-webdriver.atoms.inject.storage.local.setItem = function(key, value) {
-  return webdriver.atoms.inject.executeScript(
-      webdriver.atoms.storage.local.setItem, [key, value]);
+webdriver.atoms.inject.storage.local.setItem = function (key, value) {
+  return webdriver.atoms.inject.executeScript(webdriver.atoms.storage.local.setItem, [key, value]);
 };
-
 
 /**
  * Gets an item from the local storage.
@@ -46,11 +43,9 @@ webdriver.atoms.inject.storage.local.setItem = function(key, value) {
  * @return {string} The stringified result wrapped according to the wire
  *     protocol.
  */
-webdriver.atoms.inject.storage.local.getItem = function(key) {
-  return webdriver.atoms.inject.executeScript(
-      webdriver.atoms.storage.local.getItem, [key]);
+webdriver.atoms.inject.storage.local.getItem = function (key) {
+  return webdriver.atoms.inject.executeScript(webdriver.atoms.storage.local.getItem, [key]);
 };
-
 
 /**
  * Gets the key set of the entries.
@@ -58,11 +53,9 @@ webdriver.atoms.inject.storage.local.getItem = function(key) {
  * @return {string} The stringified result wrapped according to the wire
  *     protocol.
  */
-webdriver.atoms.inject.storage.local.keySet = function() {
-  return webdriver.atoms.inject.executeScript(
-      webdriver.atoms.storage.local.keySet, []);
+webdriver.atoms.inject.storage.local.keySet = function () {
+  return webdriver.atoms.inject.executeScript(webdriver.atoms.storage.local.keySet, []);
 };
-
 
 /**
  * Removes an item in the local storage.
@@ -71,11 +64,9 @@ webdriver.atoms.inject.storage.local.keySet = function() {
  * @return {string} The stringified result wrapped according to the wire
  *     protocol.
  */
-webdriver.atoms.inject.storage.local.removeItem = function(key) {
-  return webdriver.atoms.inject.executeScript(
-      webdriver.atoms.storage.local.removeItem, [key]);
+webdriver.atoms.inject.storage.local.removeItem = function (key) {
+  return webdriver.atoms.inject.executeScript(webdriver.atoms.storage.local.removeItem, [key]);
 };
-
 
 /**
  * Clears the local storage.
@@ -83,11 +74,9 @@ webdriver.atoms.inject.storage.local.removeItem = function(key) {
  * @return {string} The stringified result wrapped according to the wire
  *     protocol.
  */
-webdriver.atoms.inject.storage.local.clear = function() {
-  return webdriver.atoms.inject.executeScript(
-      webdriver.atoms.storage.local.clear, []);
+webdriver.atoms.inject.storage.local.clear = function () {
+  return webdriver.atoms.inject.executeScript(webdriver.atoms.storage.local.clear, []);
 };
-
 
 /**
  * Gets the size of the local storage.
@@ -95,7 +84,6 @@ webdriver.atoms.inject.storage.local.clear = function() {
  * @return {string} The stringified result wrapped according to the wire
  *     protocol.
  */
-webdriver.atoms.inject.storage.local.size = function() {
-  return webdriver.atoms.inject.executeScript(
-      webdriver.atoms.storage.local.size, []);
+webdriver.atoms.inject.storage.local.size = function () {
+  return webdriver.atoms.inject.executeScript(webdriver.atoms.storage.local.size, []);
 };

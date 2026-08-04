@@ -24,7 +24,6 @@ goog.provide('webdriver.atoms.inject.frame');
 goog.require('bot.frame');
 goog.require('webdriver.atoms.inject');
 
-
 /**
  * Finds a frame by id or name.
  *
@@ -34,20 +33,16 @@ goog.require('webdriver.atoms.inject');
  * @return {string} A frame element wrapped in a JSON string as defined by
  *     the wire protocol.
  */
-webdriver.atoms.inject.frame.findFrameByIdOrName =
-    function(idOrName, opt_root) {
-  return webdriver.atoms.inject.executeScript(bot.frame.findFrameByNameOrId,
-      [idOrName, opt_root]);
+webdriver.atoms.inject.frame.findFrameByIdOrName = function (idOrName, opt_root) {
+  return webdriver.atoms.inject.executeScript(bot.frame.findFrameByNameOrId, [idOrName, opt_root]);
 };
-
 
 /**
  * @return {string} A string representing the currently active element.
  */
-webdriver.atoms.inject.frame.activeElement = function() {
+webdriver.atoms.inject.frame.activeElement = function () {
   return webdriver.atoms.inject.executeScript(bot.frame.activeElement, []);
 };
-
 
 /**
  * Finds the parent frame of the specified frame.
@@ -58,10 +53,8 @@ webdriver.atoms.inject.frame.activeElement = function() {
  *     the wire protocol.
  */
 webdriver.atoms.inject.frame.parentFrame = function (opt_root) {
-  return webdriver.atoms.inject.executeScript(bot.frame.parentFrame,
-      [opt_root]);
+  return webdriver.atoms.inject.executeScript(bot.frame.parentFrame, [opt_root]);
 };
-
 
 /**
  * Finds a frame by index.
@@ -72,27 +65,23 @@ webdriver.atoms.inject.frame.parentFrame = function (opt_root) {
  * @return {string} A frame element wrapped in a JSON string as defined by
  *     the wire protocol.
  */
-webdriver.atoms.inject.frame.findFrameByIndex = function(index, opt_root) {
-  return webdriver.atoms.inject.executeScript(bot.frame.findFrameByIndex,
-      [index, opt_root]);
+webdriver.atoms.inject.frame.findFrameByIndex = function (index, opt_root) {
+  return webdriver.atoms.inject.executeScript(bot.frame.findFrameByIndex, [index, opt_root]);
 };
-
 
 /**
  * @return {string} The default content of the current page,
  *     which is the top window.
  */
-webdriver.atoms.inject.frame.defaultContent = function() {
+webdriver.atoms.inject.frame.defaultContent = function () {
   return webdriver.atoms.inject.executeScript(bot.frame.defaultContent, []);
 };
-
 
 /**
  * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to query.
  * @return {string} The window corresponding to the frame element
  *     wrapped in a JSON string as defined by the wire protocol.
  */
-webdriver.atoms.inject.frame.getFrameWindow = function(element) {
-  return webdriver.atoms.inject.executeScript(bot.frame.getFrameWindow,
-      [element]);
+webdriver.atoms.inject.frame.getFrameWindow = function (element) {
+  return webdriver.atoms.inject.executeScript(bot.frame.getFrameWindow, [element]);
 };

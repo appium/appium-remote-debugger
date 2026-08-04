@@ -27,7 +27,6 @@ goog.require('goog.string');
 goog.require('goog.userAgent');
 goog.require('goog.utils');
 
-
 /**
  * Find an element by using a CSS selector
  *
@@ -38,16 +37,18 @@ goog.require('goog.utils');
  *     such element could be found.
  */
 bot.locators.css.single = function (target, root) {
-  if (typeof root['querySelector'] !== 'function' &&
+  if (
+    typeof root['querySelector'] !== 'function' &&
     // IE8 in non-compatibility mode reports querySelector as an object.
-    goog.userAgent.IE && bot.userAgent.isEngineVersion(8) &&
-    !goog.utils.isObject(root['querySelector'])) {
+    goog.userAgent.IE &&
+    bot.userAgent.isEngineVersion(8) &&
+    !goog.utils.isObject(root['querySelector'])
+  ) {
     throw Error('CSS selection is not supported');
   }
 
   if (!target) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'No selector specified');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'No selector specified');
   }
 
   target = goog.string.trim(target);
@@ -56,14 +57,11 @@ bot.locators.css.single = function (target, root) {
   try {
     element = root.querySelector(target);
   } catch (e) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'An invalid or illegal selector was specified');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'An invalid or illegal selector was specified');
   }
 
-  return element && element.nodeType == goog.dom.NodeType.ELEMENT ?
-      /**@type {Element}*/ (element) : null;
+  return element && element.nodeType == goog.dom.NodeType.ELEMENT ? /**@type {Element}*/ (element) : null;
 };
-
 
 /**
  * Find all elements matching a CSS selector.
@@ -74,16 +72,18 @@ bot.locators.css.single = function (target, root) {
  * @return {!IArrayLike} All matching elements, or an empty list.
  */
 bot.locators.css.many = function (target, root) {
-  if (typeof root['querySelectorAll'] !== 'function' &&
+  if (
+    typeof root['querySelectorAll'] !== 'function' &&
     // IE8 in non-compatibility mode reports querySelector as an object.
-    goog.userAgent.IE && bot.userAgent.isEngineVersion(8) &&
-    !goog.utils.isObject(root['querySelector'])) {
+    goog.userAgent.IE &&
+    bot.userAgent.isEngineVersion(8) &&
+    !goog.utils.isObject(root['querySelector'])
+  ) {
     throw Error('CSS selection is not supported');
   }
 
   if (!target) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'No selector specified');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'No selector specified');
   }
 
   target = goog.string.trim(target);
@@ -91,7 +91,6 @@ bot.locators.css.many = function (target, root) {
   try {
     return root.querySelectorAll(target);
   } catch (e) {
-    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR,
-      'An invalid or illegal selector was specified');
+    throw new bot.Error(bot.ErrorCode.INVALID_SELECTOR_ERROR, 'An invalid or illegal selector was specified');
   }
 };

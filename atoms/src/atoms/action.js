@@ -42,7 +42,6 @@ goog.require('goog.userAgent');
 goog.require('goog.userAgent.product');
 goog.require('goog.utils');
 
-
 /**
  * Throws an exception if an element is not shown to the user, ignoring its
  * opacity.
@@ -53,12 +52,13 @@ goog.require('goog.utils');
  * @private
  */
 bot.action.checkShown_ = function (element) {
-  if (!bot.dom.isShown(element, /*ignoreOpacity=*/true)) {
-    throw new bot.Error(bot.ErrorCode.ELEMENT_NOT_VISIBLE,
-      'Element is not currently visible and may not be manipulated');
+  if (!bot.dom.isShown(element, /*ignoreOpacity=*/ true)) {
+    throw new bot.Error(
+      bot.ErrorCode.ELEMENT_NOT_VISIBLE,
+      'Element is not currently visible and may not be manipulated',
+    );
   }
 };
-
 
 /**
  * Throws an exception if the given element cannot be interacted with.
@@ -70,12 +70,12 @@ bot.action.checkShown_ = function (element) {
  */
 bot.action.checkInteractable_ = function (element) {
   if (!bot.dom.isInteractable(element)) {
-    throw new bot.Error(bot.ErrorCode.INVALID_ELEMENT_STATE,
-      'Element is not currently interactable and may not be manipulated');
-
+    throw new bot.Error(
+      bot.ErrorCode.INVALID_ELEMENT_STATE,
+      'Element is not currently interactable and may not be manipulated',
+    );
   }
 };
-
 
 /**
  * Clears the given `element` if it is a editable text field.
@@ -86,8 +86,7 @@ bot.action.checkInteractable_ = function (element) {
 bot.action.clear = function (element) {
   bot.action.checkInteractable_(element);
   if (!bot.dom.isEditable(element)) {
-    throw new bot.Error(bot.ErrorCode.INVALID_ELEMENT_STATE,
-      'Element must be user-editable in order to clear it.');
+    throw new bot.Error(bot.ErrorCode.INVALID_ELEMENT_STATE, 'Element must be user-editable in order to clear it.');
   }
 
   if (element.value) {
@@ -95,7 +94,7 @@ bot.action.clear = function (element) {
     if (goog.userAgent.IE && bot.dom.isInputType(element, 'range')) {
       var min = element.min ? element.min : 0;
       var max = element.max ? element.max : 100;
-      element.value = (max < min) ? min : min + (max - min) / 2;
+      element.value = max < min ? min : min + (max - min) / 2;
     } else {
       element.value = '';
     }
@@ -107,11 +106,13 @@ bot.action.clear = function (element) {
     if (body) {
       bot.action.LegacyDevice_.focusOnElement(body);
     } else {
-      throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-        'Cannot unfocus element after clearing.');
+      throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot unfocus element after clearing.');
     }
-  } else if (bot.dom.isElement(element, goog.dom.TagName.INPUT) &&
-    (element.getAttribute('type') && element.getAttribute('type').toLowerCase() == "number")) {
+  } else if (
+    bot.dom.isElement(element, goog.dom.TagName.INPUT) &&
+    element.getAttribute('type') &&
+    element.getAttribute('type').toLowerCase() == 'number'
+  ) {
     // number input fields that have invalid inputs
     // report their value as empty string with no way to tell if there is a
     // current value or not
@@ -130,13 +131,11 @@ bot.action.clear = function (element) {
     if (body) {
       bot.action.LegacyDevice_.focusOnElement(body);
     } else {
-      throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-        'Cannot unfocus element after clearing.');
+      throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot unfocus element after clearing.');
     }
     // contentEditable does not generate onchange event.
   }
 };
-
 
 /**
  * Focuses on the given element if it is not already the active element.
@@ -147,7 +146,6 @@ bot.action.focusOnElement = function (element) {
   bot.action.checkInteractable_(element);
   bot.action.LegacyDevice_.focusOnElement(element);
 };
-
 
 /**
  * Types keys on the given `element` with a virtual keyboard.
@@ -169,8 +167,7 @@ bot.action.focusOnElement = function (element) {
  *     pressed when this function ends.
  * @throws {bot.Error} If the element cannot be interacted with.
  */
-bot.action.type = function (
-  element, values, opt_keyboard, opt_persistModifiers) {
+bot.action.type = function (element, values, opt_keyboard, opt_persistModifiers) {
   // If the element has already been brought into focus somehow, typing is
   // always allowed to proceed. Otherwise, we require the element be in an
   // "interactable" state. For example, an element that is hidden by overflow
@@ -199,7 +196,7 @@ bot.action.type = function (
         }
       });
     } else if (goog.array.contains(bot.Keyboard.MODIFIERS, value)) {
-      if (keyboard.isPressed(/** @type {!bot.Keyboard.Key} */(value))) {
+      if (keyboard.isPressed(/** @type {!bot.Keyboard.Key} */ (value))) {
         keyboard.releaseKey(value);
       } else {
         keyboard.pressKey(value);
@@ -212,9 +209,8 @@ bot.action.type = function (
 
   // mobile safari (iPhone / iPad). one cannot 'type' in a date field
   // chrome implements this, but desktop Safari doesn't, what's webkit again?
-  if ((!(goog.userAgent.product.SAFARI && !goog.userAgent.MOBILE)) &&
-    goog.userAgent.WEBKIT && element.type == 'date') {
-    var val = Array.isArray(values) ? values = values.join("") : values;
+  if (!(goog.userAgent.product.SAFARI && !goog.userAgent.MOBILE) && goog.userAgent.WEBKIT && element.type == 'date') {
+    var val = Array.isArray(values) ? (values = values.join('')) : values;
     var datePattern = /\d{4}-\d{2}-\d{2}/;
     if (val.match(datePattern)) {
       // The following events get fired on iOS first
@@ -246,7 +242,6 @@ bot.action.type = function (
   }
 };
 
-
 /**
  * Submits the form containing the given `element`.
  *
@@ -259,12 +254,10 @@ bot.action.type = function (
 bot.action.submit = function (element) {
   var form = bot.action.LegacyDevice_.findAncestorForm(element);
   if (!form) {
-    throw new bot.Error(bot.ErrorCode.NO_SUCH_ELEMENT,
-      'Element was not in a form, so could not submit.');
+    throw new bot.Error(bot.ErrorCode.NO_SUCH_ELEMENT, 'Element was not in a form, so could not submit.');
   }
   bot.action.LegacyDevice_.submitForm(element, form);
 };
-
 
 /**
  * Moves the mouse over the given `element` with a virtual mouse.
@@ -280,7 +273,6 @@ bot.action.moveMouse = function (element, opt_coords, opt_mouse) {
   var mouse = opt_mouse || new bot.Mouse();
   mouse.move(element, coords);
 };
-
 
 /**
  * Clicks on the given `element` with a virtual mouse.
@@ -301,7 +293,6 @@ bot.action.click = function (element, opt_coords, opt_mouse, opt_force) {
   mouse.releaseButton(opt_force);
 };
 
-
 /**
  * Right-clicks on the given `element` with a virtual mouse.
  *
@@ -318,7 +309,6 @@ bot.action.rightClick = function (element, opt_coords, opt_mouse) {
   mouse.pressButton(bot.Mouse.Button.RIGHT);
   mouse.releaseButton();
 };
-
 
 /**
  * Double-clicks on the given `element` with a virtual mouse.
@@ -339,7 +329,6 @@ bot.action.doubleClick = function (element, opt_coords, opt_mouse) {
   mouse.releaseButton();
 };
 
-
 /**
  * Double-clicks on the given `element` with a virtual mouse.
  *
@@ -356,7 +345,6 @@ bot.action.doubleClick2 = function (element, opt_coords, opt_mouse) {
   mouse.pressButton(bot.Mouse.Button.LEFT, 2);
   mouse.releaseButton(true, 2);
 };
-
 
 /**
  * Scrolls the mouse wheel on the given `element` with a virtual mouse.
@@ -375,7 +363,6 @@ bot.action.scrollMouse = function (element, ticks, opt_coords, opt_mouse) {
   mouse.move(element, coords);
   mouse.scroll(ticks);
 };
-
 
 /**
  * Drags the given `element` by (dx, dy) with a virtual mouse.
@@ -398,11 +385,10 @@ bot.action.drag = function (element, dx, dy, opt_steps, opt_coords, opt_mouse) {
   mouse.pressButton(bot.Mouse.Button.LEFT);
   var steps = opt_steps !== undefined ? opt_steps : 2;
   if (steps < 1) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'There must be at least one step as part of a drag.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'There must be at least one step as part of a drag.');
   }
   for (var i = 1; i <= steps; i++) {
-    moveTo(Math.floor(i * dx / steps), Math.floor(i * dy / steps));
+    moveTo(Math.floor((i * dx) / steps), Math.floor((i * dy) / steps));
   }
   mouse.releaseButton();
 
@@ -410,11 +396,11 @@ bot.action.drag = function (element, dx, dy, opt_steps, opt_coords, opt_mouse) {
     var currRect = bot.dom.getClientRect(element);
     var newPos = new goog.math.Coordinate(
       coords.x + initRect.left + x - currRect.left,
-      coords.y + initRect.top + y - currRect.top);
+      coords.y + initRect.top + y - currRect.top,
+    );
     mouse.move(element, newPos);
   }
 };
-
 
 /**
  * Taps on the given `element` with a virtual touch screen.
@@ -434,7 +420,6 @@ bot.action.tap = function (element, opt_coords, opt_touchscreen) {
   touchscreen.release();
 };
 
-
 /**
  * Swipes the given `element` by (dx, dy) with a virtual touch screen.
  *
@@ -449,8 +434,7 @@ bot.action.tap = function (element, opt_coords, opt_touchscreen) {
  *    provided, constructs one.
  * @throws {bot.Error} If the element cannot be interacted with.
  */
-bot.action.swipe = function (element, dx, dy, opt_steps, opt_coords,
-  opt_touchscreen) {
+bot.action.swipe = function (element, dx, dy, opt_steps, opt_coords, opt_touchscreen) {
   var coords = bot.action.prepareToInteractWith_(element, opt_coords);
   var touchscreen = opt_touchscreen || new bot.Touchscreen();
   var initRect = bot.dom.getClientRect(element);
@@ -458,11 +442,10 @@ bot.action.swipe = function (element, dx, dy, opt_steps, opt_coords,
   touchscreen.press();
   var steps = opt_steps !== undefined ? opt_steps : 2;
   if (steps < 1) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'There must be at least one step as part of a swipe.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'There must be at least one step as part of a swipe.');
   }
   for (var i = 1; i <= steps; i++) {
-    moveTo(Math.floor(i * dx / steps), Math.floor(i * dy / steps));
+    moveTo(Math.floor((i * dx) / steps), Math.floor((i * dy) / steps));
   }
   touchscreen.release();
 
@@ -470,11 +453,11 @@ bot.action.swipe = function (element, dx, dy, opt_steps, opt_coords,
     var currRect = bot.dom.getClientRect(element);
     var newPos = new goog.math.Coordinate(
       coords.x + initRect.left + x - currRect.left,
-      coords.y + initRect.top + y - currRect.top);
+      coords.y + initRect.top + y - currRect.top,
+    );
     touchscreen.move(element, newPos);
   }
 };
-
 
 /**
  * Pinches the given `element` by the given distance with a virtual touch
@@ -493,8 +476,7 @@ bot.action.swipe = function (element, dx, dy, opt_steps, opt_coords,
  */
 bot.action.pinch = function (element, distance, opt_coords, opt_touchscreen) {
   if (distance == 0) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot pinch by a distance of zero.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot pinch by a distance of zero.');
   }
   function startSoThatEndsAtMax(offsetVec) {
     if (distance < 0) {
@@ -507,13 +489,8 @@ bot.action.pinch = function (element, distance, opt_coords, opt_touchscreen) {
     var magnitude = offsetVec.magnitude();
     offsetVec.scale(magnitude ? (magnitude - halfDistance) / magnitude : 0);
   }
-  bot.action.multiTouchAction_(element,
-    startSoThatEndsAtMax,
-    scaleByHalfDistance,
-    opt_coords,
-    opt_touchscreen);
+  bot.action.multiTouchAction_(element, startSoThatEndsAtMax, scaleByHalfDistance, opt_coords, opt_touchscreen);
 };
-
 
 /**
  * Rotates the given `element` by the given angle with a virtual touch
@@ -531,23 +508,17 @@ bot.action.pinch = function (element, distance, opt_coords, opt_touchscreen) {
  */
 bot.action.rotate = function (element, angle, opt_coords, opt_touchscreen) {
   if (angle == 0) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
-      'Cannot rotate by an angle of zero.');
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot rotate by an angle of zero.');
   }
   function startHalfwayToMax(offsetVec) {
     offsetVec.scale(0.5);
   }
-  var halfRadians = Math.PI * (angle / 180) / 2;
+  var halfRadians = (Math.PI * (angle / 180)) / 2;
   function rotateByHalfAngle(offsetVec) {
     offsetVec.rotate(halfRadians);
   }
-  bot.action.multiTouchAction_(element,
-    startHalfwayToMax,
-    rotateByHalfAngle,
-    opt_coords,
-    opt_touchscreen);
+  bot.action.multiTouchAction_(element, startHalfwayToMax, rotateByHalfAngle, opt_coords, opt_touchscreen);
 };
-
 
 /**
  * Performs a multi-touch action with two fingers on the given element. This
@@ -568,13 +539,13 @@ bot.action.rotate = function (element, angle, opt_coords, opt_touchscreen) {
  *    provided, constructs one.
  * @private
  */
-bot.action.multiTouchAction_ = function (element, transformStart, transformHalf,
-  opt_coords, opt_touchscreen) {
+bot.action.multiTouchAction_ = function (element, transformStart, transformHalf, opt_coords, opt_touchscreen) {
   var center = bot.action.prepareToInteractWith_(element, opt_coords);
   var size = bot.action.getInteractableSize(element);
   var offsetVec = new goog.math.Vec2(
     Math.min(center.x, size.width - center.x),
-    Math.min(center.y, size.height - center.y));
+    Math.min(center.y, size.height - center.y),
+  );
 
   var touchScreen = opt_touchscreen || new bot.Touchscreen();
   transformStart(offsetVec);
@@ -592,14 +563,14 @@ bot.action.multiTouchAction_ = function (element, transformStart, transformHalf,
   var midRect = bot.dom.getClientRect(element);
   var movedVec = goog.math.Vec2.difference(
     new goog.math.Vec2(midRect.left, midRect.top),
-    new goog.math.Vec2(initRect.left, initRect.top));
+    new goog.math.Vec2(initRect.left, initRect.top),
+  );
   transformHalf(offsetVec);
   var end1 = goog.math.Vec2.sum(center, offsetVec).subtract(movedVec);
   var end2 = goog.math.Vec2.difference(center, offsetVec).subtract(movedVec);
   touchScreen.move(element, end1, end2);
   touchScreen.release();
 };
-
 
 /**
  * Prepares to interact with the given `element`. It checks if the the
@@ -632,7 +603,6 @@ bot.action.prepareToInteractWith_ = function (element, opt_coords) {
   }
 };
 
-
 /**
  * Returns the interactable size of an element.
  *
@@ -641,11 +611,10 @@ bot.action.prepareToInteractWith_ = function (element, opt_coords) {
  */
 bot.action.getInteractableSize = function (elem) {
   var size = goog.style.getSize(elem);
-  return ((size.width > 0 && size.height > 0) || !elem.offsetParent) ? size :
-    bot.action.getInteractableSize(elem.offsetParent);
+  return (size.width > 0 && size.height > 0) || !elem.offsetParent
+    ? size
+    : bot.action.getInteractableSize(elem.offsetParent);
 };
-
-
 
 /**
  * A Device that is intended to allows access to protected members of the
@@ -661,7 +630,6 @@ bot.action.LegacyDevice_ = function () {
 goog.utils.inherits(bot.action.LegacyDevice_, bot.Device);
 goog.utils.addSingletonGetter(bot.action.LegacyDevice_);
 
-
 /**
  * Focuses on the given element.  See {@link bot.device.focusOnElement}.
  * @param {!Element} element The element to focus on.
@@ -672,7 +640,6 @@ bot.action.LegacyDevice_.focusOnElement = function (element) {
   instance.setElement(element);
   return instance.focusOnElement();
 };
-
 
 /**
  * Submit the form for the element.  See {@link bot.device.submit}.
@@ -685,7 +652,6 @@ bot.action.LegacyDevice_.submitForm = function (element, form) {
   instance.submitForm(form);
 };
 
-
 /**
  * Find FORM element that is an ancestor of the passed in element.  See
  * {@link bot.device.findAncestorForm}.
@@ -695,7 +661,6 @@ bot.action.LegacyDevice_.submitForm = function (element, form) {
 bot.action.LegacyDevice_.findAncestorForm = function (element) {
   return bot.Device.findAncestorForm(element);
 };
-
 
 /**
  * Scrolls the given `element` in to the current viewport. Aims to do the
@@ -721,8 +686,7 @@ bot.action.scrollIntoView = function (element, opt_region) {
   // elements under an SVG element. Call those only if they exist.
   if (element.scrollIntoView) {
     element.scrollIntoView();
-    if (bot.dom.OverflowState.NONE ==
-      bot.dom.getOverflowState(element, opt_region)) {
+    if (bot.dom.OverflowState.NONE == bot.dom.getOverflowState(element, opt_region)) {
       return true;
     }
   }
@@ -730,13 +694,10 @@ bot.action.scrollIntoView = function (element, opt_region) {
   // There may have not been a scrollIntoView function, or the specified
   // coordinate may not be in view, so scroll "manually".
   var region = bot.dom.getClientRegion(element, opt_region);
-  for (var container = bot.dom.getParentElement(element);
-    container;
-    container = bot.dom.getParentElement(container)) {
+  for (var container = bot.dom.getParentElement(element); container; container = bot.dom.getParentElement(container)) {
     scrollClientRegionIntoContainerView(container);
   }
-  return bot.dom.OverflowState.NONE ==
-    bot.dom.getOverflowState(element, opt_region);
+  return bot.dom.OverflowState.NONE == bot.dom.getOverflowState(element, opt_region);
 
   function scrollClientRegionIntoContainerView(container) {
     // Based largely from goog.style.scrollIntoContainerView.

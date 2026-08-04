@@ -25,7 +25,6 @@ goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 
-
 /**
  * Find an element by using the text value of a link
  * @param {string} target The link text to search for.
@@ -44,8 +43,7 @@ bot.locators.linkText.single_ = function (target, root, opt_isPartial) {
   } catch (e) {
     // Old versions of browsers don't support CSS. They won't have XHTML
     // support. Sorry.
-    elements = goog.dom.getDomHelper(root).getElementsByTagNameAndClass(
-      goog.dom.TagName.A, /*className=*/null, root);
+    elements = goog.dom.getDomHelper(root).getElementsByTagNameAndClass(goog.dom.TagName.A, /*className=*/ null, root);
   }
 
   var element = goog.array.find(elements, function (element) {
@@ -59,7 +57,6 @@ bot.locators.linkText.single_ = function (target, root, opt_isPartial) {
   });
   return /**@type{Element}*/ (element);
 };
-
 
 /**
  * Find many elements by using the value of the link text
@@ -78,8 +75,7 @@ bot.locators.linkText.many_ = function (target, root, opt_isPartial) {
   } catch (e) {
     // Old versions of browsers don't support CSS. They won't have XHTML
     // support. Sorry.
-    elements = goog.dom.getDomHelper(root).getElementsByTagNameAndClass(
-      goog.dom.TagName.A, /*className=*/null, root);
+    elements = goog.dom.getDomHelper(root).getElementsByTagNameAndClass(goog.dom.TagName.A, /*className=*/ null, root);
   }
 
   return goog.array.filter(elements, function (element) {
@@ -93,7 +89,6 @@ bot.locators.linkText.many_ = function (target, root, opt_isPartial) {
   });
 };
 
-
 /**
  * Find an element by using the text value of a link
  * @param {string} target The link text to search for.
@@ -106,7 +101,6 @@ bot.locators.linkText.single = function (target, root) {
   return bot.locators.linkText.single_(target, root, false);
 };
 
-
 /**
  * Find many elements by using the value of the link text
  * @param {string} target The link text to search for.
@@ -117,7 +111,6 @@ bot.locators.linkText.single = function (target, root) {
 bot.locators.linkText.many = function (target, root) {
   return bot.locators.linkText.many_(target, root, false);
 };
-
 
 /**
  * Find an element by using part of the text value of a link.
@@ -130,7 +123,6 @@ bot.locators.linkText.many = function (target, root) {
 bot.locators.partialLinkText.single = function (target, root) {
   return bot.locators.linkText.single_(target, root, true);
 };
-
 
 /**
  * Find many elements by using part of the value of the link text.

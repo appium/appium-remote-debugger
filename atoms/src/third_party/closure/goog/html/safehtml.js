@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 /**
  * @fileoverview The SafeHtml type and its builders.
  *
@@ -30,7 +29,6 @@ const internal = goog.require('goog.string.internal');
 const tags = goog.require('goog.dom.tags');
 const trustedtypes = goog.require('goog.html.trustedtypes');
 const utils = goog.require('goog.utils');
-
 
 /**
  * Token used to ensure that object is created only from this file. No code
@@ -108,7 +106,6 @@ class SafeHtml {
     this.implementsGoogStringTypedString = true;
   }
 
-
   /**
    * Returns this SafeHtml's value as string.
    *
@@ -134,7 +131,6 @@ class SafeHtml {
   getTypedStringValue() {
     return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
   }
-
 
   /**
    * Returns a string-representation of this value.
@@ -163,7 +159,6 @@ class SafeHtml {
     return SafeHtml.unwrapTrustedHTML(safeHtml).toString();
   }
 
-
   /**
    * Unwraps value as TrustedHTML if supported or as a string if not.
    * @param {!SafeHtml} safeHtml
@@ -180,9 +175,7 @@ class SafeHtml {
     if (safeHtml instanceof SafeHtml && safeHtml.constructor === SafeHtml) {
       return safeHtml.privateDoNotAccessOrElseSafeHtmlWrappedValue_;
     } else {
-      asserts.fail(
-          `expected object of type SafeHtml, got '${safeHtml}' of type ` +
-          utils.typeOf(safeHtml));
+      asserts.fail(`expected object of type SafeHtml, got '${safeHtml}' of type ` + utils.typeOf(safeHtml));
       return 'type_error:SafeHtml';
     }
   }
@@ -201,17 +194,13 @@ class SafeHtml {
     }
     const textIsObject = typeof textOrHtml == 'object';
     let textAsString;
-    if (textIsObject &&
-        /** @type {?} */ (textOrHtml).implementsGoogStringTypedString) {
-      textAsString =
-          /** @type {!TypedString} */ (textOrHtml).getTypedStringValue();
+    if (textIsObject && /** @type {?} */ (textOrHtml).implementsGoogStringTypedString) {
+      textAsString = /** @type {!TypedString} */ (textOrHtml).getTypedStringValue();
     } else {
       textAsString = String(textOrHtml);
     }
-    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(
-        internal.htmlEscape(textAsString));
+    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(internal.htmlEscape(textAsString));
   }
-
 
   /**
    * Returns HTML-escaped text as a SafeHtml object, with newlines changed to
@@ -226,10 +215,8 @@ class SafeHtml {
       return textOrHtml;
     }
     const html = SafeHtml.htmlEscape(textOrHtml);
-    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(
-        internal.newLineToBr(SafeHtml.unwrap(html)));
+    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(internal.newLineToBr(SafeHtml.unwrap(html)));
   }
-
 
   /**
    * Returns HTML-escaped text as a SafeHtml object, with newlines changed to
@@ -245,8 +232,7 @@ class SafeHtml {
       return textOrHtml;
     }
     const html = SafeHtml.htmlEscape(textOrHtml);
-    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(
-        internal.whitespaceEscape(SafeHtml.unwrap(html)));
+    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(internal.whitespaceEscape(SafeHtml.unwrap(html)));
   }
 
   /**
@@ -260,8 +246,7 @@ class SafeHtml {
    * @return {!SafeHtml}
    */
   static comment(text) {
-    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(
-        '<!--' + internal.htmlEscape(text) + '-->');
+    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse('<!--' + internal.htmlEscape(text) + '-->');
   }
 
   /**
@@ -320,10 +305,8 @@ class SafeHtml {
    */
   static create(tagName, attributes = undefined, content = undefined) {
     SafeHtml.verifyTagName(String(tagName));
-    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-        String(tagName), attributes, content);
+    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(String(tagName), attributes, content);
   }
-
 
   /**
    * Verifies if the tag name is valid and if it doesn't change the context.
@@ -336,19 +319,12 @@ class SafeHtml {
    */
   static verifyTagName(tagName) {
     if (!VALID_NAMES_IN_TAG.test(tagName)) {
-      throw new Error(
-          SafeHtml.ENABLE_ERROR_MESSAGES ? `Invalid tag name <${tagName}>.` :
-                                           '');
+      throw new Error(SafeHtml.ENABLE_ERROR_MESSAGES ? `Invalid tag name <${tagName}>.` : '');
     }
     if (tagName.toUpperCase() in NOT_ALLOWED_TAG_NAMES) {
-      throw new Error(
-          SafeHtml.ENABLE_ERROR_MESSAGES ?
-
-              `Tag name <${tagName}> is not allowed for SafeHtml.` :
-              '');
+      throw new Error(SafeHtml.ENABLE_ERROR_MESSAGES ? `Tag name <${tagName}> is not allowed for SafeHtml.` : '');
     }
   }
-
 
   /**
    * Creates a SafeHtml representing an iframe tag.
@@ -378,9 +354,7 @@ class SafeHtml {
    *     provided. If attributes
    * contains the src or srcdoc attributes.
    */
-  static createIframe(
-      src = undefined, srcdoc = undefined, attributes = undefined,
-      content = undefined) {
+  static createIframe(src = undefined, srcdoc = undefined, attributes = undefined, content = undefined) {
     if (src) {
       // Check whether this is really TrustedResourceUrl.
       TrustedResourceUrl.unwrap(src);
@@ -390,12 +364,9 @@ class SafeHtml {
     fixedAttributes['src'] = src || null;
     fixedAttributes['srcdoc'] = srcdoc && SafeHtml.unwrap(srcdoc);
     const defaultAttributes = {'sandbox': ''};
-    const combinedAttrs = SafeHtml.combineAttributes(
-        fixedAttributes, defaultAttributes, attributes);
-    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-        'iframe', combinedAttrs, content);
+    const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, defaultAttributes, attributes);
+    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('iframe', combinedAttrs, content);
   }
-
 
   /**
    * Creates a SafeHtml representing a sandboxed iframe tag.
@@ -430,14 +401,9 @@ class SafeHtml {
    * contains the src, srcdoc or sandbox attributes. If browser does not support
    * the sandbox attribute on iframe.
    */
-  static createSandboxIframe(
-      src = undefined, srcdoc = undefined, attributes = undefined,
-      content = undefined) {
+  static createSandboxIframe(src = undefined, srcdoc = undefined, attributes = undefined, content = undefined) {
     if (!SafeHtml.canUseSandboxIframe()) {
-      throw new Error(
-          SafeHtml.ENABLE_ERROR_MESSAGES ?
-              'The browser does not support sandboxed iframes.' :
-              '');
+      throw new Error(SafeHtml.ENABLE_ERROR_MESSAGES ? 'The browser does not support sandboxed iframes.' : '');
     }
 
     const fixedAttributes = {};
@@ -449,22 +415,17 @@ class SafeHtml {
     }
     fixedAttributes['srcdoc'] = srcdoc || null;
     fixedAttributes['sandbox'] = '';
-    const combinedAttrs =
-        SafeHtml.combineAttributes(fixedAttributes, {}, attributes);
-    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-        'iframe', combinedAttrs, content);
+    const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, {}, attributes);
+    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('iframe', combinedAttrs, content);
   }
-
 
   /**
    * Checks if the user agent supports sandboxed iframes.
    * @return {boolean}
    */
   static canUseSandboxIframe() {
-    return goog.global['HTMLIFrameElement'] &&
-        ('sandbox' in goog.global['HTMLIFrameElement'].prototype);
+    return goog.global['HTMLIFrameElement'] && 'sandbox' in goog.global['HTMLIFrameElement'].prototype;
   }
-
 
   /**
    * Creates a SafeHtml representing a script tag with the src attribute.
@@ -492,10 +453,8 @@ class SafeHtml {
 
     const fixedAttributes = {'src': src};
     const defaultAttributes = {};
-    const combinedAttrs = SafeHtml.combineAttributes(
-        fixedAttributes, defaultAttributes, attributes);
-    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-        'script', combinedAttrs);
+    const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, defaultAttributes, attributes);
+    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('script', combinedAttrs);
   }
 
   /**
@@ -519,12 +478,8 @@ class SafeHtml {
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty#Using_hasOwnProperty_as_a_property_name
       if (Object.prototype.hasOwnProperty.call(attributes, attr)) {
         const attrLower = attr.toLowerCase();
-        if (attrLower == 'language' || attrLower == 'src' ||
-            attrLower == 'text') {
-          throw new Error(
-              SafeHtml.ENABLE_ERROR_MESSAGES ?
-                  `Cannot set "${attrLower}" attribute` :
-                  '');
+        if (attrLower == 'language' || attrLower == 'src' || attrLower == 'text') {
+          throw new Error(SafeHtml.ENABLE_ERROR_MESSAGES ? `Cannot set "${attrLower}" attribute` : '');
         }
       }
     }
@@ -536,12 +491,9 @@ class SafeHtml {
     }
     // Convert to SafeHtml so that it's not HTML-escaped. This is safe because
     // as part of its contract, SafeScript should have no dangerous '<'.
-    const htmlContent =
-        SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content);
-    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-        'script', attributes, htmlContent);
+    const htmlContent = SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content);
+    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('script', attributes, htmlContent);
   }
-
 
   /**
    * Creates a SafeHtml representing a style tag. The type attribute is set
@@ -561,8 +513,7 @@ class SafeHtml {
   static createStyle(styleSheet, attributes = undefined) {
     const fixedAttributes = {'type': 'text/css'};
     const defaultAttributes = {};
-    const combinedAttrs = SafeHtml.combineAttributes(
-        fixedAttributes, defaultAttributes, attributes);
+    const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, defaultAttributes, attributes);
 
     let content = '';
     styleSheet = googArray.concat(styleSheet);
@@ -571,12 +522,9 @@ class SafeHtml {
     }
     // Convert to SafeHtml so that it's not HTML-escaped. This is safe because
     // as part of its contract, SafeStyleSheet should have no dangerous '<'.
-    const htmlContent =
-        SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content);
-    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-        'style', combinedAttrs, htmlContent);
+    const htmlContent = SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content);
+    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('style', combinedAttrs, htmlContent);
   }
-
 
   /**
    * Creates a SafeHtml representing a meta refresh tag.
@@ -607,7 +555,7 @@ class SafeHtml {
       // URIs, so this could do the wrong thing, but at least it will do the
       // wrong thing in only rare cases.
       if (internal.contains(unwrappedUrl, ';')) {
-        unwrappedUrl = '\'' + unwrappedUrl.replace(/'/g, '%27') + '\'';
+        unwrappedUrl = "'" + unwrappedUrl.replace(/'/g, '%27') + "'";
       }
     }
     const attributes = {
@@ -616,8 +564,7 @@ class SafeHtml {
     };
 
     // This function will handle the HTML escaping for attributes.
-    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-        'meta', attributes);
+    return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('meta', attributes);
   }
 
   /**
@@ -647,10 +594,8 @@ class SafeHtml {
     };
 
     parts.forEach(addArgument);
-    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(
-        content.join(SafeHtml.unwrap(separatorHtml)));
+    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content.join(SafeHtml.unwrap(separatorHtml)));
   }
-
 
   /**
    * Creates a new SafeHtml object by concatenating values.
@@ -677,7 +622,6 @@ class SafeHtml {
     return new SafeHtml(trustedHtml, CONSTRUCTOR_TOKEN_PRIVATE);
   }
 
-
   /**
    * Like create() but does not restrict which tags can be constructed.
    *
@@ -690,8 +634,7 @@ class SafeHtml {
    * @throws {!asserts.AssertionError} If content for void tag is provided.
    * @package
    */
-  static createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(
-      tagName, attributes = undefined, content = undefined) {
+  static createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(tagName, attributes = undefined, content = undefined) {
     let result = `<${tagName}`;
     result += SafeHtml.stringifyAttributes(tagName, attributes);
 
@@ -702,8 +645,7 @@ class SafeHtml {
     }
 
     if (tags.isVoidTag(tagName.toLowerCase())) {
-      asserts.assert(
-          !content.length, `Void tag <${tagName}> does not allow content.`);
+      asserts.assert(!content.length, `Void tag <${tagName}> does not allow content.`);
       result += '>';
     } else {
       const html = SafeHtml.concat(content);
@@ -712,7 +654,6 @@ class SafeHtml {
 
     return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(result);
   }
-
 
   /**
    * Creates a string with attributes to insert after tagName.
@@ -731,10 +672,7 @@ class SafeHtml {
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty#Using_hasOwnProperty_as_a_property_name
         if (Object.prototype.hasOwnProperty.call(attributes, name)) {
           if (!VALID_NAMES_IN_TAG.test(name)) {
-            throw new Error(
-                SafeHtml.ENABLE_ERROR_MESSAGES ?
-                    `Invalid attribute name "${name}".` :
-                    '');
+            throw new Error(SafeHtml.ENABLE_ERROR_MESSAGES ? `Invalid attribute name "${name}".` : '');
           }
           const value = attributes[name];
           if (value == null) {
@@ -747,7 +685,6 @@ class SafeHtml {
     return result;
   }
 
-
   /**
    * @param {!Object<string, ?SafeHtml.AttributeValue>} fixedAttributes
    * @param {!Object<string, string>} defaultAttributes
@@ -758,8 +695,7 @@ class SafeHtml {
    *     an attribute in fixedAttributes.
    * @package
    */
-  static combineAttributes(
-      fixedAttributes, defaultAttributes, attributes = undefined) {
+  static combineAttributes(fixedAttributes, defaultAttributes, attributes = undefined) {
     const combinedAttributes = {};
 
     for (const name in fixedAttributes) {
@@ -782,10 +718,10 @@ class SafeHtml {
           const nameLower = name.toLowerCase();
           if (nameLower in fixedAttributes) {
             throw new Error(
-                SafeHtml.ENABLE_ERROR_MESSAGES ?
-                    `Cannot override "${nameLower}" attribute, got "` + name +
-                        '" with value "' + attributes[name] + '"' :
-                    '');
+              SafeHtml.ENABLE_ERROR_MESSAGES
+                ? `Cannot override "${nameLower}" attribute, got "` + name + '" with value "' + attributes[name] + '"'
+                : '',
+            );
           }
           if (nameLower in defaultAttributes) {
             delete combinedAttributes[nameLower];
@@ -799,13 +735,10 @@ class SafeHtml {
   }
 }
 
-
 /**
  * @define {boolean} Whether to strip out error messages or to leave them in.
  */
-SafeHtml.ENABLE_ERROR_MESSAGES =
-    goog.define('goog.html.SafeHtml.ENABLE_ERROR_MESSAGES', goog.DEBUG);
-
+SafeHtml.ENABLE_ERROR_MESSAGES = goog.define('goog.html.SafeHtml.ENABLE_ERROR_MESSAGES', goog.DEBUG);
 
 /**
  * Whether the `style` attribute is supported. Set to false to avoid the byte
@@ -813,9 +746,7 @@ SafeHtml.ENABLE_ERROR_MESSAGES =
  * the `style` attribute is used.
  * @define {boolean}
  */
-SafeHtml.SUPPORT_STYLE_ATTRIBUTE =
-    goog.define('goog.html.SafeHtml.SUPPORT_STYLE_ATTRIBUTE', true);
-
+SafeHtml.SUPPORT_STYLE_ATTRIBUTE = goog.define('goog.html.SafeHtml.SUPPORT_STYLE_ATTRIBUTE', true);
 
 /**
  * Shorthand for union of types that can sensibly be converted to strings
@@ -824,7 +755,6 @@ SafeHtml.SUPPORT_STYLE_ATTRIBUTE =
  * @typedef {string|number|boolean|!TypedString}
  */
 SafeHtml.TextOrHtml_;
-
 
 /**
  * Coerces an arbitrary object into a SafeHtml object.
@@ -840,12 +770,10 @@ SafeHtml.TextOrHtml_;
  */
 SafeHtml.from = SafeHtml.htmlEscape;
 
-
 /**
  * @const
  */
 const VALID_NAMES_IN_TAG = /^[a-zA-Z0-9-]+$/;
-
 
 /**
  * Set of attributes containing URL as defined at
@@ -853,9 +781,15 @@ const VALID_NAMES_IN_TAG = /^[a-zA-Z0-9-]+$/;
  * @const {!Object<string,boolean>}
  */
 const URL_ATTRIBUTES = googObject.createSet(
-    'action', 'cite', 'data', 'formaction', 'href', 'manifest', 'poster',
-    'src');
-
+  'action',
+  'cite',
+  'data',
+  'formaction',
+  'href',
+  'manifest',
+  'poster',
+  'src',
+);
 
 /**
  * Tags which are unsupported via create(). They might be supported via a
@@ -865,17 +799,25 @@ const URL_ATTRIBUTES = googObject.createSet(
  * @const {!Object<string,boolean>}
  */
 const NOT_ALLOWED_TAG_NAMES = googObject.createSet(
-    TagName.APPLET, TagName.BASE, TagName.EMBED, TagName.IFRAME, TagName.LINK,
-    TagName.MATH, TagName.META, TagName.OBJECT, TagName.SCRIPT, TagName.STYLE,
-    TagName.SVG, TagName.TEMPLATE);
-
+  TagName.APPLET,
+  TagName.BASE,
+  TagName.EMBED,
+  TagName.IFRAME,
+  TagName.LINK,
+  TagName.MATH,
+  TagName.META,
+  TagName.OBJECT,
+  TagName.SCRIPT,
+  TagName.STYLE,
+  TagName.SVG,
+  TagName.TEMPLATE,
+);
 
 /**
  * @typedef {string|number|!TypedString|
  *     !SafeStyle.PropertyMap|undefined|null}
  */
 SafeHtml.AttributeValue;
-
 
 /**
  * @param {string} tagName The tag name.
@@ -894,16 +836,15 @@ function getAttrNameAndValue(tagName, name, value) {
     if (SafeHtml.SUPPORT_STYLE_ATTRIBUTE) {
       value = getStyleValue(value);
     } else {
-      throw new Error(
-          SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "style" not supported.' :
-                                           '');
+      throw new Error(SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "style" not supported.' : '');
     }
   } else if (/^on/i.test(name)) {
     // TODO(jakubvrana): Disallow more attributes with a special meaning.
     throw new Error(
-        SafeHtml.ENABLE_ERROR_MESSAGES ? `Attribute "${name}` +
-                '" requires goog.string.Const value, "' + value + '" given.' :
-                                         '');
+      SafeHtml.ENABLE_ERROR_MESSAGES
+        ? `Attribute "${name}` + '" requires goog.string.Const value, "' + value + '" given.'
+        : '',
+    );
     // URL attributes handled differently according to tag.
   } else if (name.toLowerCase() in URL_ATTRIBUTES) {
     if (value instanceof TrustedResourceUrl) {
@@ -914,11 +855,14 @@ function getAttrNameAndValue(tagName, name, value) {
       value = SafeUrl.sanitize(value).getTypedStringValue();
     } else {
       throw new Error(
-          SafeHtml.ENABLE_ERROR_MESSAGES ?
-              `Attribute "${name}" on tag "${tagName}` +
-                  '" requires goog.html.SafeUrl, goog.string.Const, or' +
-                  ' string, value "' + value + '" given.' :
-              '');
+        SafeHtml.ENABLE_ERROR_MESSAGES
+          ? `Attribute "${name}" on tag "${tagName}` +
+              '" requires goog.html.SafeUrl, goog.string.Const, or' +
+              ' string, value "' +
+              value +
+              '" given.'
+          : '',
+      );
     }
   }
 
@@ -927,17 +871,15 @@ function getAttrNameAndValue(tagName, name, value) {
   if (/** @type {?} */ (value).implementsGoogStringTypedString) {
     // Ok to call getTypedStringValue() since there's no reliance on the type
     // contract for security here.
-    value =
-        /** @type {!TypedString} */ (value).getTypedStringValue();
+    value = /** @type {!TypedString} */ (value).getTypedStringValue();
   }
 
   asserts.assert(
-      typeof value === 'string' || typeof value === 'number',
-      'String or number value expected, got ' + (typeof value) +
-          ' with value: ' + value);
+    typeof value === 'string' || typeof value === 'number',
+    'String or number value expected, got ' + typeof value + ' with value: ' + value,
+  );
   return `${name}="` + internal.htmlEscape(String(value)) + '"';
 }
-
 
 /**
  * Gets value allowed in "style" attribute.
@@ -950,10 +892,14 @@ function getAttrNameAndValue(tagName, name, value) {
 function getStyleValue(value) {
   if (!utils.isObject(value)) {
     throw new Error(
-        SafeHtml.ENABLE_ERROR_MESSAGES ?
-            'The "style" attribute requires goog.html.SafeStyle or map ' +
-                'of style properties, ' + (typeof value) + ' given: ' + value :
-            '');
+      SafeHtml.ENABLE_ERROR_MESSAGES
+        ? 'The "style" attribute requires goog.html.SafeStyle or map ' +
+            'of style properties, ' +
+            typeof value +
+            ' given: ' +
+            value
+        : '',
+    );
   }
   if (!(value instanceof SafeStyle)) {
     // Process the property bag into a style object.
@@ -962,41 +908,43 @@ function getStyleValue(value) {
   return SafeStyle.unwrap(value);
 }
 
-
 /**
  * A SafeHtml instance corresponding to the HTML doctype: "<!DOCTYPE html>".
  * @const {!SafeHtml}
  */
-SafeHtml.DOCTYPE_HTML = /** @type {!SafeHtml} */ ({
-  // NOTE: this compiles to nothing, but hides the possible side effect of
-  // SafeHtml creation (due to calling trustedTypes.createPolicy) from the
-  // compiler so that the entire call can be removed if the result is not used.
-  valueOf: function() {
-    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(
-        '<!DOCTYPE html>');
-  },
-}.valueOf());
+SafeHtml.DOCTYPE_HTML = /** @type {!SafeHtml} */ (
+  {
+    // NOTE: this compiles to nothing, but hides the possible side effect of
+    // SafeHtml creation (due to calling trustedTypes.createPolicy) from the
+    // compiler so that the entire call can be removed if the result is not used.
+    valueOf: function () {
+      return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse('<!DOCTYPE html>');
+    },
+  }.valueOf()
+);
 
 /**
  * A SafeHtml instance corresponding to the empty string.
  * @const {!SafeHtml}
  */
 SafeHtml.EMPTY = new SafeHtml(
-    (goog.global.trustedTypes && goog.global.trustedTypes.emptyHTML) || '',
-    CONSTRUCTOR_TOKEN_PRIVATE);
+  (goog.global.trustedTypes && goog.global.trustedTypes.emptyHTML) || '',
+  CONSTRUCTOR_TOKEN_PRIVATE,
+);
 
 /**
  * A SafeHtml instance corresponding to the <br> tag.
  * @const {!SafeHtml}
  */
-SafeHtml.BR = /** @type {!SafeHtml} */ ({
-  // NOTE: this compiles to nothing, but hides the possible side effect of
-  // SafeHtml creation (due to calling trustedTypes.createPolicy) from the
-  // compiler so that the entire call can be removed if the result is not used.
-  valueOf: function() {
-    return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse('<br>');
-  },
-}.valueOf());
-
+SafeHtml.BR = /** @type {!SafeHtml} */ (
+  {
+    // NOTE: this compiles to nothing, but hides the possible side effect of
+    // SafeHtml creation (due to calling trustedTypes.createPolicy) from the
+    // compiler so that the entire call can be removed if the result is not used.
+    valueOf: function () {
+      return SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse('<br>');
+    },
+  }.valueOf()
+);
 
 exports = SafeHtml;

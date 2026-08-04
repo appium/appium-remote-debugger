@@ -54,21 +54,21 @@ goog.require('goog.utils');
  * @param {?Object} o The object whose type to assert.
  * @return {!Location}
  */
-goog.dom.asserts.assertIsLocation = function(o) {
+goog.dom.asserts.assertIsLocation = function (o) {
   'use strict';
   if (goog.asserts.ENABLE_ASSERTS) {
     var win = goog.dom.asserts.getWindow_(o);
     if (win) {
       if (!o || (!(o instanceof win.Location) && o instanceof win.Element)) {
         goog.asserts.fail(
-            'Argument is not a Location (or a non-Element mock); got: %s',
-            goog.dom.asserts.debugStringForType_(o));
+          'Argument is not a Location (or a non-Element mock); got: %s',
+          goog.dom.asserts.debugStringForType_(o),
+        );
       }
     }
   }
   return /** @type {!Location} */ (o);
 };
-
 
 /**
  * Returns a string representation of a value's type.
@@ -77,18 +77,20 @@ goog.dom.asserts.assertIsLocation = function(o) {
  * @return {string} The best display name for the value.
  * @private
  */
-goog.dom.asserts.debugStringForType_ = function(value) {
+goog.dom.asserts.debugStringForType_ = function (value) {
   'use strict';
   if (goog.utils.isObject(value)) {
     try {
-      return /** @type {string|undefined} */ (value.constructor.displayName) ||
-          value.constructor.name || Object.prototype.toString.call(value);
+      return (
+        /** @type {string|undefined} */ (value.constructor.displayName) ||
+        value.constructor.name ||
+        Object.prototype.toString.call(value)
+      );
     } catch (e) {
       return '<object could not be stringified>';
     }
   } else {
-    return value === undefined ? 'undefined' :
-                                 value === null ? 'null' : typeof value;
+    return value === undefined ? 'undefined' : value === null ? 'null' : typeof value;
   }
 };
 
@@ -99,21 +101,19 @@ goog.dom.asserts.debugStringForType_ = function(value) {
  * @private
  * @suppress {strictMissingProperties} ownerDocument not defined on Object
  */
-goog.dom.asserts.getWindow_ = function(o) {
+goog.dom.asserts.getWindow_ = function (o) {
   'use strict';
   try {
     var doc = o && o.ownerDocument;
     // This can throw “Blocked a frame with origin "chrome-extension://..." from
     // accessing a cross-origin frame” in Chrome extension.
-    var win =
-        doc && /** @type {?Window} */ (doc.defaultView || doc.parentWindow);
+    var win = doc && /** @type {?Window} */ (doc.defaultView || doc.parentWindow);
     win = win || /** @type {!Window} */ (goog.global);
     // This can throw “Permission denied to access property "Element" on
     // cross-origin object”.
     if (win.Element && win.Location) {
       return win;
     }
-  } catch (ex) {
-  }
+  } catch (ex) {}
   return null;
 };

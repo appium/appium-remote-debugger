@@ -27,7 +27,6 @@ goog.require('bot.locators');
 goog.require('goog.json');
 goog.require('webdriver.atoms.inject');
 
-
 /**
  * Finds an element by using the given lookup strategy.
  * @param {string} strategy The strategy to use to locate the element.
@@ -40,12 +39,15 @@ goog.require('webdriver.atoms.inject');
  *     page executing this script's cache.
  * @return {string} A JSON serialized {@link bot.response.ResponseObject}.
  */
-webdriver.atoms.inject.locators.findElement = function(
-    strategy, using, opt_root, opt_window) {
+webdriver.atoms.inject.locators.findElement = function (strategy, using, opt_root, opt_window) {
   return webdriver.atoms.inject.locators.performSearch_(
-      strategy, using, bot.locators.findElement, opt_root, opt_window);
+    strategy,
+    using,
+    bot.locators.findElement,
+    opt_root,
+    opt_window,
+  );
 };
-
 
 /**
  * Finds all elements by using the given lookup strategy.
@@ -59,12 +61,15 @@ webdriver.atoms.inject.locators.findElement = function(
  *     page executing this script's cache.
  * @return {string} A JSON serialized {@link bot.response.ResponseObject}.
  */
-webdriver.atoms.inject.locators.findElements = function(
-    strategy, using, opt_root, opt_window) {
+webdriver.atoms.inject.locators.findElements = function (strategy, using, opt_root, opt_window) {
   return webdriver.atoms.inject.locators.performSearch_(
-      strategy, using, bot.locators.findElements, opt_root, opt_window);
+    strategy,
+    using,
+    bot.locators.findElements,
+    opt_root,
+    opt_window,
+  );
 };
-
 
 /**
  * Performs a search for one or more elements.
@@ -82,8 +87,7 @@ webdriver.atoms.inject.locators.findElements = function(
  * @return {string} A JSON serialized {@link bot.response.ResponseObject}.
  * @private
  */
-webdriver.atoms.inject.locators.performSearch_ = function(
-    strategy, target, searchFn, opt_root, opt_window) {
+webdriver.atoms.inject.locators.performSearch_ = function (strategy, target, searchFn, opt_root, opt_window) {
   var locator = {};
   locator[strategy] = target;
 
@@ -95,8 +99,9 @@ webdriver.atoms.inject.locators.performSearch_ = function(
     // Step 2: decode the root of our search.
     var root;
     if (opt_root) {
-      root = /** @type {!Element} */ (bot.inject.cache.getElement(
-          opt_root[bot.inject.ELEMENT_KEY], targetWindow.document));
+      root = /** @type {!Element} */ (
+        bot.inject.cache.getElement(opt_root[bot.inject.ELEMENT_KEY], targetWindow.document)
+      );
     } else {
       root = targetWindow.document;
     }

@@ -22,8 +22,7 @@ const utils = goog.require('goog.utils');
  */
 const assertIsElement = (value) => {
   if (asserts.ENABLE_ASSERTS && !element.isElement(value)) {
-    asserts.fail(
-        `Argument is not an Element; got: ${debugStringForType(value)}`);
+    asserts.fail(`Argument is not an Element; got: ${debugStringForType(value)}`);
   }
   return /** @type {!Element} */ (value);
 };
@@ -39,8 +38,7 @@ const assertIsElement = (value) => {
  */
 const assertIsHtmlElement = (value) => {
   if (asserts.ENABLE_ASSERTS && !element.isHtmlElement(value)) {
-    asserts.fail(
-        `Argument is not an HTML Element; got: ${debugStringForType(value)}`);
+    asserts.fail(`Argument is not an HTML Element; got: ${debugStringForType(value)}`);
   }
   return /** @type {!HTMLElement} */ (value);
 };
@@ -61,8 +59,8 @@ const assertIsHtmlElement = (value) => {
 const assertIsHtmlElementOfType = (value, tagName) => {
   if (asserts.ENABLE_ASSERTS && !element.isHtmlElementOfType(value, tagName)) {
     asserts.fail(
-        `Argument is not an HTML Element with tag name ` +
-        `${tagName.toString()}; got: ${debugStringForType(value)}`);
+      `Argument is not an HTML Element with tag name ` + `${tagName.toString()}; got: ${debugStringForType(value)}`,
+    );
   }
   return /** @type {T} */ (value);
 };
@@ -255,15 +253,16 @@ const assertIsHtmlScriptElement = (value) => {
 const debugStringForType = (value) => {
   if (utils.isObject(value)) {
     try {
-      return /** @type {string|undefined} */ (value.constructor.displayName) ||
-          value.constructor.name ||
-          Object.prototype.toString.call(value);
+      return (
+        /** @type {string|undefined} */ (value.constructor.displayName) ||
+        value.constructor.name ||
+        Object.prototype.toString.call(value)
+      );
     } catch (e) {
       return '<object could not be stringified>';
     }
   } else {
-    return value === undefined ? 'undefined' :
-                                 value === null ? 'null' : typeof value;
+    return value === undefined ? 'undefined' : value === null ? 'null' : typeof value;
   }
 };
 

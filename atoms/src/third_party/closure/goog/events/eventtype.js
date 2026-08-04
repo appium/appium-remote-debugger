@@ -9,7 +9,6 @@ goog.provide('goog.events.EventType');
 goog.require('goog.events.eventTypeHelpers');
 goog.require('goog.userAgent');
 
-
 /**
  * Constants for event names.
  * @enum {string}
@@ -35,7 +34,7 @@ goog.events.EventType = {
   // Selection events.
   // https://www.w3.org/TR/selection-api/
   SELECTIONCHANGE: 'selectionchange',
-  SELECTSTART: 'selectstart',  // IE, Safari, Chrome
+  SELECTSTART: 'selectstart', // IE, Safari, Chrome
 
   // Wheel events
   // http://www.w3.org/TR/DOM-Level-3-Events/#events-wheelevents
@@ -49,7 +48,7 @@ goog.events.EventType = {
   // Focus
   BLUR: 'blur',
   FOCUS: 'focus',
-  DEACTIVATE: 'deactivate',  // IE only
+  DEACTIVATE: 'deactivate', // IE only
   FOCUSIN: 'focusin',
   FOCUSOUT: 'focusout',
 
@@ -59,7 +58,7 @@ goog.events.EventType = {
   SELECT: 'select',
   SUBMIT: 'submit',
   INPUT: 'input',
-  PROPERTYCHANGE: 'propertychange',  // IE only
+  PROPERTYCHANGE: 'propertychange', // IE only
 
   // Drag and drop
   DRAGSTART: 'dragstart',
@@ -171,17 +170,13 @@ goog.events.EventType = {
   CONTROLLERCHANGE: 'controllerchange',
 
   // CSS animation events.
-  ANIMATIONSTART:
-      goog.events.eventTypeHelpers.getVendorPrefixedName('AnimationStart'),
-  ANIMATIONEND:
-      goog.events.eventTypeHelpers.getVendorPrefixedName('AnimationEnd'),
-  ANIMATIONITERATION:
-      goog.events.eventTypeHelpers.getVendorPrefixedName('AnimationIteration'),
+  ANIMATIONSTART: goog.events.eventTypeHelpers.getVendorPrefixedName('AnimationStart'),
+  ANIMATIONEND: goog.events.eventTypeHelpers.getVendorPrefixedName('AnimationEnd'),
+  ANIMATIONITERATION: goog.events.eventTypeHelpers.getVendorPrefixedName('AnimationIteration'),
 
   // CSS transition events. Based on the browser support described at:
   // https://developer.mozilla.org/en/css/css_transitions#Browser_compatibility
-  TRANSITIONEND:
-      goog.events.eventTypeHelpers.getVendorPrefixedName('TransitionEnd'),
+  TRANSITIONEND: goog.events.eventTypeHelpers.getVendorPrefixedName('TransitionEnd'),
 
   // W3C Pointer Events
   // http://www.w3.org/TR/pointerevents/
@@ -278,5 +273,5 @@ goog.events.EventType = {
   // https://www.w3.org/TR/web-animations-1/#animation-playback-event-types
   CANCEL: 'cancel',
   FINISH: 'finish',
-  REMOVE: 'remove'
+  REMOVE: 'remove',
 };

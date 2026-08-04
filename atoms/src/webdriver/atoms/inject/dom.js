@@ -28,7 +28,6 @@ goog.require('goog.json');
 goog.require('webdriver.atoms.element');
 goog.require('webdriver.atoms.inject');
 
-
 /**
  * Gets the visible text for the given element.
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
@@ -37,11 +36,9 @@ goog.require('webdriver.atoms.inject');
  * @return {string} The visible text wrapped in a JSON string as defined by the
  *     WebDriver wire protocol.
  */
-webdriver.atoms.inject.dom.getText = function(element, opt_window) {
-  return webdriver.atoms.inject.dom.executeDomFunction_(
-      bot.dom.getVisibleText, [element], opt_window);
+webdriver.atoms.inject.dom.getText = function (element, opt_window) {
+  return webdriver.atoms.inject.dom.executeDomFunction_(bot.dom.getVisibleText, [element], opt_window);
 };
-
 
 /**
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
@@ -51,11 +48,9 @@ webdriver.atoms.inject.dom.getText = function(element, opt_window) {
  *     checked or selected wrapped in a JSON string as defined by
  *     the wire protocol.
  */
-webdriver.atoms.inject.dom.isSelected = function(element, opt_window) {
-  return webdriver.atoms.inject.dom.executeDomFunction_(
-      bot.dom.isSelected, [element], opt_window);
+webdriver.atoms.inject.dom.isSelected = function (element, opt_window) {
+  return webdriver.atoms.inject.dom.executeDomFunction_(bot.dom.isSelected, [element], opt_window);
 };
-
 
 /**
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
@@ -64,12 +59,13 @@ webdriver.atoms.inject.dom.isSelected = function(element, opt_window) {
  * @return {string} The coordinates of the top left corner in a JSON
  *     string as defined by the wire protocol.
  */
-webdriver.atoms.inject.dom.getTopLeftCoordinates =
-    function(element, opt_window) {
+webdriver.atoms.inject.dom.getTopLeftCoordinates = function (element, opt_window) {
   return webdriver.atoms.inject.dom.executeDomFunction_(
-      webdriver.atoms.element.getLocationInView, [element], opt_window);
+    webdriver.atoms.element.getLocationInView,
+    [element],
+    opt_window,
+  );
 };
-
 
 /**
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
@@ -79,12 +75,13 @@ webdriver.atoms.inject.dom.getTopLeftCoordinates =
  * @return {string} The requested attribute value in a JSON string
  *     as defined by the wire protocol.
  */
-webdriver.atoms.inject.dom.getAttributeValue =
-    function(element, attribute, opt_window) {
+webdriver.atoms.inject.dom.getAttributeValue = function (element, attribute, opt_window) {
   return webdriver.atoms.inject.dom.executeDomFunction_(
-      webdriver.atoms.element.getAttribute, [element, attribute], opt_window);
+    webdriver.atoms.element.getAttribute,
+    [element, attribute],
+    opt_window,
+  );
 };
-
 
 /**
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
@@ -93,9 +90,8 @@ webdriver.atoms.inject.dom.getAttributeValue =
  * @return {string} The element size in a JSON string as
  *     defined by the wire protocol.
  */
-webdriver.atoms.inject.dom.getSize = function(element, opt_window) {
-  return webdriver.atoms.inject.dom.executeDomFunction_(
-      getSize, [element], opt_window);
+webdriver.atoms.inject.dom.getSize = function (element, opt_window) {
+  return webdriver.atoms.inject.dom.executeDomFunction_(getSize, [element], opt_window);
 
   function getSize(e) {
     var rect = bot.dom.getClientRect(e);
@@ -106,10 +102,9 @@ webdriver.atoms.inject.dom.getSize = function(element, opt_window) {
       width = Math.floor(width);
       height = Math.floor(height);
     }
-    return { 'width': width, 'height': height };
+    return {'width': width, 'height': height};
   }
 };
-
 
 /**
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
@@ -119,12 +114,9 @@ webdriver.atoms.inject.dom.getSize = function(element, opt_window) {
  * @return {string} The value of the requested CSS property in a JSON
  *     string as defined by the wire protocol.
  */
-webdriver.atoms.inject.dom.getValueOfCssProperty =
-    function(element, property, opt_window) {
-  return webdriver.atoms.inject.dom.executeDomFunction_(
-      bot.dom.getEffectiveStyle, [element, property], opt_window);
+webdriver.atoms.inject.dom.getValueOfCssProperty = function (element, property, opt_window) {
+  return webdriver.atoms.inject.dom.executeDomFunction_(bot.dom.getEffectiveStyle, [element, property], opt_window);
 };
-
 
 /**
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
@@ -133,11 +125,9 @@ webdriver.atoms.inject.dom.getValueOfCssProperty =
  * @return {string} A boolean describing whether the element is enabled
  *     in a JSON string as defined by the wire protocol.
  */
-webdriver.atoms.inject.dom.isEnabled = function(element, opt_window) {
-  return webdriver.atoms.inject.dom.executeDomFunction_(
-      bot.dom.isEnabled, [element], opt_window);
+webdriver.atoms.inject.dom.isEnabled = function (element, opt_window) {
+  return webdriver.atoms.inject.dom.executeDomFunction_(bot.dom.isEnabled, [element], opt_window);
 };
-
 
 /**
  * @param {{bot.inject.ELEMENT_KEY: string}} element The element to check.
@@ -147,11 +137,13 @@ webdriver.atoms.inject.dom.isEnabled = function(element, opt_window) {
  *     The result is wrapped in a JSON string as defined by the wire
  *     protocol.
  */
-webdriver.atoms.inject.dom.isDisplayed = function(element, opt_window) {
+webdriver.atoms.inject.dom.isDisplayed = function (element, opt_window) {
   return webdriver.atoms.inject.dom.executeDomFunction_(
-      bot.dom.isShown, [element, /*ignoreOpacity=*/true], opt_window);
+    bot.dom.isShown,
+    [element, /*ignoreOpacity=*/ true],
+    opt_window,
+  );
 };
-
 
 /**
  * @param {Function} fn The function to call.
@@ -161,13 +153,11 @@ webdriver.atoms.inject.dom.isDisplayed = function(element, opt_window) {
  * @return {string} The serialized JSON wire protocol result of the function.
  * @private
  */
-webdriver.atoms.inject.dom.executeDomFunction_ =
-    function(fn, args, opt_window) {
+webdriver.atoms.inject.dom.executeDomFunction_ = function (fn, args, opt_window) {
   var response;
   try {
     var targetWindow = webdriver.atoms.inject.getWindow(opt_window);
-    var unwrappedArgs = /**@type {Object}*/(bot.inject.unwrapValue(args,
-        targetWindow.document));
+    var unwrappedArgs = /**@type {Object}*/ (bot.inject.unwrapValue(args, targetWindow.document));
     var functionResult = fn.apply(null, unwrappedArgs);
     response = bot.inject.wrapResponse(functionResult);
   } catch (ex) {

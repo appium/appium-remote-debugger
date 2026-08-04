@@ -25,7 +25,6 @@ goog.provide('webdriver.atoms.inject');
 goog.require('bot.inject');
 goog.require('bot.inject.cache');
 
-
 /**
  * Wrapper to allow passing a serialized window object to executeScript.
  *
@@ -36,11 +35,9 @@ goog.require('bot.inject.cache');
  * @return {string} The response object, serialized and returned in string
  *     format.
  */
-webdriver.atoms.inject.executeScript = function(fn, args, opt_window) {
-  return /**@type {string}*/(bot.inject.executeScript(fn, args, true,
-      webdriver.atoms.inject.getWindow(opt_window)));
+webdriver.atoms.inject.executeScript = function (fn, args, opt_window) {
+  return /**@type {string}*/ (bot.inject.executeScript(fn, args, true, webdriver.atoms.inject.getWindow(opt_window)));
 };
-
 
 /**
  *
@@ -53,13 +50,9 @@ webdriver.atoms.inject.executeScript = function(fn, args, opt_window) {
  * @param {{WINDOW: string}=} opt_window The serialized window
  *     object to be read from the cache.
  */
-webdriver.atoms.inject.executeAsyncScript =
-    function(fn, args, timeout, onDone, opt_window) {
-  bot.inject.executeAsyncScript(
-      fn, args, timeout, onDone, true,
-      webdriver.atoms.inject.getWindow(opt_window));
+webdriver.atoms.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_window) {
+  bot.inject.executeAsyncScript(fn, args, timeout, onDone, true, webdriver.atoms.inject.getWindow(opt_window));
 };
-
 
 /**
  * Decodes a serialized {WINDOW: string} object using the current document's
@@ -72,12 +65,12 @@ webdriver.atoms.inject.executeAsyncScript =
  * @throws {bot.Error} If the serialized window cannot be found in the current
  *     document's cache.
  */
-webdriver.atoms.inject.getWindow = function(opt_window) {
+webdriver.atoms.inject.getWindow = function (opt_window) {
   var win;
   if (opt_window) {
     win = bot.inject.cache.getElement(opt_window[bot.inject.WINDOW_KEY]);
   } else {
     win = window;
   }
-  return /**@type {!Window}*/(win);
+  return /**@type {!Window}*/ (win);
 };

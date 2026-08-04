@@ -30,7 +30,6 @@ goog.require('goog.math.Coordinate');
 goog.require('goog.style');
 goog.require('webdriver.atoms.element');
 
-
 /**
  * Send keyboard input to a particular element.
  *
@@ -42,8 +41,7 @@ goog.require('webdriver.atoms.element');
  *     pressed when this function ends.
  * @return {bot.Keyboard.State} The keyboard state.
  */
-webdriver.atoms.inputs.sendKeys = function(
-    element, keys, opt_state, opt_persistModifiers) {
+webdriver.atoms.inputs.sendKeys = function (element, keys, opt_state, opt_persistModifiers) {
   var keyboard = new bot.Keyboard(opt_state);
   if (!element) {
     element = bot.dom.getActiveElement(document);
@@ -56,7 +54,6 @@ webdriver.atoms.inputs.sendKeys = function(
   return keyboard.getState();
 };
 
-
 /**
  * Click on an element.
  *
@@ -64,7 +61,7 @@ webdriver.atoms.inputs.sendKeys = function(
  * @param {bot.Mouse.State=} opt_state The serialized state of the mouse.
  * @return {!bot.Mouse.State} The mouse state.
  */
-webdriver.atoms.inputs.click = function(element, opt_state) {
+webdriver.atoms.inputs.click = function (element, opt_state) {
   var mouse = new bot.Mouse(opt_state);
   if (!element) {
     element = mouse.getState().element;
@@ -76,7 +73,6 @@ webdriver.atoms.inputs.click = function(element, opt_state) {
   return mouse.getState();
 };
 
-
 /**
  * Move the mouse to a specific element and/or coordinate location.
  *
@@ -87,12 +83,11 @@ webdriver.atoms.inputs.click = function(element, opt_state) {
  * @return {!bot.Mouse.State} The mouse state.
  * @suppress {reportUnknownTypes}
  */
-webdriver.atoms.inputs.mouseMove = function(element, xOffset, yOffset,
-    opt_state) {
+webdriver.atoms.inputs.mouseMove = function (element, xOffset, yOffset, opt_state) {
   var mouse = new bot.Mouse(opt_state);
   var target = element || mouse.getState()['element'];
 
-  var offsetSpecified = (xOffset != null) && (yOffset != null);
+  var offsetSpecified = xOffset != null && yOffset != null;
   xOffset = xOffset || 0;
   yOffset = yOffset || 0;
 
@@ -109,20 +104,18 @@ webdriver.atoms.inputs.mouseMove = function(element, xOffset, yOffset,
     // so we have to account for the existing offset of the current
     // mouse position to the element origin (upper-left corner).
     var pos = goog.style.getClientPosition(target);
-    xOffset += (mouse.getState()['clientXY']['x'] - pos.x);
-    yOffset += (mouse.getState()['clientXY']['y'] - pos.y);
+    xOffset += mouse.getState()['clientXY']['x'] - pos.x;
+    yOffset += mouse.getState()['clientXY']['y'] - pos.y;
   }
 
   var doc = goog.dom.getOwnerDocument(target);
   goog.dom.getWindow(doc);
-  bot.action.scrollIntoView(
-      target, new goog.math.Coordinate(xOffset, yOffset));
+  bot.action.scrollIntoView(target, new goog.math.Coordinate(xOffset, yOffset));
 
   var coords = new goog.math.Coordinate(xOffset, yOffset);
   mouse.move(target, coords);
   return mouse.getState();
 };
-
 
 /**
  * Presses the primary mouse button at the current location.
@@ -130,12 +123,11 @@ webdriver.atoms.inputs.mouseMove = function(element, xOffset, yOffset,
  * @param {bot.Mouse.State=} opt_state The serialized state of the mouse.
  * @return {!bot.Mouse.State} The mouse state.
  */
-webdriver.atoms.inputs.mouseButtonDown = function(opt_state) {
+webdriver.atoms.inputs.mouseButtonDown = function (opt_state) {
   var mouse = new bot.Mouse(opt_state);
   mouse.pressButton(bot.Mouse.Button.LEFT);
   return mouse.getState();
 };
-
 
 /**
  * Releases the primary mouse button at the current location.
@@ -143,12 +135,11 @@ webdriver.atoms.inputs.mouseButtonDown = function(opt_state) {
  * @param {bot.Mouse.State=} opt_state The serialized state of the mouse.
  * @return {!bot.Mouse.State} The mouse state.
  */
-webdriver.atoms.inputs.mouseButtonUp = function(opt_state) {
+webdriver.atoms.inputs.mouseButtonUp = function (opt_state) {
   var mouse = new bot.Mouse(opt_state);
   mouse.releaseButton();
   return mouse.getState();
 };
-
 
 /**
  * Double-clicks primary mouse button at the current location.
@@ -156,7 +147,7 @@ webdriver.atoms.inputs.mouseButtonUp = function(opt_state) {
  * @param {bot.Mouse.State=} opt_state The state of the mouse.
  * @return {!bot.Mouse.State} The mouse state.
  */
-webdriver.atoms.inputs.doubleClick = function(opt_state) {
+webdriver.atoms.inputs.doubleClick = function (opt_state) {
   var mouse = new bot.Mouse(opt_state);
   mouse.pressButton(bot.Mouse.Button.LEFT);
   mouse.releaseButton();
@@ -164,7 +155,6 @@ webdriver.atoms.inputs.doubleClick = function(opt_state) {
   mouse.releaseButton();
   return mouse.getState();
 };
-
 
 /**
  * Right-clicks mouse button at the current location.
@@ -173,13 +163,12 @@ webdriver.atoms.inputs.doubleClick = function(opt_state) {
  * @return {!bot.Mouse.State} The mouse state.
  * @deprecated Use {@link webdriver.atoms.inputs.mouseClick}.
  */
-webdriver.atoms.inputs.rightClick = function(opt_state) {
+webdriver.atoms.inputs.rightClick = function (opt_state) {
   var mouse = new bot.Mouse(opt_state);
   mouse.pressButton(bot.Mouse.Button.RIGHT);
   mouse.releaseButton();
   return mouse.getState();
 };
-
 
 /**
  * Executes a mousedown/up with the given button at the current mouse
@@ -190,13 +179,11 @@ webdriver.atoms.inputs.rightClick = function(opt_state) {
  * @return {!bot.Mouse.State} The mouse state.
  * @suppress {reportUnknownTypes}
  */
-webdriver.atoms.inputs.mouseClick = function(button, opt_state) {
+webdriver.atoms.inputs.mouseClick = function (button, opt_state) {
   // If no target element is specified, try to find it from the
   // client (x, y) location. No, this is not exact.
-  if (opt_state && opt_state['clientXY'] && !opt_state['element'] &&
-      document.elementFromPoint) {
-    opt_state['element'] = document.elementFromPoint(
-        opt_state['clientXY']['x'], opt_state['clientXY']['y']);
+  if (opt_state && opt_state['clientXY'] && !opt_state['element'] && document.elementFromPoint) {
+    opt_state['element'] = document.elementFromPoint(opt_state['clientXY']['x'], opt_state['clientXY']['y']);
   }
   var mouse = new bot.Mouse(opt_state);
   mouse.pressButton(button);

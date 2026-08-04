@@ -27,7 +27,6 @@ goog.require('goog.dom');
 goog.require('goog.math.Rect');
 goog.require('goog.utils');
 
-
 /**
  *  @typedef {function(!Element):!boolean}
  */
@@ -60,7 +59,6 @@ bot.locators.relative.proximity_ = function (selector, proximity) {
   return toReturn;
 };
 
-
 /**
  * Relative locator to find elements that are above the expected one. "Above"
  * is defined as where the bottom of the element found by `selector` is above
@@ -71,13 +69,10 @@ bot.locators.relative.proximity_ = function (selector, proximity) {
  * @private
  */
 bot.locators.relative.above_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.top + toFind.height <= expected.top;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return toFind.top + toFind.height <= expected.top;
+  });
 };
-
 
 /**
  * Relative locator to find elements that are below the expected one. "Below"
@@ -89,13 +84,10 @@ bot.locators.relative.above_ = function (selector) {
  * @private
  */
 bot.locators.relative.below_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.top >= expected.top + expected.height;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return toFind.top >= expected.top + expected.height;
+  });
 };
-
 
 /**
  * Relative locator to find elements that are to the left of the expected one.
@@ -105,29 +97,23 @@ bot.locators.relative.below_ = function (selector) {
  * @private
  */
 bot.locators.relative.leftOf_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.left + toFind.width <= expected.left;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return toFind.left + toFind.width <= expected.left;
+  });
 };
-
 
 /**
-* Relative locator to find elements that are to the left of the expected one.
-*
-* @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
-* @return {!Filter} A function that determines whether the selector is right of the given element.
-* @private
-*/
+ * Relative locator to find elements that are to the left of the expected one.
+ *
+ * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
+ * @return {!Filter} A function that determines whether the selector is right of the given element.
+ * @private
+ */
 bot.locators.relative.rightOf_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.left >= expected.left + expected.width;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return toFind.left >= expected.left + expected.width;
+  });
 };
-
 
 /**
  * Relative locator to find elements that are above the expected one. "Above"
@@ -139,15 +125,14 @@ bot.locators.relative.rightOf_ = function (selector) {
  * @private
  */
 bot.locators.relative.straightAbove_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.left < expected.left + expected.width
-             && toFind.left + toFind.width > expected.left
-             && toFind.top + toFind.height <= expected.top;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return (
+      toFind.left < expected.left + expected.width &&
+      toFind.left + toFind.width > expected.left &&
+      toFind.top + toFind.height <= expected.top
+    );
+  });
 };
-
 
 /**
  * Relative locator to find elements that are below the expected one. "Below"
@@ -159,15 +144,14 @@ bot.locators.relative.straightAbove_ = function (selector) {
  * @private
  */
 bot.locators.relative.straightBelow_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.left < expected.left + expected.width
-             && toFind.left + toFind.width > expected.left
-             && toFind.top >= expected.top + expected.height;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return (
+      toFind.left < expected.left + expected.width &&
+      toFind.left + toFind.width > expected.left &&
+      toFind.top >= expected.top + expected.height
+    );
+  });
 };
-
 
 /**
  * Relative locator to find elements that are to the left of the expected one.
@@ -177,15 +161,14 @@ bot.locators.relative.straightBelow_ = function (selector) {
  * @private
  */
 bot.locators.relative.straightLeftOf_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.top < expected.top + expected.height
-             && toFind.top + toFind.height > expected.top
-             && toFind.left + toFind.width <= expected.left;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return (
+      toFind.top < expected.top + expected.height &&
+      toFind.top + toFind.height > expected.top &&
+      toFind.left + toFind.width <= expected.left
+    );
+  });
 };
-
 
 /**
  * Relative locator to find elements that are to the left of the expected one.
@@ -195,15 +178,14 @@ bot.locators.relative.straightLeftOf_ = function (selector) {
  * @private
  */
 bot.locators.relative.straightRightOf_ = function (selector) {
-  return bot.locators.relative.proximity_(
-    selector,
-    function (expected, toFind) {
-      return toFind.top < expected.top + expected.height
-        && toFind.top + toFind.height > expected.top
-        && toFind.left >= expected.left + expected.width;
-    });
+  return bot.locators.relative.proximity_(selector, function (expected, toFind) {
+    return (
+      toFind.top < expected.top + expected.height &&
+      toFind.top + toFind.height > expected.top &&
+      toFind.left >= expected.left + expected.width
+    );
+  });
 };
-
 
 /**
  * Find elements within (by default) 50 pixels of the selected element. An
@@ -242,10 +224,10 @@ bot.locators.relative.near_ = function (selector, opt_distance) {
     var rect2 = bot.dom.getClientRect(compareTo);
 
     var rect1_bigger = new goog.math.Rect(
-      rect1.left-distance,
-      rect1.top-distance,
-      rect1.width+distance*2,
-      rect1.height+distance*2
+      rect1.left - distance,
+      rect1.top - distance,
+      rect1.width + distance * 2,
+      rect1.height + distance * 2,
     );
 
     return rect1_bigger.intersects(rect2);
@@ -253,7 +235,6 @@ bot.locators.relative.near_ = function (selector, opt_distance) {
 
   return func;
 };
-
 
 /**
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
@@ -273,18 +254,13 @@ bot.locators.relative.resolve_ = function (selector) {
   if (goog.utils.isObject(selector)) {
     var element = bot.locators.findElement(selector);
     if (!element) {
-      throw new bot.Error(
-        bot.ErrorCode.NO_SUCH_ELEMENT,
-        "No element has been found by " + JSON.stringify(selector));
+      throw new bot.Error(bot.ErrorCode.NO_SUCH_ELEMENT, 'No element has been found by ' + JSON.stringify(selector));
     }
     return element;
   }
 
-  throw new bot.Error(
-    bot.ErrorCode.INVALID_ARGUMENT,
-    "Selector is of wrong type: " + JSON.stringify(selector));
+  throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Selector is of wrong type: ' + JSON.stringify(selector));
 };
-
 
 /**
  * @type {!Object<string, function(!Object):!Filter>}
@@ -334,43 +310,42 @@ bot.locators.relative.filterElements_ = function (allElements, filters) {
         filters,
         function (filter) {
           // Look up the filter function by name
-          var name = filter["kind"];
+          var name = filter['kind'];
           var strategy = bot.locators.relative.STRATEGIES_[name];
 
           if (!!!strategy) {
-            throw new bot.Error(
-              bot.ErrorCode.INVALID_ARGUMENT,
-              "Cannot find filter suitable for " + name);
+            throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Cannot find filter suitable for ' + name);
           }
 
           // Call it with args.
-          var filterFunc = strategy.apply(null, filter["args"]);
-          return filterFunc(/** @type {!Element} */(element));
+          var filterFunc = strategy.apply(null, filter['args']);
+          return filterFunc(/** @type {!Element} */ (element));
         },
-        null);
+        null,
+      );
 
       if (include) {
         toReturn.push(element);
       }
     },
-    null);
+    null,
+  );
 
   // We want to sort the returned elements by proximity to the last "anchor"
   // element in the filters.
   var finalFilter = goog.array.last(filters);
-  var name = finalFilter ? finalFilter["kind"] : "unknown";
+  var name = finalFilter ? finalFilter['kind'] : 'unknown';
   var resolver = bot.locators.relative.RESOLVERS_[name];
   if (!!!resolver) {
     return toReturn;
   }
-  var lastAnchor = resolver.apply(null, finalFilter["args"]);
+  var lastAnchor = resolver.apply(null, finalFilter['args']);
   if (!!!lastAnchor) {
     return toReturn;
   }
 
   return bot.locators.relative.sortByProximity_(lastAnchor, toReturn);
 };
-
 
 /**
  * @param {!Element} anchor
@@ -381,15 +356,15 @@ bot.locators.relative.filterElements_ = function (allElements, filters) {
 bot.locators.relative.sortByProximity_ = function (anchor, elements) {
   var anchorRect = bot.dom.getClientRect(anchor);
   var anchorCenter = {
-    x: anchorRect.left + (Math.max(1, anchorRect.width) / 2),
-    y: anchorRect.top + (Math.max(1, anchorRect.height) / 2)
+    x: anchorRect.left + Math.max(1, anchorRect.width) / 2,
+    y: anchorRect.top + Math.max(1, anchorRect.height) / 2,
   };
 
   var distance = function (e) {
     var rect = bot.dom.getClientRect(e);
     var center = {
-      x: rect.left + (Math.max(1, rect.width) / 2),
-      y: rect.top + (Math.max(1, rect.height) / 2)
+      x: rect.left + Math.max(1, rect.width) / 2,
+      y: rect.top + Math.max(1, rect.height) / 2,
     };
 
     var x = Math.pow(anchorCenter.x - center.x, 2);
@@ -404,7 +379,6 @@ bot.locators.relative.sortByProximity_ = function (anchor, elements) {
 
   return elements;
 };
-
 
 /**
  * Find an element by using a relative locator.
@@ -423,7 +397,6 @@ bot.locators.relative.single = function (target, ignored_root) {
   return matches[0];
 };
 
-
 /**
  * Find many elements by using the value of the ID attribute.
  * @param {!Object} target The search criteria.
@@ -432,28 +405,27 @@ bot.locators.relative.single = function (target, ignored_root) {
  * @return {!IArrayLike<Element>} All matching elements, or an empty list.
  */
 bot.locators.relative.many = function (target, root) {
-  if (!target.hasOwnProperty("root") || !target.hasOwnProperty("filters")) {
+  if (!target.hasOwnProperty('root') || !target.hasOwnProperty('filters')) {
     throw new bot.Error(
       bot.ErrorCode.INVALID_ARGUMENT,
-      "Locator not suitable for relative locators: " + JSON.stringify(target));
+      'Locator not suitable for relative locators: ' + JSON.stringify(target),
+    );
   }
-  if (!goog.utils.isArrayLike(target["filters"])) {
-    throw new bot.Error(
-      bot.ErrorCode.INVALID_ARGUMENT,
-      "Targets should be an array: " + JSON.stringify(target));
+  if (!goog.utils.isArrayLike(target['filters'])) {
+    throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Targets should be an array: ' + JSON.stringify(target));
   }
 
   var elements;
-  if (bot.dom.isElement(target["root"])) {
-    elements = [ /** @type {!Element} */ (target["root"])];
+  if (bot.dom.isElement(target['root'])) {
+    elements = [/** @type {!Element} */ (target['root'])];
   } else {
-    elements = bot.locators.findElements(target["root"], root);
+    elements = bot.locators.findElements(target['root'], root);
   }
 
   if (goog.array.isEmpty(elements)) {
     return [];
   }
 
-  var filters = target["filters"];
+  var filters = target['filters'];
   return bot.locators.relative.filterElements_(elements, filters);
 };

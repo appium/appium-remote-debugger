@@ -85,14 +85,12 @@ let userAgentDataInternal = getNativeUserAgentData();
  * @return {void}
  */
 function setUserAgent(userAgent = undefined) {
-  userAgentInternal =
-      typeof userAgent === 'string' ? userAgent : getNativeUserAgentString();
+  userAgentInternal = typeof userAgent === 'string' ? userAgent : getNativeUserAgentString();
 }
 
 /** @return {string} The user agent string. */
 function getUserAgent() {
-  return userAgentInternal == null ? getNativeUserAgentString() :
-                                     userAgentInternal;
+  return userAgentInternal == null ? getNativeUserAgentString() : userAgentInternal;
 }
 
 /**
@@ -167,27 +165,27 @@ function extractVersionTuples(userAgent) {
   // This has three version tuples: Mozilla, AppleWebKit, and Mobile.
 
   const versionRegExp = new RegExp(
-      // Key. Note that a key may have a space.
-      // (i.e. 'Mobile Safari' in 'Mobile Safari/5.0')
-      '([A-Z][\\w ]+)' +
-
-          '/' +                // slash
-          '([^\\s]+)' +        // version (i.e. '5.0b')
-          '\\s*' +             // whitespace
-          '(?:\\((.*?)\\))?',  // parenthetical info. parentheses not matched.
-      'g');
+    // Key. Note that a key may have a space.
+    // (i.e. 'Mobile Safari' in 'Mobile Safari/5.0')
+    '([A-Z][\\w ]+)' +
+      '/' + // slash
+      '([^\\s]+)' + // version (i.e. '5.0b')
+      '\\s*' + // whitespace
+      '(?:\\((.*?)\\))?', // parenthetical info. parentheses not matched.
+    'g',
+  );
 
   const data = [];
   let match;
 
   // Iterate and collect the version tuples.  Each iteration will be the
   // next regex match.
-  while (match = versionRegExp.exec(userAgent)) {
+  while ((match = versionRegExp.exec(userAgent))) {
     data.push([
-      match[1],  // key
-      match[2],  // value
+      match[1], // key
+      match[2], // value
       // || undefined as this is not undefined in IE7 and IE8
-      match[3] || undefined  // info
+      match[3] || undefined, // info
     ]);
   }
 

@@ -26,11 +26,10 @@ goog.provide('webdriver.atoms.storage.appcache');
 
 goog.require('bot.appcache');
 
-
 /**
  * Returns the status of the appcache.
  * @return {number} status of the appcache.
  */
-webdriver.atoms.storage.appcache.getStatus = function() {
+webdriver.atoms.storage.appcache.getStatus = function () {
   return bot.appcache.getStatus();
 };

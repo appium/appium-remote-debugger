@@ -26,16 +26,14 @@ goog.provide('webdriver.atoms.storage.local');
 
 goog.require('bot.storage');
 
-
 /**
  * Utility function to set the value of a key/value pair in localStorage.
  * @param {string} key The key of the item.
  * @param {*} value The value of the item.
  */
-webdriver.atoms.storage.local.setItem = function(key, value) {
+webdriver.atoms.storage.local.setItem = function (key, value) {
   bot.storage.getLocalStorage().setItem(key, value);
 };
-
 
 /**
  * Returns the value item of a key in the localStorage object.
@@ -43,46 +41,41 @@ webdriver.atoms.storage.local.setItem = function(key, value) {
  * @return {?string} The mapped value if present in the localStorage object,
  *     otherwise null.
  */
-webdriver.atoms.storage.local.getItem = function(key) {
+webdriver.atoms.storage.local.getItem = function (key) {
   return bot.storage.getLocalStorage().getItem(key);
 };
-
 
 /**
  * Returns an array of keys of all keys of the localStorage object.
  * @return {Array.<string>} The array of stored keys.
  */
-webdriver.atoms.storage.local.keySet = function() {
+webdriver.atoms.storage.local.keySet = function () {
   return bot.storage.getLocalStorage().keySet();
 };
-
 
 /**
  * Removes an item with a given key.
  * @param {string} key The key of the key/value pair.
  * @return {?string} The removed value if present, otherwise null.
  */
-webdriver.atoms.storage.local.removeItem = function(key) {
+webdriver.atoms.storage.local.removeItem = function (key) {
   return bot.storage.getLocalStorage().removeItem(key);
 };
-
 
 /**
  * Removes all items from the localStorage object.
  */
-webdriver.atoms.storage.local.clear = function() {
+webdriver.atoms.storage.local.clear = function () {
   bot.storage.getLocalStorage().clear();
 };
-
 
 /**
  * Returns the number of items in the localStorage object.
  * @return {number} The number of the key/value pairs.
  */
-webdriver.atoms.storage.local.size = function() {
+webdriver.atoms.storage.local.size = function () {
   return bot.storage.getLocalStorage().size();
 };
-
 
 /**
  * Returns the key item of the key/value pairs in the localStorage object
@@ -90,7 +83,6 @@ webdriver.atoms.storage.local.size = function() {
  * @param {number} index The index of the key/value pair list.
  * @return {?string} The key item of a given index.
  */
-webdriver.atoms.storage.local.key = function(index) {
+webdriver.atoms.storage.local.key = function (index) {
   return bot.storage.getLocalStorage().key(index);
 };
-
