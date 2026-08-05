@@ -47,7 +47,7 @@ webdriver.atoms.storage.session.getItem = function (key) {
 
 /**
  * Returns an array of keys of all keys of the sessionStorage object.
- * @return {Array.<string>} The array of stored keys..
+ * @return {Array.<string>} The array of stored keys.
  */
 webdriver.atoms.storage.session.keySet = function () {
   return bot.storage.getSessionStorage().keySet();

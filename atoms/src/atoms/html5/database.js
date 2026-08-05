@@ -36,7 +36,7 @@ goog.require('bot.ErrorCode');
  * @param {string=} opt_version The expected database version to be opened;
  *     defaults to the empty string.
  * @param {string=} opt_displayName The name to be displayed to the user;
- *     defaults to the databaseName.
+ *     defaults to `databaseName + 'name'`.
  * @param {number=} opt_size The estimated initial quota size of the database;
  *     default value is 5MB.
  * @param {!Window=} opt_window The window associated with the database;

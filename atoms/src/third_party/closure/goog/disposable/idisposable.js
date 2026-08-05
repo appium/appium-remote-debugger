@@ -6,7 +6,7 @@
 
 /**
  * @fileoverview Definition of the disposable interface.  A disposable object
- * has a dispose method to to clean up references and resources.
+ * has a dispose method to clean up references and resources.
  */
 
 goog.provide('goog.disposable.IDisposable');
