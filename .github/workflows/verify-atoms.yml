@@ -85,9 +85,9 @@ jobs:
         shutdown_after_job: false
         wait_for_boot: true
     - run: npm install
-    - name: E2E Tests
+    - name: Atoms E2E Tests
       uses: nick-fields/retry@v4
       with:
         timeout_minutes: 40
         max_attempts: 2
-        command: npm run e2e-test
+        command: npm run e2e-test:atoms

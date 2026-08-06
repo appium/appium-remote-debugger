@@ -56,9 +56,13 @@ binary is available) — `npm install` handles this automatically, no separate t
   directly (locators, element state, interaction, frames, storage, script execution, HTML5
   storage/appcache/SQL/geolocation, and the element cache). Runs as part of `npm test` on every
   push/PR, no simulator needed.
-- `test/functional/safari-e2e.spec.ts` — a smaller set of the same atom families exercised against
-  a real Safari session in an iOS Simulator. Runs via `npm run e2e-test` / the `functional-test.yml`
-  CI workflow (always) and `verify-atoms.yml`'s `e2e` job (only when atoms change, see below).
+- `test/functional/atoms-e2e.spec.ts` — a smaller set of the same atom families exercised against a
+  real Safari session in an iOS Simulator. Runs via `npm run e2e-test:atoms` / `verify-atoms.yml`'s
+  `e2e` job (only when atoms change, see below). Shares its simulator/RemoteDebugger setup with
+  `safari-e2e.spec.ts` below via `test/functional/rd-fixture.ts`.
+- `test/functional/safari-e2e.spec.ts` — the rest of the functional suite (connection handling,
+  network/console event capture, screenshots, shadow DOM), unrelated to atoms specifically. Runs
+  via `npm run e2e-test` / the `functional-test.yml` CI workflow on every PR.
 
 ## CI
 
@@ -68,5 +72,6 @@ shared `changes` job using `dorny/paths-filter`) — for any other PR both are a
 
 - `verify-atoms` executes `npm run build:atoms` and fails the build if the regenerated `atoms/`
   differs from what's committed, so `atoms/src/` and `atoms/*.js` can never silently drift apart.
-- `e2e` runs the same iOS Simulator matrix as `functional-test.yml` against `npm run e2e-test`, so
-  an atoms change also gets verified against a real Safari session before merge.
+- `e2e` runs the same iOS Simulator matrix as `functional-test.yml`, but only `test/functional/atoms-e2e.spec.ts`
+  (via `npm run e2e-test:atoms`), so an atoms change also gets verified against a real Safari
+  session before merge, without duplicating the rest of `functional-test.yml`'s suite.
