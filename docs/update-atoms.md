@@ -62,8 +62,8 @@ binary is available) — `npm install` handles this automatically, no separate t
 
 ## CI
 
-`unit-test.yml`'s `verify-atoms` job runs on every push and pull request, but only does real work
-when the diff touches `atoms/**` or `scripts/build-atoms.mjs` (via `dorny/paths-filter`) — for any
-other PR it's a fast no-op. When it does run, it executes `npm run build:atoms` and fails the build
-if the regenerated `atoms/` differs from what's committed, so `atoms/src/` and `atoms/*.js` can
-never silently drift apart.
+`verify-atoms.yml`'s `verify-atoms` job runs on every push and pull request, but only does real
+work when the diff touches `atoms/**`, `scripts/build-atoms.mjs`, or `package.json` (via
+`dorny/paths-filter`) — for any other PR it's a fast no-op. When it does run, it executes
+`npm run build:atoms` and fails the build if the regenerated `atoms/` differs from what's
+committed, so `atoms/src/` and `atoms/*.js` can never silently drift apart.

@@ -6,38 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  verify-atoms:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v7
-    - uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          atoms:
-          - 'atoms/**'
-          - 'scripts/build-atoms.mjs'
-    - name: Use Node.js LTS
-      if: steps.filter.outputs.atoms == 'true'
-      uses: actions/setup-node@v7
-      with:
-        node-version: lts/*
-    - uses: SocketDev/action@v1
-      if: steps.filter.outputs.atoms == 'true'
-      with:
-        mode: firewall-free
-    - name: Install dependencies
-      if: steps.filter.outputs.atoms == 'true'
-      run: sfw npm install
-    - name: Rebuild atoms from atoms/src and check for drift
-      if: steps.filter.outputs.atoms == 'true'
-      run: |
-        npm run build:atoms
-        if ! git diff --exit-code -- atoms; then
-          echo "::error::'atoms/' does not match what 'npm run build:atoms' produces from 'atoms/src/'. Run it locally and commit the result."
-          exit 1
-        fi
-
   node_matrix:
     uses: appium/appium-workflows/.github/workflows/node-lts-matrix.yml@main
 
