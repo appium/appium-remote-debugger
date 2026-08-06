@@ -6,8 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  verify-atoms:
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      atoms: ${{ steps.filter.outputs.atoms }}
     steps:
     - uses: actions/checkout@v7
     - uses: dorny/paths-filter@v3
@@ -18,19 +20,74 @@ jobs:
           - 'atoms/**'
           - 'scripts/build-atoms.mjs'
           - 'package.json'
+
+  verify-atoms:
+    needs: changes
+    if: needs.changes.outputs.atoms == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
     - name: Use Node.js LTS
-      if: steps.filter.outputs.atoms == 'true'
       uses: actions/setup-node@v7
       with:
         node-version: lts/*
     - name: Install dependencies
-      if: steps.filter.outputs.atoms == 'true'
       run: npm install
     - name: Rebuild atoms from atoms/src and check for drift
-      if: steps.filter.outputs.atoms == 'true'
       run: |
         npm run build:atoms
         if ! git diff --exit-code -- atoms; then
           echo "::error::'atoms/' does not match what 'npm run build:atoms' produces from 'atoms/src/'. Run it locally and commit the result."
           exit 1
         fi
+
+  e2e:
+    needs: changes
+    if: needs.changes.outputs.atoms == 'true'
+    strategy:
+      matrix:
+        include:
+        - xcode: '26.4'
+          ios: '26.4'
+          device: 'iPhone 17'
+          os: macos-26
+        - os: macos-15
+          xcode: '16.4'
+          ios: '18.5'
+          device: 'iPhone 16'
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    env:
+      PLATFORM_VERSION: ${{ matrix.ios }}
+      XCODE_VERSION: ${{ matrix.xcode }}
+      DEVICE_NAME: ${{ matrix.device }}
+      _LOG_TIMESTAMP: 1
+      _FORCE_LOGS: 1
+      CI: true
+    steps:
+    - uses: actions/checkout@v7
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ matrix.xcode }}
+    - run: xcrun simctl list
+    - uses: actions/setup-node@v7
+      with:
+        node-version: lts/*
+        check-latest: true
+    - name: Start iOS Simulator UI
+      run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
+    - name: Boot iOS Simulator
+      id: prepareSimulator
+      uses: futureware-tech/simulator-action@v5
+      with:
+        model: "${{ matrix.device }}"
+        os_version: "${{ matrix.ios }}"
+        shutdown_after_job: false
+        wait_for_boot: true
+    - run: npm install
+    - name: E2E Tests
+      uses: nick-fields/retry@v4
+      with:
+        timeout_minutes: 40
+        max_attempts: 2
+        command: npm run e2e-test
