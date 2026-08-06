@@ -10,8 +10,10 @@ describe('Safari remote debugger', function () {
   const fixture = useRemoteDebuggerFixture();
 
   it('should be able to connect and get app', async function () {
-    const pageArray = await fixture.rd().selectApp(fixture.address());
-    assert.ok(pageArray.filter((page) => page.title === PAGE_TITLE).length >= 1);
+    await retryInterval(10, 500, async () => {
+      const pageArray = await fixture.rd().selectApp(fixture.address());
+      assert.ok(pageArray.filter((page) => page.title === PAGE_TITLE).length >= 1);
+    });
   });
 
   it('should be able to monitor network events', async function (ctx: TestContext) {

@@ -99,6 +99,15 @@ export function useRemoteDebuggerFixture(): RdFixture {
         throw new Error('The remote debugger did not return any connected applications');
       }
     });
+    // A page's URL updates as soon as navigation starts, but its title (which tests match on
+    // to find the test page) only updates once the document finishes loading. Wait for the
+    // title here so every test starts with the page actually ready, instead of each test/helper
+    // having to guard against seeing the previous page's stale title.
+    await retryInterval(10, 500, async () => {
+      if (!(await rd.selectApp(address)).some((page) => page.title === PAGE_TITLE)) {
+        throw new Error('Test page not ready yet');
+      }
+    });
   });
   afterEach(async function () {
     await rd?.disconnect();
@@ -109,7 +118,16 @@ export function useRemoteDebuggerFixture(): RdFixture {
     rd: () => rd,
     address: () => address,
     async selectTestPage(): Promise<void> {
-      const page = (await rd.selectApp(address)).find((page) => page.title === PAGE_TITLE);
+      // Safari's reported app/page dictionary can briefly churn (e.g. right after a previous
+      // test navigated away, or while a stale tab from an earlier test is still settling), so
+      // a single `selectApp` call can transiently miss the test page. Retry rather than fail.
+      const page = await retryInterval(10, 500, async () => {
+        const found = (await rd.selectApp(address)).find((page) => page.title === PAGE_TITLE);
+        if (!found) {
+          throw new Error('Test page not found');
+        }
+        return found;
+      });
       if (!page) {
         throw new Error('Test page not found');
       }
