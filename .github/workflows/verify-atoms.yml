@@ -2,28 +2,23 @@ name: Verify Atoms
 
 on:
   push:
+    paths:
+    - 'atoms/**'
+    - 'scripts/build-atoms.mjs'
+    - 'package.json'
   pull_request:
+    paths:
+    - 'atoms/**'
+    - 'scripts/build-atoms.mjs'
+    - 'package.json'
   workflow_dispatch:
 
-jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      atoms: ${{ steps.filter.outputs.atoms }}
-    steps:
-    - uses: actions/checkout@v7
-    - uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          atoms:
-          - 'atoms/**'
-          - 'scripts/build-atoms.mjs'
-          - 'package.json'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
+jobs:
   verify-atoms:
-    needs: changes
-    if: needs.changes.outputs.atoms == 'true'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
@@ -42,8 +37,6 @@ jobs:
         fi
 
   e2e:
-    needs: changes
-    if: needs.changes.outputs.atoms == 'true'
     strategy:
       matrix:
         include:

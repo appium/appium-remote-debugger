@@ -66,9 +66,9 @@ binary is available) — `npm install` handles this automatically, no separate t
 
 ## CI
 
-`verify-atoms.yml` runs on every push and pull request, but its `verify-atoms` and `e2e` jobs only
-do real work when the diff touches `atoms/**`, `scripts/build-atoms.mjs`, or `package.json` (via a
-shared `changes` job using `dorny/paths-filter`) — for any other PR both are a fast no-op.
+`verify-atoms.yml` only triggers when the diff touches `atoms/**`, `scripts/build-atoms.mjs`, or
+`package.json` (via `on.push.paths`/`on.pull_request.paths`) — for any other PR it doesn't run at
+all.
 
 - `verify-atoms` executes `npm run build:atoms` and fails the build if the regenerated `atoms/`
   differs from what's committed, so `atoms/src/` and `atoms/*.js` can never silently drift apart.
