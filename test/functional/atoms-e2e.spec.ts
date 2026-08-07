@@ -7,8 +7,7 @@ import {useRemoteDebuggerFixture} from './rd-fixture.js';
 // on some CI simulators, can occasionally stall for the full targetCreationTimeoutMs before
 // giving up. Give each test that calls it an explicit timeout so a single stuck test fails on
 // its own instead of being able to eat the whole suite's --test-timeout budget.
-// https://github.com/appium/appium-remote-debugger/actions/runs/31174788176/job/92854291418
-const SELECT_TEST_PAGE_TIMEOUT_MS = 15 * 60 * 1000;
+const SELECT_TEST_PAGE_TIMEOUT_MS = 5 * 60 * 1000;
 
 describe('Safari remote debugger atoms', function () {
   const fixture = useRemoteDebuggerFixture();
@@ -150,7 +149,7 @@ describe('Safari remote debugger atoms', function () {
       );
     });
 
-    it.skip('should be able to execute asynchronously in frame', async function () {
+    it('should be able to execute asynchronously in frame', {timeout: SELECT_TEST_PAGE_TIMEOUT_MS}, async function () {
       await fixture.selectTestPage();
 
       // go to the frameset page
