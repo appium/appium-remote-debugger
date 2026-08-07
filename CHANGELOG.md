@@ -1,3 +1,9 @@
+## [16.1.0](https://github.com/appium/appium-remote-debugger/compare/v16.0.3...v16.1.0) (2026-08-07)
+
+### Features
+
+* Vendor Selenium atoms ([#522](https://github.com/appium/appium-remote-debugger/issues/522)) ([634f31a](https://github.com/appium/appium-remote-debugger/commit/634f31a8c0641a3a52f8556e0c6eb42f932f0ebd))
+
 ## [16.0.3](https://github.com/appium/appium-remote-debugger/compare/v16.0.2...v16.0.3) (2026-07-28)
 
 ### Miscellaneous Chores
