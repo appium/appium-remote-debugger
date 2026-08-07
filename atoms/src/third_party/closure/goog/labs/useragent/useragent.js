@@ -11,7 +11,7 @@
 goog.module('goog.labs.userAgent');
 goog.module.declareLegacyNamespace();
 
-const flags = goog.require('goog.flags');
+var flags = goog.require('goog.flags');
 
 /**
  * @define {string} Optional runtime override for the USE_CLIENT_HINTS flag.

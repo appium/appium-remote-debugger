@@ -39,9 +39,9 @@
 goog.module('goog.asserts');
 goog.module.declareLegacyNamespace();
 
-const DebugError = goog.require('goog.debug.Error');
-const NodeType = goog.require('goog.dom.NodeType');
-const utils = goog.require('goog.utils');
+var DebugError = goog.require('goog.debug.Error');
+var NodeType = goog.require('goog.dom.NodeType');
+var utils = goog.require('goog.utils');
 
 // NOTE: this needs to be exported directly and referenced via the exports
 // object because unit tests stub it out.
@@ -52,23 +52,25 @@ exports.ENABLE_ASSERTS = goog.define('goog.asserts.ENABLE_ASSERTS', goog.DEBUG);
 
 /**
  * Error object for failed assertions.
- * @param {string} messagePattern The pattern that was used to form message.
- * @param {!Array<*>} messageArgs The items to substitute into the pattern.
- * @constructor
  * @extends {DebugError}
  * @final
  */
-function AssertionError(messagePattern, messageArgs) {
-  DebugError.call(this, subs(messagePattern, messageArgs));
-
+class AssertionError extends DebugError {
   /**
-   * The message pattern used to format the error message. Error handlers can
-   * use this to uniquely identify the assertion.
-   * @type {string}
+   * @param {string} messagePattern The pattern that was used to form message.
+   * @param {!Array<*>} messageArgs The items to substitute into the pattern.
    */
-  this.messagePattern = messagePattern;
+  constructor(messagePattern, messageArgs) {
+    super(subs(messagePattern, messageArgs));
+
+    /**
+     * The message pattern used to format the error message. Error handlers can
+     * use this to uniquely identify the assertion.
+     * @type {string}
+     */
+    this.messagePattern = messagePattern;
+  }
 }
-utils.inherits(AssertionError, DebugError);
 exports.AssertionError = AssertionError;
 
 /** @override @type {string} */
@@ -85,7 +87,7 @@ exports.DEFAULT_ERROR_HANDLER = function (e) {
 
 /**
  * The handler responsible for throwing or logging assertion errors.
- * @type {function(!AssertionError)}
+ * @type {function(!AssertionError):*}
  */
 let errorHandler_ = exports.DEFAULT_ERROR_HANDLER;
 
@@ -143,7 +145,7 @@ function doAssertFailure(defaultMessage, defaultArgs, givenMessage, givenArgs) {
  * Sets a custom error handler that can be used to customize the behavior of
  * assertion failures, for example by turning all assertion failures into log
  * messages.
- * @param {function(!AssertionError)} errorHandler
+ * @param {function(!AssertionError):*} errorHandler
  * @return {void}
  */
 exports.setErrorHandler = function (errorHandler) {
@@ -158,7 +160,7 @@ exports.setErrorHandler = function (errorHandler) {
  * @template T
  * @param {T} condition The condition to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {T} The value of the condition.
  * @throws {AssertionError} When the condition evaluates to false.
  * @closurePrimitive {asserts.truthy}
@@ -176,7 +178,7 @@ exports.assert = function (condition, opt_message, var_args) {
  *
  * @param {T} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {R} `value` with its type narrowed to exclude `null` and `undefined`.
  *
  * @template T
@@ -214,7 +216,7 @@ exports.assertExists = function (value, opt_message, var_args) {
  * </pre>
  *
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {void}
  * @throws {AssertionError} Failure.
  * @closurePrimitive {asserts.fail}
@@ -231,7 +233,7 @@ exports.fail = function (opt_message, var_args) {
  * Checks if the value is a number if goog.asserts.ENABLE_ASSERTS is true.
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {number} The value, guaranteed to be a number when asserts enabled.
  * @throws {AssertionError} When the value is not a number.
  * @closurePrimitive {asserts.matchesReturn}
@@ -252,7 +254,7 @@ exports.assertNumber = function (value, opt_message, var_args) {
  * Checks if the value is a string if goog.asserts.ENABLE_ASSERTS is true.
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {string} The value, guaranteed to be a string when asserts enabled.
  * @throws {AssertionError} When the value is not a string.
  * @closurePrimitive {asserts.matchesReturn}
@@ -273,7 +275,7 @@ exports.assertString = function (value, opt_message, var_args) {
  * Checks if the value is a function if goog.asserts.ENABLE_ASSERTS is true.
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {!Function} The value, guaranteed to be a function when asserts
  *     enabled.
  * @throws {AssertionError} When the value is not a function.
@@ -295,7 +297,7 @@ exports.assertFunction = function (value, opt_message, var_args) {
  * Checks if the value is an Object if goog.asserts.ENABLE_ASSERTS is true.
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {!Object} The value, guaranteed to be a non-null object.
  * @throws {AssertionError} When the value is not an object.
  * @closurePrimitive {asserts.matchesReturn}
@@ -316,7 +318,7 @@ exports.assertObject = function (value, opt_message, var_args) {
  * Checks if the value is an Array if ENABLE_ASSERTS is true.
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {!Array<?>} The value, guaranteed to be a non-null array.
  * @throws {AssertionError} When the value is not an array.
  * @closurePrimitive {asserts.matchesReturn}
@@ -337,7 +339,7 @@ exports.assertArray = function (value, opt_message, var_args) {
  * Checks if the value is a boolean if goog.asserts.ENABLE_ASSERTS is true.
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {boolean} The value, guaranteed to be a boolean when asserts are
  *     enabled.
  * @throws {AssertionError} When the value is not a boolean.
@@ -359,7 +361,7 @@ exports.assertBoolean = function (value, opt_message, var_args) {
  * Checks if the value is a DOM Element if goog.asserts.ENABLE_ASSERTS is true.
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @return {!Element} The value, likely to be a DOM Element when asserts are
  *     enabled.
  * @throws {AssertionError} When the value is not an Element.
@@ -390,9 +392,9 @@ exports.assertElement = function (value, opt_message, var_args) {
  * goog.asserts.dom for these purposes.
  *
  * @param {?} value The value to check.
- * @param {function(new: T, ...)} type A user-defined constructor.
+ * @param {function(new: T, ...*):*} type A user-defined constructor.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @throws {AssertionError} When the value is not an instance of
  *     type.
  * @return {T}
@@ -417,7 +419,7 @@ exports.assertInstanceof = function (value, type, opt_message, var_args) {
  *
  * @param {*} value The value to check.
  * @param {string=} opt_message Error message in case of failure.
- * @param {...*} var_args The items to substitute into the failure message.
+ * @param {*=} var_args The items to substitute into the failure message.
  * @throws {AssertionError} When the value is not a number, or is
  *     a non-finite number such as NaN, Infinity or -Infinity.
  * @return {number} The value initially passed in.

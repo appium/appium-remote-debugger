@@ -11,8 +11,8 @@
 goog.module('goog.iter.es6');
 goog.module.declareLegacyNamespace();
 
-const GoogIterable = goog.require('goog.iter.Iterable');
-const GoogIterator = goog.require('goog.iter.Iterator');
+var GoogIterable = goog.require('goog.iter.Iterable');
+var GoogIterator = goog.require('goog.iter.Iterator');
 
 /**
  * Common interface extending both `goog.iter.Iterable` and ES6 `Iterable`,
@@ -48,7 +48,7 @@ class ShimIterable {
   /**
    * @param {!Iterable<VALUE>|!Iterator<VALUE>|
    *         !GoogIterator<VALUE>|!GoogIterable} iter
-   * @return {!ShimIterable}
+   * @return {!ShimIterable<?>}
    * @template VALUE
    */
   static of(iter) {
@@ -59,7 +59,9 @@ class ShimIterable {
     } else if (typeof iter[Symbol.iterator] == 'function') {
       return new ShimIterableImpl(() => iter[Symbol.iterator]());
     } else if (typeof iter.__iterator__ == 'function') {
-      return new ShimIterableImpl(() => /** @type {{__iterator__:function(this:?, boolean=)}} */ (iter).__iterator__());
+      return new ShimIterableImpl(
+        () => /** @type {{__iterator__:function(this:?, boolean=):*}} */ (iter).__iterator__(),
+      );
     }
     throw new Error('Not an iterator or iterable.');
   }
@@ -79,22 +81,22 @@ class ShimIterableImpl {
     this.func_ = func;
   }
 
-  /** @override */
+  /** */
   __iterator__() {
     return new ShimGoogIterator(this.func_());
   }
 
-  /** @override */
+  /** */
   toGoog() {
     return new ShimGoogIterator(this.func_());
   }
 
-  /** @override */
+  /** */
   [Symbol.iterator]() {
     return new ShimEs6Iterator(this.func_());
   }
 
-  /** @override */
+  /** */
   toEs6() {
     return new ShimEs6Iterator(this.func_());
   }
@@ -114,7 +116,7 @@ class ShimGoogIterator extends GoogIterator {
   }
 
   /**
-   * @override @see {!goog.iter.Iterator}
+   * @override (see: {!goog.iter.Iterator}
    * @return {!IIterableResult<VALUE>}
    */
   next() {

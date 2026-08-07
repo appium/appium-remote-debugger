@@ -26,27 +26,28 @@ goog.require('goog.utils');
  * it should extend this class or implement the disposable interface (defined
  * in goog.disposable.IDisposable). See description of
  * goog.disposable.IDisposable for examples of cleanup.
- * @constructor
  * @implements {goog.disposable.IDisposable}
  */
-goog.Disposable = function () {
-  'use strict';
-  /**
-   * If monitoring the goog.Disposable instances is enabled, stores the creation
-   * stack trace of the Disposable instance.
-   * @type {string|undefined}
-   */
-  this.creationStack;
+goog.Disposable = class {
+  constructor() {
+    'use strict';
+    /**
+     * If monitoring the goog.Disposable instances is enabled, stores the creation
+     * stack trace of the Disposable instance.
+     * @type {string|undefined}
+     */
+    this.creationStack;
 
-  if (goog.Disposable.MONITORING_MODE != goog.Disposable.MonitoringMode.OFF) {
-    if (goog.Disposable.INCLUDE_STACK_ON_CREATION) {
-      this.creationStack = new Error().stack;
+    if (goog.Disposable.MONITORING_MODE != goog.Disposable.MonitoringMode.OFF) {
+      if (goog.Disposable.INCLUDE_STACK_ON_CREATION) {
+        this.creationStack = new Error().stack;
+      }
+      goog.Disposable.instances_[goog.utils.getUid(this)] = this;
     }
-    goog.Disposable.instances_[goog.utils.getUid(this)] = this;
+    // Support sealing
+    this.disposed_ = this.disposed_;
+    this.onDisposeCallbacks_ = this.onDisposeCallbacks_;
   }
-  // Support sealing
-  this.disposed_ = this.disposed_;
-  this.onDisposeCallbacks_ = this.onDisposeCallbacks_;
 };
 
 /**
@@ -91,9 +92,10 @@ goog.Disposable.INCLUDE_STACK_ON_CREATION = goog.define('goog.Disposable.INCLUDE
  * Maps the unique ID of every undisposed `goog.Disposable` object to
  * the object itself.
  * @type {!Object<number, !goog.Disposable>}
- * @private
  */
 goog.Disposable.instances_ = {};
+/** @private */
+goog.Disposable.instances_;
 
 /**
  * @return {!Array<!goog.Disposable>} All `goog.Disposable` objects that
@@ -118,10 +120,11 @@ goog.Disposable.clearUndisposedObjects = function () {
   goog.Disposable.instances_ = {};
 };
 
+/** @private */
+goog.Disposable.prototype.disposed_;
 /**
  * Whether the object has been disposed of.
  * @type {boolean}
- * @private
  */
 goog.Disposable.prototype.disposed_ = false;
 
@@ -225,6 +228,8 @@ goog.Disposable.prototype.addOnDisposeCallback = function (callback, opt_scope) 
   this.onDisposeCallbacks_.push(opt_scope !== undefined ? goog.utils.bind(callback, opt_scope) : callback);
 };
 
+/** @protected */
+goog.Disposable.prototype.disposeInternal;
 /**
  * Performs appropriate cleanup. See description of goog.disposable.IDisposable
  * for examples. Classes that extend `goog.Disposable` should override this
@@ -249,7 +254,6 @@ goog.Disposable.prototype.addOnDisposeCallback = function (callback, opt_scope) 
  *   };
  * </pre>
  *
- * @protected
  */
 goog.Disposable.prototype.disposeInternal = function () {
   'use strict';

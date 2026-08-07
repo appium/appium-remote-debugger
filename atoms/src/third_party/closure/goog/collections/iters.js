@@ -74,7 +74,7 @@ class MapIterator {
     return this;
   }
 
-  /** @override */
+  /** */
   next() {
     const childResult = this.childIterator_.next();
     // Always return a new object, even when childResult.done == true. This is
@@ -128,7 +128,7 @@ class FilterIterator {
     return this;
   }
 
-  /** @override */
+  /** */
   next() {
     while (true) {
       const childResult = this.childIter_.next();
@@ -180,7 +180,7 @@ class ConcatIterator {
     return this;
   }
 
-  /** @override */
+  /** */
   next() {
     while (this.iterIndex_ < this.iterators_.length) {
       const result = this.iterators_[this.iterIndex_].next();

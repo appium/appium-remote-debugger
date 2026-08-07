@@ -28,7 +28,7 @@ goog.require('webdriver.atoms.inject');
  * Finds a frame by id or name.
  *
  * @param {string} idOrName The frame id or name.
- * @param {{bot.inject.WINDOW_KEY: string}=} opt_root The wrapped window to
+ * @param {!Object<string, string>=} opt_root The wrapped window to
  *     perform the search under. Defaults to window.
  * @return {string} A frame element wrapped in a JSON string as defined by
  *     the wire protocol.
@@ -78,7 +78,7 @@ webdriver.atoms.inject.frame.defaultContent = function () {
 };
 
 /**
- * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @return {string} The window corresponding to the frame element
  *     wrapped in a JSON string as defined by the wire protocol.
  */

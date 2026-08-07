@@ -30,7 +30,7 @@ goog.require('webdriver.atoms.inject');
 
 /**
  * Gets the visible text for the given element.
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
  * @return {string} The visible text wrapped in a JSON string as defined by the
@@ -41,7 +41,7 @@ webdriver.atoms.inject.dom.getText = function (element, opt_window) {
 };
 
 /**
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
  * @return {string} A boolean describing whether the element is
@@ -53,7 +53,7 @@ webdriver.atoms.inject.dom.isSelected = function (element, opt_window) {
 };
 
 /**
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
  * @return {string} The coordinates of the top left corner in a JSON
@@ -68,7 +68,7 @@ webdriver.atoms.inject.dom.getTopLeftCoordinates = function (element, opt_window
 };
 
 /**
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @param {string} attribute The attribute to look up.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
@@ -84,7 +84,7 @@ webdriver.atoms.inject.dom.getAttributeValue = function (element, attribute, opt
 };
 
 /**
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
  * @return {string} The element size in a JSON string as
@@ -93,7 +93,7 @@ webdriver.atoms.inject.dom.getAttributeValue = function (element, attribute, opt
 webdriver.atoms.inject.dom.getSize = function (element, opt_window) {
   return webdriver.atoms.inject.dom.executeDomFunction_(getSize, [element], opt_window);
 
-  function getSize(e) {
+  /** @param {*} e */ function getSize(e) {
     var rect = bot.dom.getClientRect(e);
     var height = rect.height;
     var width = rect.width;
@@ -107,7 +107,7 @@ webdriver.atoms.inject.dom.getSize = function (element, opt_window) {
 };
 
 /**
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @param {string} property The property to look up.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
@@ -119,7 +119,7 @@ webdriver.atoms.inject.dom.getValueOfCssProperty = function (element, property, 
 };
 
 /**
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to query.
+ * @param {!Object<string, string>} element The element to query.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
  * @return {string} A boolean describing whether the element is enabled
@@ -130,7 +130,7 @@ webdriver.atoms.inject.dom.isEnabled = function (element, opt_window) {
 };
 
 /**
- * @param {{bot.inject.ELEMENT_KEY: string}} element The element to check.
+ * @param {!Object<string, string>} element The element to check.
  * @param {{WINDOW: string}=} opt_window The optional window
  *     containing the element.
  * @return {string} true if the element is visible, false otherwise.
@@ -151,7 +151,6 @@ webdriver.atoms.inject.dom.isDisplayed = function (element, opt_window) {
  * @param {{WINDOW: string}=} opt_window The window context for
  *     the execution of the function.
  * @return {string} The serialized JSON wire protocol result of the function.
- * @private
  */
 webdriver.atoms.inject.dom.executeDomFunction_ = function (fn, args, opt_window) {
   var response;
@@ -165,3 +164,5 @@ webdriver.atoms.inject.dom.executeDomFunction_ = function (fn, args, opt_window)
   }
   return goog.json.serialize(response);
 };
+/** @private */
+webdriver.atoms.inject.dom.executeDomFunction_;

@@ -109,7 +109,7 @@ exports.get = function (element, attribute) {
   var name = attribute.toLowerCase();
 
   if ('style' == name) {
-    value = element.style;
+    value = /** @type {!HTMLElement} */ (element).style;
 
     if (value && typeof value !== 'string') {
       value = value.cssText;

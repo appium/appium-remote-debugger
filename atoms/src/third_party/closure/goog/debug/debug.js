@@ -7,7 +7,7 @@
 /**
  * @fileoverview Logging and debugging utilities.
  *
- * @see ../demos/debug.html
+ * (see: ../demos/debug.html
  */
 
 goog.provide('goog.debug');
@@ -30,7 +30,7 @@ goog.debug.CHECK_FOR_THROWN_EVENT = goog.define('goog.debug.CHECK_FOR_THROWN_EVE
 
 /**
  * Catches onerror events fired by windows and similar objects.
- * @param {function(Object)} logFunc The function to call with the error
+ * @param {function(Object):*} logFunc The function to call with the error
  *    information.
  * @param {boolean=} opt_cancel Whether to stop the error from reaching the
  *    browser.
@@ -41,7 +41,7 @@ goog.debug.CHECK_FOR_THROWN_EVENT = goog.define('goog.debug.CHECK_FOR_THROWN_EVE
 goog.debug.catchErrors = function (logFunc, opt_cancel, opt_target) {
   'use strict';
   var target = opt_target || goog.global;
-  var oldErrorHandler = target.onerror;
+  var oldErrorHandler = /** @type {*} */ (target).onerror;
   var retVal = !!opt_cancel;
 
   /**
@@ -71,7 +71,7 @@ goog.debug.catchErrors = function (logFunc, opt_cancel, opt_target) {
    *     to the latest spec will inlude this parameter.
    * @return {boolean} Whether to prevent the error from reaching the browser.
    */
-  target.onerror = function (message, url, line, opt_col, opt_error) {
+  /** @type {*} */ (target).onerror = function (message, url, line, opt_col, opt_error) {
     'use strict';
     if (oldErrorHandler) {
       oldErrorHandler(message, url, line, opt_col, opt_error);
@@ -106,13 +106,13 @@ goog.debug.expose = function (obj, opt_showFn) {
   var str = [];
 
   for (var x in obj) {
-    if (!opt_showFn && typeof obj[x] === 'function') {
+    if (!opt_showFn && typeof (/** @type {!Object<string, *>} */ (obj)[x]) === 'function') {
       continue;
     }
     var s = x + ' = ';
 
     try {
-      s += obj[x];
+      s += /** @type {!Object<string, *>} */ (obj)[x];
     } catch (e) {
       s += '*** ' + e + ' ***';
     }
@@ -165,10 +165,10 @@ goog.debug.deepExpose = function (obj, opt_showFn) {
           uidsToCleanup.push(obj);
         }
         var uid = goog.utils.getUid(obj);
-        if (ancestorUids[uid]) {
+        if (/** @type {!Object<number, *>} */ (ancestorUids)[uid]) {
           str.push('*** reference loop detected (id=' + uid + ') ***');
         } else {
-          ancestorUids[uid] = true;
+          /** @type {!Object<number, *>} */ (ancestorUids)[uid] = true;
           str.push('{');
           for (var x in obj) {
             if (!opt_showFn && typeof obj[x] === 'function') {
@@ -180,7 +180,7 @@ goog.debug.deepExpose = function (obj, opt_showFn) {
             helper(obj[x], nestspace);
           }
           str.push('\n' + space + '}');
-          delete ancestorUids[uid];
+          delete (/** @type {!Object<number, *>} */ (ancestorUids)[uid]);
         }
       } else {
         str.push(obj);
@@ -330,7 +330,6 @@ goog.debug.normalizeErrorObject = function (err) {
  * @param {*} e an exception that may have a cause
  * @param {!Object=} seen set of cause that have already been serialized
  * @return {string}
- * @private
  * @suppress {missingProperties} properties not defined on cause and e
  */
 goog.debug.serializeErrorStack_ = function (e, seen) {
@@ -338,13 +337,13 @@ goog.debug.serializeErrorStack_ = function (e, seen) {
   if (!seen) {
     seen = {};
   }
-  seen[goog.debug.serializeErrorAsKey_(e)] = true;
+  /** @type {!Object<string, *>} */ (seen)[goog.debug.serializeErrorAsKey_(e)] = true;
 
   var stack = e['stack'] || '';
 
   // Add cause if exists.
   var cause = e.cause;
-  if (cause && !seen[goog.debug.serializeErrorAsKey_(cause)]) {
+  if (cause && !(/** @type {!Object<string, *>} */ (seen)[goog.debug.serializeErrorAsKey_(cause)])) {
     stack += '\nCaused by: ';
     // Some browsers like Chrome add the error message as the first frame of the
     // stack, In this case we don't need to add it. Note: we don't use
@@ -357,12 +356,13 @@ goog.debug.serializeErrorStack_ = function (e, seen) {
 
   return stack;
 };
+/** @private */
+goog.debug.serializeErrorStack_;
 
 /**
  * Serialize an error to a string key.
  * @param {*} e an exception
  * @return {string}
- * @private
  */
 goog.debug.serializeErrorAsKey_ = function (e) {
   'use strict';
@@ -374,6 +374,8 @@ goog.debug.serializeErrorAsKey_ = function (e) {
 
   return keyPrefix + e['stack'];
 };
+/** @private */
+goog.debug.serializeErrorAsKey_;
 
 /**
  * Converts an object to an Error using the object's toString if it's not
@@ -490,7 +492,6 @@ goog.debug.MAX_STACK_DEPTH = 50;
 /**
  * @param {Function} fn The function to start getting the trace from.
  * @return {?string}
- * @private
  */
 goog.debug.getNativeStackTrace_ = function (fn) {
   'use strict';
@@ -512,6 +513,8 @@ goog.debug.getNativeStackTrace_ = function (fn) {
   }
   return null;
 };
+/** @private */
+goog.debug.getNativeStackTrace_;
 
 /**
  * Gets the current stack trace, either starting from the caller or starting
@@ -546,7 +549,6 @@ goog.debug.getStacktrace = function (fn) {
  * @param {Array<!Function>} visited List of functions visited so far.
  * @return {string} Stack trace starting from function fn.
  * @suppress {es5Strict}
- * @private
  */
 goog.debug.getStacktraceHelper_ = function (fn, visited) {
   'use strict';
@@ -616,6 +618,8 @@ goog.debug.getStacktraceHelper_ = function (fn, visited) {
   }
   return sb.join('');
 };
+/** @private */
+goog.debug.getStacktraceHelper_;
 
 /**
  * Gets a function name
@@ -624,23 +628,23 @@ goog.debug.getStacktraceHelper_ = function (fn, visited) {
  */
 goog.debug.getFunctionName = function (fn) {
   'use strict';
-  if (goog.debug.fnNameCache_[fn]) {
-    return goog.debug.fnNameCache_[fn];
+  if (/** @type {!Object<string, *>} */ (goog.debug.fnNameCache_)[/** @type {string} */ (/** @type {?} */ (fn))]) {
+    return /** @type {!Object<string, *>} */ (goog.debug.fnNameCache_)[/** @type {string} */ (/** @type {?} */ (fn))];
   }
 
   // Heuristically determine function name based on code.
   var functionSource = String(fn);
-  if (!goog.debug.fnNameCache_[functionSource]) {
+  if (!(/** @type {!Object<string, *>} */ (goog.debug.fnNameCache_)[functionSource])) {
     var matches = /function\s+([^\(]+)/m.exec(functionSource);
     if (matches) {
       var method = matches[1];
-      goog.debug.fnNameCache_[functionSource] = method;
+      /** @type {!Object<string, *>} */ (goog.debug.fnNameCache_)[functionSource] = method;
     } else {
-      goog.debug.fnNameCache_[functionSource] = '[Anonymous]';
+      /** @type {!Object<string, *>} */ (goog.debug.fnNameCache_)[functionSource] = '[Anonymous]';
     }
   }
 
-  return goog.debug.fnNameCache_[functionSource];
+  return /** @type {!Object<string, *>} */ (goog.debug.fnNameCache_)[functionSource];
 };
 
 /**
@@ -687,16 +691,16 @@ goog.debug.runtimeType = function (value) {
 /**
  * Hash map for storing function names that have already been looked up.
  * @type {Object}
- * @private
  */
 goog.debug.fnNameCache_ = {};
+/** @private */
+goog.debug.fnNameCache_;
 
 /**
  * Private internal function to support goog.debug.freeze.
  * @param {T} arg
  * @return {T}
  * @template T
- * @private
  */
 goog.debug.freezeInternal_ =
   (goog.DEBUG && Object.freeze) ||
@@ -704,6 +708,8 @@ goog.debug.freezeInternal_ =
     'use strict';
     return arg;
   };
+/** @private */
+goog.debug.freezeInternal_;
 
 /**
  * Freezes the given object, but only in debug mode (and in browsers that

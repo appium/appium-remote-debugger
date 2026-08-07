@@ -48,7 +48,6 @@ bot.locators.strategy;
  * Note that the versions with spaces are synonyms for those without spaces,
  * and are specified at:
  * https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol
- * @private {Object.<string,bot.locators.strategy>}
  * @const
  */
 bot.locators.STRATEGIES_ = {
@@ -75,6 +74,8 @@ bot.locators.STRATEGIES_ = {
 
   'xpath': bot.locators.xpath,
 };
+/** @private {Object.<string,bot.locators.strategy>} */
+bot.locators.STRATEGIES_;
 
 /**
  * Add or override an existing strategy for locating elements.
@@ -122,7 +123,7 @@ bot.locators.findElement = function (target, opt_root) {
     var strategy = bot.locators.STRATEGIES_[key];
     if (strategy && typeof strategy.single === 'function') {
       var root = opt_root || bot.getDocument();
-      return strategy.single(target[key], root);
+      return strategy.single(/** @type {!Object<string, *>} */ (target)[key], root);
     }
   }
   throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Unsupported locator strategy: ' + key);
@@ -148,7 +149,7 @@ bot.locators.findElements = function (target, opt_root) {
     var strategy = bot.locators.STRATEGIES_[key];
     if (strategy && typeof strategy.many === 'function') {
       var root = opt_root || bot.getDocument();
-      return strategy.many(target[key], root);
+      return strategy.many(/** @type {!Object<string, *>} */ (target)[key], root);
     }
   }
   throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Unsupported locator strategy: ' + key);

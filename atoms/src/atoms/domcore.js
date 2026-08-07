@@ -60,7 +60,7 @@ bot.dom.core.getAttribute = function (element, attributeName) {
   // elements or style sheets). We standardize the format of this string via the
   // standardizeStyleAttribute method.
   if (attributeName == 'style') {
-    return bot.dom.core.standardizeStyleAttribute_(element.style.cssText);
+    return bot.dom.core.standardizeStyleAttribute_(/** @type {!HTMLElement} */ (element).style.cssText);
   }
 
   // In IE doc mode < 8, the "value" attribute of an <input> is only accessible
@@ -94,12 +94,13 @@ bot.dom.core.getAttribute = function (element, attributeName) {
  * Helper for {@link bot.dom.core.standardizeStyleAttribute_}.
  * If the style attribute ends with a semicolon this will include an empty
  * string at the end of the array
- * @private {!RegExp}
  * @const
  */
 bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_ = new RegExp(
   '[;]+' + '(?=(?:(?:[^"]*"){2})*[^"]*$)' + "(?=(?:(?:[^']*'){2})*[^']*$)" + '(?=(?:[^()]*\\([^()]*\\))*[^()]*$)',
 );
+/** @private {!RegExp} */
+bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_;
 
 /**
  * Standardize a style attribute value, which includes:
@@ -108,24 +109,28 @@ bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_ = new RegExp(
  * @param {string} value The style attribute value.
  * @return {string} The identical value, with the formatting rules described
  *     above applied.
- * @private
  */
 bot.dom.core.standardizeStyleAttribute_ = function (value) {
   var styleArray = value.split(bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_);
   var css = [];
-  goog.array.forEach(styleArray, function (pair) {
-    var i = pair.indexOf(':');
-    if (i > 0) {
-      var keyValue = [pair.slice(0, i), pair.slice(i + 1)];
-      if (keyValue.length == 2) {
-        css.push(keyValue[0].toLowerCase(), ':', keyValue[1], ';');
+  goog.array.forEach(
+    styleArray,
+    /** @param {*} pair */ function (pair) {
+      var i = pair.indexOf(':');
+      if (i > 0) {
+        var keyValue = [pair.slice(0, i), pair.slice(i + 1)];
+        if (keyValue.length == 2) {
+          css.push(keyValue[0].toLowerCase(), ':', keyValue[1], ';');
+        }
       }
-    }
-  });
+    },
+  );
   css = css.join('');
   css = css.charAt(css.length - 1) == ';' ? css : css + ';';
   return css;
 };
+/** @private */
+bot.dom.core.standardizeStyleAttribute_;
 
 /**
  * Looks up the given property (not to be confused with an attribute) on the
@@ -170,7 +175,9 @@ bot.dom.core.isElement = function (node, opt_tagName) {
     return !!node && node.nodeType == goog.dom.NodeType.ELEMENT && (!opt_tagName || 'FORM' == opt_tagName);
   }
   return (
-    !!node && node.nodeType == goog.dom.NodeType.ELEMENT && (!opt_tagName || node.tagName.toUpperCase() == opt_tagName)
+    !!node &&
+    node.nodeType == goog.dom.NodeType.ELEMENT &&
+    (!opt_tagName || /** @type {!HTMLElement} */ (node).tagName.toUpperCase() == opt_tagName)
   );
 };
 
@@ -186,7 +193,7 @@ bot.dom.core.isSelectable = function (element) {
   }
 
   if (bot.dom.core.isElement(element, goog.dom.TagName.INPUT)) {
-    var type = element.type.toLowerCase();
+    var type = /** @type {!HTMLElement} */ (element).type.toLowerCase();
     return type == 'checkbox' || type == 'radio';
   }
 
@@ -205,7 +212,7 @@ bot.dom.core.isSelected = function (element) {
   }
 
   var propertyName = 'selected';
-  var type = element.type && element.type.toLowerCase();
+  var type = /** @type {!HTMLElement} */ (element).type && /** @type {!HTMLElement} */ (element).type.toLowerCase();
   if ('checkbox' == type || 'radio' == type) {
     propertyName = 'checked';
   }

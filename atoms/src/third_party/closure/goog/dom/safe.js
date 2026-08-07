@@ -62,12 +62,12 @@ goog.dom.safe.InsertAdjacentHtmlPosition = {
  */
 goog.dom.safe.insertAdjacentHtml = function (node, position, html) {
   'use strict';
-  node.insertAdjacentHTML(position, goog.html.SafeHtml.unwrapTrustedHTML(html));
+  /** @type {!HTMLElement} */ (node).insertAdjacentHTML(position, goog.html.SafeHtml.unwrapTrustedHTML(html));
 };
 
 /**
  * Tags not allowed in goog.dom.safe.setInnerHtml.
- * @private @const {!Object<string, boolean>}
+ * @const {!Object<string, boolean>}
  */
 goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = {
   'MATH': true,
@@ -76,6 +76,8 @@ goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = {
   'SVG': true,
   'TEMPLATE': true,
 };
+/** @private */
+goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_;
 
 /**
  * Whether assigning to innerHTML results in a non-spec-compliant clean-up. Used
@@ -93,7 +95,6 @@ goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = {
  * to the latter's recursive behavior), implying that this workaround would
  * not hurt performance and might actually improve it.
  * @return {boolean}
- * @private
  */
 goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(function () {
   'use strict';
@@ -116,6 +117,8 @@ goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(fun
   div.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(goog.html.SafeHtml.EMPTY);
   return !innerChild.parentElement;
 });
+/** @private */
+goog.dom.safe.isInnerHtmlCleanupRecursive_;
 
 /**
  * Assigns HTML to an element's innerHTML property. Helper to use only here and
@@ -289,7 +292,7 @@ goog.dom.safe.setInputFormAction = function (input, url) {
  */
 goog.dom.safe.setStyle = function (elem, style) {
   'use strict';
-  elem.style.cssText = goog.html.SafeStyle.unwrap(style);
+  /** @type {!HTMLElement} */ (elem).style.cssText = goog.html.SafeStyle.unwrap(style);
 };
 
 /**
@@ -592,7 +595,6 @@ goog.dom.safe.setScriptContent = function (script, content) {
  * Set nonce-based CSPs to dynamically created scripts.
  * @param {!HTMLScriptElement} script The script element whose nonce value
  *     is to be calculated
- * @private
  */
 goog.dom.safe.setNonceForScriptElement_ = function (script) {
   'use strict';
@@ -602,6 +604,8 @@ goog.dom.safe.setNonceForScriptElement_ = function (script) {
     script.setAttribute('nonce', nonce);
   }
 };
+/** @private */
+goog.dom.safe.setNonceForScriptElement_;
 
 /**
  * Safely assigns a URL to a Location object's href property.
@@ -721,14 +725,14 @@ goog.dom.safe.replaceLocation = function (loc, url) {
  * user-/attacker-controlled value.
  *
  * @param {string|!goog.html.SafeUrl} url The URL to open.
- * @param {Window=} opt_openerWin Window of which to call the .open() method.
+ * @param {?Window=} opt_openerWin Window of which to call the .open() method.
  *     Defaults to the global window.
  * @param {!goog.string.Const|string=} opt_name Name of the window to open in.
  *     Can be _top, etc as allowed by window.open(). This accepts string for
  *     legacy reasons. Pass goog.string.Const if possible.
  * @param {string=} opt_specs Comma-separated list of specifications, same as
  *     in window.open().
- * @return {Window} Window the url was opened in.
+ * @return {?Window} Window the url was opened in.
  */
 goog.dom.safe.openInWindow = function (url, opt_openerWin, opt_name, opt_specs) {
   'use strict';
@@ -844,16 +848,17 @@ goog.dom.safe.getStyleNonce = function (opt_window) {
 /**
  * According to the CSP3 spec a nonce must be a valid base64 string.
  * @see https://www.w3.org/TR/CSP3/#grammardef-base64-value
- * @private @const
+ * @const
  */
 goog.dom.safe.NONCE_PATTERN_ = /^[\w+/_-]+[=]{0,2}$/;
+/** @private */
+goog.dom.safe.NONCE_PATTERN_;
 
 /**
  * Returns CSP nonce, if set for any tag of given type.
  * @param {string} selector Selector for locating the element with nonce.
  * @param {?Window=} win The window context used to retrieve the nonce.
  * @return {string} CSP nonce or empty string if no nonce is present.
- * @private
  */
 goog.dom.safe.getNonce_ = function (selector, win) {
   const doc = (win || goog.global).document;
@@ -873,3 +878,5 @@ goog.dom.safe.getNonce_ = function (selector, win) {
   }
   return '';
 };
+/** @private */
+goog.dom.safe.getNonce_;

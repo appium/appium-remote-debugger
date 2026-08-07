@@ -41,7 +41,7 @@ goog.require('bot.html5');
  * otherwise similar to the implementation in the Closure library
  * (goog.storage.mechanism.HTML5LocalStorage).
  *
- * @param {Window=} opt_window The window whose storage to access;
+ * @param {?Window=} opt_window The window whose storage to access;
  *     defaults to the main window.
  * @return {!bot.storage.Storage} The wrapper Storage object.
  */
@@ -59,7 +59,7 @@ bot.storage.getLocalStorage = function (opt_window) {
  * A factory method to create a wrapper to access the HTML5 sessionStorage
  * object.
  *
- * @param {Window=} opt_window The window whose storage to access;
+ * @param {?Window=} opt_window The window whose storage to access;
  *     defaults to the main window.
  * @return {!bot.storage.Storage} The wrapper Storage object.
  */
@@ -81,9 +81,10 @@ bot.storage.getSessionStorage = function (opt_window) {
  *     sessionStorage.
  */
 bot.storage.Storage = function (storageMap) {
+  /** @private {Storage} */
+  bot.storage.Storage.prototype.storageMap_;
   /**
    * Member variable to access the assigned HTML5 storage object.
-   * @private {Storage}
    * @const
    */
   this.storageMap_ = storageMap;

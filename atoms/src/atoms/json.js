@@ -44,7 +44,6 @@ bot.json.NATIVE_JSON = true;
  * Whether the current browser supports the native JSON interface.
  * @const
  * @see http://caniuse.com/#search=JSON
- * @private {boolean}
  */
 bot.json.SUPPORTS_NATIVE_JSON_ =
   // List WebKit first since every supported version supports
@@ -53,6 +52,8 @@ bot.json.SUPPORTS_NATIVE_JSON_ =
   goog.userAgent.WEBKIT ||
   (goog.userAgent.GECKO && bot.userAgent.isEngineVersion(3.5)) ||
   (goog.userAgent.IE && bot.userAgent.isEngineVersion(8));
+/** @private {boolean} */
+bot.json.SUPPORTS_NATIVE_JSON_;
 
 /**
  * Converts a JSON object to its string representation.

@@ -31,11 +31,11 @@ goog.require('goog.utils');
  */
 goog.structs.getCount = function (col) {
   'use strict';
-  if (col.getCount && typeof col.getCount == 'function') {
-    return col.getCount();
+  if (/** @type {*} */ (col).getCount && typeof (/** @type {*} */ (col).getCount) == 'function') {
+    return /** @type {*} */ (col).getCount();
   }
   if (goog.utils.isArrayLike(col) || typeof col === 'string') {
-    return col.length;
+    return /** @type {*} */ (col).length;
   }
   return goog.object.getCount(col);
 };
@@ -47,8 +47,8 @@ goog.structs.getCount = function (col) {
  */
 goog.structs.getValues = function (col) {
   'use strict';
-  if (col.getValues && typeof col.getValues == 'function') {
-    return col.getValues();
+  if (/** @type {*} */ (col).getValues && typeof (/** @type {*} */ (col).getValues) == 'function') {
+    return /** @type {*} */ (col).getValues();
   }
   // ES6 Map and Set both define a values function that returns an iterator.
   // The typeof check allows the compiler to remove the Map and Set polyfills
@@ -61,9 +61,9 @@ goog.structs.getValues = function (col) {
   }
   if (goog.utils.isArrayLike(col)) {
     var rv = [];
-    var l = col.length;
+    var l = /** @type {*} */ (col).length;
     for (var i = 0; i < l; i++) {
-      rv.push(col[i]);
+      rv.push(/** @type {!Object<number, *>} */ (col)[i]);
     }
     return rv;
   }
@@ -74,15 +74,15 @@ goog.structs.getValues = function (col) {
  * Returns the keys of the collection. Some collections have no notion of
  * keys/indexes and this function will return undefined in those cases.
  * @param {Object} col The collection-like object.
- * @return {!Array|undefined} The keys in the collection.
+ * @return {!Array<*>|undefined} The keys in the collection.
  */
 goog.structs.getKeys = function (col) {
   'use strict';
-  if (col.getKeys && typeof col.getKeys == 'function') {
-    return col.getKeys();
+  if (/** @type {*} */ (col).getKeys && typeof (/** @type {*} */ (col).getKeys) == 'function') {
+    return /** @type {*} */ (col).getKeys();
   }
   // if we have getValues but no getKeys we know this is a key-less collection
-  if (col.getValues && typeof col.getValues == 'function') {
+  if (/** @type {*} */ (col).getValues && typeof (/** @type {*} */ (col).getValues) == 'function') {
     return undefined;
   }
   // ES6 Map and Set both define a keys function that returns an iterator. For
@@ -98,7 +98,7 @@ goog.structs.getKeys = function (col) {
   }
   if (goog.utils.isArrayLike(col) || typeof col === 'string') {
     var rv = [];
-    var l = col.length;
+    var l = /** @type {*} */ (col).length;
     for (var i = 0; i < l; i++) {
       rv.push(i);
     }
@@ -117,11 +117,11 @@ goog.structs.getKeys = function (col) {
  */
 goog.structs.contains = function (col, val) {
   'use strict';
-  if (col.contains && typeof col.contains == 'function') {
-    return col.contains(val);
+  if (/** @type {*} */ (col).contains && typeof (/** @type {*} */ (col).contains) == 'function') {
+    return /** @type {*} */ (col).contains(val);
   }
-  if (col.containsValue && typeof col.containsValue == 'function') {
-    return col.containsValue(val);
+  if (/** @type {*} */ (col).containsValue && typeof (/** @type {*} */ (col).containsValue) == 'function') {
+    return /** @type {*} */ (col).containsValue(val);
   }
   if (goog.utils.isArrayLike(col) || typeof col === 'string') {
     return goog.array.contains(/** @type {!Array<?>} */ (col), val);
@@ -136,8 +136,8 @@ goog.structs.contains = function (col, val) {
  */
 goog.structs.isEmpty = function (col) {
   'use strict';
-  if (col.isEmpty && typeof col.isEmpty == 'function') {
-    return col.isEmpty();
+  if (/** @type {*} */ (col).isEmpty && typeof (/** @type {*} */ (col).isEmpty) == 'function') {
+    return /** @type {*} */ (col).isEmpty();
   }
 
   // We do not use goog.string.isEmptyOrWhitespace because here we treat the
@@ -158,8 +158,8 @@ goog.structs.isEmpty = function (col) {
 goog.structs.clear = function (col) {
   'use strict';
   // NOTE(arv): This should not contain strings because strings are immutable
-  if (col.clear && typeof col.clear == 'function') {
-    col.clear();
+  if (/** @type {*} */ (col).clear && typeof (/** @type {*} */ (col).clear) == 'function') {
+    /** @type {*} */ (col).clear();
   } else if (goog.utils.isArrayLike(col)) {
     goog.array.clear(/** @type {IArrayLike<?>} */ (col));
   } else {
@@ -234,7 +234,7 @@ goog.structs.filter = function (col, f, opt_obj) {
     rv = {};
     for (var i = 0; i < l; i++) {
       if (f.call(/** @type {?} */ (opt_obj), values[i], keys[i], col)) {
-        rv[keys[i]] = values[i];
+        /** @type {!Object<string, *>} */ (rv)[keys[i]] = values[i];
       }
     }
   } else {
@@ -283,7 +283,7 @@ goog.structs.map = function (col, f, opt_obj) {
   if (keys) {
     rv = {};
     for (var i = 0; i < l; i++) {
-      rv[keys[i]] = f.call(/** @type {?} */ (opt_obj), values[i], keys[i], col);
+      /** @type {!Object<string, *>} */ (rv)[keys[i]] = f.call(/** @type {?} */ (opt_obj), values[i], keys[i], col);
     }
   } else {
     // We should not use Array#map here since we want to make sure that

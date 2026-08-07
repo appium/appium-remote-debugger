@@ -52,154 +52,158 @@ goog.require('goog.utils');
  * object.
  * The content of this object will not be initialized if no event object is
  * provided. If this is the case, init() needs to be invoked separately.
- * @param {Event=} opt_e Browser event object.
- * @param {EventTarget=} opt_currentTarget Current target for event.
- * @constructor
  * @extends {goog.events.Event}
  */
-goog.events.BrowserEvent = function (opt_e, opt_currentTarget) {
-  'use strict';
-  goog.events.BrowserEvent.base(this, 'constructor', opt_e ? opt_e.type : '');
-
+goog.events.BrowserEvent = class extends goog.events.Event {
   /**
-   * Target that fired the event.
-   * @override
-   * @type {?Node}
+   * @param {Event=} opt_e Browser event object.
+   * @param {EventTarget=} opt_currentTarget Current target for event.
    */
-  this.target = null;
+  constructor(opt_e, opt_currentTarget) {
+    'use strict';
+    super(opt_e ? opt_e.type : '');
 
-  /**
-   * Node that had the listener attached.
-   * @override
-   * @type {?Node|undefined}
-   */
-  this.currentTarget = null;
+    /**
+     * Target that fired the event.
+     * @override
+     * @type {?Node}
+     */
+    this.target = null;
 
-  /**
-   * For mouseover and mouseout events, the related object for the event.
-   * @type {?Node}
-   */
-  this.relatedTarget = null;
+    /**
+     * Node that had the listener attached.
+     * @override
+     * @type {?Node|undefined}
+     */
+    this.currentTarget = null;
 
-  /**
-   * X-coordinate relative to target.
-   * @type {number}
-   */
-  this.offsetX = 0;
+    /**
+     * For mouseover and mouseout events, the related object for the event.
+     * @type {?Node}
+     */
+    this.relatedTarget = null;
 
-  /**
-   * Y-coordinate relative to target.
-   * @type {number}
-   */
-  this.offsetY = 0;
+    /**
+     * X-coordinate relative to target.
+     * @type {number}
+     */
+    this.offsetX = 0;
 
-  /**
-   * X-coordinate relative to the window.
-   * @type {number}
-   */
-  this.clientX = 0;
+    /**
+     * Y-coordinate relative to target.
+     * @type {number}
+     */
+    this.offsetY = 0;
 
-  /**
-   * Y-coordinate relative to the window.
-   * @type {number}
-   */
-  this.clientY = 0;
+    /**
+     * X-coordinate relative to the window.
+     * @type {number}
+     */
+    this.clientX = 0;
 
-  /**
-   * X-coordinate relative to the monitor.
-   * @type {number}
-   */
-  this.screenX = 0;
+    /**
+     * Y-coordinate relative to the window.
+     * @type {number}
+     */
+    this.clientY = 0;
 
-  /**
-   * Y-coordinate relative to the monitor.
-   * @type {number}
-   */
-  this.screenY = 0;
+    /**
+     * X-coordinate relative to the monitor.
+     * @type {number}
+     */
+    this.screenX = 0;
 
-  /**
-   * Which mouse button was pressed.
-   * @type {number}
-   */
-  this.button = 0;
+    /**
+     * Y-coordinate relative to the monitor.
+     * @type {number}
+     */
+    this.screenY = 0;
 
-  /**
-   * Key of key press.
-   * @type {string}
-   */
-  this.key = '';
+    /**
+     * Which mouse button was pressed.
+     * @type {number}
+     */
+    this.button = 0;
 
-  /**
-   * Keycode of key press.
-   * @type {number}
-   */
-  this.keyCode = 0;
+    /**
+     * Key of key press.
+     * @type {string}
+     */
+    this.key = '';
 
-  /**
-   * Keycode of key press.
-   * @type {number}
-   */
-  this.charCode = 0;
+    /**
+     * Keycode of key press.
+     * @type {number}
+     */
+    this.keyCode = 0;
 
-  /**
-   * Whether control was pressed at time of event.
-   * @type {boolean}
-   */
-  this.ctrlKey = false;
+    /**
+     * Keycode of key press.
+     * @type {number}
+     */
+    this.charCode = 0;
 
-  /**
-   * Whether alt was pressed at time of event.
-   * @type {boolean}
-   */
-  this.altKey = false;
+    /**
+     * Whether control was pressed at time of event.
+     * @type {boolean}
+     */
+    this.ctrlKey = false;
 
-  /**
-   * Whether shift was pressed at time of event.
-   * @type {boolean}
-   */
-  this.shiftKey = false;
+    /**
+     * Whether alt was pressed at time of event.
+     * @type {boolean}
+     */
+    this.altKey = false;
 
-  /**
-   * Whether the meta key was pressed at time of event.
-   * @type {boolean}
-   */
-  this.metaKey = false;
+    /**
+     * Whether shift was pressed at time of event.
+     * @type {boolean}
+     */
+    this.shiftKey = false;
 
-  /**
-   * History state object, only set for PopState events where it's a copy of the
-   * state object provided to pushState or replaceState.
-   * @type {?Object}
-   */
-  this.state = null;
+    /**
+     * Whether the meta key was pressed at time of event.
+     * @type {boolean}
+     */
+    this.metaKey = false;
 
-  /**
-   * Whether the default platform modifier key was pressed at time of event.
-   * (This is control for all platforms except Mac, where it's Meta.)
-   * @type {boolean}
-   */
-  this.platformModifierKey = false;
+    /**
+     * History state object, only set for PopState events where it's a copy of the
+     * state object provided to pushState or replaceState.
+     * @type {?Object}
+     */
+    this.state = null;
 
-  /**
-   * @type {number}
-   */
-  this.pointerId = 0;
+    /**
+     * Whether the default platform modifier key was pressed at time of event.
+     * (This is control for all platforms except Mac, where it's Meta.)
+     * @type {boolean}
+     */
+    this.platformModifierKey = false;
 
-  /**
-   * @type {string}
-   */
-  this.pointerType = '';
+    /**
+     * @type {number}
+     */
+    this.pointerId = 0;
 
-  /**
-   * The browser event object.
-   * @private {?Event}
-   */
-  this.event_ = null;
+    /**
+     * @type {string}
+     */
+    this.pointerType = '';
 
-  if (opt_e) {
-    this.init(opt_e, opt_currentTarget);
+    // Not @private: read by getBrowserEvent(), a prototype method bolted on externally below
+    // rather than migrated into this class body.
+    /**
+     * The browser event object.
+     * @type {?Event}
+     */
+    this.event_ = null;
+
+    if (opt_e) {
+      this.init(opt_e, opt_currentTarget);
+    }
   }
 };
-goog.utils.inherits(goog.events.BrowserEvent, goog.events.Event);
 
 /**
  * @define {boolean} If true, use the layerX and layerY properties of a native
@@ -344,7 +348,7 @@ goog.events.BrowserEvent.prototype.init = function (e, opt_currentTarget) {
   if (e.defaultPrevented) {
     // Sync native event state to internal state via super class, where default
     // prevention is implemented and managed.
-    goog.events.BrowserEvent.superClass_.preventDefault.call(this);
+    goog.events.Event.prototype.preventDefault.call(this);
   }
 };
 
@@ -390,7 +394,7 @@ goog.events.BrowserEvent.prototype.isMouseActionButton = function () {
  */
 goog.events.BrowserEvent.prototype.stopPropagation = function () {
   'use strict';
-  goog.events.BrowserEvent.superClass_.stopPropagation.call(this);
+  goog.events.Event.prototype.stopPropagation.call(this);
   if (this.event_.stopPropagation) {
     this.event_.stopPropagation();
   } else {
@@ -403,7 +407,7 @@ goog.events.BrowserEvent.prototype.stopPropagation = function () {
  */
 goog.events.BrowserEvent.prototype.preventDefault = function () {
   'use strict';
-  goog.events.BrowserEvent.superClass_.preventDefault.call(this);
+  goog.events.Event.prototype.preventDefault.call(this);
   var be = this.event_;
   if (!be.preventDefault) {
     be.returnValue = false;
@@ -413,7 +417,7 @@ goog.events.BrowserEvent.prototype.preventDefault = function () {
 };
 
 /**
- * @return {Event} The underlying browser event object.
+ * @return {?Event} The underlying browser event object.
  */
 goog.events.BrowserEvent.prototype.getBrowserEvent = function () {
   'use strict';
@@ -424,7 +428,6 @@ goog.events.BrowserEvent.prototype.getBrowserEvent = function () {
  * Extracts the pointer type from the given event.
  * @param {!Event} e
  * @return {string} The pointer type, e.g. 'mouse', 'pen', or 'touch'.
- * @private
  */
 goog.events.BrowserEvent.getPointerType_ = function (e) {
   'use strict';
@@ -435,3 +438,5 @@ goog.events.BrowserEvent.getPointerType_ = function (e) {
   // https://msdn.microsoft.com/en-us/library/hh772359(v=vs.85).aspx
   return goog.events.BrowserEvent.IE_POINTER_TYPE_MAP[e.pointerType] || '';
 };
+/** @private */
+goog.events.BrowserEvent.getPointerType_;

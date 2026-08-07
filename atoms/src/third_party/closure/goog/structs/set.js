@@ -32,34 +32,39 @@ goog.require('goog.utils');
  * are two different objects.  WARNING: Any object that is added to a
  * goog.structs.Set will be modified!  Because goog.getUid() is used to
  * identify objects, every object in the set will be mutated.
- * @param {Array<T>|Object<?,T>=} opt_values Initial values to start with.
- * @constructor
  * @implements {goog.structs.Collection<T>}
  * @implements {Iterable<T>}
  * @final
  * @template T
  * @deprecated This type is misleading: use ES6 Set instead.
  */
-goog.structs.Set = function (opt_values) {
-  'use strict';
-  this.map_ = new goog.structs.Map();
-
+goog.structs.Set = class {
   /**
-   * The number of items in this set.
-   * @const {number}
+   * @param {Array<T>|Object<?,T>=} opt_values Initial values to start with.
    */
-  this.size = 0;
+  constructor(opt_values) {
+    'use strict';
+    this.map_ = new goog.structs.Map();
 
-  if (opt_values) {
-    this.addAll(opt_values);
+    /**
+     * The number of items in this set.
+     * @const {number}
+     */
+    this.size = 0;
+
+    if (opt_values) {
+      this.addAll(opt_values);
+    }
   }
 };
 
 /**
  * A function that returns a unique id.
- * @private @const {function(?Object): number}
+ * @const {function(?Object): number}
  */
 goog.structs.Set.getUid_ = goog.utils.getUid;
+/** @private */
+goog.structs.Set.getUid_;
 
 /**
  * Obtains a unique key for an element of the set.  Primitives will yield the
@@ -67,7 +72,6 @@ goog.structs.Set.getUid_ = goog.utils.getUid;
  * references will yield the same key only if they refer to the same object.
  * @param {*} val Object or primitive value to get a key for.
  * @return {string} A unique key for this value/object.
- * @private
  */
 goog.structs.Set.getKey_ = function (val) {
   'use strict';
@@ -78,6 +82,8 @@ goog.structs.Set.getKey_ = function (val) {
     return type.slice(0, 1) + val;
   }
 };
+/** @private */
+goog.structs.Set.getKey_;
 
 /**
  * @return {number} The number of elements in the set.
@@ -246,7 +252,7 @@ goog.structs.Set.prototype.intersection = function (col) {
  * Finds all values that are present in this set and not in the given
  * collection.
  * @param {Array<T>|goog.structs.Collection<T>|Object<?,T>} col A collection.
- * @return {!goog.structs.Set} A new set containing all the values
+ * @return {!goog.structs.Set<?>} A new set containing all the values
  *     (primitives or objects) present in this set but not in the given
  *     collection.
  */
@@ -335,7 +341,7 @@ goog.structs.Set.prototype.isSubsetOf = function (col) {
 /**
  * Returns an iterator that iterates over the elements in this set.
  * @param {boolean=} opt_keys This argument is ignored.
- * @return {!goog.iter.Iterator} An iterator over the elements in this set.
+ * @return {!goog.iter.Iterator<?>} An iterator over the elements in this set.
  * @deprecated Call `values` and use native iteration, for alignment with ES6
  *     Set.
  */
@@ -352,11 +358,12 @@ goog.structs.Set.prototype[Symbol.iterator] = function () {
   return this.values();
 };
 
+/** @private */
+goog.structs.Set.prototype.setSizeInternal_;
 /**
  * Assigns to the size property to isolate supressions of const assignment
  * to only where they are needed.
  * @param {number} newSize The size to update to.
- * @private
  */
 goog.structs.Set.prototype.setSizeInternal_ = function (newSize) {
   /** @suppress {const} */

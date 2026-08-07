@@ -85,11 +85,10 @@ webdriver.atoms.inject.locators.findElements = function (strategy, using, opt_ro
  *     page to find the element in. The referenced window must exist in the
  *     page executing this script's cache.
  * @return {string} A JSON serialized {@link bot.response.ResponseObject}.
- * @private
  */
 webdriver.atoms.inject.locators.performSearch_ = function (strategy, target, searchFn, opt_root, opt_window) {
   var locator = {};
-  locator[strategy] = target;
+  /** @type {!Object<string, *>} */ (locator)[strategy] = target;
 
   var response;
   try {
@@ -114,3 +113,5 @@ webdriver.atoms.inject.locators.performSearch_ = function (strategy, target, sea
   }
   return goog.json.serialize(response);
 };
+/** @private */
+webdriver.atoms.inject.locators.performSearch_;

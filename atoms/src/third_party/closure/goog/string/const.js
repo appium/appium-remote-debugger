@@ -30,31 +30,34 @@ goog.require('goog.string.TypedString');
  * instead of using this constructor to get an empty Const string.
  *
  * @see goog.string.Const#from
- * @constructor
  * @final
  * @struct
  * @implements {goog.string.TypedString}
- * @param {Object=} opt_token package-internal implementation detail.
- * @param {string=} opt_content package-internal implementation detail.
  */
-goog.string.Const = function (opt_token, opt_content) {
-  'use strict';
+goog.string.Const = class {
   /**
-   * The wrapped value of this Const object.  The field has a purposely ugly
-   * name to make (non-compiled) code that attempts to directly access this
-   * field stand out.
-   * @private {string}
+   * @param {Object=} opt_token package-internal implementation detail.
+   * @param {string=} opt_content package-internal implementation detail.
    */
-  this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ =
-    (opt_token === goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content) || '';
+  constructor(opt_token, opt_content) {
+    'use strict';
+    // Not @private: read externally by goog.string.Const.unwrap below.
+    /**
+     * The wrapped value of this Const object.  The field has a purposely ugly
+     * name to make (non-compiled) code that attempts to directly access this
+     * field stand out.
+     * @type {string}
+     */
+    this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ =
+      (opt_token === goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content) || '';
 
-  /**
-   * A type marker used to implement additional run-time type checking.
-   * @see goog.string.Const#unwrap
-   * @const {!Object}
-   * @private
-   */
-  this.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ = goog.string.Const.TYPE_MARKER_;
+    /**
+     * A type marker used to implement additional run-time type checking.
+     * @see goog.string.Const#unwrap
+     * @const {!Object}
+     */
+    this.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ = goog.string.Const.TYPE_MARKER_;
+  }
 };
 
 /**
@@ -153,16 +156,18 @@ goog.string.Const.from = function (s) {
  * Type marker for the Const type, used to implement additional run-time
  * type checking.
  * @const {!Object}
- * @private
  */
 goog.string.Const.TYPE_MARKER_ = {};
+/** @private */
+goog.string.Const.TYPE_MARKER_;
 
 /**
  * @type {!Object}
- * @private
  * @const
  */
 goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ = {};
+/** @private */
+goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_;
 
 /**
  * A Const instance wrapping the empty string.

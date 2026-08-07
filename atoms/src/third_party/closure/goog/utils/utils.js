@@ -174,7 +174,7 @@ goog.utils.inherits = function (childCtor, parentCtor) {
   /** @constructor */
   function tempCtor() {}
   tempCtor.prototype = parentCtor.prototype;
-  childCtor.superClass_ = parentCtor.prototype;
+  /** @type {*} */ (childCtor).superClass_ = parentCtor.prototype;
   childCtor.prototype = new tempCtor();
   /** @override */
   childCtor.prototype.constructor = childCtor;
@@ -189,7 +189,7 @@ goog.utils.inherits = function (childCtor, parentCtor) {
    *     method/constructor.
    * @return {*} The return value of the superclass method/constructor.
    */
-  childCtor.base = function (me, methodName, var_args) {
+  /** @type {*} */ (childCtor).base = function (me, methodName, var_args) {
     var args = new Array(arguments.length - 2);
     for (var i = 2; i < arguments.length; i++) {
       args[i - 2] = arguments[i];
@@ -206,27 +206,29 @@ goog.utils.inherits = function (childCtor, parentCtor) {
  * @param {!Function} ctor The constructor for the class.
  */
 goog.utils.addSingletonGetter = function (ctor) {
-  ctor.instance_ = undefined;
-  ctor.getInstance = function () {
-    if (ctor.instance_) {
-      return ctor.instance_;
+  /** @type {*} */ (ctor).instance_ = undefined;
+  /** @type {*} */ (ctor).getInstance = function () {
+    if (/** @type {*} */ (ctor).instance_) {
+      return /** @type {*} */ (ctor).instance_;
     }
-    return (ctor.instance_ = new ctor());
+    return (/** @type {*} */ (ctor).instance_ = new ctor());
   };
 };
 
 /**
  * The property used to store the unique ID on objects.
- * @private {string}
  * @const
  */
 goog.utils.UID_PROPERTY_ = 'closure_uid_' + ((Math.random() * 1e9) >>> 0);
+/** @private {string} */
+goog.utils.UID_PROPERTY_;
 
 /**
  * Counter for unique IDs.
- * @private {number}
  */
 goog.utils.uidCounter_ = 0;
+/** @private {number} */
+goog.utils.uidCounter_;
 
 /**
  * Gets a unique ID for an object. This mutates the object so that further calls
@@ -236,7 +238,10 @@ goog.utils.uidCounter_ = 0;
  * @return {number} The unique ID for the object.
  */
 goog.utils.getUid = function (obj) {
-  return obj[goog.utils.UID_PROPERTY_] || (obj[goog.utils.UID_PROPERTY_] = ++goog.utils.uidCounter_);
+  return (
+    /** @type {!Object<string, *>} */ (obj)[goog.utils.UID_PROPERTY_] ||
+    (/** @type {!Object<string, *>} */ (obj)[goog.utils.UID_PROPERTY_] = ++goog.utils.uidCounter_)
+  );
 };
 
 /**
@@ -246,7 +251,7 @@ goog.utils.getUid = function (obj) {
  * @return {boolean} Whether there is an assigned unique id for the object.
  */
 goog.utils.hasUid = function (obj) {
-  return !!obj[goog.utils.UID_PROPERTY_];
+  return !!(/** @type {!Object<string, *>} */ (obj)[goog.utils.UID_PROPERTY_]);
 };
 
 /**
@@ -260,14 +265,14 @@ goog.utils.removeUid = function (obj) {
   }
 
   try {
-    delete obj[goog.utils.UID_PROPERTY_];
+    delete (/** @type {!Object<string, *>} */ (obj)[goog.utils.UID_PROPERTY_]);
   } catch (ex) {}
 };
 
 /**
  * An alias for Function.prototype.bind that works in older browsers.
  *
- * @param {?function(this:T, ...)} fn A function to partially apply.
+ * @param {?function(this:T, ...*):*} fn A function to partially apply.
  * @param {T} selfObj Specifies the object which this should point to when the
  *     function is run.
  * @param {...*} var_args Additional arguments that are partially applied to the
@@ -295,7 +300,7 @@ goog.utils.bind = function (fn, selfObj, var_args) {
  * Like goog.utils.bind(), except that a 'this object' is not required. Useful
  * when the target function is already bound.
  *
- * @param {?function(...)} fn A function to partially apply.
+ * @param {?function(...*):*} fn A function to partially apply.
  * @param {...*} var_args Additional arguments that are partially applied to fn.
  * @return {!Function} A partially-applied form of the function passed as an
  *     argument.

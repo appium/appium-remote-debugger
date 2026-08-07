@@ -13,8 +13,8 @@
 goog.module('goog.labs.userAgent.util');
 goog.module.declareLegacyNamespace();
 
-const {caseInsensitiveContains, contains} = goog.require('goog.string.internal');
-const {useClientHints} = goog.require('goog.labs.userAgent');
+var {caseInsensitiveContains, contains} = goog.require('goog.string.internal');
+var {useClientHints} = goog.require('goog.labs.userAgent');
 
 /**
  * @const {boolean} If true, use navigator.userAgentData without check.

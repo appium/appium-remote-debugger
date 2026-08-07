@@ -38,9 +38,10 @@ goog.fs.url.revokeObjectUrl = function (url) {
 
 /**
  * @record
- * @private
  */
 goog.fs.url.UrlObject_ = function () {};
+/** @private */
+goog.fs.url.UrlObject_;
 
 /**
  * @param {!File|!Blob|!MediaSource|!MediaStream} arg
@@ -59,7 +60,6 @@ goog.fs.url.UrlObject_.prototype.revokeObjectURL = function (s) {};
  * this browser.
  *
  * @return {!goog.fs.url.UrlObject_} The object for this browser.
- * @private
  */
 goog.fs.url.getUrlObject_ = function () {
   'use strict';
@@ -70,6 +70,8 @@ goog.fs.url.getUrlObject_ = function () {
     throw new Error("This browser doesn't seem to support blob URLs");
   }
 };
+/** @private */
+goog.fs.url.getUrlObject_;
 
 /**
  * Finds the object that has the createObjectURL and revokeObjectURL functions
@@ -77,7 +79,6 @@ goog.fs.url.getUrlObject_ = function () {
  *
  * @return {?goog.fs.url.UrlObject_} The object for this browser or null if the
  *     browser does not support Object Urls.
- * @private
  */
 goog.fs.url.findUrlObject_ = function () {
   'use strict';
@@ -92,6 +93,8 @@ goog.fs.url.findUrlObject_ = function () {
     return null;
   }
 };
+/** @private */
+goog.fs.url.findUrlObject_;
 
 /**
  * Checks whether this browser supports Object Urls. If not, calls to

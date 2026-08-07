@@ -56,7 +56,6 @@ goog.dom.TagName = class {
    *
    * Never implemented; always backed by `String::toString`.
    *
-   * @override
    * @return {string}
    */
   toString() {}

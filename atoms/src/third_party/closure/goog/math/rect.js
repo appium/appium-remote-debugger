@@ -19,27 +19,30 @@ goog.require('goog.math.Size');
 
 /**
  * Class for representing rectangular regions.
- * @param {number} x Left.
- * @param {number} y Top.
- * @param {number} w Width.
- * @param {number} h Height.
  * @struct
- * @constructor
  * @implements {goog.math.IRect}
  */
-goog.math.Rect = function (x, y, w, h) {
-  'use strict';
-  /** @type {number} */
-  this.left = x;
+goog.math.Rect = class {
+  /**
+   * @param {number} x Left.
+   * @param {number} y Top.
+   * @param {number} w Width.
+   * @param {number} h Height.
+   */
+  constructor(x, y, w, h) {
+    'use strict';
+    /** @type {number} */
+    this.left = x;
 
-  /** @type {number} */
-  this.top = y;
+    /** @type {number} */
+    this.top = y;
 
-  /** @type {number} */
-  this.width = w;
+    /** @type {number} */
+    this.width = w;
 
-  /** @type {number} */
-  this.height = h;
+    /** @type {number} */
+    this.height = h;
+  }
 };
 
 /**

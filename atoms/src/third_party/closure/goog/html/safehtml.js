@@ -13,22 +13,22 @@
 goog.module('goog.html.SafeHtml');
 goog.module.declareLegacyNamespace();
 
-const Const = goog.require('goog.string.Const');
-const SafeScript = goog.require('goog.html.SafeScript');
-const SafeStyle = goog.require('goog.html.SafeStyle');
-const SafeStyleSheet = goog.require('goog.html.SafeStyleSheet');
-const SafeUrl = goog.require('goog.html.SafeUrl');
-const TagName = goog.require('goog.dom.TagName');
-const TrustedResourceUrl = goog.require('goog.html.TrustedResourceUrl');
-const TypedString = goog.require('goog.string.TypedString');
-const asserts = goog.require('goog.asserts');
-const browser = goog.require('goog.labs.userAgent.browser');
-const googArray = goog.require('goog.array');
-const googObject = goog.require('goog.object');
-const internal = goog.require('goog.string.internal');
-const tags = goog.require('goog.dom.tags');
-const trustedtypes = goog.require('goog.html.trustedtypes');
-const utils = goog.require('goog.utils');
+var Const = goog.require('goog.string.Const');
+var SafeScript = goog.require('goog.html.SafeScript');
+var SafeStyle = goog.require('goog.html.SafeStyle');
+var SafeStyleSheet = goog.require('goog.html.SafeStyleSheet');
+var SafeUrl = goog.require('goog.html.SafeUrl');
+var TagName = goog.require('goog.dom.TagName');
+var TrustedResourceUrl = goog.require('goog.html.TrustedResourceUrl');
+var TypedString = goog.require('goog.string.TypedString');
+var asserts = goog.require('goog.asserts');
+var browser = goog.require('goog.labs.userAgent.browser');
+var googArray = goog.require('goog.array');
+var googObject = goog.require('goog.object');
+var internal = goog.require('goog.string.internal');
+var tags = goog.require('goog.dom.tags');
+var trustedtypes = goog.require('goog.html.trustedtypes');
+var utils = goog.require('goog.utils');
 
 /**
  * Token used to ensure that object is created only from this file. No code
@@ -36,7 +36,8 @@ const utils = goog.require('goog.utils');
  * @type {!Object}
  * @const
  */
-const CONSTRUCTOR_TOKEN_PRIVATE = {};
+/** @type {!Object} */
+var CONSTRUCTOR_TOKEN_PRIVATE = {};
 
 /**
  * A string that is safe to use in HTML context in DOM APIs and HTML documents.
@@ -126,7 +127,6 @@ class SafeHtml {
    *
    * @return {string}
    * @see SafeHtml.unwrap
-   * @override
    */
   getTypedStringValue() {
     return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
@@ -140,7 +140,6 @@ class SafeHtml {
    *
    * @return {string}
    * @see SafeHtml.unwrap
-   * @override
    */
   toString() {
     return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
@@ -702,13 +701,13 @@ class SafeHtml {
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty#Using_hasOwnProperty_as_a_property_name
       if (Object.prototype.hasOwnProperty.call(fixedAttributes, name)) {
         asserts.assert(name.toLowerCase() == name, 'Must be lower case');
-        combinedAttributes[name] = fixedAttributes[name];
+        /** @type {!Object<string, *>} */ (combinedAttributes)[name] = fixedAttributes[name];
       }
     }
     for (const name in defaultAttributes) {
       if (Object.prototype.hasOwnProperty.call(defaultAttributes, name)) {
         asserts.assert(name.toLowerCase() == name, 'Must be lower case');
-        combinedAttributes[name] = defaultAttributes[name];
+        /** @type {!Object<string, *>} */ (combinedAttributes)[name] = defaultAttributes[name];
       }
     }
 
@@ -724,9 +723,9 @@ class SafeHtml {
             );
           }
           if (nameLower in defaultAttributes) {
-            delete combinedAttributes[nameLower];
+            delete (/** @type {!Object<string, *>} */ (combinedAttributes)[nameLower]);
           }
-          combinedAttributes[name] = attributes[name];
+          /** @type {!Object<string, *>} */ (combinedAttributes)[name] = attributes[name];
         }
       }
     }

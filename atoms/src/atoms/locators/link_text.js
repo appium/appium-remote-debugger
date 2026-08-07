@@ -34,7 +34,6 @@ goog.require('goog.dom.TagName');
  *     only partially.
  * @return {Element} The first matching element found in the DOM, or null if no
  *     such element could be found.
- * @private
  */
 bot.locators.linkText.single_ = function (target, root, opt_isPartial) {
   var elements;
@@ -46,17 +45,22 @@ bot.locators.linkText.single_ = function (target, root, opt_isPartial) {
     elements = goog.dom.getDomHelper(root).getElementsByTagNameAndClass(goog.dom.TagName.A, /*className=*/ null, root);
   }
 
-  var element = goog.array.find(elements, function (element) {
-    var text = bot.dom.getVisibleText(element);
-    // getVisibleText replaces non-breaking spaces with plain
-    // spaces, so if these are present at the beginning or end
-    // of the link text, we need to trim the regular spaces off
-    // to be spec compliant for matching on link text.
-    text = text.replace(/^[\s]+|[\s]+$/g, '');
-    return (opt_isPartial && text.indexOf(target) != -1) || text == target;
-  });
+  var element = goog.array.find(
+    elements,
+    /** @param {*} element */ function (element) {
+      var text = bot.dom.getVisibleText(element);
+      // getVisibleText replaces non-breaking spaces with plain
+      // spaces, so if these are present at the beginning or end
+      // of the link text, we need to trim the regular spaces off
+      // to be spec compliant for matching on link text.
+      text = text.replace(/^[\s]+|[\s]+$/g, '');
+      return (opt_isPartial && text.indexOf(target) != -1) || text == target;
+    },
+  );
   return /**@type{Element}*/ (element);
 };
+/** @private */
+bot.locators.linkText.single_;
 
 /**
  * Find many elements by using the value of the link text
@@ -66,7 +70,6 @@ bot.locators.linkText.single_ = function (target, root, opt_isPartial) {
  * @param {boolean=} opt_isPartial Whether the link text needs to be matched
  *     only partially.
  * @return {!IArrayLike} All matching elements, or an empty list.
- * @private
  */
 bot.locators.linkText.many_ = function (target, root, opt_isPartial) {
   var elements;
@@ -78,16 +81,21 @@ bot.locators.linkText.many_ = function (target, root, opt_isPartial) {
     elements = goog.dom.getDomHelper(root).getElementsByTagNameAndClass(goog.dom.TagName.A, /*className=*/ null, root);
   }
 
-  return goog.array.filter(elements, function (element) {
-    var text = bot.dom.getVisibleText(element);
-    // getVisibleText replaces non-breaking spaces with plain
-    // spaces, so if these are present at the beginning or end
-    // of the link text, we need to trim the regular spaces off
-    // to be spec compliant for matching on link text.
-    text = text.replace(/^[\s]+|[\s]+$/g, '');
-    return (opt_isPartial && text.indexOf(target) != -1) || text == target;
-  });
+  return goog.array.filter(
+    elements,
+    /** @param {*} element */ function (element) {
+      var text = bot.dom.getVisibleText(element);
+      // getVisibleText replaces non-breaking spaces with plain
+      // spaces, so if these are present at the beginning or end
+      // of the link text, we need to trim the regular spaces off
+      // to be spec compliant for matching on link text.
+      text = text.replace(/^[\s]+|[\s]+$/g, '');
+      return (opt_isPartial && text.indexOf(target) != -1) || text == target;
+    },
+  );
 };
+/** @private */
+bot.locators.linkText.many_;
 
 /**
  * Find an element by using the text value of a link

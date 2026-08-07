@@ -11,8 +11,8 @@
 goog.module('goog.array');
 goog.module.declareLegacyNamespace();
 
-const asserts = goog.require('goog.asserts');
-const utils = goog.require('goog.utils');
+var asserts = goog.require('goog.asserts');
+var utils = goog.require('goog.utils');
 
 /**
  * @define {boolean} NATIVE_ARRAY_PROTOTYPES indicates whether the code should
@@ -81,12 +81,12 @@ exports.last = peek;
  */
 const indexOf =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.indexOf)
-    ? function (arr, obj, opt_fromIndex) {
+    ? /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.indexOf.call(arr, obj, opt_fromIndex);
       }
-    : function (arr, obj, opt_fromIndex) {
+    : /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         const fromIndex =
           opt_fromIndex == null ? 0 : opt_fromIndex < 0 ? Math.max(0, arr.length + opt_fromIndex) : opt_fromIndex;
 
@@ -120,7 +120,7 @@ exports.indexOf = indexOf;
  */
 const lastIndexOf =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.lastIndexOf)
-    ? function (arr, obj, opt_fromIndex) {
+    ? /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         asserts.assert(arr.length != null);
 
         // Firefox treats undefined and null as 0 in the fromIndex argument which
@@ -128,7 +128,7 @@ const lastIndexOf =
         const fromIndex = opt_fromIndex == null ? arr.length - 1 : opt_fromIndex;
         return Array.prototype.lastIndexOf.call(arr, obj, fromIndex);
       }
-    : function (arr, obj, opt_fromIndex) {
+    : /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         let fromIndex = opt_fromIndex == null ? arr.length - 1 : opt_fromIndex;
 
         if (fromIndex < 0) {
@@ -164,12 +164,12 @@ exports.lastIndexOf = lastIndexOf;
  */
 const forEach =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.forEach)
-    ? function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         Array.prototype.forEach.call(arr, f, opt_obj);
       }
-    : function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
         for (let i = 0; i < l; i++) {
@@ -226,12 +226,12 @@ exports.forEachRight = forEachRight;
  */
 const filter =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.filter)
-    ? function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.filter.call(arr, f, opt_obj);
       }
-    : function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const res = [];
         let resLength = 0;
@@ -266,12 +266,12 @@ exports.filter = filter;
  */
 const map =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.map)
-    ? function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.map.call(arr, f, opt_obj);
       }
-    : function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const res = new Array(l);
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
@@ -313,18 +313,21 @@ exports.map = map;
  */
 const reduce =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.reduce)
-    ? function (arr, f, val, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
         asserts.assert(arr.length != null);
         if (opt_obj) {
           f = utils.bind(f, opt_obj);
         }
         return Array.prototype.reduce.call(arr, f, val);
       }
-    : function (arr, f, val, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
         let rval = val;
-        forEach(arr, function (val, index) {
-          rval = f.call(/** @type {?} */ (opt_obj), rval, val, index, arr);
-        });
+        forEach(
+          arr,
+          /** @param {*} val @param {*} index */ function (val, index) {
+            rval = f.call(/** @type {?} */ (opt_obj), rval, val, index, arr);
+          },
+        );
         return rval;
       };
 exports.reduce = reduce;
@@ -357,7 +360,7 @@ exports.reduce = reduce;
  */
 const reduceRight =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.reduceRight)
-    ? function (arr, f, val, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
         asserts.assert(arr.length != null);
         asserts.assert(f != null);
         if (opt_obj) {
@@ -365,7 +368,7 @@ const reduceRight =
         }
         return Array.prototype.reduceRight.call(arr, f, val);
       }
-    : function (arr, f, val, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
         let rval = val;
         forEachRight(arr, function (val, index) {
           rval = f.call(/** @type {?} */ (opt_obj), rval, val, index, arr);
@@ -393,12 +396,12 @@ exports.reduceRight = reduceRight;
  */
 const some =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.some)
-    ? function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.some.call(arr, f, opt_obj);
       }
-    : function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
         for (let i = 0; i < l; i++) {
@@ -429,12 +432,12 @@ exports.some = some;
  */
 const every =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.every)
-    ? function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.every.call(arr, f, opt_obj);
       }
-    : function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
         for (let i = 0; i < l; i++) {
@@ -462,7 +465,7 @@ function count(arr, f, opt_obj) {
   let count = 0;
   forEach(
     arr,
-    function (element, index, arr) {
+    /** @param {*} element @param {*} index @param {*} arr */ function (element, index, arr) {
       if (f.call(/** @type {?} */ (opt_obj), element, index, arr)) {
         ++count;
       }
@@ -925,7 +928,7 @@ exports.slice = slice;
  *
  * @param {IArrayLike<T>} arr The array from which to remove
  *     duplicates.
- * @param {Array=} opt_rv An optional array in which to return the results,
+ * @param {Array<*>=} opt_rv An optional array in which to return the results,
  *     instead of performing the removal inplace.  If specified, the original
  *     array will remain unchanged.
  * @param {function(T):string=} opt_hashFn An optional function to use to
@@ -950,7 +953,7 @@ function removeDuplicates(arr, opt_rv, opt_hashFn) {
     const current = arr[cursorRead++];
     const key = hashFn(current);
     if (!Object.prototype.hasOwnProperty.call(seen, key)) {
-      seen[key] = true;
+      /** @type {!Object<string, *>} */ (seen)[key] = true;
       returnArray[cursorInsert++] = current;
     }
   }
@@ -1126,7 +1129,7 @@ function stableSort(arr, opt_compareFn) {
     compArr[i] = {index: i, value: arr[i]};
   }
   const valueCompareFn = opt_compareFn || defaultCompare;
-  function stableCompareFn(obj1, obj2) {
+  /** @param {*} obj1 @param {*} obj2 */ function stableCompareFn(obj1, obj2) {
     return valueCompareFn(obj1.value, obj2.value) || obj1.index - obj2.index;
   }
   sort(compArr, stableCompareFn);
@@ -1178,7 +1181,7 @@ function sortObjectsByKey(arr, key, opt_compareFn) {
   sortByKey(
     arr,
     function (obj) {
-      return obj[key];
+      return /** @type {!Object<string, *>} */ (obj)[key];
     },
     opt_compareFn,
   );
@@ -1372,7 +1375,8 @@ function bucket(array, sorter, opt_obj) {
     const key = sorter.call(/** @type {?} */ (opt_obj), value, i, array);
     if (key !== undefined) {
       // Push the value to the right bucket, creating it if necessary.
-      const bucket = buckets[key] || (buckets[key] = []);
+      const bucket =
+        /** @type {!Object<string, *>} */ (buckets)[key] || (/** @type {!Object<string, *>} */ (buckets)[key] = []);
       bucket.push(value);
     }
   }
@@ -1432,9 +1436,12 @@ exports.bucketToMap = bucketToMap;
  */
 function toObject(arr, keyFunc, opt_obj) {
   const ret = {};
-  forEach(arr, function (element, index) {
-    ret[keyFunc.call(/** @type {?} */ (opt_obj), element, index, arr)] = element;
-  });
+  forEach(
+    arr,
+    /** @param {*} element @param {*} index */ function (element, index) {
+      /** @type {!Object<string, *>} */ (ret)[keyFunc.call(/** @type {?} */ (opt_obj), element, index, arr)] = element;
+    },
+  );
   return ret;
 }
 exports.toObject = toObject;
@@ -1684,9 +1691,12 @@ exports.shuffle = shuffle;
  */
 function copyByIndex(arr, index_arr) {
   const result = [];
-  forEach(index_arr, function (index) {
-    result.push(arr[index]);
-  });
+  forEach(
+    index_arr,
+    /** @param {*} index */ function (index) {
+      result.push(arr[index]);
+    },
+  );
   return result;
 }
 exports.copyByIndex = copyByIndex;

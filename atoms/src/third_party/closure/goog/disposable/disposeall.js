@@ -12,8 +12,8 @@
 goog.module('goog.disposeAll');
 goog.module.declareLegacyNamespace();
 
-const dispose = goog.require('goog.dispose');
-const utils = goog.require('goog.utils');
+var dispose = goog.require('goog.dispose');
+var utils = goog.require('goog.utils');
 
 /**
  * Calls `dispose` on each member of the list that supports it. (If the

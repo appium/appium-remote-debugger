@@ -49,7 +49,6 @@ goog.require('goog.userAgent.product');
  * type.
  * @enum {number}
  * @see http://www.w3.org/TR/DOM-Level-3-XPath/xpath.html#XPathResult
- * @private
  */
 // TODO: Move this enum back to bot.locators.xpath namespace.
 // The problem is that we alias bot.locators.xpath in locators.js, while
@@ -62,17 +61,20 @@ bot.locators.XPathResult_ = {
   ORDERED_NODE_SNAPSHOT_TYPE: 7,
   FIRST_ORDERED_NODE_TYPE: 9,
 };
+/** @private */
+bot.locators.XPathResult_;
 
 /**
  * Default XPath namespace resolver.
- * @private
  */
 bot.locators.xpath.DEFAULT_RESOLVER_ = (function () {
   var namespaces = {svg: 'http://www.w3.org/2000/svg'};
-  return function (prefix) {
+  return /** @param {*} prefix */ function (prefix) {
     return namespaces[prefix] || null;
   };
 })();
+/** @private */
+bot.locators.xpath.DEFAULT_RESOLVER_;
 
 /**
  * Evaluates an XPath expression using a W3 XPathEvaluator.
@@ -80,9 +82,8 @@ bot.locators.xpath.DEFAULT_RESOLVER_ = (function () {
  *     search under.
  * @param {string} path The xpath to search for.
  * @param {!bot.locators.XPathResult_} resultType The desired result type.
- * @return {XPathResult} The XPathResult or null if the root's ownerDocument
+ * @return {?XPathResult} The XPathResult or null if the root's ownerDocument
  *     does not support XPathEvaluators.
- * @private
  * @see http://www.w3.org/TR/DOM-Level-3-XPath/xpath.html#XPathEvaluator-evaluate
  */
 bot.locators.xpath.evaluate_ = function (node, path, resultType) {
@@ -110,7 +111,7 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
         for (var i = 0; i < allNodes.length; ++i) {
           var n = allNodes[i];
           var ns = n.namespaceURI;
-          if (ns && !reversedNamespaces[ns]) {
+          if (ns && !(/** @type {!Object<string, *>} */ (reversedNamespaces)[ns])) {
             var prefix = n.lookupPrefix(ns);
             if (!prefix) {
               var m = ns.match('.*/(\\w+)/?$');
@@ -120,15 +121,16 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
                 prefix = 'xhtml';
               }
             }
-            reversedNamespaces[ns] = prefix;
+            /** @type {!Object<string, *>} */ (reversedNamespaces)[ns] = prefix;
           }
         }
         var namespaces = {};
         for (var key in reversedNamespaces) {
-          namespaces[reversedNamespaces[key]] = key;
+          /** @type {!Object<string, *>} */ (namespaces)[/** @type {!Object<string, *>} */ (reversedNamespaces)[key]] =
+            key;
         }
         resolver = function (prefix) {
-          return namespaces[prefix] || null;
+          return /** @type {!Object<string, *>} */ (namespaces)[prefix] || null;
         };
       }
 
@@ -158,11 +160,12 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
     }
   }
 };
+/** @private */
+bot.locators.xpath.evaluate_;
 
 /**
  * @param {Node|undefined} node Node to check whether it is an Element.
  * @param {string} path XPath expression to include in the error message.
- * @private
  */
 bot.locators.xpath.checkElement_ = function (node, path) {
   if (!node || node.nodeType != goog.dom.NodeType.ELEMENT) {
@@ -172,6 +175,8 @@ bot.locators.xpath.checkElement_ = function (node, path) {
     );
   }
 };
+/** @private */
+bot.locators.xpath.checkElement_;
 
 /**
  * Find an element by using an xpath expression
@@ -233,8 +238,11 @@ bot.locators.xpath.many = function (target, root) {
   }
 
   var nodes = selectNodes();
-  goog.array.forEach(nodes, function (n) {
-    bot.locators.xpath.checkElement_(n, target);
-  });
+  goog.array.forEach(
+    nodes,
+    /** @param {*} n */ function (n) {
+      bot.locators.xpath.checkElement_(n, target);
+    },
+  );
   return /** @type {!IArrayLike} */ (nodes);
 };

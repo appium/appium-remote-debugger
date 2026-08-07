@@ -6,7 +6,7 @@
 
 /**
  * @fileoverview Closure user agent detection (Browser).
- * @see <a href="http://www.useragentstring.com/">User agent strings</a>
+ * (see: <a href="http://www.useragentstring.com/">User agent strings</a>
  * For more information on rendering engine, platform, or device see the other
  * sub-namespaces in goog.labs.userAgent, goog.labs.userAgent.platform,
  * goog.labs.userAgent.device respectively.)
@@ -15,12 +15,12 @@
 goog.module('goog.labs.userAgent.browser');
 goog.module.declareLegacyNamespace();
 
-const util = goog.require('goog.labs.userAgent.util');
-const {AsyncValue, Version} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
-const {assert, assertExists} = goog.require('goog.asserts');
-const {compareVersions} = goog.require('goog.string.internal');
-const {fullVersionList} = goog.require('goog.labs.userAgent.highEntropy.highEntropyData');
-const {useClientHints} = goog.require('goog.labs.userAgent');
+var util = goog.require('goog.labs.userAgent.util');
+var {AsyncValue, Version} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
+var {assert, assertExists} = goog.require('goog.asserts');
+var {compareVersions} = goog.require('goog.string.internal');
+var {fullVersionList} = goog.require('goog.labs.userAgent.highEntropy.highEntropyData');
+var {useClientHints} = goog.require('goog.labs.userAgent');
 
 // TODO(nnaze): Refactor to remove excessive exclusion logic in matching
 // functions.
@@ -326,11 +326,14 @@ function createVersionMap(versionTuples) {
     // first two.
     const key = tuple[0];
     const value = tuple[1];
-    versionMap[key] = value;
+    /** @type {!Object<string, *>} */ (versionMap)[key] = value;
   });
 
   // Gives the value with the first key it finds, otherwise empty string.
-  return (keys) => versionMap[keys.find((key) => key in versionMap)] || '';
+  return (keys) =>
+    /** @type {!Object<string, *>} */ (versionMap)[
+      /** @type {string} */ (/** @type {?} */ (keys.find((key) => key in versionMap)))
+    ] || '';
 }
 
 /**
@@ -633,7 +636,6 @@ class HighEntropyBrandVersion {
 
   /**
    * @return {!Version|undefined}
-   * @override
    */
   getIfLoaded() {
     if (this.useUach_) {
@@ -660,7 +662,6 @@ class HighEntropyBrandVersion {
 
   /**
    * @return {!Promise<!Version>}
-   * @override
    */
   async load() {
     if (this.useUach_) {

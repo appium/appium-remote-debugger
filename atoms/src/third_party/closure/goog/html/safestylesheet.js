@@ -13,20 +13,21 @@
 goog.module('goog.html.SafeStyleSheet');
 goog.module.declareLegacyNamespace();
 
-const Const = goog.require('goog.string.Const');
-const SafeStyle = goog.require('goog.html.SafeStyle');
-const TypedString = goog.require('goog.string.TypedString');
-const googObject = goog.require('goog.object');
-const {assert, fail} = goog.require('goog.asserts');
-const {contains} = goog.require('goog.string.internal');
-const utils = goog.require('goog.utils');
+var Const = goog.require('goog.string.Const');
+var SafeStyle = goog.require('goog.html.SafeStyle');
+var TypedString = goog.require('goog.string.TypedString');
+var googObject = goog.require('goog.object');
+var {assert, fail} = goog.require('goog.asserts');
+var {contains} = goog.require('goog.string.internal');
+var utils = goog.require('goog.utils');
 
 /**
  * Token used to ensure that object is created only from this file. No code
  * outside of this file can access this token.
  * @const {!Object}
  */
-const CONSTRUCTOR_TOKEN_PRIVATE = {};
+/** @type {!Object} */
+var CONSTRUCTOR_TOKEN_PRIVATE = {};
 
 /**
  * A string-like object which represents a CSS style sheet and that carries the
@@ -102,7 +103,6 @@ class SafeStyleSheet {
    *
    * @return {string}
    * @see SafeStyleSheet#unwrap
-   * @override
    */
   toString() {
     return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_.toString();
@@ -232,7 +232,6 @@ class SafeStyleSheet {
    * </pre>
    *
    * @see SafeStyleSheet#unwrap
-   * @override
    */
   getTypedStringValue() {
     return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;

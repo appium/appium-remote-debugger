@@ -45,15 +45,17 @@ goog.require('goog.userAgent.product');
  * @constructor
  */
 bot.Device = function (opt_modifiersState, opt_eventEmitter) {
+  /** @private {!Element} */
+  bot.Device.prototype.element_;
   /**
    * Element being interacted with.
-   * @private {!Element}
    */
   this.element_ = bot.getDocument().documentElement;
 
+  /** @private {Element} */
+  bot.Device.prototype.select_;
   /**
    * If the element is an option, this is its parent select element.
-   * @private {Element}
    */
   this.select_ = null;
 
@@ -63,31 +65,35 @@ bot.Device = function (opt_modifiersState, opt_eventEmitter) {
     this.setElement(activeElement);
   }
 
+  /** @protected {bot.Device.ModifiersState} */
+  bot.Device.prototype.modifiersState;
   /**
    * State of modifier keys for this device.
-   * @protected {bot.Device.ModifiersState}
    */
   this.modifiersState = opt_modifiersState || new bot.Device.ModifiersState();
 
   /** @protected {!bot.Device.EventEmitter} */
+  bot.Device.prototype.eventEmitter;
   this.eventEmitter = opt_eventEmitter || new bot.Device.EventEmitter();
 };
 
+/** @protected */
+bot.Device.prototype.getElement;
 /**
  * Returns the element with which the device is interacting.
  *
  * @return {!Element} Element being interacted with.
- * @protected
  */
 bot.Device.prototype.getElement = function () {
   return this.element_;
 };
 
+/** @protected */
+bot.Device.prototype.setElement;
 /**
  * Sets the element with which the device is interacting.
  *
  * @param {!Element} element Element being interacted with.
- * @protected
  */
 bot.Device.prototype.setElement = function (element) {
   this.element_ = element;
@@ -102,17 +108,20 @@ bot.Device.prototype.setElement = function (element) {
   }
 };
 
+/** @protected */
+bot.Device.prototype.fireHtmlEvent;
 /**
  * Fires an HTML event given the state of the device.
  *
  * @param {!bot.events.EventFactory_} type HTML Event type.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.prototype.fireHtmlEvent = function (type) {
   return this.eventEmitter.fireHtmlEvent(this.element_, type);
 };
 
+/** @protected */
+bot.Device.prototype.fireKeyboardEvent;
 /**
  * Fires a keyboard event given the state of the device and the given arguments.
  * TODO: Populate the modifier keys in this method.
@@ -120,12 +129,13 @@ bot.Device.prototype.fireHtmlEvent = function (type) {
  * @param {!bot.events.EventFactory_} type Keyboard event type.
  * @param {bot.events.KeyboardArgs} args Keyboard event arguments.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.prototype.fireKeyboardEvent = function (type, args) {
   return this.eventEmitter.fireKeyboardEvent(this.element_, type, args);
 };
 
+/** @protected */
+bot.Device.prototype.fireMouseEvent;
 /**
  * Fires a mouse event given the state of the device and the given arguments.
  * TODO: Populate the modifier keys in this method.
@@ -133,7 +143,7 @@ bot.Device.prototype.fireKeyboardEvent = function (type, args) {
  * @param {!bot.events.EventFactory_} type Mouse event type.
  * @param {!goog.math.Coordinate} coord The coordinate where event will fire.
  * @param {number} button The mouse button value for the event.
- * @param {Element=} opt_related The related element of this event.
+ * @param {?Element=} opt_related The related element of this event.
  * @param {?number=} opt_wheelDelta The wheel delta value for the event.
  * @param {boolean=} opt_force Whether the event should be fired even if the
  *     element is not interactable, such as the case of a mousemove or
@@ -141,7 +151,6 @@ bot.Device.prototype.fireKeyboardEvent = function (type, args) {
  * @param {?number=} opt_pointerId The pointerId associated with the event.
  * @param {?number=} opt_count Number of clicks that have been performed.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.prototype.fireMouseEvent = function (
   type,
@@ -184,13 +193,15 @@ bot.Device.prototype.fireMouseEvent = function (
     type != bot.events.EventType.MOUSEDOWN &&
     pointerId in bot.Device.pointerElementMap_
   ) {
-    target = bot.Device.pointerElementMap_[pointerId];
+    target = /** @type {!Object<number, *>} */ (bot.Device.pointerElementMap_)[pointerId];
   } else if (this.select_) {
     target = this.getTargetOfOptionMouseEvent_(type);
   }
   return target ? this.eventEmitter.fireMouseEvent(target, type, args) : true;
 };
 
+/** @protected */
+bot.Device.prototype.fireTouchEvent;
 /**
  * Fires a touch event given the state of the device and the given arguments.
  *
@@ -201,7 +212,6 @@ bot.Device.prototype.fireMouseEvent = function (
  * @param {!goog.math.Coordinate=} opt_coord2 The coordinate of the second
  *    finger, if any.
  * @return {boolean} Whether the event fired successfully or was cancelled.
- * @protected
  */
 bot.Device.prototype.fireTouchEvent = function (type, id, coord, opt_id2, opt_coord2) {
   var args = {
@@ -218,7 +228,7 @@ bot.Device.prototype.fireTouchEvent = function (type, id, coord, opt_id2, opt_co
   };
   var pageOffset = goog.dom.getDomHelper(this.element_).getDocumentScroll();
 
-  function addTouch(identifier, coords) {
+  /** @param {*} identifier @param {*} coords */ function addTouch(identifier, coords) {
     // Android devices leave identifier to zero.
     var touch = {
       identifier: identifier,
@@ -245,6 +255,8 @@ bot.Device.prototype.fireTouchEvent = function (type, id, coord, opt_id2, opt_co
   return this.eventEmitter.fireTouchEvent(this.element_, type, args);
 };
 
+/** @protected */
+bot.Device.prototype.fireMSPointerEvent;
 /**
  * Fires a MSPointer event given the state of the device and the given
  * arguments.
@@ -256,12 +268,11 @@ bot.Device.prototype.fireTouchEvent = function (type, id, coord, opt_id2, opt_co
  * @param {number} device The device type used for this event.
  * @param {boolean} isPrimary Whether the pointer represents the primary point
  *     of contact.
- * @param {Element=} opt_related The related element of this event.
+ * @param {?Element=} opt_related The related element of this event.
  * @param {boolean=} opt_force Whether the event should be fired even if the
  *     element is not interactable, such as the case of a mousemove or
  *     mouseover event that immediately follows a mouseout.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.prototype.fireMSPointerEvent = function (
   type,
@@ -302,8 +313,8 @@ bot.Device.prototype.fireMSPointerEvent = function (
   };
 
   var target = this.select_ ? this.getTargetOfOptionMouseEvent_(type) : this.element_;
-  if (bot.Device.pointerElementMap_[pointerId]) {
-    target = bot.Device.pointerElementMap_[pointerId];
+  if (/** @type {!Object<number, *>} */ (bot.Device.pointerElementMap_)[pointerId]) {
+    target = /** @type {!Object<number, *>} */ (bot.Device.pointerElementMap_)[pointerId];
   }
   var owner = goog.dom.getWindow(goog.dom.getOwnerDocument(this.element_));
   var originalMsSetPointerCapture;
@@ -314,7 +325,7 @@ bot.Device.prototype.fireMSPointerEvent = function (
     // we do not know which element will handle the pointer event.
     originalMsSetPointerCapture = owner['Element'].prototype.msSetPointerCapture;
     owner['Element'].prototype.msSetPointerCapture = function (id) {
-      bot.Device.pointerElementMap_[id] = this;
+      /** @type {!Object<string, *>} */ (bot.Device.pointerElementMap_)[id] = this;
     };
   }
   var result = target ? this.eventEmitter.fireMSPointerEvent(target, type, args) : true;
@@ -324,6 +335,8 @@ bot.Device.prototype.fireMSPointerEvent = function (
   return result;
 };
 
+/** @private */
+bot.Device.prototype.getTargetOfOptionMouseEvent_;
 /**
  * A mouse event fired "on" an option element, doesn't always fire on the
  * option element itself. Sometimes it fires on the parent select element
@@ -331,8 +344,7 @@ bot.Device.prototype.fireMSPointerEvent = function (
  * returns the true target element of the event, or null if none is fired.
  *
  * @param {!bot.events.EventFactory_} type Type of event.
- * @return {Element} Element the event should be fired on, null if none.
- * @private
+ * @return {?Element} Element the event should be fired on, null if none.
  */
 bot.Device.prototype.getTargetOfOptionMouseEvent_ = function (type) {
   // IE either fires the event on the parent select or not at all.
@@ -366,6 +378,8 @@ bot.Device.prototype.getTargetOfOptionMouseEvent_ = function (type) {
   return this.element_;
 };
 
+/** @protected */
+bot.Device.prototype.clickElement;
 /**
  * A helper function to fire click events.  This method is shared between
  * the mouse and touchscreen devices.
@@ -376,7 +390,6 @@ bot.Device.prototype.getTargetOfOptionMouseEvent_ = function (type) {
  *     element is not interactable, such as when an element is hidden by a
  *     mouseup handler.
  * @param {?number=} opt_pointerId The pointer id associated with the click.
- * @protected
  */
 bot.Device.prototype.clickElement = function (coord, button, opt_force, opt_pointerId) {
   if (!opt_force && !bot.dom.isInteractable(this.element_)) {
@@ -445,13 +458,14 @@ bot.Device.prototype.clickElement = function (coord, button, opt_force, opt_poin
   }
 };
 
+/** @protected */
+bot.Device.prototype.focusOnElement;
 /**
  * Focuses on the given element and returns true if it supports being focused
  * and does not already have focus; otherwise, returns false. If another element
  * has focus, that element will be blurred before focusing on the given element.
  *
  * @return {boolean} Whether the element was given focus.
- * @protected
  */
 bot.Device.prototype.focusOnElement = function () {
   var elementToFocus = goog.dom.getAncestor(
@@ -471,9 +485,11 @@ bot.Device.prototype.focusOnElement = function () {
   // If there is a currently active element, try to blur it.
   if (
     activeElement &&
-    (typeof activeElement.blur === 'function' ||
+    (typeof (/** @type {!HTMLElement} */ (activeElement).blur) === 'function' ||
       // IE reports native functions as being objects.
-      (goog.userAgent.IE && typeof activeElement.blur === 'object' && activeElement.blur !== null))
+      (goog.userAgent.IE &&
+        typeof (/** @type {!HTMLElement} */ (activeElement).blur) === 'object' &&
+        /** @type {!HTMLElement} */ (activeElement).blur !== null))
   ) {
     // In IE, the focus() and blur() functions fire their respective events
     // asynchronously, and as the result, the focus/blur events fired by the
@@ -482,7 +498,7 @@ bot.Device.prototype.focusOnElement = function () {
     // wrap it in a try-catch and catch and ignore the error in this case.
     if (!bot.dom.isElement(activeElement, goog.dom.TagName.BODY)) {
       try {
-        activeElement.blur();
+        /** @type {!HTMLElement} */ (activeElement).blur();
       } catch (e) {
         if (!(goog.userAgent.IE && e.message == 'Unspecified error.')) {
           throw e;
@@ -502,10 +518,12 @@ bot.Device.prototype.focusOnElement = function () {
 
   // Try to focus on the element.
   if (
-    typeof elementToFocus.focus === 'function' ||
-    (goog.userAgent.IE && typeof elementToFocus.focus === 'object' && elementToFocus.focus !== null)
+    typeof (/** @type {!HTMLElement} */ (elementToFocus).focus) === 'function' ||
+    (goog.userAgent.IE &&
+      typeof (/** @type {!HTMLElement} */ (elementToFocus).focus) === 'object' &&
+      /** @type {!HTMLElement} */ (elementToFocus).focus !== null)
   ) {
-    /** @type {function()} */ (elementToFocus.focus).call(elementToFocus);
+    /** @type {function():*} */ (/** @type {!HTMLElement} */ (elementToFocus).focus).call(elementToFocus);
     return true;
   }
 
@@ -515,32 +533,34 @@ bot.Device.prototype.focusOnElement = function () {
 /**
  * Whether links must be manually followed when clicking (because firing click
  * events doesn't follow them).
- * @private {boolean}
  * @const
  */
 bot.Device.ALWAYS_FOLLOWS_LINKS_ON_CLICK_ = goog.userAgent.WEBKIT;
+/** @private {boolean} */
+bot.Device.ALWAYS_FOLLOWS_LINKS_ON_CLICK_;
 
 /**
  * @param {Node} element The element to check.
  * @return {boolean} Whether the element is a submit element in form.
- * @protected
  */
 bot.Device.isFormSubmitElement = function (element) {
   if (bot.dom.isElement(element, goog.dom.TagName.INPUT)) {
-    var type = element.type.toLowerCase();
+    var type = /** @type {!HTMLElement} */ (element).type.toLowerCase();
     if (type == 'submit' || type == 'image') {
       return true;
     }
   }
 
   if (bot.dom.isElement(element, goog.dom.TagName.BUTTON)) {
-    var type = element.type.toLowerCase();
+    var type = /** @type {!HTMLElement} */ (element).type.toLowerCase();
     if (type == 'submit') {
       return true;
     }
   }
   return false;
 };
+/** @protected */
+bot.Device.isFormSubmitElement;
 
 /**
  * Indicates whether we should manually follow the href of the element we're
@@ -553,10 +573,9 @@ bot.Device.isFormSubmitElement = function (element) {
  *
  * @param {!Element} element The element to consider.
  * @return {boolean} Whether following an href should be skipped.
- * @private
  */
 bot.Device.shouldFollowHref_ = function (element) {
-  if (bot.Device.ALWAYS_FOLLOWS_LINKS_ON_CLICK_ || !element.href) {
+  if (bot.Device.ALWAYS_FOLLOWS_LINKS_ON_CLICK_ || !(/** @type {!HTMLElement} */ (element).href)) {
     return false;
   }
 
@@ -564,26 +583,30 @@ bot.Device.shouldFollowHref_ = function (element) {
     return true;
   }
 
-  if (element.target || element.href.toLowerCase().indexOf('javascript') == 0) {
+  if (
+    /** @type {!HTMLElement} */ (element).target ||
+    /** @type {!HTMLElement} */ (element).href.toLowerCase().indexOf('javascript') == 0
+  ) {
     return false;
   }
 
   var owner = goog.dom.getWindow(goog.dom.getOwnerDocument(element));
   var sourceUrl = owner.location.href;
-  var destinationUrl = bot.Device.resolveUrl_(owner.location, element.href);
+  var destinationUrl = bot.Device.resolveUrl_(owner.location, /** @type {!HTMLElement} */ (element).href);
   var isOnlyHashChange = sourceUrl.split('#')[0] === destinationUrl.split('#')[0];
 
   return !isOnlyHashChange;
 };
+/** @private */
+bot.Device.shouldFollowHref_;
 
 /**
  * Explicitly follows the href of an anchor.
  *
  * @param {!Element} anchorElement An anchor element.
- * @private
  */
 bot.Device.followHref_ = function (anchorElement) {
-  var targetHref = anchorElement.href;
+  var targetHref = /** @type {!HTMLElement} */ (anchorElement).href;
   var owner = goog.dom.getWindow(goog.dom.getOwnerDocument(anchorElement));
 
   // IE7 and earlier incorrect resolve a relative href against the top window
@@ -595,19 +618,22 @@ bot.Device.followHref_ = function (anchorElement) {
     targetHref = bot.Device.resolveUrl_(owner.location, targetHref);
   }
 
-  if (anchorElement.target) {
-    owner.open(targetHref, anchorElement.target);
+  if (/** @type {!HTMLElement} */ (anchorElement).target) {
+    owner.open(targetHref, /** @type {!HTMLElement} */ (anchorElement).target);
   } else {
     owner.location.href = targetHref;
   }
 };
+/** @private */
+bot.Device.followHref_;
 
+/** @protected */
+bot.Device.prototype.maybeToggleOption;
 /**
  * Toggles the selected state of the current element if it is an option. This
  * is a noop if the element is not an option, or if it is selected and belongs
  * to a single-select, because it can't be toggled off.
  *
- * @protected
  */
 bot.Device.prototype.maybeToggleOption = function () {
   // If this is not an <option> or not interactable, exit.
@@ -617,7 +643,7 @@ bot.Device.prototype.maybeToggleOption = function () {
   var select = /** @type {!Element} */ (this.select_);
   var wasSelected = bot.dom.isSelected(this.element_);
   // Cannot toggle off options in single-selects.
-  if (wasSelected && !select.multiple) {
+  if (wasSelected && !(/** @type {!HTMLElement} */ (select).multiple)) {
     return;
   }
 
@@ -629,7 +655,7 @@ bot.Device.prototype.maybeToggleOption = function () {
   // Only WebKit fires the change event itself and only for multi-selects,
   // except for Android versions >= 4.0 and Chrome >= 28.
   if (
-    !(goog.userAgent.WEBKIT && select.multiple) ||
+    !(goog.userAgent.WEBKIT && /** @type {!HTMLElement} */ (select).multiple) ||
     (goog.userAgent.product.CHROME && bot.userAgent.isProductVersion(28)) ||
     (goog.userAgent.product.ANDROID && bot.userAgent.isProductVersion(4))
   ) {
@@ -637,12 +663,13 @@ bot.Device.prototype.maybeToggleOption = function () {
   }
 };
 
+/** @private */
+bot.Device.prototype.toggleRadioButtonOrCheckbox_;
 /**
  * Toggles the checked state of a radio button or checkbox. This is a noop if
  * it is a radio button that is checked, because it can't be toggled off.
  *
  * @param {boolean} wasChecked Whether the element was originally checked.
- * @private
  */
 bot.Device.prototype.toggleRadioButtonOrCheckbox_ = function (wasChecked) {
   // Gecko and WebKit toggle the element as a result of a click.
@@ -660,26 +687,29 @@ bot.Device.prototype.toggleRadioButtonOrCheckbox_ = function (wasChecked) {
  * Find FORM element that is an ancestor of the passed in element.
  * @param {Node} node The node to find a FORM for.
  * @return {Element} The ancestor FORM element if it exists.
- * @protected
  */
 bot.Device.findAncestorForm = function (node) {
   return /** @type {Element} */ (goog.dom.getAncestor(node, bot.Device.isForm_, /*includeNode=*/ true));
 };
+/** @protected */
+bot.Device.findAncestorForm;
 
 /**
  * @param {Node} node The node to test.
  * @return {boolean} Whether the node is a FORM element.
- * @private
  */
 bot.Device.isForm_ = function (node) {
   return bot.dom.isElement(node, goog.dom.TagName.FORM);
 };
+/** @private */
+bot.Device.isForm_;
 
+/** @protected */
+bot.Device.prototype.submitForm;
 /**
  * Submits the specified form. Unlike the public function, it expects to be
  * given a form element and fails if it is not.
  * @param {!Element} form The form to submit.
- * @protected
  */
 bot.Device.prototype.submitForm = function (form) {
   if (!bot.Device.isForm_(form)) {
@@ -696,26 +726,38 @@ bot.Device.prototype.submitForm = function (form) {
     // incorrect value names. Fortunately, saving the submit function and
     // calling it after reverting the ids and names works! Oh, and goog.typeOf
     // (and thus goog.isFunction) doesn't work for form.submit in IE < 8.
-    if (!bot.dom.isElement(form.submit)) {
-      form.submit();
+    if (!bot.dom.isElement(/** @type {!HTMLElement} */ (form).submit)) {
+      /** @type {!HTMLElement} */ (form).submit();
     } else if (!goog.userAgent.IE || bot.userAgent.isEngineVersion(8)) {
       /** @type {Function} */ (form.constructor.prototype['submit']).call(form);
     } else {
       var idMasks = bot.locators.findElements({'id': 'submit'}, form);
       var nameMasks = bot.locators.findElements({'name': 'submit'}, form);
-      goog.array.forEach(idMasks, function (m) {
-        m.removeAttribute('id');
-      });
-      goog.array.forEach(nameMasks, function (m) {
-        m.removeAttribute('name');
-      });
-      var submitFunction = form.submit;
-      goog.array.forEach(idMasks, function (m) {
-        m.setAttribute('id', 'submit');
-      });
-      goog.array.forEach(nameMasks, function (m) {
-        m.setAttribute('name', 'submit');
-      });
+      goog.array.forEach(
+        idMasks,
+        /** @param {*} m */ function (m) {
+          m.removeAttribute('id');
+        },
+      );
+      goog.array.forEach(
+        nameMasks,
+        /** @param {*} m */ function (m) {
+          m.removeAttribute('name');
+        },
+      );
+      var submitFunction = /** @type {!HTMLElement} */ (form).submit;
+      goog.array.forEach(
+        idMasks,
+        /** @param {*} m */ function (m) {
+          m.setAttribute('id', 'submit');
+        },
+      );
+      goog.array.forEach(
+        nameMasks,
+        /** @param {*} m */ function (m) {
+          m.setAttribute('name', 'submit');
+        },
+      );
       submitFunction();
     }
   }
@@ -723,7 +765,6 @@ bot.Device.prototype.submitForm = function (form) {
 
 /**
  * Regular expression for splitting up a URL into components.
- * @private {!RegExp}
  * @const
  */
 bot.Device.URL_REGEXP_ = new RegExp(
@@ -735,13 +776,14 @@ bot.Device.URL_REGEXP_ = new RegExp(
     '(#.*)?' + // hash
     '$',
 );
+/** @private {!RegExp} */
+bot.Device.URL_REGEXP_;
 
 /**
  * Resolves a potentially relative URL against a base location.
  * @param {!Location} base Base location against which to resolve.
  * @param {string} rel Url to resolve against the location.
  * @return {string} Resolution of url against base location.
- * @private
  */
 bot.Device.resolveUrl_ = function (base, rel) {
   var m = rel.match(bot.Device.URL_REGEXP_);
@@ -775,6 +817,8 @@ bot.Device.resolveUrl_ = function (base, rel) {
 
   return target.protocol + '//' + target.host + target.pathname + target.search + target.hash;
 };
+/** @private */
+bot.Device.resolveUrl_;
 
 /**
  * Stores the state of modifier keys
@@ -782,9 +826,10 @@ bot.Device.resolveUrl_ = function (base, rel) {
  * @constructor
  */
 bot.Device.ModifiersState = function () {
+  /** @private {number} */
+  bot.Device.ModifiersState.prototype.pressedModifiers_;
   /**
    * State of the modifier keys.
-   * @private {number}
    */
   this.pressedModifiers_ = 0;
 };
@@ -859,27 +904,30 @@ bot.Device.MOUSE_MS_POINTER_ID = 1;
 
 /**
  * A map of pointer id to Elements.
- * @private {!Object.<number, !Element>}
  */
 bot.Device.pointerElementMap_ = {};
+/** @private {!Object.<number, !Element>} */
+bot.Device.pointerElementMap_;
 
 /**
  * Gets the element associated with a pointer id.
  * @param {number} pointerId The pointer Id.
  * @return {?Element} The element associated with the pointer id.
- * @protected
  */
 bot.Device.getPointerElement = function (pointerId) {
-  return bot.Device.pointerElementMap_[pointerId];
+  return /** @type {!Object<number, *>} */ (bot.Device.pointerElementMap_)[pointerId];
 };
+/** @protected */
+bot.Device.getPointerElement;
 
 /**
  * Clear the pointer map.
- * @protected
  */
 bot.Device.clearPointerMap = function () {
   bot.Device.pointerElementMap_ = {};
 };
+/** @protected */
+bot.Device.clearPointerMap;
 
 /**
  * Fires events, a driver can replace it with a custom implementation
@@ -888,18 +936,21 @@ bot.Device.clearPointerMap = function () {
  */
 bot.Device.EventEmitter = function () {};
 
+/** @protected */
+bot.Device.EventEmitter.prototype.fireHtmlEvent;
 /**
  * Fires an HTML event given the state of the device.
  *
  * @param {!Element} target The element on which to fire the event.
  * @param {!bot.events.EventFactory_} type HTML Event type.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.EventEmitter.prototype.fireHtmlEvent = function (target, type) {
   return bot.events.fire(target, type);
 };
 
+/** @protected */
+bot.Device.EventEmitter.prototype.fireKeyboardEvent;
 /**
  * Fires a keyboard event given the state of the device and the given arguments.
  *
@@ -907,12 +958,13 @@ bot.Device.EventEmitter.prototype.fireHtmlEvent = function (target, type) {
  * @param {!bot.events.EventFactory_} type Keyboard event type.
  * @param {bot.events.KeyboardArgs} args Keyboard event arguments.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.EventEmitter.prototype.fireKeyboardEvent = function (target, type, args) {
   return bot.events.fire(target, type, args);
 };
 
+/** @protected */
+bot.Device.EventEmitter.prototype.fireMouseEvent;
 /**
  * Fires a mouse event given the state of the device and the given arguments.
  *
@@ -920,12 +972,13 @@ bot.Device.EventEmitter.prototype.fireKeyboardEvent = function (target, type, ar
  * @param {!bot.events.EventFactory_} type Mouse event type.
  * @param {bot.events.MouseArgs} args Mouse event arguments.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.EventEmitter.prototype.fireMouseEvent = function (target, type, args) {
   return bot.events.fire(target, type, args);
 };
 
+/** @protected */
+bot.Device.EventEmitter.prototype.fireTouchEvent;
 /**
  * Fires a mouse event given the state of the device and the given arguments.
  *
@@ -933,12 +986,13 @@ bot.Device.EventEmitter.prototype.fireMouseEvent = function (target, type, args)
  * @param {!bot.events.EventFactory_} type Touch event type.
  * @param {bot.events.TouchArgs} args Touch event arguments.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.EventEmitter.prototype.fireTouchEvent = function (target, type, args) {
   return bot.events.fire(target, type, args);
 };
 
+/** @protected */
+bot.Device.EventEmitter.prototype.fireMSPointerEvent;
 /**
  * Fires an MSPointer event given the state of the device and the given
  * arguments.
@@ -947,7 +1001,6 @@ bot.Device.EventEmitter.prototype.fireTouchEvent = function (target, type, args)
  * @param {!bot.events.EventFactory_} type MSPointer event type.
  * @param {bot.events.MSPointerArgs} args MSPointer event arguments.
  * @return {boolean} Whether the event fired successfully; false if cancelled.
- * @protected
  */
 bot.Device.EventEmitter.prototype.fireMSPointerEvent = function (target, type, args) {
   return bot.events.fire(target, type, args);

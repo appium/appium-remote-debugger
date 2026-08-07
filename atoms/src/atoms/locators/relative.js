@@ -38,7 +38,6 @@ var Filter;
  * @param {!function(!goog.math.Rect, !goog.math.Rect):boolean} proximity
  * @return {!Filter} A function that determines whether the
  *    selector matches the proximity function.
- * @private
  */
 bot.locators.relative.proximity_ = function (selector, proximity) {
   /**
@@ -58,6 +57,8 @@ bot.locators.relative.proximity_ = function (selector, proximity) {
 
   return toReturn;
 };
+/** @private */
+bot.locators.relative.proximity_;
 
 /**
  * Relative locator to find elements that are above the expected one. "Above"
@@ -66,13 +67,14 @@ bot.locators.relative.proximity_ = function (selector, proximity) {
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is above the given element.
- * @private
  */
 bot.locators.relative.above_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
     return toFind.top + toFind.height <= expected.top;
   });
 };
+/** @private */
+bot.locators.relative.above_;
 
 /**
  * Relative locator to find elements that are below the expected one. "Below"
@@ -81,39 +83,42 @@ bot.locators.relative.above_ = function (selector) {
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is below the given element.
- * @private
  */
 bot.locators.relative.below_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
     return toFind.top >= expected.top + expected.height;
   });
 };
+/** @private */
+bot.locators.relative.below_;
 
 /**
  * Relative locator to find elements that are to the left of the expected one.
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is left of the given element.
- * @private
  */
 bot.locators.relative.leftOf_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
     return toFind.left + toFind.width <= expected.left;
   });
 };
+/** @private */
+bot.locators.relative.leftOf_;
 
 /**
  * Relative locator to find elements that are to the left of the expected one.
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is right of the given element.
- * @private
  */
 bot.locators.relative.rightOf_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
     return toFind.left >= expected.left + expected.width;
   });
 };
+/** @private */
+bot.locators.relative.rightOf_;
 
 /**
  * Relative locator to find elements that are above the expected one. "Above"
@@ -122,7 +127,6 @@ bot.locators.relative.rightOf_ = function (selector) {
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is above the given element.
- * @private
  */
 bot.locators.relative.straightAbove_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
@@ -133,6 +137,8 @@ bot.locators.relative.straightAbove_ = function (selector) {
     );
   });
 };
+/** @private */
+bot.locators.relative.straightAbove_;
 
 /**
  * Relative locator to find elements that are below the expected one. "Below"
@@ -141,7 +147,6 @@ bot.locators.relative.straightAbove_ = function (selector) {
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is below the given element.
- * @private
  */
 bot.locators.relative.straightBelow_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
@@ -152,13 +157,14 @@ bot.locators.relative.straightBelow_ = function (selector) {
     );
   });
 };
+/** @private */
+bot.locators.relative.straightBelow_;
 
 /**
  * Relative locator to find elements that are to the left of the expected one.
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is left of the given element.
- * @private
  */
 bot.locators.relative.straightLeftOf_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
@@ -169,13 +175,14 @@ bot.locators.relative.straightLeftOf_ = function (selector) {
     );
   });
 };
+/** @private */
+bot.locators.relative.straightLeftOf_;
 
 /**
  * Relative locator to find elements that are to the left of the expected one.
  *
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @return {!Filter} A function that determines whether the selector is right of the given element.
- * @private
  */
 bot.locators.relative.straightRightOf_ = function (selector) {
   return bot.locators.relative.proximity_(selector, function (expected, toFind) {
@@ -186,6 +193,8 @@ bot.locators.relative.straightRightOf_ = function (selector) {
     );
   });
 };
+/** @private */
+bot.locators.relative.straightRightOf_;
 
 /**
  * Find elements within (by default) 50 pixels of the selected element. An
@@ -194,7 +203,6 @@ bot.locators.relative.straightRightOf_ = function (selector) {
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @param {number=} opt_distance Optional distance in pixels to count as "near" (defaults to 50 pixels).
  * @return {!Filter} A function that determines whether the selector is near the given element.
- * @private
  */
 bot.locators.relative.near_ = function (selector, opt_distance) {
   var distance;
@@ -235,11 +243,12 @@ bot.locators.relative.near_ = function (selector, opt_distance) {
 
   return func;
 };
+/** @private */
+bot.locators.relative.near_;
 
 /**
  * @param {!Element|function():!Element|!Object} selector Mechanism to be used to find the element.
  * @returns {!Element} A single element.
- * @private
  */
 bot.locators.relative.resolve_ = function (selector) {
   if (goog.dom.isElement(selector)) {
@@ -261,10 +270,11 @@ bot.locators.relative.resolve_ = function (selector) {
 
   throw new bot.Error(bot.ErrorCode.INVALID_ARGUMENT, 'Selector is of wrong type: ' + JSON.stringify(selector));
 };
+/** @private */
+bot.locators.relative.resolve_;
 
 /**
  * @type {!Object<string, function(!Object):!Filter>}
- * @private
  * @const
  */
 bot.locators.relative.STRATEGIES_ = {
@@ -278,6 +288,8 @@ bot.locators.relative.STRATEGIES_ = {
   'straightLeft': bot.locators.relative.straightLeftOf_,
   'straightRight': bot.locators.relative.straightRightOf_,
 };
+/** @private */
+bot.locators.relative.STRATEGIES_;
 
 bot.locators.relative.RESOLVERS_ = {
   'above': bot.locators.relative.resolve_,
@@ -295,20 +307,19 @@ bot.locators.relative.RESOLVERS_ = {
  * @param {!IArrayLike<!Element>} allElements
  * @param {!IArrayLike<!Filter>}filters
  * @return {!Array<!Element>}
- * @private
  */
 bot.locators.relative.filterElements_ = function (allElements, filters) {
   var toReturn = [];
   goog.array.forEach(
     allElements,
-    function (element) {
+    /** @param {*} element */ function (element) {
       if (!!!element) {
         return;
       }
 
       var include = goog.array.every(
         filters,
-        function (filter) {
+        /** @param {*} filter */ function (filter) {
           // Look up the filter function by name
           var name = filter['kind'];
           var strategy = bot.locators.relative.STRATEGIES_[name];
@@ -346,12 +357,13 @@ bot.locators.relative.filterElements_ = function (allElements, filters) {
 
   return bot.locators.relative.sortByProximity_(lastAnchor, toReturn);
 };
+/** @private */
+bot.locators.relative.filterElements_;
 
 /**
  * @param {!Element} anchor
  * @param {!Array<!Element>} elements
  * @return {!Array<!Element>}
- * @private
  */
 bot.locators.relative.sortByProximity_ = function (anchor, elements) {
   var anchorRect = bot.dom.getClientRect(anchor);
@@ -373,12 +385,17 @@ bot.locators.relative.sortByProximity_ = function (anchor, elements) {
     return Math.sqrt(x + y);
   };
 
-  goog.array.sort(elements, function (left, right) {
-    return distance(left) - distance(right);
-  });
+  goog.array.sort(
+    elements,
+    /** @param {*} left @param {*} right */ function (left, right) {
+      return distance(left) - distance(right);
+    },
+  );
 
   return elements;
 };
+/** @private */
+bot.locators.relative.sortByProximity_;
 
 /**
  * Find an element by using a relative locator.
@@ -386,7 +403,7 @@ bot.locators.relative.sortByProximity_ = function (anchor, elements) {
  * @param {!Object} target The search criteria.
  * @param {!(Document|Element)} ignored_root The document or element to perform
  *     the search under, which is ignored.
- * @return {Element} The first matching element, or null if no such element
+ * @return {?Element} The first matching element, or null if no such element
  *     could be found.
  */
 bot.locators.relative.single = function (target, ignored_root) {

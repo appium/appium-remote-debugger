@@ -345,7 +345,6 @@ goog.string.caseInsensitiveCompare = goog.string.internal.caseInsensitiveCompare
  *     numbers starting with a decimal point.
  * @return {number} Negative if str1 < str2, 0 is str1 == str2, positive if
  *     str1 > str2.
- * @private
  */
 goog.string.numberAwareCompare_ = function (str1, str2, tokenizerRegExp) {
   'use strict';
@@ -395,6 +394,8 @@ goog.string.numberAwareCompare_ = function (str1, str2, tokenizerRegExp) {
   // comparison to stabilize the sort.
   return str1 < str2 ? -1 : 1;
 };
+/** @private */
+goog.string.numberAwareCompare_;
 
 /**
  * String comparison function that handles non-negative integer numbers in a
@@ -531,9 +532,10 @@ goog.string.htmlEscape = function (str, opt_isLikelyToContainHtmlChars) {
 /**
  * Regular expression that matches a lowercase letter "e", for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.E_RE_ = /e/g;
+/** @private */
+goog.string.E_RE_;
 
 /**
  * Unescapes an HTML string.
@@ -574,7 +576,6 @@ goog.string.unescapeEntitiesWithDocument = function (str, document) {
 /**
  * Unescapes an HTML string using a DOM to resolve non-XML, non-numeric
  * entities. This function is XSS-safe and whitespace-preserving.
- * @private
  * @param {string} str The string to unescape.
  * @param {Document=} opt_document An optional document to use for creating
  *     elements. If this is not specified then the default window.document
@@ -630,10 +631,11 @@ goog.string.unescapeEntitiesUsingDom_ = function (str, opt_document) {
     return (seen[s] = value);
   });
 };
+/** @private */
+goog.string.unescapeEntitiesUsingDom_;
 
 /**
  * Unescapes XML entities.
- * @private
  * @param {string} str The string to unescape.
  * @return {string} An unescaped copy of `str`.
  */
@@ -663,14 +665,17 @@ goog.string.unescapePureXmlEntities_ = function (str) {
     }
   });
 };
+/** @private */
+goog.string.unescapePureXmlEntities_;
 
 /**
  * Regular expression that matches an HTML entity.
  * See also HTML5: Tokenization / Tokenizing character references.
- * @private
  * @type {!RegExp}
  */
 goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
+/** @private */
+goog.string.HTML_ENTITY_PATTERN_;
 
 /**
  * Do escaping of whitespace to preserve spatial formatting. We use character
@@ -792,7 +797,6 @@ goog.string.truncateMiddle = function (str, chars, opt_protectEscapedCharacters,
 
 /**
  * Special chars that need to be escaped for goog.string.quote.
- * @private {!Object<string, string>}
  */
 goog.string.specialEscapeChars_ = {
   '\0': '\\0',
@@ -811,14 +815,17 @@ goog.string.specialEscapeChars_ = {
   // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
   '<': '\\u003C', // NOTE: JSON.parse crashes on '\\x3c'.
 };
+/** @private {!Object<string, string>} */
+goog.string.specialEscapeChars_;
 
 /**
  * Character mappings used internally for goog.string.escapeChar.
- * @private {!Object<string, string>}
  */
 goog.string.jsEscapeCache_ = {
   "'": "\\'",
 };
+/** @private {!Object<string, string>} */
+goog.string.jsEscapeCache_;
 
 /**
  * Encloses a string in double quotes and escapes characters so that the
@@ -1001,12 +1008,12 @@ goog.string.regExpEscape = function (s) {
  *     `string`.
  */
 goog.string.repeat = String.prototype.repeat
-  ? function (string, length) {
+  ? /** @param {*} string @param {*} length */ function (string, length) {
       'use strict';
       // The native method is over 100 times faster than the alternative.
       return string.repeat(length);
     }
-  : function (string, length) {
+  : /** @param {*} string @param {*} length */ function (string, length) {
       'use strict';
       return new Array(length + 1).join(string);
     };
@@ -1102,9 +1109,10 @@ goog.string.hashCode = function (str) {
 /**
  * The most recent unique ID. |0 is equivalent to Math.floor in this case.
  * @type {number}
- * @private
  */
 goog.string.uniqueStringCounter_ = (Math.random() * 0x80000000) | 0;
+/** @private */
+goog.string.uniqueStringCounter_;
 
 /**
  * Generates and returns a string which is unique in the current document.

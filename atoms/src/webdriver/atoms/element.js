@@ -86,12 +86,14 @@ webdriver.atoms.element.getLocationInView = function (elem, opt_elemRegion) {
 /**
  * @param {?Node} element The element to use.
  * @return {boolean} Whether the element is in the HEAD tag.
- * @private
  * @suppress {reportUnknownTypes}
  */
 webdriver.atoms.element.isInHead_ = function (element) {
   while (element) {
-    if (element.tagName && element.tagName.toLowerCase() == 'head') {
+    if (
+      /** @type {!HTMLElement} */ (element).tagName &&
+      /** @type {!HTMLElement} */ (element).tagName.toLowerCase() == 'head'
+    ) {
       return true;
     }
     try {
@@ -104,6 +106,8 @@ webdriver.atoms.element.isInHead_ = function (element) {
 
   return false;
 };
+/** @private */
+webdriver.atoms.element.isInHead_;
 
 /**
  * @param {!Element} element The element to get the text from.
@@ -147,50 +151,59 @@ webdriver.atoms.element.type = function (element, keys, opt_keyboard, opt_persis
   var current = createSequenceRecord();
   convertedSequences.push(current);
 
-  goog.array.forEach(keys, function (sequence) {
-    goog.array.forEach(sequence.split(''), function (key) {
-      if (isWebDriverKey(key)) {
-        var webdriverKey = webdriver.atoms.element.type.JSON_TO_KEY_MAP_[key];
-        // goog.isNull uses ==, which accepts undefined.
-        if (webdriverKey === null) {
-          // bot.action.type does not support a "null" key, so we have to
-          // terminate the entire sequence to release modifier keys. If
-          // we currently allow modifier key state to persist across key
-          // sequences, we need to inject a dummy sequence that does not
-          // persist state so every modifier key gets released.
-          convertedSequences.push((current = createSequenceRecord()));
-          if (persistModifierKeys) {
-            current.persist = false;
-            convertedSequences.push((current = createSequenceRecord()));
+  goog.array.forEach(
+    keys,
+    /** @param {*} sequence */ function (sequence) {
+      goog.array.forEach(
+        sequence.split(''),
+        /** @param {*} key */ function (key) {
+          if (isWebDriverKey(key)) {
+            var webdriverKey = /** @type {!Object<string, *>} */ (webdriver.atoms.element.type.JSON_TO_KEY_MAP_)[key];
+            // goog.isNull uses ==, which accepts undefined.
+            if (webdriverKey === null) {
+              // bot.action.type does not support a "null" key, so we have to
+              // terminate the entire sequence to release modifier keys. If
+              // we currently allow modifier key state to persist across key
+              // sequences, we need to inject a dummy sequence that does not
+              // persist state so every modifier key gets released.
+              convertedSequences.push((current = createSequenceRecord()));
+              if (persistModifierKeys) {
+                current.persist = false;
+                convertedSequences.push((current = createSequenceRecord()));
+              }
+            } else if (webdriverKey !== undefined) {
+              current.keys.push(webdriverKey);
+            } else {
+              throw Error('Unsupported WebDriver key: \\u' + key.charCodeAt(0).toString(16));
+            }
+          } else {
+            // Handle common aliases.
+            switch (key) {
+              case '\n':
+                current.keys.push(bot.Keyboard.Keys.ENTER);
+                break;
+              case '\t':
+                current.keys.push(bot.Keyboard.Keys.TAB);
+                break;
+              case '\b':
+                current.keys.push(bot.Keyboard.Keys.BACKSPACE);
+                break;
+              default:
+                current.keys.push(key);
+                break;
+            }
           }
-        } else if (webdriverKey !== undefined) {
-          current.keys.push(webdriverKey);
-        } else {
-          throw Error('Unsupported WebDriver key: \\u' + key.charCodeAt(0).toString(16));
-        }
-      } else {
-        // Handle common aliases.
-        switch (key) {
-          case '\n':
-            current.keys.push(bot.Keyboard.Keys.ENTER);
-            break;
-          case '\t':
-            current.keys.push(bot.Keyboard.Keys.TAB);
-            break;
-          case '\b':
-            current.keys.push(bot.Keyboard.Keys.BACKSPACE);
-            break;
-          default:
-            current.keys.push(key);
-            break;
-        }
-      }
-    });
-  });
+        },
+      );
+    },
+  );
 
-  goog.array.forEach(convertedSequences, function (sequence) {
-    bot.action.type(element, sequence.keys, opt_keyboard, sequence.persist);
-  });
+  goog.array.forEach(
+    convertedSequences,
+    /** @param {*} sequence */ function (sequence) {
+      bot.action.type(element, sequence.keys, opt_keyboard, sequence.persist);
+    },
+  );
 
   /**
    * @param {!string|!bot.Keyboard.Key} c
@@ -203,66 +216,67 @@ webdriver.atoms.element.type = function (element, keys, opt_keyboard, opt_persis
 
 /**
  * Maps JSON wire protocol values to their {@link bot.Keyboard.Key} counterpart.
- * @private {!Object.<?bot.Keyboard.Key>}
  * @const
  */
 webdriver.atoms.element.type.JSON_TO_KEY_MAP_ = {};
+/** @private {!Object.<?bot.Keyboard.Key>} */
+webdriver.atoms.element.type.JSON_TO_KEY_MAP_;
 goog.scope(function () {
   var map = webdriver.atoms.element.type.JSON_TO_KEY_MAP_;
   var key = webdriver.Key;
   var botKey = bot.Keyboard.Keys;
 
-  map[key.NULL] = null;
-  map[key.BACK_SPACE] = botKey.BACKSPACE;
-  map[key.TAB] = botKey.TAB;
-  map[key.RETURN] = botKey.ENTER;
+  /** @type {!Object<string, *>} */ (map)[key.NULL] = null;
+  /** @type {!Object<string, *>} */ (map)[key.BACK_SPACE] = botKey.BACKSPACE;
+  /** @type {!Object<string, *>} */ (map)[key.TAB] = botKey.TAB;
+  /** @type {!Object<string, *>} */ (map)[key.RETURN] = botKey.ENTER;
   // This not correct, but most browsers will do the right thing.
-  map[key.ENTER] = botKey.ENTER;
-  map[key.SHIFT] = botKey.SHIFT;
-  map[key.CONTROL] = botKey.CONTROL;
-  map[key.ALT] = botKey.ALT;
-  map[key.PAUSE] = botKey.PAUSE;
-  map[key.ESCAPE] = botKey.ESC;
-  map[key.SPACE] = botKey.SPACE;
-  map[key.PAGE_UP] = botKey.PAGE_UP;
-  map[key.PAGE_DOWN] = botKey.PAGE_DOWN;
-  map[key.END] = botKey.END;
-  map[key.HOME] = botKey.HOME;
-  map[key.LEFT] = botKey.LEFT;
-  map[key.UP] = botKey.UP;
-  map[key.RIGHT] = botKey.RIGHT;
-  map[key.DOWN] = botKey.DOWN;
-  map[key.INSERT] = botKey.INSERT;
-  map[key.DELETE] = botKey.DELETE;
-  map[key.SEMICOLON] = botKey.SEMICOLON;
-  map[key.EQUALS] = botKey.EQUALS;
-  map[key.NUMPAD0] = botKey.NUM_ZERO;
-  map[key.NUMPAD1] = botKey.NUM_ONE;
-  map[key.NUMPAD2] = botKey.NUM_TWO;
-  map[key.NUMPAD3] = botKey.NUM_THREE;
-  map[key.NUMPAD4] = botKey.NUM_FOUR;
-  map[key.NUMPAD5] = botKey.NUM_FIVE;
-  map[key.NUMPAD6] = botKey.NUM_SIX;
-  map[key.NUMPAD7] = botKey.NUM_SEVEN;
-  map[key.NUMPAD8] = botKey.NUM_EIGHT;
-  map[key.NUMPAD9] = botKey.NUM_NINE;
-  map[key.MULTIPLY] = botKey.NUM_MULTIPLY;
-  map[key.ADD] = botKey.NUM_PLUS;
-  map[key.SUBTRACT] = botKey.NUM_MINUS;
-  map[key.DECIMAL] = botKey.NUM_PERIOD;
-  map[key.DIVIDE] = botKey.NUM_DIVISION;
-  map[key.SEPARATOR] = botKey.SEPARATOR;
-  map[key.F1] = botKey.F1;
-  map[key.F2] = botKey.F2;
-  map[key.F3] = botKey.F3;
-  map[key.F4] = botKey.F4;
-  map[key.F5] = botKey.F5;
-  map[key.F6] = botKey.F6;
-  map[key.F7] = botKey.F7;
-  map[key.F8] = botKey.F8;
-  map[key.F9] = botKey.F9;
-  map[key.F10] = botKey.F10;
-  map[key.F11] = botKey.F11;
-  map[key.F12] = botKey.F12;
-  map[key.META] = botKey.META;
+  /** @type {!Object<string, *>} */ (map)[key.ENTER] = botKey.ENTER;
+  /** @type {!Object<string, *>} */ (map)[key.SHIFT] = botKey.SHIFT;
+  /** @type {!Object<string, *>} */ (map)[key.CONTROL] = botKey.CONTROL;
+  /** @type {!Object<string, *>} */ (map)[key.ALT] = botKey.ALT;
+  /** @type {!Object<string, *>} */ (map)[key.PAUSE] = botKey.PAUSE;
+  /** @type {!Object<string, *>} */ (map)[key.ESCAPE] = botKey.ESC;
+  /** @type {!Object<string, *>} */ (map)[key.SPACE] = botKey.SPACE;
+  /** @type {!Object<string, *>} */ (map)[key.PAGE_UP] = botKey.PAGE_UP;
+  /** @type {!Object<string, *>} */ (map)[key.PAGE_DOWN] = botKey.PAGE_DOWN;
+  /** @type {!Object<string, *>} */ (map)[key.END] = botKey.END;
+  /** @type {!Object<string, *>} */ (map)[key.HOME] = botKey.HOME;
+  /** @type {!Object<string, *>} */ (map)[key.LEFT] = botKey.LEFT;
+  /** @type {!Object<string, *>} */ (map)[key.UP] = botKey.UP;
+  /** @type {!Object<string, *>} */ (map)[key.RIGHT] = botKey.RIGHT;
+  /** @type {!Object<string, *>} */ (map)[key.DOWN] = botKey.DOWN;
+  /** @type {!Object<string, *>} */ (map)[key.INSERT] = botKey.INSERT;
+  /** @type {!Object<string, *>} */ (map)[key.DELETE] = botKey.DELETE;
+  /** @type {!Object<string, *>} */ (map)[key.SEMICOLON] = botKey.SEMICOLON;
+  /** @type {!Object<string, *>} */ (map)[key.EQUALS] = botKey.EQUALS;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD0] = botKey.NUM_ZERO;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD1] = botKey.NUM_ONE;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD2] = botKey.NUM_TWO;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD3] = botKey.NUM_THREE;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD4] = botKey.NUM_FOUR;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD5] = botKey.NUM_FIVE;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD6] = botKey.NUM_SIX;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD7] = botKey.NUM_SEVEN;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD8] = botKey.NUM_EIGHT;
+  /** @type {!Object<string, *>} */ (map)[key.NUMPAD9] = botKey.NUM_NINE;
+  /** @type {!Object<string, *>} */ (map)[key.MULTIPLY] = botKey.NUM_MULTIPLY;
+  /** @type {!Object<string, *>} */ (map)[key.ADD] = botKey.NUM_PLUS;
+  /** @type {!Object<string, *>} */ (map)[key.SUBTRACT] = botKey.NUM_MINUS;
+  /** @type {!Object<string, *>} */ (map)[key.DECIMAL] = botKey.NUM_PERIOD;
+  /** @type {!Object<string, *>} */ (map)[key.DIVIDE] = botKey.NUM_DIVISION;
+  /** @type {!Object<string, *>} */ (map)[key.SEPARATOR] = botKey.SEPARATOR;
+  /** @type {!Object<string, *>} */ (map)[key.F1] = botKey.F1;
+  /** @type {!Object<string, *>} */ (map)[key.F2] = botKey.F2;
+  /** @type {!Object<string, *>} */ (map)[key.F3] = botKey.F3;
+  /** @type {!Object<string, *>} */ (map)[key.F4] = botKey.F4;
+  /** @type {!Object<string, *>} */ (map)[key.F5] = botKey.F5;
+  /** @type {!Object<string, *>} */ (map)[key.F6] = botKey.F6;
+  /** @type {!Object<string, *>} */ (map)[key.F7] = botKey.F7;
+  /** @type {!Object<string, *>} */ (map)[key.F8] = botKey.F8;
+  /** @type {!Object<string, *>} */ (map)[key.F9] = botKey.F9;
+  /** @type {!Object<string, *>} */ (map)[key.F10] = botKey.F10;
+  /** @type {!Object<string, *>} */ (map)[key.F11] = botKey.F11;
+  /** @type {!Object<string, *>} */ (map)[key.F12] = botKey.F12;
+  /** @type {!Object<string, *>} */ (map)[key.META] = botKey.META;
 }); // goog.scope

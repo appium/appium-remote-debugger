@@ -24,7 +24,6 @@ goog.require('goog.userAgent.product');
  * @return {string} The string that describes the version number of the user
  *     agent product.  This is a string rather than a number because it may
  *     contain 'b', 'a', and so on.
- * @private
  */
 goog.userAgent.product.determineVersion_ = function () {
   'use strict';
@@ -92,29 +91,33 @@ goog.userAgent.product.determineVersion_ = function () {
 
   return '';
 };
+/** @private */
+goog.userAgent.product.determineVersion_;
 
 /**
  * Return the first group of the given regex.
  * @param {!RegExp} re Regular expression with at least one group.
  * @return {string} Contents of the first group or an empty string if no match.
- * @private
  */
 goog.userAgent.product.getFirstRegExpGroup_ = function (re) {
   'use strict';
   var arr = goog.userAgent.product.execRegExp_(re);
   return arr ? arr[1] : '';
 };
+/** @private */
+goog.userAgent.product.getFirstRegExpGroup_;
 
 /**
  * Run regexp's exec() on the userAgent string.
  * @param {!RegExp} re Regular expression.
  * @return {?IArrayLike<string>} A result array, or null for no match.
- * @private
  */
 goog.userAgent.product.execRegExp_ = function (re) {
   'use strict';
   return re.exec(goog.userAgent.getUserAgentString());
 };
+/** @private */
+goog.userAgent.product.execRegExp_;
 
 /**
  * The version of the user agent. This is a string because it might contain

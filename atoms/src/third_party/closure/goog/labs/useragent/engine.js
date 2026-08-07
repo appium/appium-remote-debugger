@@ -14,9 +14,9 @@
 goog.module('goog.labs.userAgent.engine');
 goog.module.declareLegacyNamespace();
 
-const googArray = goog.require('goog.array');
-const googString = goog.require('goog.string.internal');
-const util = goog.require('goog.labs.userAgent.util');
+var googArray = goog.require('goog.array');
+var googString = goog.require('goog.string.internal');
+var util = goog.require('goog.labs.userAgent.util');
 
 /**
  * @return {boolean} Whether the rendering engine is Presto.
@@ -126,9 +126,12 @@ function isVersionOrHigher(version) {
 function getVersionForKey(tuples, key) {
   // TODO(nnaze): Move to util if useful elsewhere.
 
-  const pair = googArray.find(tuples, function (pair) {
-    return key == pair[0];
-  });
+  const pair = googArray.find(
+    tuples,
+    /** @param {*} pair */ function (pair) {
+      return key == pair[0];
+    },
+  );
 
   return (pair && pair[1]) || '';
 }

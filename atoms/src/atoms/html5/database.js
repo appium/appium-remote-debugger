@@ -59,14 +59,14 @@ bot.storage.database.openOrCreate = function (databaseName, opt_version, opt_dis
  * @param {string} databaseName The name of the database.
  * @param {string} query The SQL statement.
  * @param {!Array.<*>} args Arguments needed for the SQL statement.
- * @param {!function(!SQLTransaction, !bot.storage.database.ResultSet)}
+ * @param {!function(!SQLTransaction, !bot.storage.database.ResultSet):*}
  *     queryResultCallback Callback function to be invoked on successful query
  *     statement execution.
- * @param {!function(!SQLError)} txErrorCallback
+ * @param {!function(!SQLError):*} txErrorCallback
  *     Callback function to be invoked on transaction (commit) failure.
- * @param {!function()=} opt_txSuccessCallback
+ * @param {!function():*=} opt_txSuccessCallback
  *     Callback function to be invoked on successful transaction execution.
- * @param {function(!SQLTransaction, !SQLError)=} opt_queryErrorCallback
+ * @param {function(!SQLTransaction, !SQLError):*=} opt_queryErrorCallback
  *     Callback function to be invoked on successful query statement execution.
  * @see http://www.w3.org/TR/webdatabase/#executing-sql-statements
  */

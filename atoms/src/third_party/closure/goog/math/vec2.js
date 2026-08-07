@@ -24,27 +24,31 @@ goog.require('goog.utils');
  * Class for a two-dimensional vector object and assorted functions useful for
  * manipulating points.
  *
- * @param {number} x The x coordinate for the vector.
- * @param {number} y The y coordinate for the vector.
  * @struct
- * @constructor
  * @extends {goog.math.Coordinate}
  */
-goog.math.Vec2 = function (x, y) {
-  'use strict';
+goog.math.Vec2 = class extends goog.math.Coordinate {
   /**
-   * X-value
-   * @type {number}
+   * @param {number} x The x coordinate for the vector.
+   * @param {number} y The y coordinate for the vector.
    */
-  this.x = x;
+  constructor(x, y) {
+    'use strict';
+    super(x, y);
 
-  /**
-   * Y-value
-   * @type {number}
-   */
-  this.y = y;
+    /**
+     * X-value
+     * @type {number}
+     */
+    this.x = x;
+
+    /**
+     * Y-value
+     * @type {number}
+     */
+    this.y = y;
+  }
 };
-goog.utils.inherits(goog.math.Vec2, goog.math.Coordinate);
 
 /**
  * @return {!goog.math.Vec2} A random unit-length vector.

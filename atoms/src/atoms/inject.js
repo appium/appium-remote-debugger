@@ -115,9 +115,12 @@ bot.inject.wrapValue = function (value) {
         return value.toString();
 
       case 'array':
-        return goog.array.map(/**@type {IArrayLike}*/ (value), function (v) {
-          return _wrap(v, seen);
-        });
+        return goog.array.map(
+          /**@type {IArrayLike}*/ (value),
+          /** @param {*} v */ function (v) {
+            return _wrap(v, seen);
+          },
+        );
 
       case 'object':
         // Since {*} expands to {Object|boolean|number|string|undefined}, the
@@ -138,31 +141,42 @@ bot.inject.wrapValue = function (value) {
         ) {
           var ret = {};
           var elementKey = bot.inject.cache.addElement(/**@type {!Element}*/ (value));
-          ret[bot.inject.ELEMENT_KEY] = elementKey;
-          ret[bot.inject.W3C_ELEMENT_KEY] = elementKey;
+          /** @type {!Object<string, *>} */ (ret)[bot.inject.ELEMENT_KEY] = elementKey;
+          /** @type {!Object<string, *>} */ (ret)[bot.inject.W3C_ELEMENT_KEY] = elementKey;
           return ret;
         }
 
         // Check if this is a Window
         if (goog.object.containsKey(value, 'document')) {
           var ret = {};
-          ret[bot.inject.WINDOW_KEY] = bot.inject.cache.addElement(/**@type{!Window}*/ (value));
+          /** @type {!Object<string, *>} */ (ret)[bot.inject.WINDOW_KEY] = bot.inject.cache.addElement(
+            /**@type{!Window}*/ (value),
+          );
           return ret;
         }
 
         seen.push(value);
         if (goog.utils.isArrayLike(value)) {
-          return goog.array.map(/**@type {IArrayLike}*/ (value), function (v) {
-            return _wrap(v, seen);
-          });
+          return goog.array.map(
+            /**@type {IArrayLike}*/ (value),
+            /** @param {*} v */ function (v) {
+              return _wrap(v, seen);
+            },
+          );
         }
 
-        var filtered = goog.object.filter(value, function (val, key) {
-          return typeof key === 'number' || typeof key === 'string';
-        });
-        return goog.object.map(filtered, function (v) {
-          return _wrap(v, seen);
-        });
+        var filtered = goog.object.filter(
+          value,
+          /** @param {*} val @param {*} key */ function (val, key) {
+            return typeof key === 'number' || typeof key === 'string';
+          },
+        );
+        return goog.object.map(
+          filtered,
+          /** @param {*} v */ function (v) {
+            return _wrap(v, seen);
+          },
+        );
 
       default: // goog.typeOf(value) == 'undefined' || 'null'
         return null;
@@ -180,9 +194,12 @@ bot.inject.wrapValue = function (value) {
  */
 bot.inject.unwrapValue = function (value, opt_doc) {
   if (Array.isArray(value)) {
-    return goog.array.map(/**@type {IArrayLike}*/ (value), function (v) {
-      return bot.inject.unwrapValue(v, opt_doc);
-    });
+    return goog.array.map(
+      /**@type {IArrayLike}*/ (value),
+      /** @param {*} v */ function (v) {
+        return bot.inject.unwrapValue(v, opt_doc);
+      },
+    );
   } else if (goog.utils.isObject(value)) {
     if (typeof value == 'function') {
       return value;
@@ -190,20 +207,23 @@ bot.inject.unwrapValue = function (value, opt_doc) {
 
     var obj = /** @type {!Object} */ (value);
     if (goog.object.containsKey(obj, bot.inject.ELEMENT_KEY)) {
-      return bot.inject.cache.getElement(obj[bot.inject.ELEMENT_KEY], opt_doc);
+      return bot.inject.cache.getElement(/** @type {!Object<string, *>} */ (obj)[bot.inject.ELEMENT_KEY], opt_doc);
     }
 
     if (goog.object.containsKey(obj, bot.inject.W3C_ELEMENT_KEY)) {
-      return bot.inject.cache.getElement(obj[bot.inject.W3C_ELEMENT_KEY], opt_doc);
+      return bot.inject.cache.getElement(/** @type {!Object<string, *>} */ (obj)[bot.inject.W3C_ELEMENT_KEY], opt_doc);
     }
 
     if (goog.object.containsKey(obj, bot.inject.WINDOW_KEY)) {
-      return bot.inject.cache.getElement(obj[bot.inject.WINDOW_KEY], opt_doc);
+      return bot.inject.cache.getElement(/** @type {!Object<string, *>} */ (obj)[bot.inject.WINDOW_KEY], opt_doc);
     }
 
-    return goog.object.map(obj, function (val) {
-      return bot.inject.unwrapValue(val, opt_doc);
-    });
+    return goog.object.map(
+      obj,
+      /** @param {*} val */ function (val) {
+        return bot.inject.unwrapValue(val, opt_doc);
+      },
+    );
   }
   return value;
 };
@@ -220,7 +240,6 @@ bot.inject.unwrapValue = function (value, opt_doc) {
  *     that should be compiled in the target window's context.
  * @param {!Window} theWindow The window to recompile the function in.
  * @return {!Function} The recompiled function.
- * @private
  */
 bot.inject.recompileFunction_ = function (fn, theWindow) {
   if (typeof fn === 'string') {
@@ -238,6 +257,8 @@ bot.inject.recompileFunction_ = function (fn, theWindow) {
   }
   return theWindow == window ? fn : new theWindow['Function']('return (' + fn + ').apply(null,arguments);');
 };
+/** @private */
+bot.inject.recompileFunction_;
 
 /**
  * Executes an injected script. This function should never be called from
@@ -317,7 +338,7 @@ bot.inject.executeScript = function (fn, args, opt_stringify, opt_window) {
  *     the WebDriver wire protocol.
  * @param {number} timeout The amount of time, in milliseconds, the script
  *     should be permitted to run; must be non-negative.
- * @param {function(string)|function(!bot.response.ResponseObject)} onDone
+ * @param {function(string):*|function(!bot.response.ResponseObject):*} onDone
  *     The function to call when the given `fn` invokes its callback,
  *     or when an exception or timeout occurs. This will always be called.
  * @param {boolean=} opt_stringify Whether the result should be returned as a
@@ -330,7 +351,7 @@ bot.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_stringi
   var timeoutId;
   var responseSent = false;
 
-  function sendResponse(status, value) {
+  /** @param {*} status @param {*} value */ function sendResponse(status, value) {
     if (!responseSent) {
       if (win.removeEventListener) {
         win.removeEventListener('unload', onunload, true);
@@ -441,10 +462,11 @@ bot.inject.wrapError = function (err) {
  * when it is injected into the page. Since compiling each browser atom results
  * in a different symbol table, we must use this known key to access the cache.
  * This ensures the same object is used between injections of different atoms.
- * @private {string}
  * @const
  */
 bot.inject.cache.CACHE_KEY_ = '$wdc_';
+/** @private {string} */
+bot.inject.cache.CACHE_KEY_;
 
 /**
  * The prefix for each key stored in an cache.
@@ -459,7 +481,6 @@ bot.inject.cache.ELEMENT_KEY_PREFIX = ':wdc:';
  * @param {Document=} opt_doc The document whose cache to retrieve. Defaults to
  *     the current document.
  * @return {Object.<string, (Element|Window)>} The cache object.
- * @private
  */
 bot.inject.cache.getCache_ = function (opt_doc) {
   var doc = opt_doc || document;
@@ -477,6 +498,8 @@ bot.inject.cache.getCache_ = function (opt_doc) {
   }
   return cache;
 };
+/** @private */
+bot.inject.cache.getCache_;
 
 /**
  * The number of entries an cache may hold before a stale-entry sweep is
@@ -498,7 +521,6 @@ bot.inject.cache.SWEEP_THRESHOLD_ = 200;
  * @param {Document} doc The document the value was cached against.
  * @param {(Element|Window)} el The cached value to check.
  * @return {boolean} Whether the cached value is stale.
- * @private
  */
 bot.inject.cache.isStale_ = function (doc, el) {
   // If this is a Window check if it's closed.
@@ -519,6 +541,8 @@ bot.inject.cache.isStale_ = function (doc, el) {
   }
   return true;
 };
+/** @private */
+bot.inject.cache.isStale_;
 
 /**
  * Removes every stale entry from an cache. Unlike the lazy cleanup performed
@@ -527,7 +551,6 @@ bot.inject.cache.isStale_ = function (doc, el) {
  * repeatedly runs a find_element(s) atom against a page whose DOM keeps
  * getting recreated.
  * @param {!Document} doc The document whose cache to sweep.
- * @private
  */
 bot.inject.cache.sweep_ = function (doc) {
   var cache = bot.inject.cache.getCache_(doc);
@@ -547,6 +570,8 @@ bot.inject.cache.sweep_ = function (doc) {
     }
   }
 };
+/** @private */
+bot.inject.cache.sweep_;
 
 /**
  * Adds an element to its ownerDocument's cache.
@@ -561,9 +586,12 @@ bot.inject.cache.addElement = function (el) {
   if (goog.object.getCount(cache) - 1 >= bot.inject.cache.SWEEP_THRESHOLD_) {
     bot.inject.cache.sweep_(el.ownerDocument);
   }
-  var id = goog.object.findKey(cache, function (value) {
-    return value == el;
-  });
+  var id = goog.object.findKey(
+    cache,
+    /** @param {*} value */ function (value) {
+      return value == el;
+    },
+  );
   if (!id) {
     id = bot.inject.cache.ELEMENT_KEY_PREFIX + cache.nextId++;
     cache[id] = el;

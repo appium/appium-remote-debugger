@@ -22,7 +22,7 @@ goog.require('goog.events.EventId');
  * A base class for event objects, so that they can support preventDefault and
  * stopPropagation.
  *
- * @param {string|!goog.events.EventId} type Event Type.
+ * @param {string|!goog.events.EventId<?>} type Event Type.
  * @param {Object=} opt_target Reference to the object that is the target of
  *     this event. It has to implement the `EventTarget` interface
  *     declared at {@link http://developer.mozilla.org/en/DOM/EventTarget}.
@@ -51,10 +51,11 @@ goog.events.Event = function (type, opt_target) {
    */
   this.currentTarget = this.target;
 
+  /** @private */
+  goog.events.Event.prototype.propagationStopped_;
   /**
    * Whether to cancel the event in internal capture/bubble processing for IE.
    * @type {boolean}
-   * @private
    */
   this.propagationStopped_ = false;
 
