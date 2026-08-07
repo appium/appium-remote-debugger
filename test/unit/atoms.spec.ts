@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import {describe, it, beforeEach, afterEach} from 'node:test';
 
 import {errors} from '@appium/base-driver';
+import {util} from '@appium/support';
 import {JSDOM} from 'jsdom';
 
 import {getAtom, getScriptForAtom} from '../../lib/atoms.js';
 import {convertJavascriptEvaluationResult} from '../../lib/utils/javascript.js';
 
-const W3C_ELEMENT_KEY = 'element-6066-11e4-a52e-4f735466cecf';
+const W3C_ELEMENT_KEY = util.W3C_WEB_ELEMENT_IDENTIFIER;
 
 const FIXTURE_HTML = `<!doctype html><html><body>
   <div id="somediv">This is in #somediv</div>
