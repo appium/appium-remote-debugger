@@ -288,6 +288,7 @@ goog.events.BrowserEvent.prototype.init = function (e, opt_currentTarget) {
   // TODO(nicksantos): Change this.currentTarget to type EventTarget.
   this.currentTarget = /** @type {Node} */ (opt_currentTarget);
 
+  /** @type {?Node} */
   var relatedTarget = /** @type {Node} */ (e.relatedTarget);
   if (relatedTarget) {
     // There's a bug in FireFox where sometimes, relatedTarget will be a
@@ -370,7 +371,7 @@ goog.events.BrowserEvent.prototype.init = function (e, opt_currentTarget) {
  */
 goog.events.BrowserEvent.prototype.isButton = function (button) {
   'use strict';
-  return this.event_.button == button;
+  return /** @type {!Event} */ (this.event_).button == button;
 };
 
 /**
@@ -395,10 +396,11 @@ goog.events.BrowserEvent.prototype.isMouseActionButton = function () {
 goog.events.BrowserEvent.prototype.stopPropagation = function () {
   'use strict';
   goog.events.Event.prototype.stopPropagation.call(this);
-  if (this.event_.stopPropagation) {
-    this.event_.stopPropagation();
+  var event = /** @type {!Event} */ (this.event_);
+  if (event.stopPropagation) {
+    event.stopPropagation();
   } else {
-    this.event_.cancelBubble = true;
+    event.cancelBubble = true;
   }
 };
 
@@ -408,7 +410,7 @@ goog.events.BrowserEvent.prototype.stopPropagation = function () {
 goog.events.BrowserEvent.prototype.preventDefault = function () {
   'use strict';
   goog.events.Event.prototype.preventDefault.call(this);
-  var be = this.event_;
+  var be = /** @type {!Event} */ (this.event_);
   if (!be.preventDefault) {
     be.returnValue = false;
   } else {

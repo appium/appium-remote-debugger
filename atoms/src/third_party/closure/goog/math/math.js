@@ -243,6 +243,10 @@ goog.math.longestCommonSubsequence = function (array1, array2, opt_compareFn, op
   'use strict';
   var compare =
     opt_compareFn ||
+    /**
+     * @param {*} a
+     * @param {*} b
+     */
     function (a, b) {
       'use strict';
       return a == b;
@@ -250,6 +254,10 @@ goog.math.longestCommonSubsequence = function (array1, array2, opt_compareFn, op
 
   var collect =
     opt_collectorFn ||
+    /**
+     * @param {number} i1
+     * @param {number} i2
+     */
     function (i1, i2) {
       'use strict';
       return array1[i1];
@@ -258,6 +266,7 @@ goog.math.longestCommonSubsequence = function (array1, array2, opt_compareFn, op
   var length1 = array1.length;
   var length2 = array2.length;
 
+  /** @type {!Array<!Array<number>>} */
   var arr = [];
   for (var i = 0; i < length1 + 1; i++) {
     arr[i] = [];
@@ -327,7 +336,7 @@ goog.math.sum = function (var_args) {
  */
 goog.math.average = function (var_args) {
   'use strict';
-  return goog.math.sum.apply(null, arguments) / arguments.length;
+  return goog.math.sum.apply(null, /** @type {!Array<number>} */ (/** @type {?} */ (arguments))) / arguments.length;
 };
 
 /**
@@ -345,14 +354,16 @@ goog.math.sampleVariance = function (var_args) {
     return 0;
   }
 
-  var mean = goog.math.average.apply(null, arguments);
+  var mean = goog.math.average.apply(null, /** @type {!Array<number>} */ (/** @type {?} */ (arguments)));
   var variance =
     goog.math.sum.apply(
       null,
-      Array.prototype.map.call(arguments, function (val) {
-        'use strict';
-        return Math.pow(val - mean, 2);
-      }),
+      /** @type {!Array<number>} */ (
+        Array.prototype.map.call(arguments, function (val) {
+          'use strict';
+          return Math.pow(val - mean, 2);
+        })
+      ),
     ) /
     (sampleSize - 1);
 
@@ -370,7 +381,7 @@ goog.math.sampleVariance = function (var_args) {
  */
 goog.math.standardDeviation = function (var_args) {
   'use strict';
-  return Math.sqrt(goog.math.sampleVariance.apply(null, arguments));
+  return Math.sqrt(goog.math.sampleVariance.apply(null, /** @type {!Array<number>} */ (/** @type {?} */ (arguments))));
 };
 
 /**

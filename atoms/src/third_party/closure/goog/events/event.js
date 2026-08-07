@@ -34,20 +34,20 @@ goog.events.Event = function (type, opt_target) {
    * Event type.
    * @type {string}
    */
-  this.type = type instanceof goog.events.EventId ? String(type) : type;
+  this.type = /** @type {string} */ (type instanceof /** @type {?} */ (goog.events.EventId) ? String(type) : type);
 
   /**
    * TODO(tbreisacher): The type should probably be
    * EventTarget|goog.events.EventTarget.
    *
    * Target of the event.
-   * @type {Object|undefined}
+   * @type {?Object|undefined}
    */
   this.target = opt_target;
 
   /**
    * Object that had the listener attached.
-   * @type {Object|undefined}
+   * @type {?Object|undefined}
    */
   this.currentTarget = this.target;
 
