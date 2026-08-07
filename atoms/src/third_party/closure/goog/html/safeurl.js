@@ -450,7 +450,7 @@ goog.html.SafeUrl.isSmsUrlBodyValid_ = function (smsUrl) {
     return false;
   }
   // Get the encoded `body` parameter value.
-  var bodyValue = smsUrl.match(/[?&]body=([^&]*)/)[1];
+  var bodyValue = /** @type {!Array<string>} */ (smsUrl.match(/[?&]body=([^&]*)/))[1];
   if (!bodyValue) {
     return true;
   }
@@ -639,7 +639,7 @@ goog.html.SafeUrl.trySanitize = function (url) {
     return url;
   }
   if (typeof url == 'object' && url.implementsGoogStringTypedString) {
-    url = /** @type {!goog.string.TypedString} */ (url).getTypedStringValue();
+    url = /** @type {string} */ (/** @type {?} */ (url).getTypedStringValue());
   } else {
     // For defensive purposes, in case users cast around the parameter type.
     url = String(url);
@@ -692,7 +692,7 @@ goog.html.SafeUrl.sanitizeAssertUnchanged = function (url, opt_allowDataUrl) {
   if (url instanceof goog.html.SafeUrl) {
     return url;
   } else if (typeof url == 'object' && url.implementsGoogStringTypedString) {
-    url = /** @type {!goog.string.TypedString} */ (url).getTypedStringValue();
+    url = /** @type {string} */ (/** @type {?} */ (url).getTypedStringValue());
   } else {
     url = String(url);
   }
@@ -747,7 +747,7 @@ goog.html.SafeUrl.sanitizeJavascriptUrlAssertUnchanged = function (url) {
   if (url instanceof goog.html.SafeUrl) {
     return url;
   } else if (typeof url == 'object' && url.implementsGoogStringTypedString) {
-    url = /** @type {!goog.string.TypedString} */ (url).getTypedStringValue();
+    url = /** @type {string} */ (/** @type {?} */ (url).getTypedStringValue());
   } else {
     url = String(url);
   }

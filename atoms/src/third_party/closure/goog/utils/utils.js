@@ -189,13 +189,14 @@ goog.utils.inherits = function (childCtor, parentCtor) {
    *     method/constructor.
    * @return {*} The return value of the superclass method/constructor.
    */
-  /** @type {*} */ (childCtor).base = function (me, methodName, var_args) {
+  function base(me, methodName, var_args) {
     var args = new Array(arguments.length - 2);
     for (var i = 2; i < arguments.length; i++) {
       args[i - 2] = arguments[i];
     }
     return parentCtor.prototype[methodName].apply(me, args);
-  };
+  }
+  /** @type {*} */ (childCtor).base = base;
 
   return childCtor.prototype;
 };
@@ -211,7 +212,7 @@ goog.utils.addSingletonGetter = function (ctor) {
     if (/** @type {*} */ (ctor).instance_) {
       return /** @type {*} */ (ctor).instance_;
     }
-    return (/** @type {*} */ (ctor).instance_ = new ctor());
+    return (/** @type {*} */ (ctor).instance_ = new (/** @type {function(new:Object)} */ (ctor))());
   };
 };
 
@@ -261,7 +262,7 @@ goog.utils.hasUid = function (obj) {
  */
 goog.utils.removeUid = function (obj) {
   if (obj !== null && 'removeAttribute' in obj) {
-    obj.removeAttribute(goog.utils.UID_PROPERTY_);
+    /** @type {?} */ (obj).removeAttribute(goog.utils.UID_PROPERTY_);
   }
 
   try {
@@ -282,16 +283,17 @@ goog.utils.removeUid = function (obj) {
  * @template T
  */
 goog.utils.bind = function (fn, selfObj, var_args) {
+  var nonNullFn = /** @type {!Function} */ (fn);
   if (arguments.length > 2) {
     var boundArgs = Array.prototype.slice.call(arguments, 2);
     return function () {
       var newArgs = Array.prototype.slice.call(arguments);
       Array.prototype.unshift.apply(newArgs, boundArgs);
-      return fn.apply(selfObj, newArgs);
+      return nonNullFn.apply(selfObj, newArgs);
     };
   } else {
     return function () {
-      return fn.apply(selfObj, arguments);
+      return nonNullFn.apply(selfObj, /** @type {!Array<*>} */ (/** @type {?} */ (arguments)));
     };
   }
 };
@@ -306,11 +308,13 @@ goog.utils.bind = function (fn, selfObj, var_args) {
  *     argument.
  */
 goog.utils.partial = function (fn, var_args) {
+  var nonNullFn = /** @type {!Function} */ (fn);
   var args = Array.prototype.slice.call(arguments, 1);
+  /** @this {?} */
   return function () {
     var newArgs = args.slice();
-    newArgs.push.apply(newArgs, arguments);
-    return fn.apply(this, newArgs);
+    newArgs.push.apply(newArgs, /** @type {!Array<*>} */ (/** @type {?} */ (arguments)));
+    return nonNullFn.apply(this, newArgs);
   };
 };
 
