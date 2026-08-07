@@ -100,6 +100,7 @@ export class RemoteDebugger extends EventEmitter {
   protected readonly _socketChunkSize?: number;
   protected readonly _webInspectorMaxFrameLength?: number;
   protected readonly _fullPageInitialization?: boolean;
+  protected readonly _targetCreationTimeoutMs?: number;
 
   constructor(opts: RemoteDebuggerOptions = {}) {
     super();
@@ -128,6 +129,7 @@ export class RemoteDebugger extends EventEmitter {
       socketChunkSize,
       fullPageInitialization,
       pageLoadStrategy,
+      targetCreationTimeoutMs,
     } = opts;
 
     this._bundleId = bundleId;
@@ -156,6 +158,7 @@ export class RemoteDebugger extends EventEmitter {
     }
 
     this._fullPageInitialization = fullPageInitialization;
+    this._targetCreationTimeoutMs = targetCreationTimeoutMs;
 
     this._pageLoadStrategy = pageLoadStrategy;
     this._skippedApps = [];
@@ -260,6 +263,7 @@ export class RemoteDebugger extends EventEmitter {
       fullPageInitialization: this._fullPageInitialization,
       webInspectorMaxFrameLength: this._webInspectorMaxFrameLength,
       pageLoadTimeoutMs: this._pageLoadMs,
+      targetCreationTimeoutMs: this._targetCreationTimeoutMs,
     });
   }
 }
