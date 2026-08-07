@@ -1,3 +1,9 @@
+## [16.2.0](https://github.com/appium/appium-remote-debugger/compare/v16.1.0...v16.2.0) (2026-08-07)
+
+### Features
+
+* Add codegraph support ([#523](https://github.com/appium/appium-remote-debugger/issues/523)) ([c1ac753](https://github.com/appium/appium-remote-debugger/commit/c1ac753fdabf2b9aa41cda484e3cab022be9116a))
+
 ## [16.1.0](https://github.com/appium/appium-remote-debugger/compare/v16.0.3...v16.1.0) (2026-08-07)
 
 ### Features
