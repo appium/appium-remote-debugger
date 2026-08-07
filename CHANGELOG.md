@@ -1,3 +1,9 @@
+## [16.3.0](https://github.com/appium/appium-remote-debugger/compare/v16.2.1...v16.3.0) (2026-08-07)
+
+### Features
+
+* Make atoms return W3C-compatible element and error responses ([#525](https://github.com/appium/appium-remote-debugger/issues/525)) ([b05bdb0](https://github.com/appium/appium-remote-debugger/commit/b05bdb00dab79194f66a70b2734081dc36ffdfee))
+
 ## [16.2.1](https://github.com/appium/appium-remote-debugger/compare/v16.2.0...v16.2.1) (2026-08-07)
 
 ### Bug Fixes
