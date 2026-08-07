@@ -32,6 +32,7 @@ export class RemoteDebuggerRealDevice extends RemoteDebugger {
       webInspectorMaxFrameLength: this._webInspectorMaxFrameLength,
       udid: this._udid,
       pageLoadTimeoutMs: this._pageLoadMs,
+      targetCreationTimeoutMs: this._targetCreationTimeoutMs,
     };
 
     this._useWebInspectorShim = canUseWebInspectorShim(this._platformVersion);

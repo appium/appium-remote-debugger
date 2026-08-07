@@ -3,10 +3,17 @@ import {describe, it} from 'node:test';
 
 import {useRemoteDebuggerFixture} from './rd-fixture.js';
 
+// fixture.selectTestPage() relies on a Web Inspector target/page initialization handshake that,
+// on some CI simulators, can occasionally stall for the full targetCreationTimeoutMs before
+// giving up. Give each test that calls it an explicit timeout so a single stuck test fails on
+// its own instead of being able to eat the whole suite's --test-timeout budget.
+// https://github.com/appium/appium-remote-debugger/actions/runs/31174788176/job/92854291418
+const SELECT_TEST_PAGE_TIMEOUT_MS = 15 * 60 * 1000;
+
 describe('Safari remote debugger atoms', function () {
   const fixture = useRemoteDebuggerFixture();
 
-  it('should be able to execute an atom', async function () {
+  it('should be able to execute an atom', {timeout: SELECT_TEST_PAGE_TIMEOUT_MS}, async function () {
     await fixture.selectTestPage();
 
     const script = 'return 1 + 1;';
@@ -14,7 +21,7 @@ describe('Safari remote debugger atoms', function () {
     assert.strictEqual(sum, 2);
   });
 
-  it('should be able to find an element', async function () {
+  it('should be able to find an element', {timeout: SELECT_TEST_PAGE_TIMEOUT_MS}, async function () {
     await fixture.selectTestPage();
 
     const el = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#somediv']);
@@ -22,46 +29,58 @@ describe('Safari remote debugger atoms', function () {
     assert.strictEqual(text, 'This is in #somediv');
   });
 
-  it('should be able to send text to an element and get attribute values', async function () {
-    await fixture.selectTestPage();
+  it(
+    'should be able to send text to an element and get attribute values',
+    {timeout: SELECT_TEST_PAGE_TIMEOUT_MS},
+    async function () {
+      await fixture.selectTestPage();
 
-    assert.strictEqual(await fixture.rd().isJavascriptExecutionBlocked(), false);
-    const el = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#input']);
-    let text = await fixture.rd().executeAtom('get_text', [el]);
-    assert.strictEqual(text, '');
-    await fixture.rd().executeAtom('type', [el, 'hello world']);
+      assert.strictEqual(await fixture.rd().isJavascriptExecutionBlocked(), false);
+      const el = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#input']);
+      let text = await fixture.rd().executeAtom('get_text', [el]);
+      assert.strictEqual(text, '');
+      await fixture.rd().executeAtom('type', [el, 'hello world']);
 
-    text = await fixture.rd().executeAtom('get_attribute_value', [el, 'value']);
-    assert.strictEqual(text, 'hello world');
+      text = await fixture.rd().executeAtom('get_attribute_value', [el, 'value']);
+      assert.strictEqual(text, 'hello world');
 
-    // clean up page
-    await fixture.rd().executeAtom('execute_script', ['window.location.reload()']);
-  });
+      // clean up page
+      await fixture.rd().executeAtom('execute_script', ['window.location.reload()']);
+    },
+  );
 
-  it('should be able to check element visibility and enabled state', async function () {
-    await fixture.selectTestPage();
+  it(
+    'should be able to check element visibility and enabled state',
+    {timeout: SELECT_TEST_PAGE_TIMEOUT_MS},
+    async function () {
+      await fixture.selectTestPage();
 
-    const visibleEl = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#somediv']);
-    assert.strictEqual(await fixture.rd().executeAtom('is_displayed', [visibleEl]), true);
-    assert.strictEqual(await fixture.rd().executeAtom('is_enabled', [visibleEl]), true);
+      const visibleEl = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#somediv']);
+      assert.strictEqual(await fixture.rd().executeAtom('is_displayed', [visibleEl]), true);
+      assert.strictEqual(await fixture.rd().executeAtom('is_enabled', [visibleEl]), true);
 
-    const hiddenEl = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#hiddendiv']);
-    assert.strictEqual(await fixture.rd().executeAtom('is_displayed', [hiddenEl]), false);
-  });
+      const hiddenEl = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#hiddendiv']);
+      assert.strictEqual(await fixture.rd().executeAtom('is_displayed', [hiddenEl]), false);
+    },
+  );
 
-  it('should be able to click a checkbox and read its selected state', async function () {
-    await fixture.selectTestPage();
+  it(
+    'should be able to click a checkbox and read its selected state',
+    {timeout: SELECT_TEST_PAGE_TIMEOUT_MS},
+    async function () {
+      await fixture.selectTestPage();
 
-    const el = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#checkbox']);
-    assert.strictEqual(await fixture.rd().executeAtom('is_selected', [el]), false);
-    await fixture.rd().executeAtom('click', [el]);
-    assert.strictEqual(await fixture.rd().executeAtom('is_selected', [el]), true);
+      const el = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#checkbox']);
+      assert.strictEqual(await fixture.rd().executeAtom('is_selected', [el]), false);
+      await fixture.rd().executeAtom('click', [el]);
+      assert.strictEqual(await fixture.rd().executeAtom('is_selected', [el]), true);
 
-    // clean up page
-    await fixture.rd().executeAtom('execute_script', ['window.location.reload()']);
-  });
+      // clean up page
+      await fixture.rd().executeAtom('execute_script', ['window.location.reload()']);
+    },
+  );
 
-  it('should be able to clear a text input', async function () {
+  it('should be able to clear a text input', {timeout: SELECT_TEST_PAGE_TIMEOUT_MS}, async function () {
     await fixture.selectTestPage();
 
     const el = await fixture.rd().executeAtom('find_element_fragment', ['css selector', '#input']);
@@ -74,36 +93,44 @@ describe('Safari remote debugger atoms', function () {
     await fixture.rd().executeAtom('execute_script', ['window.location.reload()']);
   });
 
-  it('should be able to round-trip local and session storage', async function () {
-    await fixture.selectTestPage();
+  it(
+    'should be able to round-trip local and session storage',
+    {timeout: SELECT_TEST_PAGE_TIMEOUT_MS},
+    async function () {
+      await fixture.selectTestPage();
 
-    await fixture.rd().executeAtom('set_local_storage_item', ['foo', 'bar']);
-    assert.strictEqual(await fixture.rd().executeAtom('get_local_storage_item', ['foo']), 'bar');
-    await fixture.rd().executeAtom('remove_local_storage_item', ['foo']);
+      await fixture.rd().executeAtom('set_local_storage_item', ['foo', 'bar']);
+      assert.strictEqual(await fixture.rd().executeAtom('get_local_storage_item', ['foo']), 'bar');
+      await fixture.rd().executeAtom('remove_local_storage_item', ['foo']);
 
-    await fixture.rd().executeAtom('set_session_storage_item', ['foo', 'bar']);
-    assert.strictEqual(await fixture.rd().executeAtom('get_session_storage_item', ['foo']), 'bar');
-    await fixture.rd().executeAtom('remove_session_storage_item', ['foo']);
-  });
+      await fixture.rd().executeAtom('set_session_storage_item', ['foo', 'bar']);
+      assert.strictEqual(await fixture.rd().executeAtom('get_session_storage_item', ['foo']), 'bar');
+      await fixture.rd().executeAtom('remove_session_storage_item', ['foo']);
+    },
+  );
 
-  it('should be able to get the active element and default content', async function () {
-    await fixture.selectTestPage();
+  it(
+    'should be able to get the active element and default content',
+    {timeout: SELECT_TEST_PAGE_TIMEOUT_MS},
+    async function () {
+      await fixture.selectTestPage();
 
-    assert.ok((await fixture.rd().executeAtom('active_element', [])).ELEMENT);
-    assert.ok((await fixture.rd().executeAtom('default_content', [])).WINDOW);
-  });
+      assert.ok((await fixture.rd().executeAtom('active_element', [])).ELEMENT);
+      assert.ok((await fixture.rd().executeAtom('default_content', [])).WINDOW);
+    },
+  );
 
   describe('executeAtomAsync', function () {
     const timeout = 1000;
 
-    it('should be able to execute an atom asynchronously', async function () {
+    it('should be able to execute an atom asynchronously', {timeout: SELECT_TEST_PAGE_TIMEOUT_MS}, async function () {
       await fixture.selectTestPage();
 
       const script = 'arguments[arguments.length - 1](123);';
       assert.strictEqual(await fixture.rd().executeAtomAsync('execute_async_script', [script, [], timeout]), 123);
     });
 
-    it('should bubble up JS errors', async function () {
+    it('should bubble up JS errors', {timeout: SELECT_TEST_PAGE_TIMEOUT_MS}, async function () {
       await fixture.selectTestPage();
 
       const script = `arguments[arguments.length - 1](1--);`;
@@ -113,7 +140,7 @@ describe('Safari remote debugger atoms', function () {
       );
     });
 
-    it('should timeout when callback is not invoked', async function () {
+    it('should timeout when callback is not invoked', {timeout: SELECT_TEST_PAGE_TIMEOUT_MS}, async function () {
       await fixture.selectTestPage();
 
       const script = 'return 1 + 2';

@@ -460,6 +460,76 @@ bot.inject.cache.getCache_ = function (opt_doc) {
 };
 
 /**
+ * The number of entries an cache may hold before a stale-entry sweep is
+ * triggered on the next addition. Bounds the growth of the cache on pages
+ * whose DOM is repeatedly recreated: without this, entries for elements
+ * that are found once and then detached (e.g. by a page re-render) are
+ * never reclaimed, since `getElement` only prunes an entry lazily, when
+ * that exact key is looked up again.
+ * @see https://github.com/SeleniumHQ/selenium/issues/17357
+ * @type {number}
+ * @const
+ */
+bot.inject.cache.SWEEP_THRESHOLD_ = 200;
+
+/**
+ * Determines whether a cached value is stale, i.e. no longer reachable from
+ * the document it was cached against: a closed Window, or an Element that
+ * is no longer attached to the DOM.
+ * @param {Document} doc The document the value was cached against.
+ * @param {(Element|Window)} el The cached value to check.
+ * @return {boolean} Whether the cached value is stale.
+ * @private
+ */
+bot.inject.cache.isStale_ = function (doc, el) {
+  // If this is a Window check if it's closed.
+  if (goog.object.containsKey(el, 'setInterval')) {
+    return !!el.closed;
+  }
+
+  // Make sure the element is still attached to the DOM.
+  var node = el;
+  while (node) {
+    if (node == doc.documentElement) {
+      return false;
+    }
+    if (node.host && node.nodeType === 11) {
+      node = node.host;
+    }
+    node = node.parentNode;
+  }
+  return true;
+};
+
+/**
+ * Removes every stale entry from an cache. Unlike the lazy cleanup performed
+ * by `getElement`, this proactively reclaims entries that a caller never
+ * looks up again by key, which is the common case for a caller that
+ * repeatedly runs a find_element(s) atom against a page whose DOM keeps
+ * getting recreated.
+ * @param {!Document} doc The document whose cache to sweep.
+ * @private
+ */
+bot.inject.cache.sweep_ = function (doc) {
+  var cache = bot.inject.cache.getCache_(doc);
+  for (var key in cache) {
+    var value = cache[key];
+    // Skip the `nextId` counter. Its property name isn't a reliable string to
+    // compare against: since it's accessed via dot notation, ADVANCED_OPTIMIZATIONS
+    // property renaming is free to rename it independently in every atom that
+    // bundles this file, so the runtime key here need not read "nextId". Its
+    // value type is the only thing that's guaranteed: a number, never an
+    // Element or Window.
+    if (!value || typeof value !== 'object') {
+      continue;
+    }
+    if (bot.inject.cache.isStale_(doc, value)) {
+      delete cache[key];
+    }
+  }
+};
+
+/**
  * Adds an element to its ownerDocument's cache.
  * @param {(Element|Window)} el The element or Window object to add.
  * @return {string} The key generated for the cached element.
@@ -467,6 +537,11 @@ bot.inject.cache.getCache_ = function (opt_doc) {
 bot.inject.cache.addElement = function (el) {
   // Check if the element already exists in the cache.
   var cache = bot.inject.cache.getCache_(el.ownerDocument);
+  // `cache` also carries the `nextId` counter, so a real entry count is one
+  // less than the object's own-property count.
+  if (goog.object.getCount(cache) - 1 >= bot.inject.cache.SWEEP_THRESHOLD_) {
+    bot.inject.cache.sweep_(el.ownerDocument);
+  }
   var id = goog.object.findKey(cache, function (value) {
     return value == el;
   });
@@ -497,26 +572,13 @@ bot.inject.cache.getElement = function (key, opt_doc) {
 
   var el = cache[key];
 
-  // If this is a Window check if it's closed
-  if (goog.object.containsKey(el, 'setInterval')) {
-    if (el.closed) {
-      delete cache[key];
-      throw new bot.Error(bot.ErrorCode.NO_SUCH_WINDOW, 'Window has been closed.');
-    }
+  if (!bot.inject.cache.isStale_(doc, el)) {
     return el;
   }
 
-  // Make sure the element is still attached to the DOM before returning.
-  var node = el;
-  while (node) {
-    if (node == doc.documentElement) {
-      return el;
-    }
-    if (node.host && node.nodeType === 11) {
-      node = node.host;
-    }
-    node = node.parentNode;
-  }
   delete cache[key];
+  if (goog.object.containsKey(el, 'setInterval')) {
+    throw new bot.Error(bot.ErrorCode.NO_SUCH_WINDOW, 'Window has been closed.');
+  }
   throw new bot.Error(bot.ErrorCode.STALE_ELEMENT_REFERENCE, 'Element is no longer attached to the DOM');
 };
