@@ -69,6 +69,14 @@ bot.inject.JsonWindow;
 bot.inject.ELEMENT_KEY = 'ELEMENT';
 
 /**
+ * Key used to identify DOM elements in the W3C WebDriver wire protocol.
+ * @type {string}
+ * @const
+ * @see https://w3c.github.io/webdriver/webdriver-spec.html#elements
+ */
+bot.inject.W3C_ELEMENT_KEY = 'element-6066-11e4-a52e-4f735466cecf';
+
+/**
  * Key used to identify Window objects in the WebDriver wire protocol.
  * @type {string}
  * @const
@@ -129,7 +137,9 @@ bot.inject.wrapValue = function (value) {
           (value['nodeType'] == goog.dom.NodeType.ELEMENT || value['nodeType'] == goog.dom.NodeType.DOCUMENT)
         ) {
           var ret = {};
-          ret[bot.inject.ELEMENT_KEY] = bot.inject.cache.addElement(/**@type {!Element}*/ (value));
+          var elementKey = bot.inject.cache.addElement(/**@type {!Element}*/ (value));
+          ret[bot.inject.ELEMENT_KEY] = elementKey;
+          ret[bot.inject.W3C_ELEMENT_KEY] = elementKey;
           return ret;
         }
 
@@ -181,6 +191,10 @@ bot.inject.unwrapValue = function (value, opt_doc) {
     var obj = /** @type {!Object} */ (value);
     if (goog.object.containsKey(obj, bot.inject.ELEMENT_KEY)) {
       return bot.inject.cache.getElement(obj[bot.inject.ELEMENT_KEY], opt_doc);
+    }
+
+    if (goog.object.containsKey(obj, bot.inject.W3C_ELEMENT_KEY)) {
+      return bot.inject.cache.getElement(obj[bot.inject.W3C_ELEMENT_KEY], opt_doc);
     }
 
     if (goog.object.containsKey(obj, bot.inject.WINDOW_KEY)) {
@@ -401,18 +415,23 @@ bot.inject.wrapResponse = function (value) {
 
 /**
  * Wraps a JavaScript error in an object-literal so that it can be JSON-ified
- * for transmission to the process that injected this script.
+ * for transmission to the process that injected this script. The wrapped
+ * value carries both the legacy numeric status code and its W3C WebDriver
+ * error string equivalent, so callers can consume either.
  * @param {Error} err The error to wrap.
  * @return {{status:bot.ErrorCode,value:*}} The wrapped error object.
  * @see https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol#failed-commands
+ * @see https://w3c.github.io/webdriver/webdriver-spec.html#handling-errors
  */
 bot.inject.wrapError = function (err) {
   // TODO: Parse stackTrace
+  var code = goog.object.containsKey(err, 'code') ? err['code'] : bot.ErrorCode.UNKNOWN_ERROR;
   return {
-    'status': goog.object.containsKey(err, 'code') ? err['code'] : bot.ErrorCode.UNKNOWN_ERROR,
+    'status': code,
     // TODO: Parse stackTrace
     'value': {
       'message': err.message,
+      'error': bot.Error.stateForCode(code),
     },
   };
 };

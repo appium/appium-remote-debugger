@@ -183,6 +183,19 @@ goog.scope(function () {
 }); // goog.scope
 
 /**
+ * Looks up the W3C WebDriver status string for a legacy `bot.ErrorCode`, for
+ * callers that need to report an error using both the legacy numeric code
+ * and its W3C string equivalent.
+ * @param {bot.ErrorCode} code The legacy error code.
+ * @return {string} The corresponding W3C WebDriver status string, or
+ *     `bot.Error.State.UNKNOWN_ERROR` if `code` has no known mapping.
+ * @see https://w3c.github.io/webdriver/webdriver-spec.html#handling-errors
+ */
+bot.Error.stateForCode = function (code) {
+  return bot.Error.CODE_TO_STATE_[code] || bot.Error.State.UNKNOWN_ERROR;
+};
+
+/**
  * Flag used for duck-typing when this code is embedded in a Firefox extension.
  * This is required since an Error thrown in one component and then reported
  * to another will fail instanceof checks in the second component.
