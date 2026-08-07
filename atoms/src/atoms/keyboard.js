@@ -68,7 +68,11 @@ bot.Keyboard = class extends bot.Device {
       // the correct properties.
       goog.array.forEach(
         opt_state['pressed'],
-        /** @param {*} key */ function (key) {
+        /**
+         * @this {!bot.Keyboard}
+         * @param {*} key
+         */
+        function (key) {
           this.setKeyPressed_(/** @type {!bot.Keyboard.Key} */ (key), true);
         },
         this,
@@ -110,10 +114,10 @@ bot.Keyboard.CHAR_TO_KEY_;
 bot.Keyboard.newKey_ = function (code, opt_char, opt_shiftChar) {
   if (goog.utils.isObject(code)) {
     if (goog.userAgent.GECKO) {
-      code = code.gecko;
+      code = /** @type {{gecko: ?number, ieWebkit: ?number}} */ (code).gecko;
     } else {
       // IE and Webkit
-      code = code.ieWebkit;
+      code = /** @type {{gecko: ?number, ieWebkit: ?number}} */ (code).ieWebkit;
     }
   }
   var key = new bot.Keyboard.Key(/** @type {?number} */ (code), opt_char, opt_shiftChar);
@@ -450,7 +454,7 @@ bot.Keyboard.MODIFIERS = [
  * @suppress {deprecated}
  */
 bot.Keyboard.MODIFIER_TO_KEY_MAP_ = (function () {
-  var modifiersMap = new goog.structs.Map();
+  var modifiersMap = /** @type {?} */ (new goog.structs.Map());
   modifiersMap.set(bot.Device.Modifier.SHIFT, bot.Keyboard.Keys.SHIFT);
   modifiersMap.set(bot.Device.Modifier.CONTROL, bot.Keyboard.Keys.CONTROL);
   modifiersMap.set(bot.Device.Modifier.ALT, bot.Keyboard.Keys.ALT);
@@ -466,7 +470,7 @@ bot.Keyboard.MODIFIER_TO_KEY_MAP_;
  * @suppress {deprecated}
  */
 bot.Keyboard.KEY_TO_MODIFIER_ = (function (modifiersMap) {
-  var keyToModifierMap = new goog.structs.Map();
+  var keyToModifierMap = /** @type {?} */ (new goog.structs.Map());
   goog.array.forEach(
     modifiersMap.getKeys(),
     /** @param {*} m */ function (m) {
@@ -494,9 +498,9 @@ bot.Keyboard.prototype.setKeyPressed_ = function (key, isPressed) {
   }
 
   if (isPressed) {
-    this.pressed_.add(key);
+    this.pressed_.add(/** @type {?} */ (key));
   } else {
-    this.pressed_.remove(key);
+    this.pressed_.remove(/** @type {?} */ (key));
   }
 };
 
@@ -517,7 +521,7 @@ bot.Keyboard.NEW_LINE_;
  * @return {boolean} Whether the key is pressed.
  */
 bot.Keyboard.prototype.isPressed = function (key) {
-  return this.pressed_.contains(key);
+  return this.pressed_.contains(/** @type {?} */ (key));
 };
 
 /**
@@ -927,10 +931,12 @@ bot.Keyboard.checkCanUpdateSelection_ = function (element) {
   } catch (ex) {
     // The native error message is actually pretty informative, just add a
     // reference to the relevant Chrome bug to provide more context.
-    if (ex.message.indexOf('does not support selection.') != -1) {
+    if (/** @type {!Error} */ (ex).message.indexOf('does not support selection.') != -1) {
       // message is a readonly property, so need to rethrow.
       throw Error(
-        ex.message + ' (For more information, see ' + 'https://code.google.com/p/chromium/issues/detail?id=330456)',
+        /** @type {!Error} */ (ex).message +
+          ' (For more information, see ' +
+          'https://code.google.com/p/chromium/issues/detail?id=330456)',
       );
     }
     throw ex;
@@ -1020,7 +1026,7 @@ bot.Keyboard.prototype.getState = function () {
   // else internally, we use the dot-notation, so it's okay if the compiler
   // renames the internal variable name.
   return {
-    'pressed': this.pressed_.getValues(),
+    'pressed': /** @type {!Array<!bot.Keyboard.Key>} */ (this.pressed_.getValues()),
     'currentPos': this.currentPos_,
   };
 };

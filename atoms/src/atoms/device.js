@@ -49,6 +49,7 @@ bot.Device = function (opt_modifiersState, opt_eventEmitter) {
   bot.Device.prototype.element_;
   /**
    * Element being interacted with.
+   * @type {!Element}
    */
   this.element_ = bot.getDocument().documentElement;
 
@@ -56,6 +57,7 @@ bot.Device = function (opt_modifiersState, opt_eventEmitter) {
   bot.Device.prototype.select_;
   /**
    * If the element is an option, this is its parent select element.
+   * @type {?Element}
    */
   this.select_ = null;
 
@@ -185,6 +187,7 @@ bot.Device.prototype.fireMouseEvent = function (
 
   var pointerId = opt_pointerId || bot.Device.MOUSE_MS_POINTER_ID;
 
+  /** @type {?Element} */
   var target = this.element_;
   // On click and mousedown events, captured pointers are ignored and the
   // event always fires on the original element.
@@ -214,7 +217,7 @@ bot.Device.prototype.fireTouchEvent;
  * @return {boolean} Whether the event fired successfully or was cancelled.
  */
 bot.Device.prototype.fireTouchEvent = function (type, id, coord, opt_id2, opt_coord2) {
-  var args = {
+  var args = /** @type {!bot.events.TouchArgs} */ (/** @type {?} */ ({
     touches: [],
     targetTouches: [],
     changedTouches: [],
@@ -225,7 +228,7 @@ bot.Device.prototype.fireTouchEvent = function (type, id, coord, opt_id2, opt_co
     relatedTarget: null,
     scale: 0,
     rotation: 0,
-  };
+  }));
   var pageOffset = goog.dom.getDomHelper(this.element_).getDocumentScroll();
 
   /** @param {*} identifier @param {*} coords */ function addTouch(identifier, coords) {
@@ -323,14 +326,19 @@ bot.Device.prototype.fireMSPointerEvent = function (
     // because synthetic pointer events cause an access denied exception.
     // The prototype is modified because the pointer event will bubble up and
     // we do not know which element will handle the pointer event.
-    originalMsSetPointerCapture = owner['Element'].prototype.msSetPointerCapture;
-    owner['Element'].prototype.msSetPointerCapture = function (id) {
+    originalMsSetPointerCapture = /** @type {?} */ (owner)['Element'].prototype.msSetPointerCapture;
+    /**
+     * @this {?}
+     * @param {*} id
+     */
+    const capturePointer = function (id) {
       /** @type {!Object<string, *>} */ (bot.Device.pointerElementMap_)[id] = this;
     };
+    /** @type {?} */ (owner)['Element'].prototype.msSetPointerCapture = capturePointer;
   }
   var result = target ? this.eventEmitter.fireMSPointerEvent(target, type, args) : true;
   if (originalMsSetPointerCapture) {
-    owner['Element'].prototype.msSetPointerCapture = originalMsSetPointerCapture;
+    /** @type {?} */ (owner)['Element'].prototype.msSetPointerCapture = originalMsSetPointerCapture;
   }
   return result;
 };
@@ -356,7 +364,7 @@ bot.Device.prototype.getTargetOfOptionMouseEvent_ = function (type) {
       case bot.events.EventType.CONTEXTMENU:
       case bot.events.EventType.MOUSEMOVE:
       case bot.events.EventType.MSPOINTERMOVE:
-        return this.select_.multiple ? this.select_ : null;
+        return /** @type {!HTMLElement} */ (this.select_).multiple ? this.select_ : null;
       default:
         return this.select_;
     }
@@ -368,9 +376,9 @@ bot.Device.prototype.getTargetOfOptionMouseEvent_ = function (type) {
     switch (type) {
       case bot.events.EventType.CLICK:
       case bot.events.EventType.MOUSEUP:
-        return this.select_.multiple ? this.element_ : this.select_;
+        return /** @type {!HTMLElement} */ (this.select_).multiple ? this.element_ : this.select_;
       default:
-        return this.select_.multiple ? this.element_ : null;
+        return /** @type {!HTMLElement} */ (this.select_).multiple ? this.element_ : null;
     }
   }
 
@@ -404,7 +412,7 @@ bot.Device.prototype.clickElement = function (coord, button, opt_force, opt_poin
   var targetLink = null;
   var targetButton = null;
   if (!bot.Device.ALWAYS_FOLLOWS_LINKS_ON_CLICK_) {
-    for (var e = this.element_; e; e = e.parentNode) {
+    for (var /** @type {?Element} */ e = this.element_; e; e = /** @type {?Element} */ (e.parentNode)) {
       if (bot.dom.isElement(e, goog.dom.TagName.A)) {
         targetLink = /**@type {!Element}*/ (e);
         break;
@@ -434,7 +442,7 @@ bot.Device.prototype.clickElement = function (coord, button, opt_force, opt_poin
   // TODO: See if either of these can be resolved, perhaps by adding
   // hidden form elements with the coordinates before the form is submitted.
   if (goog.userAgent.IE && targetButton) {
-    targetButton.click();
+    /** @type {!HTMLElement} */ (targetButton).click();
     return;
   }
 
@@ -500,7 +508,7 @@ bot.Device.prototype.focusOnElement = function () {
       try {
         /** @type {!HTMLElement} */ (activeElement).blur();
       } catch (e) {
-        if (!(goog.userAgent.IE && e.message == 'Unspecified error.')) {
+        if (!(goog.userAgent.IE && /** @type {!Error} */ (e).message == 'Unspecified error.')) {
           throw e;
         }
       }
@@ -651,7 +659,7 @@ bot.Device.prototype.maybeToggleOption = function () {
   // should deselect all other selected options. Right now multiselect click
   // works as ctrl+click should (and unit tests written so that they pass).
 
-  this.element_.selected = !wasSelected;
+  /** @type {!HTMLElement} */ (this.element_).selected = !wasSelected;
   // Only WebKit fires the change event itself and only for multi-selects,
   // except for Android versions >= 4.0 and Chrome >= 28.
   if (
@@ -677,10 +685,10 @@ bot.Device.prototype.toggleRadioButtonOrCheckbox_ = function (wasChecked) {
     return;
   }
   // Cannot toggle off radio buttons.
-  if (wasChecked && this.element_.type.toLowerCase() == 'radio') {
+  if (wasChecked && /** @type {!HTMLElement} */ (this.element_).type.toLowerCase() == 'radio') {
     return;
   }
-  this.element_.checked = !wasChecked;
+  /** @type {!HTMLElement} */ (this.element_).checked = !wasChecked;
 };
 
 /**
@@ -726,7 +734,7 @@ bot.Device.prototype.submitForm = function (form) {
     // incorrect value names. Fortunately, saving the submit function and
     // calling it after reverting the ids and names works! Oh, and goog.typeOf
     // (and thus goog.isFunction) doesn't work for form.submit in IE < 8.
-    if (!bot.dom.isElement(/** @type {!HTMLElement} */ (form).submit)) {
+    if (!bot.dom.isElement(/** @type {?} */ (/** @type {!HTMLElement} */ (form).submit))) {
       /** @type {!HTMLElement} */ (form).submit();
     } else if (!goog.userAgent.IE || bot.userAgent.isEngineVersion(8)) {
       /** @type {Function} */ (form.constructor.prototype['submit']).call(form);

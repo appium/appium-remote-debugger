@@ -62,22 +62,23 @@ goog.dom.safe.InsertAdjacentHtmlPosition = {
  */
 goog.dom.safe.insertAdjacentHtml = function (node, position, html) {
   'use strict';
-  /** @type {!HTMLElement} */ (node).insertAdjacentHTML(position, goog.html.SafeHtml.unwrapTrustedHTML(html));
+  /** @type {!HTMLElement} */ (node).insertAdjacentHTML(
+    /** @type {?} */ (position),
+    goog.html.SafeHtml.unwrapTrustedHTML(html),
+  );
 };
 
 /**
  * Tags not allowed in goog.dom.safe.setInnerHtml.
  * @const {!Object<string, boolean>}
  */
-goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = {
+goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = /** @type {!Object<string, boolean>} */ ({
   'MATH': true,
   'SCRIPT': true,
   'STYLE': true,
   'SVG': true,
   'TEMPLATE': true,
-};
-/** @private */
-goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_;
+});
 
 /**
  * Whether assigning to innerHTML results in a non-spec-compliant clean-up. Used
@@ -113,9 +114,9 @@ goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(fun
   if (goog.DEBUG && !div.firstChild) {
     return false;
   }
-  var innerChild = div.firstChild.firstChild;
+  var innerChild = /** @type {!Node} */ (div.firstChild).firstChild;
   div.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(goog.html.SafeHtml.EMPTY);
-  return !innerChild.parentElement;
+  return !(/** @type {!Node} */ (innerChild).parentElement);
 });
 /** @private */
 goog.dom.safe.isInnerHtmlCleanupRecursive_;
@@ -130,12 +131,13 @@ goog.dom.safe.isInnerHtmlCleanupRecursive_;
 goog.dom.safe.unsafeSetInnerHtmlDoNotUseOrElse = function (elem, html) {
   'use strict';
   // See comment above goog.dom.safe.isInnerHtmlCleanupRecursive_.
+  var nonNullElem = /** @type {!Element|!ShadowRoot} */ (elem);
   if (goog.dom.safe.isInnerHtmlCleanupRecursive_()) {
-    while (elem.lastChild) {
-      elem.removeChild(elem.lastChild);
+    while (nonNullElem.lastChild) {
+      nonNullElem.removeChild(nonNullElem.lastChild);
     }
   }
-  elem.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(html);
+  nonNullElem.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(html);
 };
 
 /**
@@ -408,7 +410,7 @@ goog.dom.safe.setVideoSrc = function (videoElement, url) {
 goog.dom.safe.setEmbedSrc = function (embed, url) {
   'use strict';
   goog.asserts.dom.assertIsHtmlEmbedElement(embed);
-  embed.src = goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url);
+  embed.src = /** @type {string} */ (goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url));
 };
 
 /**
@@ -508,7 +510,7 @@ goog.dom.safe.setLinkHrefAndRel = function (link, url, rel) {
       url instanceof goog.html.TrustedResourceUrl,
       'URL must be TrustedResourceUrl because "rel" contains "stylesheet"',
     );
-    link.href = goog.html.TrustedResourceUrl.unwrap(url);
+    link.href = goog.html.TrustedResourceUrl.unwrap(/** @type {!goog.html.TrustedResourceUrl} */ (url));
     const win = link.ownerDocument && link.ownerDocument.defaultView;
     const nonce = goog.dom.safe.getStyleNonce(win);
     if (nonce) {
@@ -544,7 +546,7 @@ goog.dom.safe.setLinkHrefAndRel = function (link, url, rel) {
 goog.dom.safe.setObjectData = function (object, url) {
   'use strict';
   goog.asserts.dom.assertIsHtmlObjectElement(object);
-  object.data = goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url);
+  object.data = /** @type {string} */ (goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url));
 };
 
 /**
@@ -566,7 +568,7 @@ goog.dom.safe.setScriptSrc = function (script, url) {
   'use strict';
   goog.asserts.dom.assertIsHtmlScriptElement(script);
   goog.dom.safe.setNonceForScriptElement_(script);
-  script.src = goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url);
+  script.src = /** @type {string} */ (goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url));
 };
 
 /**
@@ -780,7 +782,7 @@ goog.dom.safe.parseFromStringHtml = function (parser, html) {
  */
 goog.dom.safe.parseFromString = function (parser, content, type) {
   'use strict';
-  return parser.parseFromString(goog.html.SafeHtml.unwrapTrustedHTML(content), type);
+  return parser.parseFromString(goog.html.SafeHtml.unwrapTrustedHTML(content), /** @type {?} */ (type));
 };
 
 /**
@@ -871,7 +873,7 @@ goog.dom.safe.getNonce_ = function (selector, win) {
     // implement additional nonce protection features (currently only Chrome) to
     // prevent nonce stealing via CSS do not expose the nonce via attributes.
     // See https://github.com/whatwg/html/issues/2369
-    const nonce = el['nonce'] || el.getAttribute('nonce');
+    const nonce = /** @type {?} */ (el)['nonce'] || el.getAttribute('nonce');
     if (nonce && goog.dom.safe.NONCE_PATTERN_.test(nonce)) {
       return nonce;
     }
