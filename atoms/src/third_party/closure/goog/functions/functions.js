@@ -384,7 +384,8 @@ goog.functions.CACHE_RETURN_VALUE = goog.define('goog.functions.CACHE_RETURN_VAL
 goog.functions.cacheReturnValue = function (fn) {
   'use strict';
   let called = false;
-  let value;
+  let /** @type {*} */
+  value;
 
   return function () {
     'use strict';
@@ -483,7 +484,8 @@ goog.functions.throttle = function (f, interval, opt_scope) {
   'use strict';
   let timeout = 0;
   let shouldFire = false;
-  let storedArgs = [];
+  let /** @type {Array<*>} */
+  storedArgs = [];
 
   const handleTimeout = function () {
     'use strict';

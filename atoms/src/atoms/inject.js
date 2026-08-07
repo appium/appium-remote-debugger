@@ -104,6 +104,10 @@ bot.inject.WINDOW_KEY = 'WINDOW';
  * @see https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol
  */
 bot.inject.wrapValue = function (value) {
+  /**
+   * @param {*} value
+   * @param {*} seen
+   */
   var _wrap = function (value, seen) {
     switch (goog.utils.typeOf(value)) {
       case 'string':
@@ -244,18 +248,18 @@ bot.inject.unwrapValue = function (value, opt_doc) {
 bot.inject.recompileFunction_ = function (fn, theWindow) {
   if (typeof fn === 'string') {
     try {
-      return new theWindow['Function'](fn);
+      return new (/** @type {?} */ (theWindow))['Function'](fn);
     } catch (ex) {
       // Try to recover if in IE5-quirks mode
       // Need to initialize the script engine on the passed-in window
       if (goog.userAgent.IE && theWindow.execScript) {
         theWindow.execScript(';');
-        return new theWindow['Function'](fn);
+        return new (/** @type {?} */ (theWindow))['Function'](fn);
       }
       throw ex;
     }
   }
-  return theWindow == window ? fn : new theWindow['Function']('return (' + fn + ').apply(null,arguments);');
+  return theWindow == window ? fn : new (/** @type {?} */ (theWindow))['Function']('return (' + fn + ').apply(null,arguments);');
 };
 /** @private */
 bot.inject.recompileFunction_;
@@ -305,7 +309,7 @@ bot.inject.executeScript = function (fn, args, opt_stringify, opt_window) {
     var unwrappedArgs = /**@type {Object}*/ (bot.inject.unwrapValue(args, win.document));
     ret = bot.inject.wrapResponse(fn.apply(null, unwrappedArgs));
   } catch (ex) {
-    ret = bot.inject.wrapError(ex);
+    ret = bot.inject.wrapError(/** @type {!Error} */ (ex));
   }
   return opt_stringify ? bot.json.stringify(ret) : ret;
 };
@@ -348,7 +352,8 @@ bot.inject.executeScript = function (fn, args, opt_stringify, opt_window) {
  */
 bot.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_stringify, opt_window) {
   var win = opt_window || window;
-  var timeoutId;
+  var /** @type {*} */
+  timeoutId;
   var responseSent = false;
 
   /** @param {*} status @param {*} value */ function sendResponse(status, value) {
@@ -356,7 +361,7 @@ bot.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_stringi
       if (win.removeEventListener) {
         win.removeEventListener('unload', onunload, true);
       } else {
-        win.detachEvent('onunload', onunload);
+        /** @type {?} */ (win).detachEvent('onunload', onunload);
       }
 
       win.clearTimeout(timeoutId);
@@ -386,7 +391,7 @@ bot.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_stringi
   if (win.addEventListener) {
     win.addEventListener('unload', onunload, true);
   } else {
-    win.attachEvent('onunload', onunload);
+    /** @type {?} */ (win).attachEvent('onunload', onunload);
   }
 
   var startTime = goog.utils.now();
@@ -408,7 +413,7 @@ bot.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_stringi
       Math.max(0, timeout),
     );
   } catch (ex) {
-    sendResponse(ex.code || bot.ErrorCode.UNKNOWN_ERROR, ex);
+    sendResponse(/** @type {?} */ (ex).code || bot.ErrorCode.UNKNOWN_ERROR, ex);
   }
 
   function onunload() {
@@ -446,7 +451,7 @@ bot.inject.wrapResponse = function (value) {
  */
 bot.inject.wrapError = function (err) {
   // TODO: Parse stackTrace
-  var code = goog.object.containsKey(err, 'code') ? err['code'] : bot.ErrorCode.UNKNOWN_ERROR;
+  var code = goog.object.containsKey(err, 'code') ? /** @type {?} */ (err)['code'] : bot.ErrorCode.UNKNOWN_ERROR;
   return {
     'status': code,
     // TODO: Parse stackTrace
@@ -483,7 +488,7 @@ bot.inject.cache.ELEMENT_KEY_PREFIX = ':wdc:';
  * @return {Object.<string, (Element|Window)>} The cache object.
  */
 bot.inject.cache.getCache_ = function (opt_doc) {
-  var doc = opt_doc || document;
+  var doc = /** @type {?} */ (opt_doc || document);
   var cache = doc[bot.inject.cache.CACHE_KEY_];
   if (!cache) {
     cache = doc[bot.inject.cache.CACHE_KEY_] = {};
@@ -525,11 +530,11 @@ bot.inject.cache.SWEEP_THRESHOLD_ = 200;
 bot.inject.cache.isStale_ = function (doc, el) {
   // If this is a Window check if it's closed.
   if (goog.object.containsKey(el, 'setInterval')) {
-    return !!el.closed;
+    return !!(/** @type {?} */ (el).closed);
   }
 
   // Make sure the element is still attached to the DOM.
-  var node = el;
+  var node = /** @type {?} */ (el);
   while (node) {
     if (node == doc.documentElement) {
       return false;
@@ -580,11 +585,12 @@ bot.inject.cache.sweep_;
  */
 bot.inject.cache.addElement = function (el) {
   // Check if the element already exists in the cache.
-  var cache = bot.inject.cache.getCache_(el.ownerDocument);
+  var ownerDocument = /** @type {?} */ (el).ownerDocument;
+  var cache = bot.inject.cache.getCache_(ownerDocument);
   // `cache` also carries the `nextId` counter, so a real entry count is one
   // less than the object's own-property count.
   if (goog.object.getCount(cache) - 1 >= bot.inject.cache.SWEEP_THRESHOLD_) {
-    bot.inject.cache.sweep_(el.ownerDocument);
+    bot.inject.cache.sweep_(ownerDocument);
   }
   var id = goog.object.findKey(
     cache,
@@ -593,7 +599,7 @@ bot.inject.cache.addElement = function (el) {
     },
   );
   if (!id) {
-    id = bot.inject.cache.ELEMENT_KEY_PREFIX + cache.nextId++;
+    id = bot.inject.cache.ELEMENT_KEY_PREFIX + /** @type {?} */ (cache).nextId++;
     cache[id] = el;
   }
   return id;

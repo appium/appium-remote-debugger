@@ -12,7 +12,7 @@
 goog.module('goog.disposeAll');
 goog.module.declareLegacyNamespace();
 
-var dispose = goog.require('goog.dispose');
+var disposeFn = goog.require('goog.dispose');
 var utils = goog.require('goog.utils');
 
 /**
@@ -28,7 +28,7 @@ function disposeAll(var_args) {
     if (utils.isArrayLike(disposable)) {
       disposeAll.apply(null, disposable);
     } else {
-      dispose(disposable);
+      disposeFn(disposable);
     }
   }
 }

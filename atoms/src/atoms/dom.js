@@ -219,6 +219,7 @@ bot.dom.isEnabled = function (el) {
           return true;
         }
 
+        /** @type {?Node} */
         var sibling = e;
         // Are there any previous legend siblings? If so then we are not the
         // first and the element is disabled
@@ -299,19 +300,23 @@ bot.dom.isInputType = function (element, inputType) {
  */
 bot.dom.isContentEditable = function (element) {
   // Check if browser supports contentEditable.
-  if (element['contentEditable'] === undefined) {
+  if (/** @type {!HTMLElement} */ (element)['contentEditable'] === undefined) {
     return false;
   }
 
   // Checking the element's isContentEditable property is preferred except for
   // IE where that property is not reliable on IE versions 7, 8, and 9.
-  if (!goog.userAgent.IE && element['isContentEditable'] !== undefined) {
+  if (!goog.userAgent.IE && /** @type {!HTMLElement} */ (element)['isContentEditable'] !== undefined) {
     return /** @type {!HTMLElement} */ (element).isContentEditable;
   }
 
   // For IE and for browsers where contentEditable is supported but
   // isContentEditable is not, traverse up the ancestors:
-  /** @param {*} e */ function legacyIsContentEditable(e) {
+  /**
+   * @param {*} e
+   * @return {boolean}
+   */
+  function legacyIsContentEditable(e) {
     if (e.contentEditable == 'inherit') {
       var parent = bot.dom.getParentElement(e);
       return parent ? legacyIsContentEditable(parent) : false;
@@ -365,7 +370,7 @@ bot.dom.getParentElement = function (node) {
   ) {
     elem = elem.parentNode;
   }
-  return /** @type {Element} */ (bot.dom.isElement(elem) ? elem : null);
+  return /** @type {Element} */ (bot.dom.isElement(/** @type {!Node} */ (elem)) ? elem : null);
 };
 
 /**
@@ -889,7 +894,12 @@ bot.dom.maybeFindImageMap_ = function (elem) {
   }
 
   // Get the <map> associated with this element, or null if none.
-  var map = isMap ? elem : bot.dom.isElement(elem.parentNode, goog.dom.TagName.MAP) ? elem.parentNode : null;
+  var map =
+    isMap
+      ? elem
+      : bot.dom.isElement(/** @type {!Node} */ (elem.parentNode), goog.dom.TagName.MAP)
+        ? elem.parentNode
+        : null;
 
   var image = null,
     rect = null;
@@ -917,7 +927,7 @@ bot.dom.maybeFindImageMap_ = function (elem) {
     }
   }
 
-  return {image: image, rect: rect || new goog.math.Rect(0, 0, 0, 0)};
+  return {image: /** @type {Element} */ (image), rect: rect || new goog.math.Rect(0, 0, 0, 0)};
 };
 /** @private */
 bot.dom.maybeFindImageMap_;
@@ -933,24 +943,24 @@ bot.dom.getAreaRelativeRect_ = function (area) {
   var shape = /** @type {!HTMLElement} */ (area).shape.toLowerCase();
   var coords = /** @type {!HTMLElement} */ (area).coords.split(',');
   if (shape == 'rect' && coords.length == 4) {
-    var x = coords[0],
-      y = coords[1];
-    return new goog.math.Rect(x, y, coords[2] - x, coords[3] - y);
+    var x = Number(coords[0]),
+      y = Number(coords[1]);
+    return new goog.math.Rect(x, y, Number(coords[2]) - x, Number(coords[3]) - y);
   } else if (shape == 'circle' && coords.length == 3) {
-    var centerX = coords[0],
-      centerY = coords[1],
-      radius = coords[2];
+    var centerX = Number(coords[0]),
+      centerY = Number(coords[1]),
+      radius = Number(coords[2]);
     return new goog.math.Rect(centerX - radius, centerY - radius, 2 * radius, 2 * radius);
   } else if (shape == 'poly' && coords.length > 2) {
-    var minX = coords[0],
-      minY = coords[1],
+    var minX = Number(coords[0]),
+      minY = Number(coords[1]),
       maxX = minX,
       maxY = minY;
     for (var i = 2; i + 1 < coords.length; i += 2) {
-      minX = Math.min(minX, coords[i]);
-      maxX = Math.max(maxX, coords[i]);
-      minY = Math.min(minY, coords[i + 1]);
-      maxY = Math.max(maxY, coords[i + 1]);
+      minX = Math.min(minX, Number(coords[i]));
+      maxX = Math.max(maxX, Number(coords[i]));
+      minY = Math.min(minY, Number(coords[i + 1]));
+      maxY = Math.max(maxY, Number(coords[i + 1]));
     }
     return new goog.math.Rect(minX, minY, maxX - minX, maxY - minY);
   }
@@ -1018,7 +1028,8 @@ bot.dom.concatenateCleanedLines_;
  * @return {string} visible text.
  */
 bot.dom.getVisibleText = function (elem) {
-  var lines = [];
+  var /** @type {Array<*>} */
+  lines = [];
 
   if (bot.dom.IS_SHADOW_DOM_ENABLED) {
     bot.dom.appendVisibleTextLinesFromElementInComposedDom_(elem, lines);
@@ -1078,7 +1089,9 @@ bot.dom.appendVisibleTextLinesFromElementCommon_ = function (elem, lines, isShow
     // All text nodes that are children of this element need to know the
     // effective "white-space" and "text-transform" styles to properly
     // compute their contribution to visible text. Compute these values once.
-    var whitespace = null,
+    var /** @type {*} */
+    whitespace = null,
+      /** @type {*} */
       textTransform = null;
     if (shown) {
       whitespace = bot.dom.getEffectiveStyle(elem, 'white-space');
@@ -1165,7 +1178,7 @@ bot.dom.appendVisibleTextLinesFromTextNode_ = function (textNode, lines, whitesp
   //   U+200B: Zero-width space
   //   U+200E: Left-to-right mark
   //   U+200F: Right-to-left mark
-  var text = textNode.nodeValue.replace(/[\u200b\u200e\u200f]/g, '');
+  var text = /** @type {string} */ (textNode.nodeValue).replace(/[\u200b\u200e\u200f]/g, '');
 
   // Canonicalize the new lines, and then collapse new lines
   // for the whitespace styles that collapse. See:
@@ -1232,7 +1245,7 @@ bot.dom.getOpacity = function (elem) {
       return 1;
     }
 
-    var opacityStyle = bot.dom.getEffectiveStyle(elem, 'filter');
+    var opacityStyle = /** @type {string} */ (bot.dom.getEffectiveStyle(elem, 'filter'));
     var groups =
       opacityStyle.match(/^alpha\(opacity=(\d*)\)/) ||
       opacityStyle.match(/^progid:DXImageTransform.Microsoft.Alpha\(Opacity=(\d*)\)/);
@@ -1288,7 +1301,7 @@ bot.dom.getOpacityNonIE_;
  * @return {?Node} The parent node, if available, null otherwise.
  */
 bot.dom.getParentNodeInComposedDom = function (node) {
-  var /**@type {Node}*/ parent = node.parentNode;
+  var /**@type {?Node}*/ parent = node.parentNode;
 
   // Shadow DOM v1
   if (
@@ -1408,7 +1421,7 @@ bot.dom.isNodeDistributedIntoShadowDom = function (node) {
   } else if (node.nodeType == goog.dom.NodeType.TEXT) {
     elemOrText = /** @type {!Text} */ (node);
   }
-  return (
+  return !!(
     elemOrText != null &&
     (elemOrText.assignedSlot != null ||
       (elemOrText.getDestinationInsertionPoints && elemOrText.getDestinationInsertionPoints().length > 0))

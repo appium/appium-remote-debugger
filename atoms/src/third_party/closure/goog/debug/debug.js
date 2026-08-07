@@ -133,12 +133,14 @@ goog.debug.expose = function (obj, opt_showFn) {
  */
 goog.debug.deepExpose = function (obj, opt_showFn) {
   'use strict';
-  var str = [];
+  var /** @type {Array<*>} */
+  str = [];
 
   // Track any objects where deepExpose added a Uid, so they can be cleaned up
   // before return. We do this globally, rather than only on ancestors so that
   // if the same object appears in the output, you can see it.
-  var uidsToCleanup = [];
+  var /** @type {Array<*>} */
+  uidsToCleanup = [];
   var ancestorUids = {};
 
   var helper = function (obj, space) {

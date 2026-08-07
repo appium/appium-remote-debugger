@@ -577,7 +577,8 @@ class SafeHtml {
    */
   static join(separator, parts) {
     const separatorHtml = SafeHtml.htmlEscape(separator);
-    const content = [];
+    const /** @type {Array<*>} */
+    content = [];
 
     /**
      * @param {!SafeHtml.TextOrHtml_|

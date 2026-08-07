@@ -69,7 +69,7 @@ bot.events.BROKEN_TOUCH_API_;
  * @const
  * @type {boolean}
  */
-bot.events.SUPPORTS_MSPOINTER_EVENTS = goog.userAgent.IE && bot.getWindow().navigator.msPointerEnabled;
+bot.events.SUPPORTS_MSPOINTER_EVENTS = !!(goog.userAgent.IE && bot.getWindow().navigator.msPointerEnabled);
 
 /**
  * Arguments to initialize an event.
@@ -119,7 +119,9 @@ bot.events.KeyboardArgs;
  *            metaKey: boolean,
  *            relatedTarget: ?Element,
  *            scale: number,
- *            rotation: number}}
+ *            rotation: number,
+ *            clientX: number,
+ *            clientY: number}}
  */
 bot.events.TouchArgs;
 
@@ -367,7 +369,7 @@ bot.events.KeyboardEventFactory_ = class extends bot.events.EventFactory_ {
         args.charCode,
       );
       // https://bugzilla.mozilla.org/show_bug.cgi?id=501496
-      if (this.type_ == bot.events.EventType.KEYPRESS && args.preventDefault) {
+      if (/** @type {?} */ (this.type_) == bot.events.EventType.KEYPRESS && args.preventDefault) {
         event.preventDefault();
       }
     } else {
@@ -383,7 +385,7 @@ bot.events.KeyboardEventFactory_ = class extends bot.events.EventFactory_ {
       } else {
         event.keyCode = args.charCode || args.keyCode;
         if (goog.userAgent.WEBKIT || goog.userAgent.EDGE) {
-          event.charCode = this == bot.events.EventType.KEYPRESS ? event.keyCode : 0;
+          event.charCode = /** @type {?} */ (this) == bot.events.EventType.KEYPRESS ? event.keyCode : 0;
         }
       }
     }
@@ -473,7 +475,7 @@ bot.events.TouchEventFactory_ = class extends bot.events.EventFactory_ {
           };
         },
       );
-      touches.item = function (i) {
+      touches.item = /** @param {number} i */ function (i) {
         return touches[i];
       };
       return touches;
@@ -560,9 +562,10 @@ bot.events.TouchEventFactory_ = class extends bot.events.EventFactory_ {
     } else if (strategy == bot.events.TouchEventStrategy_.INIT_TOUCH_EVENT) {
       event = doc.createEvent('TouchEvent');
       // Different browsers have different implementations of initTouchEvent.
-      if (event.initTouchEvent.length == 0) {
+      var untypedEvent = /** @type {?} */ (event);
+      if (untypedEvent.initTouchEvent.length == 0) {
         // Chrome/Android.
-        event.initTouchEvent(
+        untypedEvent.initTouchEvent(
           touches,
           targetTouches,
           changedTouches,
@@ -579,7 +582,7 @@ bot.events.TouchEventFactory_ = class extends bot.events.EventFactory_ {
         );
       } else {
         // iOS.
-        event.initTouchEvent(
+        untypedEvent.initTouchEvent(
           this.type_,
           this.bubbles_,
           this.cancelable_,
@@ -828,7 +831,7 @@ bot.events.fire = function (target, type, opt_args) {
   // Ensure the event's isTrusted property is set to false, so that
   // bot.events.isSynthetic() can identify synthetic events from native ones.
   if (!('isTrusted' in event)) {
-    event['isTrusted'] = false;
+    /** @type {?} */ (event)['isTrusted'] = false;
   }
   return target.dispatchEvent(event);
 };
@@ -841,6 +844,6 @@ bot.events.fire = function (target, type, opt_args) {
  * @return {boolean} Whether the event was synthetically created.
  */
 bot.events.isSynthetic = function (event) {
-  var e = event.getBrowserEvent ? event.getBrowserEvent() : event;
+  var e = /** @type {?} */ (event.getBrowserEvent ? event.getBrowserEvent() : event);
   return 'isTrusted' in e ? !e['isTrusted'] : false;
 };

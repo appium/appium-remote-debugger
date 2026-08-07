@@ -481,10 +481,10 @@ goog.style.getOffsetParent = function (element) {
   var skipStatic = positionStyle == 'fixed' || positionStyle == 'absolute';
   for (var parent = element.parentNode; parent && parent != doc; parent = parent.parentNode) {
     // Skip shadowDOM roots.
-    if (parent.nodeType == goog.dom.NodeType.DOCUMENT_FRAGMENT && /** @type {!HTMLElement} */ (parent).host) {
+    if (parent.nodeType == goog.dom.NodeType.DOCUMENT_FRAGMENT && /** @type {!ShadowRoot} */ (parent).host) {
       // Cast because the assignment is not type safe, and without a cast we
       // start typing parent loosely and get bad disambiguation.
-      parent = /** @type {!Element} */ (/** @type {!HTMLElement} */ (parent).host);
+      parent = /** @type {!Element} */ (/** @type {!ShadowRoot} */ (parent).host);
     }
     positionStyle = goog.style.getStyle_(/** @type {!Element} */ (parent), 'position');
     skipStatic = skipStatic && positionStyle == 'static' && parent != doc.documentElement && parent != doc.body;
@@ -508,7 +508,7 @@ goog.style.getOffsetParent = function (element) {
  * Coordinates are given relative to the document.
  *
  * @param {Element} element Element to get the visible rect for.
- * @return {goog.math.Box} Bounding elementBox describing the visible rect or
+ * @return {?goog.math.Box} Bounding elementBox describing the visible rect or
  *     null if scrollable ancestor isn't inside the visible viewport.
  */
 goog.style.getVisibleRectForElement = function (element) {
@@ -521,7 +521,7 @@ goog.style.getVisibleRectForElement = function (element) {
 
   // Determine the size of the visible rect by climbing the dom accounting for
   // all scrollable containers.
-  for (var el = element; (el = goog.style.getOffsetParent(el));) {
+  for (var /** @type {?Element} */ el = element; (el = goog.style.getOffsetParent(/** @type {!Element} */ (el))); ) {
     // clientWidth is zero for inline block elements in IE.
     // on WEBKIT, body element can have clientHeight = 0 and scrollHeight > 0
     if (
@@ -749,6 +749,7 @@ goog.style.getFramedPageOffset = function (el, relativeWin) {
     return position;
   }
 
+  /** @type {?Element} */
   var currentEl = el;
   do {
     // if we're at the top window, we want to get the page offset.
@@ -844,11 +845,12 @@ goog.style.getClientPositionForElement_;
 goog.style.getClientPosition = function (el) {
   'use strict';
   goog.asserts.assert(el);
-  if (el.nodeType == goog.dom.NodeType.ELEMENT) {
+  var untypedEl = /** @type {?} */ (el);
+  if (untypedEl.nodeType == goog.dom.NodeType.ELEMENT) {
     return goog.style.getClientPositionForElement_(/** @type {!Element} */ (el));
   } else {
     /** @suppress {strictMissingProperties} Added to tighten compiler checks */
-    var targetEvent = el.changedTouches ? el.changedTouches[0] : el;
+    var targetEvent = untypedEl.changedTouches ? untypedEl.changedTouches[0] : untypedEl;
     return new goog.math.Coordinate(targetEvent.clientX, targetEvent.clientY);
   }
 };
@@ -1025,7 +1027,7 @@ goog.style.getSizeWithDisplay_ = function (element) {
   var offsetWidth = /** @type {!HTMLElement} */ (element).offsetWidth;
   var offsetHeight = /** @type {!HTMLElement} */ (element).offsetHeight;
   var webkitOffsetsZero = goog.userAgent.WEBKIT && !offsetWidth && !offsetHeight;
-  if ((offsetWidth === undefined || webkitOffsetsZero) && element.getBoundingClientRect) {
+  if ((offsetWidth === undefined || webkitOffsetsZero) && /** @type {?} */ (element).getBoundingClientRect) {
     // Fall back to calling getBoundingClientRect when offsetWidth or
     // offsetHeight are not defined, or when they are zero in WebKit browsers.
     // This makes sure that we return for the correct size for SVG elements, but
@@ -1055,12 +1057,12 @@ goog.style.getSizeWithDisplay_;
  *    webkitTransforms.
  * </ol>
  * @param {!Element} element Element to get size of.
- * @return {goog.math.Size} Object with width/height properties.
+ * @return {?goog.math.Size} Object with width/height properties.
  * @suppress {strictMissingProperties} Added to tighten compiler checks
  */
 goog.style.getTransformedSize = function (element) {
   'use strict';
-  if (!element.getBoundingClientRect) {
+  if (!(/** @type {?} */ (element).getBoundingClientRect)) {
     return null;
   }
 
@@ -1143,7 +1145,7 @@ goog.style.setOpacity = function (el, alpha) {
   goog.asserts.assert(el);
   var style = /** @type {!HTMLElement} */ (el).style;
   if ('opacity' in style) {
-    style.opacity = alpha;
+    style.opacity = String(alpha);
   } else if ('MozOpacity' in style) {
     /** @type {*} */ (style).MozOpacity = alpha;
   } else if ('filter' in style) {
@@ -1292,7 +1294,7 @@ goog.style.isElementShown = function (el) {
  */
 goog.style.installSafeStyleSheet = function (safeStyleSheet, opt_node) {
   'use strict';
-  var dh = goog.dom.getDomHelper(opt_node);
+  var dh = goog.dom.getDomHelper(/** @type {(!Node|!Window|undefined)} */ (opt_node));
 
   // IE < 11 requires createStyleSheet. Note that doc.createStyleSheet will be
   // undefined as of IE 11.
@@ -1336,7 +1338,10 @@ goog.style.installSafeStyleSheet = function (safeStyleSheet, opt_node) {
 goog.style.uninstallStyles = function (styleSheet) {
   'use strict';
   /** @suppress {strictMissingProperties} Added to tighten compiler checks */
-  var node = styleSheet.ownerNode || styleSheet.owningElement || /** @type {Element} */ (styleSheet);
+  var node =
+    /** @type {?} */ (styleSheet).ownerNode ||
+    /** @type {?} */ (styleSheet).owningElement ||
+    /** @type {Element} */ (styleSheet);
   goog.dom.removeNode(node);
 };
 
@@ -1354,20 +1359,21 @@ goog.style.uninstallStyles = function (styleSheet) {
 goog.style.setSafeStyleSheet = function (element, safeStyleSheet) {
   'use strict';
   var stylesString = goog.html.SafeStyleSheet.unwrap(safeStyleSheet);
-  if (goog.userAgent.IE && element.cssText !== undefined) {
+  var untypedElement = /** @type {?} */ (element);
+  if (goog.userAgent.IE && untypedElement.cssText !== undefined) {
     // Adding the selectors individually caused the browser to hang if the
     // selector was invalid or there were CSS comments.  Setting the cssText of
     // the style node works fine and ignores CSS that IE doesn't understand.
     // However IE >= 11 doesn't support cssText any more, so we make sure that
     // cssText is a defined property and otherwise fall back to innerHTML.
     /** @suppress {strictMissingProperties} Added to tighten compiler checks */
-    element.cssText = stylesString;
+    untypedElement.cssText = stylesString;
   } else if (goog.global.trustedTypes) {
     goog.dom.setTextContent(/** @type {!Element} */ (element), stylesString);
   } else {
     // Setting textContent doesn't work in Safari, see b/29340337.
     /** @suppress {strictMissingProperties} Added to tighten compiler checks */
-    element.innerHTML = stylesString;
+    untypedElement.innerHTML = stylesString;
   }
 };
 
@@ -1621,14 +1627,14 @@ goog.style.getIePixelValue_ = function (element, value, name, pixelName) {
     return parseInt(value, 10);
   } else {
     var oldStyleValue = /** @type {!HTMLElement} */ (element).style[name];
-    var oldRuntimeValue = /** @type {!HTMLElement} */ (element).runtimeStyle[name];
+    var oldRuntimeValue = /** @type {?} */ (element).runtimeStyle[name];
     // set runtime style to prevent changes
-    /** @type {!HTMLElement} */ (element).runtimeStyle[name] = /** @type {!HTMLElement} */ (element).currentStyle[name];
+    /** @type {?} */ (element).runtimeStyle[name] = /** @type {?} */ (element).currentStyle[name];
     /** @type {!HTMLElement} */ (element).style[name] = value;
     var pixelValue = /** @type {!HTMLElement} */ (element).style[pixelName];
     // restore
     /** @type {!HTMLElement} */ (element).style[name] = oldStyleValue;
-    /** @type {!HTMLElement} */ (element).runtimeStyle[name] = oldRuntimeValue;
+    /** @type {?} */ (element).runtimeStyle[name] = oldRuntimeValue;
     return +pixelValue;
   }
 };
@@ -1912,10 +1918,10 @@ goog.style.getFontSize = function (el) {
     'style': 'visibility:hidden;position:absolute;' + 'line-height:0;padding:0;margin:0;border:0;height:1em;',
   });
   goog.dom.appendChild(el, sizeElement);
-  fontSize = sizeElement.offsetHeight;
+  var sizeElementHeight = sizeElement.offsetHeight;
   goog.dom.removeNode(sizeElement);
 
-  return fontSize;
+  return sizeElementHeight;
 };
 
 /**
@@ -1947,7 +1953,8 @@ goog.style.parseStyleAttribute = function (value) {
  */
 goog.style.toStyleAttribute = function (obj) {
   'use strict';
-  var buffer = [];
+  var /** @type {Array<*>} */
+  buffer = [];
   goog.object.forEach(
     obj,
     /** @param {*} value @param {*} key */ function (value, key) {

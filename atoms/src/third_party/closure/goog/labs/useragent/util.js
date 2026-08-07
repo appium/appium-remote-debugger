@@ -13,7 +13,7 @@
 goog.module('goog.labs.userAgent.util');
 goog.module.declareLegacyNamespace();
 
-var {caseInsensitiveContains, contains} = goog.require('goog.string.internal');
+var {caseInsensitiveContains, contains: stringContains} = goog.require('goog.string.internal');
 var {useClientHints} = goog.require('goog.labs.userAgent');
 
 /**
@@ -129,7 +129,7 @@ function matchUserAgentDataBrand(str) {
   if (!useClientHints()) return false;
   const data = getUserAgentData();
   if (!data) return false;
-  return data.brands.some(({brand}) => brand && contains(brand, str));
+  return data.brands.some(({brand}) => brand && stringContains(brand, str));
 }
 
 /**
@@ -138,7 +138,7 @@ function matchUserAgentDataBrand(str) {
  */
 function matchUserAgent(str) {
   const userAgent = getUserAgent();
-  return contains(userAgent, str);
+  return stringContains(userAgent, str);
 }
 
 /**

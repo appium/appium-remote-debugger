@@ -112,7 +112,8 @@ bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_;
  */
 bot.dom.core.standardizeStyleAttribute_ = function (value) {
   var styleArray = value.split(bot.dom.core.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_);
-  var css = [];
+  var /** @type {Array<*>} */
+  css = [];
   goog.array.forEach(
     styleArray,
     /** @param {*} pair */ function (pair) {

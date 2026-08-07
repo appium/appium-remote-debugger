@@ -47,7 +47,7 @@ exports.ASSUME_NATIVE_FUNCTIONS = ASSUME_NATIVE_FUNCTIONS;
  * @template T
  */
 function peek(array) {
-  return array[array.length - 1];
+  return /** @type {T} */ (array[array.length - 1]);
 }
 exports.peek = peek;
 
@@ -81,12 +81,12 @@ exports.last = peek;
  */
 const indexOf =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.indexOf)
-    ? /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
+    ? /** @param {*} arr @param {*} obj @param {*=} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.indexOf.call(arr, obj, opt_fromIndex);
       }
-    : /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
+    : /** @param {*} arr @param {*} obj @param {*=} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         const fromIndex =
           opt_fromIndex == null ? 0 : opt_fromIndex < 0 ? Math.max(0, arr.length + opt_fromIndex) : opt_fromIndex;
 
@@ -120,7 +120,7 @@ exports.indexOf = indexOf;
  */
 const lastIndexOf =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.lastIndexOf)
-    ? /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
+    ? /** @param {*} arr @param {*} obj @param {*=} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         asserts.assert(arr.length != null);
 
         // Firefox treats undefined and null as 0 in the fromIndex argument which
@@ -128,7 +128,7 @@ const lastIndexOf =
         const fromIndex = opt_fromIndex == null ? arr.length - 1 : opt_fromIndex;
         return Array.prototype.lastIndexOf.call(arr, obj, fromIndex);
       }
-    : /** @param {*} arr @param {*} obj @param {*} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
+    : /** @param {*} arr @param {*} obj @param {*=} opt_fromIndex */ function (arr, obj, opt_fromIndex) {
         let fromIndex = opt_fromIndex == null ? arr.length - 1 : opt_fromIndex;
 
         if (fromIndex < 0) {
@@ -164,12 +164,12 @@ exports.lastIndexOf = lastIndexOf;
  */
 const forEach =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.forEach)
-    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         Array.prototype.forEach.call(arr, f, opt_obj);
       }
-    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
         for (let i = 0; i < l; i++) {
@@ -199,7 +199,7 @@ function forEachRight(arr, f, opt_obj) {
   const arr2 = typeof arr === 'string' ? arr.split('') : arr;
   for (let i = l - 1; i >= 0; --i) {
     if (i in arr2) {
-      f.call(/** @type {?} */ (opt_obj), arr2[i], i, arr);
+      /** @type {!Function} */ (f).call(/** @type {?} */ (opt_obj), arr2[i], i, arr);
     }
   }
 }
@@ -226,12 +226,12 @@ exports.forEachRight = forEachRight;
  */
 const filter =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.filter)
-    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.filter.call(arr, f, opt_obj);
       }
-    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const res = [];
         let resLength = 0;
@@ -266,12 +266,12 @@ exports.filter = filter;
  */
 const map =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.map)
-    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.map.call(arr, f, opt_obj);
       }
-    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const res = new Array(l);
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
@@ -313,14 +313,14 @@ exports.map = map;
  */
 const reduce =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.reduce)
-    ? /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} val @param {*=} opt_obj */ function (arr, f, val, opt_obj) {
         asserts.assert(arr.length != null);
         if (opt_obj) {
           f = utils.bind(f, opt_obj);
         }
         return Array.prototype.reduce.call(arr, f, val);
       }
-    : /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} val @param {*=} opt_obj */ function (arr, f, val, opt_obj) {
         let rval = val;
         forEach(
           arr,
@@ -360,7 +360,7 @@ exports.reduce = reduce;
  */
 const reduceRight =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.reduceRight)
-    ? /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*} val @param {*=} opt_obj */ function (arr, f, val, opt_obj) {
         asserts.assert(arr.length != null);
         asserts.assert(f != null);
         if (opt_obj) {
@@ -368,7 +368,7 @@ const reduceRight =
         }
         return Array.prototype.reduceRight.call(arr, f, val);
       }
-    : /** @param {*} arr @param {*} f @param {*} val @param {*} opt_obj */ function (arr, f, val, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*} val @param {*=} opt_obj */ function (arr, f, val, opt_obj) {
         let rval = val;
         forEachRight(arr, function (val, index) {
           rval = f.call(/** @type {?} */ (opt_obj), rval, val, index, arr);
@@ -396,12 +396,12 @@ exports.reduceRight = reduceRight;
  */
 const some =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.some)
-    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.some.call(arr, f, opt_obj);
       }
-    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
         for (let i = 0; i < l; i++) {
@@ -432,12 +432,12 @@ exports.some = some;
  */
 const every =
   goog.NATIVE_ARRAY_PROTOTYPES && (ASSUME_NATIVE_FUNCTIONS || Array.prototype.every)
-    ? /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    ? /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         asserts.assert(arr.length != null);
 
         return Array.prototype.every.call(arr, f, opt_obj);
       }
-    : /** @param {*} arr @param {*} f @param {*} opt_obj */ function (arr, f, opt_obj) {
+    : /** @param {*} arr @param {*} f @param {*=} opt_obj */ function (arr, f, opt_obj) {
         const l = arr.length; // must be fixed during loop... see docs
         const arr2 = typeof arr === 'string' ? arr.split('') : arr;
         for (let i = 0; i < l; i++) {
@@ -491,7 +491,7 @@ exports.count = count;
  */
 function find(arr, f, opt_obj) {
   const i = findIndex(arr, f, opt_obj);
-  return i < 0 ? null : typeof arr === 'string' ? arr.charAt(i) : arr[i];
+  return i < 0 ? null : /** @type {T} */ (typeof arr === 'string' ? arr.charAt(i) : arr[i]);
 }
 exports.find = find;
 
@@ -513,7 +513,7 @@ function findIndex(arr, f, opt_obj) {
   const l = arr.length; // must be fixed during loop... see docs
   const arr2 = typeof arr === 'string' ? arr.split('') : arr;
   for (let i = 0; i < l; i++) {
-    if (i in arr2 && f.call(/** @type {?} */ (opt_obj), arr2[i], i, arr)) {
+    if (i in arr2 && /** @type {!Function} */ (f).call(/** @type {?} */ (opt_obj), arr2[i], i, arr)) {
       return i;
     }
   }
@@ -537,7 +537,7 @@ exports.findIndex = findIndex;
  */
 function findRight(arr, f, opt_obj) {
   const i = findIndexRight(arr, f, opt_obj);
-  return i < 0 ? null : typeof arr === 'string' ? arr.charAt(i) : arr[i];
+  return i < 0 ? null : /** @type {T} */ (typeof arr === 'string' ? arr.charAt(i) : arr[i]);
 }
 exports.findRight = findRight;
 
@@ -559,7 +559,7 @@ function findIndexRight(arr, f, opt_obj) {
   const l = arr.length; // must be fixed during loop... see docs
   const arr2 = typeof arr === 'string' ? arr.split('') : arr;
   for (let i = l - 1; i >= 0; i--) {
-    if (i in arr2 && f.call(/** @type {?} */ (opt_obj), arr2[i], i, arr)) {
+    if (i in arr2 && /** @type {!Function} */ (f).call(/** @type {?} */ (opt_obj), arr2[i], i, arr)) {
       return i;
     }
   }
@@ -596,12 +596,13 @@ exports.isEmpty = isEmpty;
 function clear(arr) {
   // For non real arrays we don't have the magic length so we delete the
   // indices.
+  const mutableArr = /** @type {!Object<number, *>} */ (arr);
   if (!Array.isArray(arr)) {
     for (let i = arr.length - 1; i >= 0; i--) {
-      delete arr[i];
+      delete mutableArr[i];
     }
   }
-  arr.length = 0;
+  /** @type {?} */ (arr).length = 0;
 }
 exports.clear = clear;
 
@@ -749,7 +750,7 @@ exports.removeIf = removeIf;
 function removeAllIf(arr, f, opt_obj) {
   let removedCount = 0;
   forEachRight(arr, function (val, index) {
-    if (f.call(/** @type {?} */ (opt_obj), val, index, arr)) {
+    if (/** @type {!Function} */ (f).call(/** @type {?} */ (opt_obj), val, index, arr)) {
       if (removeAt(arr, index)) {
         removedCount++;
       }
@@ -776,7 +777,7 @@ exports.removeAllIf = removeAllIf;
  * @return {!Array<?>} The new resultant array.
  */
 function concat(var_args) {
-  return Array.prototype.concat.apply([], arguments);
+  return Array.prototype.concat.apply([], /** @type {!Array<*>} */ (/** @type {?} */ (arguments)));
 }
 exports.concat = concat;
 
@@ -787,7 +788,7 @@ exports.concat = concat;
  * @template T
  */
 function join(var_args) {
-  return Array.prototype.concat.apply([], arguments);
+  return Array.prototype.concat.apply([], /** @type {!Array<*>} */ (/** @type {?} */ (arguments)));
 }
 exports.join = join;
 
@@ -880,7 +881,7 @@ exports.extend = extend;
 function splice(arr, index, howMany, var_args) {
   asserts.assert(arr.length != null);
 
-  return Array.prototype.splice.apply(arr, slice(arguments, 1));
+  return /** @type {?} */ (Array.prototype.splice).apply(arr, slice(arguments, 1));
 }
 exports.splice = splice;
 
@@ -937,7 +938,8 @@ exports.slice = slice;
  * @template T
  */
 function removeDuplicates(arr, opt_rv, opt_hashFn) {
-  const returnArray = opt_rv || arr;
+  const returnArray = /** @type {!Array<*>} */ (opt_rv || arr);
+  /** @param {*} item */
   const defaultHashFn = function (item) {
     // Prefix each type with a single character representing the type to
     // prevent conflicting keys (e.g. true and 'true').
@@ -1017,7 +1019,13 @@ exports.binarySearch = binarySearch;
  * @template THIS, VALUE
  */
 function binarySelect(arr, evaluator, opt_obj) {
-  return binarySearch_(arr, evaluator, true /* isEvaluator */, undefined /* opt_target */, opt_obj);
+  return binarySearch_(
+    arr,
+    evaluator,
+    true /* isEvaluator */,
+    undefined /* opt_target */,
+    /** @type {Object|undefined} */ (opt_obj),
+  );
 }
 exports.binarySelect = binarySelect;
 
@@ -1034,7 +1042,7 @@ exports.binarySelect = binarySelect;
  * Runtime: O(log n)
  *
  * @param {IArrayLike<?>} arr The array to be searched.
- * @param {function(?, ?, ?): number | function(?, ?): number} compareFn
+ * @param {(function(?, ?, ?): number)|(function(?, ?): number)} compareFn
  *     Either an evaluator or a comparison function, as defined by binarySearch
  *     and binarySelect above.
  * @param {boolean} isEvaluator Whether the function is an evaluator or a
@@ -1183,7 +1191,7 @@ function sortObjectsByKey(arr, key, opt_compareFn) {
     function (obj) {
       return /** @type {!Object<string, *>} */ (obj)[key];
     },
-    opt_compareFn,
+    /** @type {?} */ (opt_compareFn),
   );
 }
 exports.sortObjectsByKey = sortObjectsByKey;
@@ -1362,7 +1370,7 @@ exports.binaryRemove = binaryRemove;
  *     etc), or undefined, if that object should not be placed in a bucket.
  * @param {S=} opt_obj The object to be used as the value of 'this' within
  *     sorter.
- * @return {!Object<!Array<T>>} An object, with keys being all of the unique
+ * @return {!Object<string, !Array<T>>} An object, with keys being all of the unique
  *     return values of sorter, and values being arrays containing the items for
  *     which the splitter returned that key.
  * @template T,S
@@ -1381,7 +1389,7 @@ function bucket(array, sorter, opt_obj) {
     }
   }
 
-  return buckets;
+  return /** @type {!Object<string, !Array<T>>} */ (buckets);
 }
 exports.bucket = bucket;
 
@@ -1431,7 +1439,7 @@ exports.bucketToMap = bucketToMap;
  *     implementation-defined.
  * @param {S=} opt_obj The object to be used as the value of 'this'
  *     within keyFunc.
- * @return {!Object<T>} The new object.
+ * @return {!Object<string, T>} The new object.
  * @template T,S
  */
 function toObject(arr, keyFunc, opt_obj) {
@@ -1439,10 +1447,12 @@ function toObject(arr, keyFunc, opt_obj) {
   forEach(
     arr,
     /** @param {*} element @param {*} index */ function (element, index) {
-      /** @type {!Object<string, *>} */ (ret)[keyFunc.call(/** @type {?} */ (opt_obj), element, index, arr)] = element;
+      /** @type {!Object<string, *>} */ (ret)[
+        /** @type {!Function} */ (keyFunc).call(/** @type {?} */ (opt_obj), element, index, arr)
+      ] = element;
     },
   );
-  return ret;
+  return /** @type {!Object<string, T>} */ (ret);
 }
 exports.toObject = toObject;
 
@@ -1464,7 +1474,7 @@ function toMap(arr, keyFunc) {
 
   for (let i = 0; i < arr.length; i++) {
     const element = arr[i];
-    map.set(keyFunc(element, i, arr), element);
+    map.set(/** @type {!Function} */ (keyFunc)(element, i, arr), element);
   }
 
   return map;
@@ -1690,7 +1700,8 @@ exports.shuffle = shuffle;
  * @template T
  */
 function copyByIndex(arr, index_arr) {
-  const result = [];
+  const /** @type {Array<*>} */
+  result = [];
   forEach(
     index_arr,
     /** @param {*} index */ function (index) {

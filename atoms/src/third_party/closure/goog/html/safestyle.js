@@ -17,7 +17,7 @@ var Const = goog.require('goog.string.Const');
 var SafeUrl = goog.require('goog.html.SafeUrl');
 var TypedString = goog.require('goog.string.TypedString');
 var {AssertionError, assert, fail} = goog.require('goog.asserts');
-var {contains, endsWith} = goog.require('goog.string.internal');
+var {contains: stringContains, endsWith} = goog.require('goog.string.internal');
 var utils = goog.require('goog.utils');
 
 /**
@@ -166,7 +166,7 @@ class SafeStyle {
     }
     assert(endsWith(styleString, ';'), `Last character of style string is not ';': ${styleString}`);
     assert(
-      contains(styleString, ':'),
+      stringContains(styleString, ':'),
       "Style string must contain at least one ':', to " + 'specify a "name: value" pair: ' + styleString,
     );
     return SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(styleString);

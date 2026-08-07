@@ -360,8 +360,8 @@ goog.string.numberAwareCompare_ = function (str1, str2, tokenizerRegExp) {
 
   // Using match to split the entire string ahead of time turns out to be faster
   // for most inputs than using RegExp.exec or iterating over each character.
-  const tokens1 = str1.toLowerCase().match(tokenizerRegExp);
-  const tokens2 = str2.toLowerCase().match(tokenizerRegExp);
+  const tokens1 = /** @type {!Array<string>} */ (str1.toLowerCase().match(tokenizerRegExp));
+  const tokens2 = /** @type {!Array<string>} */ (str2.toLowerCase().match(tokenizerRegExp));
 
   const count = Math.min(tokens1.length, tokens2.length);
 
@@ -625,7 +625,7 @@ goog.string.unescapeEntitiesUsingDom_ = function (str, opt_document) {
         ),
       );
       // Then remove the trailing character from the result.
-      value = div.firstChild.nodeValue.slice(0, -1);
+      value = /** @type {string} */ (/** @type {!Node} */ (div.firstChild).nodeValue).slice(0, -1);
     }
     // Cache and return.
     return (seen[s] = value);
@@ -797,8 +797,9 @@ goog.string.truncateMiddle = function (str, chars, opt_protectEscapedCharacters,
 
 /**
  * Special chars that need to be escaped for goog.string.quote.
+ * @private {!Object<string, string>}
  */
-goog.string.specialEscapeChars_ = {
+goog.string.specialEscapeChars_ = /** @type {!Object<string, string>} */ ({
   '\0': '\\0',
   '\b': '\\b',
   '\f': '\\f',
@@ -814,18 +815,15 @@ goog.string.specialEscapeChars_ = {
   // escaped are documented at:
   // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
   '<': '\\u003C', // NOTE: JSON.parse crashes on '\\x3c'.
-};
-/** @private {!Object<string, string>} */
-goog.string.specialEscapeChars_;
+});
 
 /**
  * Character mappings used internally for goog.string.escapeChar.
+ * @private {!Object<string, string>}
  */
-goog.string.jsEscapeCache_ = {
+goog.string.jsEscapeCache_ = /** @type {!Object<string, string>} */ ({
   "'": "\\'",
-};
-/** @private {!Object<string, string>} */
-goog.string.jsEscapeCache_;
+});
 
 /**
  * Encloses a string in double quotes and escapes characters so that the
@@ -1007,7 +1005,7 @@ goog.string.regExpEscape = function (s) {
  * @return {string} A string containing `length` repetitions of
  *     `string`.
  */
-goog.string.repeat = String.prototype.repeat
+goog.string.repeat = /** @type {?} */ (String.prototype).repeat
   ? /** @param {*} string @param {*} length */ function (string, length) {
       'use strict';
       // The native method is over 100 times faster than the alternative.
@@ -1285,7 +1283,7 @@ goog.string.capitalize = function (str) {
 goog.string.parseInt = function (value) {
   'use strict';
   // Force finite numbers to strings.
-  if (isFinite(value)) {
+  if (isFinite(/** @type {number} */ (value))) {
     value = String(value);
   }
 
@@ -1323,7 +1321,7 @@ goog.string.splitLimit = function (str, separator, limit) {
   // Only continue doing this while we haven't hit the limit and we have
   // parts left.
   while (limit > 0 && parts.length) {
-    returnVal.push(parts.shift());
+    returnVal.push(/** @type {string} */ (parts.shift()));
     limit--;
   }
 

@@ -48,7 +48,7 @@ webdriver.atoms.element.isSelected = function (element) {
  * @const
  * @deprecated Use webdriver.atoms.element.attribute.get() instead.
  */
-webdriver.atoms.element.getAttribute = webdriver.atoms.element.attribute.get;
+webdriver.atoms.element.getAttribute = /** @type {?} */ (webdriver.atoms.element).attribute.get;
 
 /**
  * Get the location of the element in page space, if it's displayed.
