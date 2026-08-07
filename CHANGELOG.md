@@ -1,3 +1,9 @@
+## [16.2.1](https://github.com/appium/appium-remote-debugger/compare/v16.2.0...v16.2.1) (2026-08-07)
+
+### Bug Fixes
+
+* Bound the element cache in atoms to prevent memory leaks ([#524](https://github.com/appium/appium-remote-debugger/issues/524)) ([efd9498](https://github.com/appium/appium-remote-debugger/commit/efd949847a8c6f9a8c014378ebb7792af7cd7839))
+
 ## [16.2.0](https://github.com/appium/appium-remote-debugger/compare/v16.1.0...v16.2.0) (2026-08-07)
 
 ### Features
