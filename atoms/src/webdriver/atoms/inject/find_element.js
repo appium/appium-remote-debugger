@@ -31,7 +31,7 @@ goog.require('webdriver.atoms.inject');
  * Finds an element by using the given lookup strategy.
  * @param {string} strategy The strategy to use to locate the element.
  * @param {string} using The locator to use.
- * @param {?{ELEMENT: string}=} opt_root The WebElement reference for the
+ * @param {?{ELEMENT: string, 'element-6066-11e4-a52e-4f735466cecf': (string|undefined)}=} opt_root The WebElement reference for the
  *     element to perform the search under. If not specified, will use
  *     `document` for the target page.
  * @param {{WINDOW: string}=} opt_window The serialized window object for the
@@ -53,7 +53,7 @@ webdriver.atoms.inject.locators.findElement = function (strategy, using, opt_roo
  * Finds all elements by using the given lookup strategy.
  * @param {string} strategy The strategy to use to locate the element.
  * @param {string} using The locator to use.
- * @param {?{ELEMENT: string}=} opt_root The WebElement reference for the
+ * @param {?{ELEMENT: string, 'element-6066-11e4-a52e-4f735466cecf': (string|undefined)}=} opt_root The WebElement reference for the
  *     element to perform the search under. If not specified, will use
  *     `document` for the target page.
  * @param {{WINDOW: string}=} opt_window The serialized window object for the
@@ -78,7 +78,7 @@ webdriver.atoms.inject.locators.findElements = function (strategy, using, opt_ro
  * @param {(function(!Object, (Document|Element)=): Element|
  *          function(!Object, (Document|Element)=): !IArrayLike)}
  *     searchFn The search function to invoke.
- * @param {?{ELEMENT: string}=} opt_root The WebElement reference for the
+ * @param {?{ELEMENT: string, 'element-6066-11e4-a52e-4f735466cecf': (string|undefined)}=} opt_root The WebElement reference for the
  *     element to perform the search under. If not specified, will use
  *     `document` for the target page.
  * @param {{WINDOW: string}=} opt_window The serialized window object for the
@@ -99,9 +99,7 @@ webdriver.atoms.inject.locators.performSearch_ = function (strategy, target, sea
     // Step 2: decode the root of our search.
     var root;
     if (opt_root) {
-      root = /** @type {!Element} */ (
-        bot.inject.cache.getElement(opt_root[bot.inject.ELEMENT_KEY], targetWindow.document)
-      );
+      root = /** @type {!Element} */ (bot.inject.unwrapValue(opt_root, targetWindow.document));
     } else {
       root = targetWindow.document;
     }

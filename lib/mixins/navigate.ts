@@ -237,11 +237,19 @@ export async function navToUrl(this: RemoteDebugger, url: string): Promise<void>
 
     // Page.navigate was removed from the WebKit Inspector protocol since iOS 26.4
     // See https://github.com/appium/appium/issues/21976
-    void rpcClient.send('Runtime.evaluate', {
-      expression: `window.location.href = ${JSON.stringify(url)};`,
-      appIdKey,
-      pageIdKey,
-    });
+    // Fire-and-forget: readiness is tracked separately via the Page.loadEventFired listener
+    // and the timeout above, so a rejection here (e.g. the RPC connection dropping mid-navigation,
+    // which happens routinely around window/tab switches) must not go unhandled - that would
+    // crash the whole process instead of just failing this one navigation.
+    rpcClient
+      .send('Runtime.evaluate', {
+        expression: `window.location.href = ${JSON.stringify(url)};`,
+        appIdKey,
+        pageIdKey,
+      })
+      .catch((err: any) => {
+        this.log.warn(`Failed to set 'window.location.href' to '${url}': ${err.message}`);
+      });
   });
   const cancellationPromise = (async () => {
     try {

@@ -1,4 +1,4 @@
-import {errorFromMJSONWPStatusCode} from '@appium/base-driver';
+import {errorFromW3CJsonCode, errors} from '@appium/base-driver';
 import {util} from '@appium/support';
 
 export const RESPONSE_LOG_LENGTH = 100;
@@ -65,14 +65,19 @@ export function convertJavascriptEvaluationResult(res: any): any {
     throw new Error(`Result has unexpected type: (${typeof res}).`);
   }
 
-  if (Object.hasOwn(res, 'status') && res.status !== 0) {
-    // we got some form of error.
-    throw errorFromMJSONWPStatusCode(res.status, res.value.message || res.value);
+  if (util.isPlainObject(res) && Object.hasOwn(res, 'status') && res.status !== 0) {
+    // we got some form of error. `value.error` is the W3C WebDriver error string (e.g. 'no
+    // such element') that the atoms wrap alongside the legacy numeric status.
+    const value = res.value;
+    const valueIsObject = util.isPlainObject(value);
+    const w3cError = valueIsObject && typeof value.error === 'string' ? value.error : errors.UnknownError.error();
+    const message = valueIsObject && typeof value.message === 'string' ? value.message : String(value);
+    throw errorFromW3CJsonCode(w3cError, message);
   }
 
   // with either have an object with a `value` property (even if `null`),
   // or a plain object
-  const value = Object.hasOwn(res, 'value') ? res.value : res;
+  const value = util.isPlainObject(res) && Object.hasOwn(res, 'value') ? res.value : res;
   return removeNoisyProperties(value);
 }
 

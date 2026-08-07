@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import {describe, it, beforeEach, afterEach} from 'node:test';
 
+import {errors} from '@appium/base-driver';
+import {util} from '@appium/support';
 import {JSDOM} from 'jsdom';
 
 import {getAtom, getScriptForAtom} from '../../lib/atoms.js';
 import {convertJavascriptEvaluationResult} from '../../lib/utils/javascript.js';
+
+const W3C_ELEMENT_KEY = util.W3C_WEB_ELEMENT_IDENTIFIER;
 
 const FIXTURE_HTML = `<!doctype html><html><body>
   <div id="somediv">This is in #somediv</div>
@@ -59,8 +63,17 @@ async function runAtom(window: JSDOM['window'], atom: string, args: any[] = [], 
   return window.eval(script);
 }
 
+// `bot.inject.executeScript`/`executeAsyncScript` only JSON-stringify their `{status, value}`
+// envelope when explicitly asked to (`opt_stringify`); the real Runtime.evaluate wire always
+// crosses a JSON round-trip regardless, landing back in this process's own realm. A raw
+// `window.eval()` result stays in jsdom's realm, so round-trip it here to match production.
+function crossRealmToLocal(value: unknown): any {
+  return JSON.parse(JSON.stringify(value));
+}
+
 // Atoms under the `webdriver.atoms.inject.*` namespace return a JSON string encoding
-// `{status, value}` (Selenium's wire-protocol response shape); this mirrors how
+// `{status, value}` (Selenium's wire-protocol response shape, now with a W3C error string
+// alongside the legacy status code on failure); this mirrors how
 // `executeAtom`/`convertJavascriptEvaluationResult` unwrap a real Runtime.evaluate result.
 async function runInjectAtom(
   window: JSDOM['window'],
@@ -99,6 +112,8 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
     it('find_element_fragment finds an element by css selector', async function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#somediv']);
       assert.strictEqual(typeof el.ELEMENT, 'string');
+      // The W3C web element identifier must be present alongside the legacy key, with the same value.
+      assert.strictEqual(el[W3C_ELEMENT_KEY], el.ELEMENT);
     });
 
     it('find_element_fragment returns null when nothing matches', async function () {
@@ -113,6 +128,37 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
     it('find_element (fragment) locates the same node as a native DOM lookup', async function () {
       const found = await runFragmentAtom(window, 'find_element', [`{id: 'somediv'}`]);
       assert.strictEqual(found, window.document.getElementById('somediv'));
+    });
+
+    it('find_element_fragment accepts a root element referenced by either ELEMENT or the W3C key', async function () {
+      const root = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#theform']);
+      const viaLegacyKey = await runInjectAtom(window, 'find_element_fragment', [
+        'css selector',
+        '#submitbtn',
+        {ELEMENT: root.ELEMENT},
+      ]);
+      const viaW3cKey = await runInjectAtom(window, 'find_element_fragment', [
+        'css selector',
+        '#submitbtn',
+        {[W3C_ELEMENT_KEY]: root[W3C_ELEMENT_KEY]},
+      ]);
+      assert.strictEqual(typeof viaLegacyKey.ELEMENT, 'string');
+      assert.strictEqual(viaW3cKey.ELEMENT, viaLegacyKey.ELEMENT);
+    });
+  });
+
+  describe('errors', function () {
+    it('a failed atom throws the Appium error class matching its W3C error string', async function () {
+      await assert.rejects(
+        runInjectAtom(window, 'find_element_fragment', ['css selector', '#somediv', {ELEMENT: 'bogus-cache-key'}]),
+        errors.StaleElementReferenceError,
+      );
+    });
+
+    it('a successful result shaped like an error (a plain `error` property) is not mistaken for a failure', async function () {
+      const raw = await runAtom(window, 'execute_script', ['return {error: "not a real WebDriver error"};', []]);
+      const result = convertJavascriptEvaluationResult(crossRealmToLocal(raw));
+      assert.deepStrictEqual(result, {error: 'not a real WebDriver error'});
     });
   });
 
@@ -206,7 +252,9 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
     });
 
     it('active_element and default_content return well-formed handles', async function () {
-      assert.strictEqual(typeof (await runInjectAtom(window, 'active_element')).ELEMENT, 'string');
+      const active = await runInjectAtom(window, 'active_element');
+      assert.strictEqual(typeof active.ELEMENT, 'string');
+      assert.strictEqual(active[W3C_ELEMENT_KEY], active.ELEMENT);
       assert.strictEqual(typeof (await runInjectAtom(window, 'default_content')).WINDOW, 'string');
     });
   });
@@ -254,7 +302,7 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
   describe('script execution', function () {
     it('execute_script runs arbitrary JS and returns the result', async function () {
       const raw = await runAtom(window, 'execute_script', ['return 1 + 1;', []]);
-      assert.strictEqual(convertJavascriptEvaluationResult(raw), 2);
+      assert.strictEqual(convertJavascriptEvaluationResult(crossRealmToLocal(raw)), 2);
     });
 
     it('execute_async_script invokes the provided callback with the result', async function () {
@@ -267,7 +315,7 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
         asyncCallback,
       );
       window.eval(script);
-      assert.strictEqual(convertJavascriptEvaluationResult((window as any)[promiseName]), 123);
+      assert.strictEqual(convertJavascriptEvaluationResult(crossRealmToLocal((window as any)[promiseName])), 123);
     });
   });
 
