@@ -33,3 +33,16 @@ Full details are documented in **[docs/update-atoms.md](./docs/update-atoms.md)*
 npm test
 npm run e2e-test
 ```
+
+## Optional: CodeGraph for local code navigation
+
+If you want a local semantic index for this repository, you can install [CodeGraph](https://github.com/colbymchenry/codegraph) locally and initialize it in the repo:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/v1.5.0/install.sh | sh
+cd "<project folder>"
+codegraph install
+codegraph init
+```
+
+CodeGraph builds a local knowledge graph of symbols and call paths so AI coding agents, like Cursor or Claude, can answer questions and navigate the codebase faster with fewer file reads and reduced token consumption.
