@@ -1,9 +1,0 @@
-commit eb427221db8a7d0fb2724efcd5c7b6a756517d54 (grafted, HEAD -> refs/heads/trunk, refs/remotes/origin/trunk)
-Author: Selenium CI Bot <diemol+selenium-ci@gmail.com>
-Date:   Fri Apr 17 03:02:43 2026 +0200
-
-    [dotnet][rb][java][js][py] Automated Browser Version Update (#17356)
-    
-    Update pinned browser versions
-    
-    Co-authored-by: Selenium CI Bot <selenium-ci@users.noreply.github.com>

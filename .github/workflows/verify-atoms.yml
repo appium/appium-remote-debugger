@@ -1,0 +1,86 @@
+name: Verify Atoms
+
+on:
+  push:
+    paths:
+    - 'atoms/**'
+    - 'scripts/build-atoms.mjs'
+    - 'package.json'
+  pull_request:
+    paths:
+    - 'atoms/**'
+    - 'scripts/build-atoms.mjs'
+    - 'package.json'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-atoms:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: Use Node.js LTS
+      uses: actions/setup-node@v7
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm install
+    - name: Rebuild atoms from atoms/src and check for drift
+      run: |
+        npm run build:atoms
+        if ! git diff --exit-code -- atoms; then
+          echo "::error::'atoms/' does not match what 'npm run build:atoms' produces from 'atoms/src/'. Run it locally and commit the result."
+          exit 1
+        fi
+
+  e2e:
+    strategy:
+      matrix:
+        include:
+        - xcode: '26.4'
+          ios: '26.4'
+          device: 'iPhone 17'
+          os: macos-26
+        - os: macos-15
+          xcode: '16.4'
+          ios: '18.5'
+          device: 'iPhone 16'
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    env:
+      PLATFORM_VERSION: ${{ matrix.ios }}
+      XCODE_VERSION: ${{ matrix.xcode }}
+      DEVICE_NAME: ${{ matrix.device }}
+      _LOG_TIMESTAMP: 1
+      _FORCE_LOGS: 1
+      CI: true
+    steps:
+    - uses: actions/checkout@v7
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ matrix.xcode }}
+    - run: xcrun simctl list
+    - uses: actions/setup-node@v7
+      with:
+        node-version: lts/*
+        check-latest: true
+    - name: Start iOS Simulator UI
+      run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
+    - name: Boot iOS Simulator
+      id: prepareSimulator
+      uses: futureware-tech/simulator-action@v5
+      with:
+        model: "${{ matrix.device }}"
+        os_version: "${{ matrix.ios }}"
+        shutdown_after_job: false
+        wait_for_boot: true
+    - run: npm install
+    - name: Atoms E2E Tests
+      uses: nick-fields/retry@v4
+      with:
+        timeout_minutes: 40
+        max_attempts: 2
+        command: npm run e2e-test:atoms

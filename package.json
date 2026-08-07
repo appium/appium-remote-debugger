@@ -23,6 +23,7 @@
     "build/lib",
     "scripts",
     "atoms",
+    "!atoms/src/**",
     "CHANGELOG.md"
   ],
   "type": "module",
@@ -46,12 +47,11 @@
     "format:check": "oxfmt -c oxfmt.config.mjs --check .",
     "prepare": "npm run build",
     "test": "node --test --enable-source-maps --test-force-exit --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
-    "e2e-test": "node --test --enable-source-maps --test-force-exit --test-concurrency=1 --test-timeout=3600000 \"./build/test/functional/**/*.spec.js\"",
+    "e2e-test": "node --test --enable-source-maps --test-force-exit --test-concurrency=1 --test-timeout=3600000 \"./build/test/functional/safari-e2e.spec.js\"",
+    "e2e-test:atoms": "node --test --enable-source-maps --test-force-exit --test-concurrency=1 --test-timeout=3600000 \"./build/test/functional/atoms-e2e.spec.js\"",
     "inspect-safari": "node scripts/web_inspector_proxy.mjs",
     "get-web-inspector-socket": "node scripts/get-web-inspector-socket.mjs",
-    "build:atoms": "npm run build:selenium && npm run build:atoms:import",
-    "build:atoms:import": "node scripts/build-atoms.mjs",
-    "build:selenium": "node scripts/build-selenium.mjs"
+    "build:atoms": "node scripts/build-atoms.mjs"
   },
   "dependencies": {
     "@appium/base-driver": "^10.0.0-rc.1",
@@ -68,10 +68,13 @@
     "@appium/types": "^1.0.0-rc.1",
     "@types/async-lock": "^1.4.2",
     "@types/finalhandler": "^1.2.4",
+    "@types/jsdom": "^28.0.3",
     "@types/node": "^26.0.0",
     "@types/serve-static": "^2.2.0",
     "@types/sinon": "^22.0.0",
     "appium-ios-simulator": "^9.0.0",
+    "google-closure-compiler": "^20260802.0.0",
+    "jsdom": "^30.0.1",
     "node-simctl": "^9.0.0",
     "serve-static": "^2.2.0",
     "sinon": "^22.0.0"

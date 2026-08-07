@@ -22,7 +22,7 @@ code at [github.com/WebKit/WebKit](https://github.com/WebKit/WebKit).
 - **Mixins** (`lib/mixins/`): Connect, execute, navigate, cookies, screenshot, events, message-handlers, misc, property-accessors.
 - **Events**: `RemoteDebugger.EVENT_PAGE_CHANGE`, `RemoteDebugger.EVENT_DISCONNECT`, `RemoteDebugger.EVENT_FRAMES_DETACHED` (see README for usage).
 - **Tests**: `npm test` (unit), `npm run e2e-test` (functional). Lint: `npm run lint` / `npm run lint:fix`.
-- **Atoms**: Selenium atoms live in `atoms/` and are built with `npm run build:atoms`. See README and `atoms-notes.md` for Selenium branch, bazel/bazelisk, and Appium-specific patches.
+- **Atoms**: Selenium atoms live in `atoms/`, compiled from the vendored source in `atoms/src/` via `npm run build:atoms`. See [`docs/update-atoms.md`](docs/update-atoms.md).
 
 ### Inspecting the communication (socat)
 
