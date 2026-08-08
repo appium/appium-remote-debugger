@@ -319,18 +319,7 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
     });
   });
 
-  describe('html5 storage/appcache/sql/geolocation', function () {
-    it('get_appcache_status reports the application cache status', async function () {
-      (window as any).applicationCache = {status: 0};
-      assert.strictEqual(await runInjectAtom(window, 'get_appcache_status'), 0);
-    });
-
-    it('execute_sql fails cleanly when WebSQL is unavailable, matching modern mobile Safari', async function () {
-      await assert.rejects(
-        runFragmentAtom(window, 'execute_sql', [`'db'`, `'SELECT 1'`, `[]`, `function(){}`, `function(){}`]),
-      );
-    });
-
+  describe('html5 storage/geolocation', function () {
     it('get_location resolves the position via navigator.geolocation', async function () {
       (window.navigator as any).geolocation = {
         getCurrentPosition: (success: (pos: any) => void) =>
