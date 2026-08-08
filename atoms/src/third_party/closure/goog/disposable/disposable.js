@@ -228,7 +228,9 @@ goog.Disposable.prototype.addOnDisposeCallback = function (callback, opt_scope) 
   }
 
   this.onDisposeCallbacks_.push(
-    opt_scope !== undefined ? /** @type {!Function} */ (/** @type {?} */ (goog.utils.bind)(callback, opt_scope)) : callback,
+    opt_scope !== undefined
+      ? /** @type {!Function} */ (/** @type {?} */ (goog.utils.bind)(callback, opt_scope))
+      : callback,
   );
 };
 

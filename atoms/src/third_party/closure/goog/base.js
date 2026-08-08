@@ -50,9 +50,9 @@ goog.global = /** @type {!Global} */ (
   // Note that base.js can't usefully be imported as an ES module, but it may
   // be compiled into bundles that are loadable as ES modules.
   this ||
-    // https://developer.mozilla.org/en-US/docs/Web/API/Window/self
-    // For in-page browser environments and workers.
-    self
+  // https://developer.mozilla.org/en-US/docs/Web/API/Window/self
+  // For in-page browser environments and workers.
+  self
 );
 
 /**
@@ -121,7 +121,7 @@ goog.exportPath_ = function (name, object, overwriteImplicit, objectToExportTo) 
   // Internet Explorer exhibits strange behavior when throwing errors from
   // methods externed in this manner.  See the testExportSymbolExceptions in
   // base_test.html for an example.
-  if (!(parts[0] in cur) && typeof /** @type {?} */ (cur).execScript != 'undefined') {
+  if (!(parts[0] in cur) && typeof (/** @type {?} */ (cur).execScript) != 'undefined') {
     /** @type {?} */ (cur).execScript('var ' + parts[0]);
   }
 
@@ -498,7 +498,8 @@ goog.ModuleType = {
  *   type: ?goog.ModuleType
  * }}
  */
-goog.moduleLoaderState_ = /** @type {?{moduleName: (string|undefined), declareLegacyNamespace: boolean, type: ?goog.ModuleType}} */ (null);
+goog.moduleLoaderState_ =
+  /** @type {?{moduleName: (string|undefined), declareLegacyNamespace: boolean, type: ?goog.ModuleType}} */ (null);
 
 /**
  * @return {boolean} Whether a goog.module or an es6 module is currently being
@@ -904,7 +905,8 @@ goog.addSingletonGetter = function (ctor) {
       goog.instantiatedSingletons_[goog.instantiatedSingletons_.length] = ctor;
     }
     // Cast to avoid conformance violations that ctor.instance_ is unknown
-    return (/** @type {!Object|undefined} */ (/** @type {*} */ (ctor).instance_) = new (/** @type {function(new:Object)} */ (ctor))());
+    return (/** @type {!Object|undefined} */ (/** @type {*} */ (ctor).instance_) =
+      new /** @type {function(new:Object)} */ (ctor)());
   };
 };
 
@@ -2282,8 +2284,7 @@ if (!COMPILED && goog.DEPENDENCIES_ENABLED) {
     } else {
       var loader = this;
 
-      var /** @type {Array<*>} */
-      deps = [];
+      var /** @type {Array<*>} */ deps = [];
 
       /** @param {string} namespace */
       var visit = function (namespace) {
@@ -2810,8 +2811,7 @@ if (!COMPILED && goog.DEPENDENCIES_ENABLED) {
 
     var nonce = goog.getScriptNonce_();
     if (!goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING && goog.isDocumentLoading_()) {
-      var /** @type {*} */
-      key;
+      var /** @type {*} */ key;
       var callback = /** @param {?} script */ function (script) {
         if (script.readyState && script.readyState != 'complete') {
           script.onload = callback;
@@ -3093,8 +3093,7 @@ if (!COMPILED && goog.DEPENDENCIES_ENABLED) {
         controller.setModuleState(goog.ModuleType.ES6);
       }
 
-      var /** @type {*} */
-      namespace;
+      var /** @type {*} */ namespace;
 
       try {
         var contents = dep.contents_;

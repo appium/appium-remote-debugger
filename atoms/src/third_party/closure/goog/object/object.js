@@ -463,7 +463,7 @@ function unsafeClone(obj) {
         typeof ArrayBuffer.isView === 'function' &&
         ArrayBuffer.isView(obj) &&
         !(obj instanceof DataView)
-      ? new (/** @type {?} */ (obj).constructor)(/** @type {?} */ (obj).length)
+      ? new /** @type {?} */ (obj).constructor(/** @type {?} */ (obj).length)
       : {};
   for (const key in obj) {
     clone[key] = unsafeClone(obj[key]);

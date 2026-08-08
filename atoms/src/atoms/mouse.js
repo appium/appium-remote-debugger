@@ -389,7 +389,7 @@ bot.Mouse = class extends bot.Device {
    * @private
    */
   getButtonValue_(eventType) {
-    if (!(/** @type {string} */ (/** @type {?} */ (eventType)) in bot.Mouse.MOUSE_BUTTON_VALUE_MAP_)) {
+    if (!((/** @type {string} */ (/** @type {?} */ (eventType)) in bot.Mouse.MOUSE_BUTTON_VALUE_MAP_))) {
       return 0;
     }
 

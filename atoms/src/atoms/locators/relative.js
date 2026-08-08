@@ -205,11 +205,10 @@ bot.locators.relative.straightRightOf_;
  * @return {!Filter} A function that determines whether the selector is near the given element.
  */
 bot.locators.relative.near_ = function (selector, opt_distance) {
-  var /** @type {*} */
-  distance;
+  var /** @type {*} */ distance;
   if (opt_distance) {
     distance = opt_distance;
-  } else if (typeof (/** @type {?} */ (selector))['distance'] === 'number') {
+  } else if (typeof /** @type {?} */ (selector)['distance'] === 'number') {
     distance = /** @type {number} */ (/** @type {?} */ (selector)['distance']);
     // delete selector['distance'];
   }
@@ -296,17 +295,18 @@ bot.locators.relative.STRATEGIES_;
  * @type {!Object<string, function((!Element|function():!Element|!Object)):!Element>}
  * @const
  */
-bot.locators.relative.RESOLVERS_ = /** @type {!Object<string, function((!Element|function():!Element|!Object)):!Element>} */ ({
-  'above': bot.locators.relative.resolve_,
-  'below': bot.locators.relative.resolve_,
-  'left': bot.locators.relative.resolve_,
-  'near': bot.locators.relative.resolve_,
-  'right': bot.locators.relative.resolve_,
-  'straightAbove': bot.locators.relative.resolve_,
-  'straightBelow': bot.locators.relative.resolve_,
-  'straightLeft': bot.locators.relative.resolve_,
-  'straightRight': bot.locators.relative.resolve_,
-});
+bot.locators.relative.RESOLVERS_ =
+  /** @type {!Object<string, function((!Element|function():!Element|!Object)):!Element>} */ ({
+    'above': bot.locators.relative.resolve_,
+    'below': bot.locators.relative.resolve_,
+    'left': bot.locators.relative.resolve_,
+    'near': bot.locators.relative.resolve_,
+    'right': bot.locators.relative.resolve_,
+    'straightAbove': bot.locators.relative.resolve_,
+    'straightBelow': bot.locators.relative.resolve_,
+    'straightLeft': bot.locators.relative.resolve_,
+    'straightRight': bot.locators.relative.resolve_,
+  });
 
 /**
  * @param {!IArrayLike<!Element>} allElements
@@ -314,8 +314,7 @@ bot.locators.relative.RESOLVERS_ = /** @type {!Object<string, function((!Element
  * @return {!Array<!Element>}
  */
 bot.locators.relative.filterElements_ = function (allElements, filters) {
-  var /** @type {Array<*>} */
-  toReturn = [];
+  var /** @type {Array<*>} */ toReturn = [];
   goog.array.forEach(
     allElements,
     /** @param {*} element */ function (element) {

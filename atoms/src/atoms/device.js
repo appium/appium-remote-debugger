@@ -217,18 +217,20 @@ bot.Device.prototype.fireTouchEvent;
  * @return {boolean} Whether the event fired successfully or was cancelled.
  */
 bot.Device.prototype.fireTouchEvent = function (type, id, coord, opt_id2, opt_coord2) {
-  var args = /** @type {!bot.events.TouchArgs} */ (/** @type {?} */ ({
-    touches: [],
-    targetTouches: [],
-    changedTouches: [],
-    altKey: this.modifiersState.isAltPressed(),
-    ctrlKey: this.modifiersState.isControlPressed(),
-    shiftKey: this.modifiersState.isShiftPressed(),
-    metaKey: this.modifiersState.isMetaPressed(),
-    relatedTarget: null,
-    scale: 0,
-    rotation: 0,
-  }));
+  var args = /** @type {!bot.events.TouchArgs} */ (
+    /** @type {?} */ ({
+      touches: [],
+      targetTouches: [],
+      changedTouches: [],
+      altKey: this.modifiersState.isAltPressed(),
+      ctrlKey: this.modifiersState.isControlPressed(),
+      shiftKey: this.modifiersState.isShiftPressed(),
+      metaKey: this.modifiersState.isMetaPressed(),
+      relatedTarget: null,
+      scale: 0,
+      rotation: 0,
+    })
+  );
   var pageOffset = goog.dom.getDomHelper(this.element_).getDocumentScroll();
 
   /** @param {*} identifier @param {*} coords */ function addTouch(identifier, coords) {

@@ -276,7 +276,9 @@ goog.structs.map = function (col, f, opt_obj) {
     return untypedCol.map(f, opt_obj);
   }
   if (goog.utils.isArrayLike(col) || typeof col === 'string') {
-    return /** @type {!Array<V>} */ (Array.prototype.map.call(/** @type {!Array<?>} */ (col), /** @type {?} */ (f), opt_obj));
+    return /** @type {!Array<V>} */ (
+      Array.prototype.map.call(/** @type {!Array<?>} */ (col), /** @type {?} */ (f), opt_obj)
+    );
   }
 
   var rv;

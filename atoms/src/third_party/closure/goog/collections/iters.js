@@ -216,8 +216,7 @@ exports.concat = function (...iterables) {
  * @template VALUE
  */
 exports.toArray = function (iterator) {
-  const /** @type {Array<*>} */
-  arr = [];
+  const /** @type {Array<*>} */ arr = [];
   forEach(iterator, (e) => arr.push(e));
   return arr;
 };

@@ -429,9 +429,9 @@ goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessO
   const noinlineUrl = url;
   const policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse();
   const value = policy ? policy.createScriptURL(noinlineUrl) : noinlineUrl;
-  return new (/** @type {function(new:goog.html.TrustedResourceUrl, ...?)} */ (
+  return new /** @type {function(new:goog.html.TrustedResourceUrl, ...?)} */ (
     /** @type {?} */ (goog.html.TrustedResourceUrl)
-  ))(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
+  )(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
 };
 
 /**

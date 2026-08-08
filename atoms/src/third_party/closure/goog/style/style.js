@@ -521,7 +521,7 @@ goog.style.getVisibleRectForElement = function (element) {
 
   // Determine the size of the visible rect by climbing the dom accounting for
   // all scrollable containers.
-  for (var /** @type {?Element} */ el = element; (el = goog.style.getOffsetParent(/** @type {!Element} */ (el))); ) {
+  for (var /** @type {?Element} */ el = element; (el = goog.style.getOffsetParent(/** @type {!Element} */ (el)));) {
     // clientWidth is zero for inline block elements in IE.
     // on WEBKIT, body element can have clientHeight = 0 and scrollHeight > 0
     if (
@@ -1953,8 +1953,7 @@ goog.style.parseStyleAttribute = function (value) {
  */
 goog.style.toStyleAttribute = function (obj) {
   'use strict';
-  var /** @type {Array<*>} */
-  buffer = [];
+  var /** @type {Array<*>} */ buffer = [];
   goog.object.forEach(
     obj,
     /** @param {*} value @param {*} key */ function (value, key) {

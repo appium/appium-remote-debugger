@@ -247,7 +247,7 @@ goog.iter.range = function (startOrStop, opt_stop, opt_step) {
   let step = opt_step || 1;
   if (arguments.length > 1) {
     start = startOrStop;
-    stop = +/** @type {number} */ (opt_stop);
+    stop = +(/** @type {number} */ (opt_stop));
   }
   if (step == 0) {
     throw new Error('Range step argument must not be zero');
@@ -432,8 +432,7 @@ goog.iter.chainFromIterable = function (iterable) {
   'use strict';
   const iteratorOfIterators = goog.iter.toIterator(iterable);
   const iter = /** @type {!goog.iter.Iterator<VALUE>} */ (new goog.iter.Iterator());
-  let /** @type {*} */
-  current = null;
+  let /** @type {*} */ current = null;
 
   /**
    * @return {!IIterableResult<VALUE>}
@@ -554,8 +553,7 @@ goog.iter.toArray = function (iterable) {
     return goog.array.toArray(/** @type {!IArrayLike<?>} */ (iterable));
   }
   iterable = goog.iter.toIterator(iterable);
-  const /** @type {Array<*>} */
-  array = [];
+  const /** @type {Array<*>} */ array = [];
   goog.iter.forEach(iterable, function (val) {
     'use strict';
     array.push(val);
@@ -703,8 +701,7 @@ goog.iter.cycle = function (iterable) {
   // We maintain a cache to store the iterable elements as we iterate
   // over them. The cache is used to return elements once we have
   // iterated over the iterable once.
-  const /** @type {Array<*>} */
-  cache = [];
+  const /** @type {Array<*>} */ cache = [];
   let cacheIndex = 0;
 
   const iter = /** @type {!goog.iter.Iterator<VALUE>} */ (new goog.iter.Iterator());
@@ -1320,8 +1317,7 @@ goog.iter.slice = function (iterable, start, opt_end) {
 // TODO(user): Consider moving this into goog.array as a public function.
 goog.iter.hasDuplicates_ = function (arr) {
   'use strict';
-  const /** @type {Array<*>} */
-  deduped = [];
+  const /** @type {Array<*>} */ deduped = [];
   goog.array.removeDuplicates(arr, deduped);
   return /** @type {!IArrayLike<VALUE>} */ (arr).length != deduped.length;
 };

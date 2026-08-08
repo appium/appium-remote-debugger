@@ -248,18 +248,20 @@ bot.inject.unwrapValue = function (value, opt_doc) {
 bot.inject.recompileFunction_ = function (fn, theWindow) {
   if (typeof fn === 'string') {
     try {
-      return new (/** @type {?} */ (theWindow))['Function'](fn);
+      return new /** @type {?} */ (theWindow)['Function'](fn);
     } catch (ex) {
       // Try to recover if in IE5-quirks mode
       // Need to initialize the script engine on the passed-in window
       if (goog.userAgent.IE && theWindow.execScript) {
         theWindow.execScript(';');
-        return new (/** @type {?} */ (theWindow))['Function'](fn);
+        return new /** @type {?} */ (theWindow)['Function'](fn);
       }
       throw ex;
     }
   }
-  return theWindow == window ? fn : new (/** @type {?} */ (theWindow))['Function']('return (' + fn + ').apply(null,arguments);');
+  return theWindow == window
+    ? fn
+    : new /** @type {?} */ (theWindow)['Function']('return (' + fn + ').apply(null,arguments);');
 };
 /** @private */
 bot.inject.recompileFunction_;
@@ -352,8 +354,7 @@ bot.inject.executeScript = function (fn, args, opt_stringify, opt_window) {
  */
 bot.inject.executeAsyncScript = function (fn, args, timeout, onDone, opt_stringify, opt_window) {
   var win = opt_window || window;
-  var /** @type {*} */
-  timeoutId;
+  var /** @type {*} */ timeoutId;
   var responseSent = false;
 
   /** @param {*} status @param {*} value */ function sendResponse(status, value) {

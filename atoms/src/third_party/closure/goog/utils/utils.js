@@ -212,7 +212,7 @@ goog.utils.addSingletonGetter = function (ctor) {
     if (/** @type {*} */ (ctor).instance_) {
       return /** @type {*} */ (ctor).instance_;
     }
-    return (/** @type {*} */ (ctor).instance_ = new (/** @type {function(new:Object)} */ (ctor))());
+    return (/** @type {*} */ (ctor).instance_ = new /** @type {function(new:Object)} */ (ctor)());
   };
 };
 

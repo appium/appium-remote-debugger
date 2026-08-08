@@ -579,8 +579,7 @@ class SafeHtml {
    */
   static join(separator, parts) {
     const separatorHtml = SafeHtml.htmlEscape(separator);
-    const /** @type {Array<*>} */
-    content = [];
+    const /** @type {Array<*>} */ content = [];
 
     /**
      * @param {!SafeHtml.TextOrHtml_|
@@ -929,7 +928,7 @@ SafeHtml.DOCTYPE_HTML = /** @type {!SafeHtml} */ (
  * A SafeHtml instance corresponding to the empty string.
  * @const {!SafeHtml}
  */
-SafeHtml.EMPTY = new (/** @type {function(new:SafeHtml, ...?)} */ (/** @type {?} */ (SafeHtml)))(
+SafeHtml.EMPTY = new /** @type {function(new:SafeHtml, ...?)} */ (/** @type {?} */ (SafeHtml))(
   (goog.global.trustedTypes && goog.global.trustedTypes.emptyHTML) || '',
   CONSTRUCTOR_TOKEN_PRIVATE,
 );

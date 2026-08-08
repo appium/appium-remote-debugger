@@ -1879,8 +1879,7 @@ goog.dom.getOuterHtml = function (element) {
  */
 goog.dom.findNode = function (root, p) {
   'use strict';
-  var /** @type {Array<*>} */
-  rv = [];
+  var /** @type {Array<*>} */ rv = [];
   var found = goog.dom.findNodes_(root, p, rv, true);
   return found ? rv[0] : undefined;
 };
@@ -1900,8 +1899,7 @@ goog.dom.findNode = function (root, p) {
  */
 goog.dom.findNodes = function (root, p) {
   'use strict';
-  var /** @type {Array<*>} */
-  rv = [];
+  var /** @type {Array<*>} */ rv = [];
   goog.dom.findNodes_(root, p, rv, false);
   return rv;
 };
@@ -2173,8 +2171,7 @@ goog.dom.hasNonZeroBoundingRect_;
 goog.dom.getTextContent = function (node) {
   'use strict';
   var textContent;
-  var /** @type {Array<*>} */
-  buf = [];
+  var /** @type {Array<*>} */ buf = [];
   goog.dom.getTextContent_(node, buf, true);
   textContent = buf.join('');
 
@@ -2202,8 +2199,7 @@ goog.dom.getTextContent = function (node) {
  */
 goog.dom.getRawTextContent = function (node) {
   'use strict';
-  var /** @type {Array<*>} */
-  buf = [];
+  var /** @type {Array<*>} */ buf = [];
   goog.dom.getTextContent_(node, buf, false);
 
   return buf.join('');

@@ -894,12 +894,11 @@ bot.dom.maybeFindImageMap_ = function (elem) {
   }
 
   // Get the <map> associated with this element, or null if none.
-  var map =
-    isMap
-      ? elem
-      : bot.dom.isElement(/** @type {!Node} */ (elem.parentNode), goog.dom.TagName.MAP)
-        ? elem.parentNode
-        : null;
+  var map = isMap
+    ? elem
+    : bot.dom.isElement(/** @type {!Node} */ (elem.parentNode), goog.dom.TagName.MAP)
+      ? elem.parentNode
+      : null;
 
   var image = null,
     rect = null;
@@ -1028,8 +1027,7 @@ bot.dom.concatenateCleanedLines_;
  * @return {string} visible text.
  */
 bot.dom.getVisibleText = function (elem) {
-  var /** @type {Array<*>} */
-  lines = [];
+  var /** @type {Array<*>} */ lines = [];
 
   if (bot.dom.IS_SHADOW_DOM_ENABLED) {
     bot.dom.appendVisibleTextLinesFromElementInComposedDom_(elem, lines);
@@ -1090,7 +1088,7 @@ bot.dom.appendVisibleTextLinesFromElementCommon_ = function (elem, lines, isShow
     // effective "white-space" and "text-transform" styles to properly
     // compute their contribution to visible text. Compute these values once.
     var /** @type {*} */
-    whitespace = null,
+      whitespace = null,
       /** @type {*} */
       textTransform = null;
     if (shown) {

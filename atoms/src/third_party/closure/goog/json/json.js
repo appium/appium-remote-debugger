@@ -190,8 +190,7 @@ goog.json.Serializer = function (opt_replacer) {
  */
 goog.json.Serializer.prototype.serialize = function (object) {
   'use strict';
-  const /** @type {Array<*>} */
-  sb = [];
+  const /** @type {Array<*>} */ sb = [];
   this.serializeInternal(object, sb);
   return sb.join('');
 };

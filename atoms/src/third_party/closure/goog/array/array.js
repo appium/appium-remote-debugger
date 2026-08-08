@@ -1700,8 +1700,7 @@ exports.shuffle = shuffle;
  * @template T
  */
 function copyByIndex(arr, index_arr) {
-  const /** @type {Array<*>} */
-  result = [];
+  const /** @type {Array<*>} */ result = [];
   forEach(
     index_arr,
     /** @param {*} index */ function (index) {

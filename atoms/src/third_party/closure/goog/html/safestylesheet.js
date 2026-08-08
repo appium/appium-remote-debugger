@@ -209,7 +209,10 @@ class SafeStyleSheet {
     }
     // > is a valid character in CSS selectors and there's no strict need to
     // block it if we already block <.
-    assert(!stringContains(styleSheetString, '<'), `Forbidden '<' character in style sheet string: ${styleSheetString}`);
+    assert(
+      !stringContains(styleSheetString, '<'),
+      `Forbidden '<' character in style sheet string: ${styleSheetString}`,
+    );
     return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
   }
 
