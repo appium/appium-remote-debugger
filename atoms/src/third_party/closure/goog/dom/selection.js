@@ -176,8 +176,8 @@ goog.dom.selection.getEndPoints_ = function (textfield, getOnlyStart) {
   var startPos = 0;
   var endPos = 0;
   if (goog.dom.selection.useSelectionProperties_(textfield)) {
-    startPos = /** @type {!HTMLElement} */ (textfield).selectionStart;
-    endPos = getOnlyStart ? -1 : /** @type {!HTMLElement} */ (textfield).selectionEnd;
+    startPos = /** @type {number} */ (/** @type {!HTMLElement} */ (textfield).selectionStart);
+    endPos = getOnlyStart ? -1 : /** @type {number} */ (/** @type {!HTMLElement} */ (textfield).selectionEnd);
   }
   return [startPos, endPos];
 };
@@ -235,9 +235,9 @@ goog.dom.selection.setText = function (textfield, text) {
   textfield = /** @type {!HTMLInputElement|!HTMLTextAreaElement} */ (textfield);
   if (goog.dom.selection.useSelectionProperties_(textfield)) {
     var value = /** @type {!HTMLElement} */ (textfield).value;
-    var oldSelectionStart = /** @type {!HTMLElement} */ (textfield).selectionStart;
+    var oldSelectionStart = /** @type {number} */ (/** @type {!HTMLElement} */ (textfield).selectionStart);
     var before = value.slice(0, oldSelectionStart);
-    var after = value.slice(/** @type {!HTMLElement} */ (textfield).selectionEnd);
+    var after = value.slice(/** @type {number} */ (/** @type {!HTMLElement} */ (textfield).selectionEnd));
     /** @type {!HTMLElement} */ (textfield).value = before + text + after;
     /** @type {!HTMLElement} */ (textfield).selectionStart = oldSelectionStart;
     /** @type {!HTMLElement} */ (textfield).selectionEnd = oldSelectionStart + text.length;
@@ -257,8 +257,8 @@ goog.dom.selection.getText = function (textfield) {
   if (goog.dom.selection.useSelectionProperties_(textfield)) {
     var s = /** @type {!HTMLElement} */ (textfield).value;
     return s.substring(
-      /** @type {!HTMLElement} */ (textfield).selectionStart,
-      /** @type {!HTMLElement} */ (textfield).selectionEnd,
+      /** @type {number} */ (/** @type {!HTMLElement} */ (textfield).selectionStart),
+      /** @type {number} */ (/** @type {!HTMLElement} */ (textfield).selectionEnd),
     );
   }
 
@@ -327,15 +327,15 @@ goog.dom.selection.getRangeIe_ = function (el) {
   'use strict';
   var doc = el.ownerDocument || /** @type {!HTMLElement} */ (el).document;
 
-  var selectionRange = doc.selection.createRange();
+  var selectionRange = /** @type {!TextRange} */ (doc.selection).createRange();
   // el.createTextRange() doesn't work on textareas
   var range;
 
   if (/** @type {?} */ (el).type == goog.dom.InputType.TEXTAREA) {
-    range = doc.body.createTextRange();
+    range = /** @type {?} */ (doc.body).createTextRange();
     range.moveToElementText(el);
   } else {
-    range = /** @type {!HTMLElement} */ (el).createTextRange();
+    range = /** @type {?} */ (el).createTextRange();
   }
 
   return [range, selectionRange];

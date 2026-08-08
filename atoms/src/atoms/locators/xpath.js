@@ -70,7 +70,7 @@ bot.locators.XPathResult_;
 bot.locators.xpath.DEFAULT_RESOLVER_ = (function () {
   var namespaces = {svg: 'http://www.w3.org/2000/svg'};
   return /** @param {*} prefix */ function (prefix) {
-    return namespaces[prefix] || null;
+    return /** @type {!Object<string, string>} */ (namespaces)[prefix] || null;
   };
 })();
 /** @private */
@@ -137,7 +137,7 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
       try {
         return doc.evaluate(path, node, resolver, resultType, null);
       } catch (te) {
-        if (te.name === 'TypeError') {
+        if (/** @type {!Error} */ (te).name === 'TypeError') {
           // fallback to simplified implementation
           resolver = doc.createNSResolver
             ? doc.createNSResolver(doc.documentElement)
@@ -152,12 +152,13 @@ bot.locators.xpath.evaluate_ = function (node, path, resultType) {
     // The Firefox XPath evaluator can throw an exception if the document is
     // queried while it's in the midst of reloading, so we ignore it. In all
     // other cases, we assume an invalid xpath has caused the exception.
-    if (!(goog.userAgent.GECKO && ex.name == 'NS_ERROR_ILLEGAL_VALUE')) {
+    if (!(goog.userAgent.GECKO && /** @type {!Error} */ (ex).name == 'NS_ERROR_ILLEGAL_VALUE')) {
       throw new bot.Error(
         bot.ErrorCode.INVALID_SELECTOR_ERROR,
         'Unable to locate an element with the xpath expression ' + path + ' because of the following error:\n' + ex,
       );
     }
+    return null;
   }
 };
 /** @private */
@@ -193,12 +194,12 @@ bot.locators.xpath.single = function (target, root) {
     if (result) {
       var node = result.singleNodeValue;
       return node || null;
-    } else if (root.selectSingleNode) {
-      var doc = goog.dom.getOwnerDocument(root);
+    } else if (/** @type {?} */ (root).selectSingleNode) {
+      var doc = /** @type {?} */ (goog.dom.getOwnerDocument(root));
       if (doc.setProperty) {
         doc.setProperty('SelectionLanguage', 'XPath');
       }
-      return root.selectSingleNode(target);
+      return /** @type {?} */ (root).selectSingleNode(target);
     }
     return null;
   }
@@ -227,12 +228,12 @@ bot.locators.xpath.many = function (target, root) {
         results.push(result.snapshotItem(i));
       }
       return results;
-    } else if (root.selectNodes) {
-      var doc = goog.dom.getOwnerDocument(root);
+    } else if (/** @type {?} */ (root).selectNodes) {
+      var doc = /** @type {?} */ (goog.dom.getOwnerDocument(root));
       if (doc.setProperty) {
         doc.setProperty('SelectionLanguage', 'XPath');
       }
-      return root.selectNodes(target);
+      return /** @type {?} */ (root).selectNodes(target);
     }
     return [];
   }
