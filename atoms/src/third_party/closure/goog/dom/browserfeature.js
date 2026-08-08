@@ -29,17 +29,18 @@ goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS = goog.define('goog.dom.ASSUME_O
  * Detects if a particular OffscreenCanvas context is supported.
  * @param {string} contextName name of the context to test.
  * @return {boolean} Whether the browser supports this OffscreenCanvas context.
- * @private
  */
 goog.dom.BrowserFeature.detectOffscreenCanvas_ = function (contextName) {
   'use strict';
   // This code only gets removed because we forced @nosideeffects on
   // the functions. See: b/138802376
   try {
-    return Boolean(new self.OffscreenCanvas(0, 0).getContext(contextName));
+    return Boolean(new self.OffscreenCanvas(0, 0).getContext(/** @type {?} */ (contextName)));
   } catch (ex) {}
   return false;
 };
+/** @private */
+goog.dom.BrowserFeature.detectOffscreenCanvas_;
 
 /**
  * Whether the browser supports OffscreenCanvas 2D context.

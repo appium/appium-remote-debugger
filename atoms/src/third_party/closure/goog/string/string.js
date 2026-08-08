@@ -345,7 +345,6 @@ goog.string.caseInsensitiveCompare = goog.string.internal.caseInsensitiveCompare
  *     numbers starting with a decimal point.
  * @return {number} Negative if str1 < str2, 0 is str1 == str2, positive if
  *     str1 > str2.
- * @private
  */
 goog.string.numberAwareCompare_ = function (str1, str2, tokenizerRegExp) {
   'use strict';
@@ -361,8 +360,8 @@ goog.string.numberAwareCompare_ = function (str1, str2, tokenizerRegExp) {
 
   // Using match to split the entire string ahead of time turns out to be faster
   // for most inputs than using RegExp.exec or iterating over each character.
-  const tokens1 = str1.toLowerCase().match(tokenizerRegExp);
-  const tokens2 = str2.toLowerCase().match(tokenizerRegExp);
+  const tokens1 = /** @type {!Array<string>} */ (str1.toLowerCase().match(tokenizerRegExp));
+  const tokens2 = /** @type {!Array<string>} */ (str2.toLowerCase().match(tokenizerRegExp));
 
   const count = Math.min(tokens1.length, tokens2.length);
 
@@ -395,6 +394,8 @@ goog.string.numberAwareCompare_ = function (str1, str2, tokenizerRegExp) {
   // comparison to stabilize the sort.
   return str1 < str2 ? -1 : 1;
 };
+/** @private */
+goog.string.numberAwareCompare_;
 
 /**
  * String comparison function that handles non-negative integer numbers in a
@@ -531,9 +532,10 @@ goog.string.htmlEscape = function (str, opt_isLikelyToContainHtmlChars) {
 /**
  * Regular expression that matches a lowercase letter "e", for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.E_RE_ = /e/g;
+/** @private */
+goog.string.E_RE_;
 
 /**
  * Unescapes an HTML string.
@@ -574,7 +576,6 @@ goog.string.unescapeEntitiesWithDocument = function (str, document) {
 /**
  * Unescapes an HTML string using a DOM to resolve non-XML, non-numeric
  * entities. This function is XSS-safe and whitespace-preserving.
- * @private
  * @param {string} str The string to unescape.
  * @param {Document=} opt_document An optional document to use for creating
  *     elements. If this is not specified then the default window.document
@@ -624,16 +625,17 @@ goog.string.unescapeEntitiesUsingDom_ = function (str, opt_document) {
         ),
       );
       // Then remove the trailing character from the result.
-      value = div.firstChild.nodeValue.slice(0, -1);
+      value = /** @type {string} */ (/** @type {!Node} */ (div.firstChild).nodeValue).slice(0, -1);
     }
     // Cache and return.
     return (seen[s] = value);
   });
 };
+/** @private */
+goog.string.unescapeEntitiesUsingDom_;
 
 /**
  * Unescapes XML entities.
- * @private
  * @param {string} str The string to unescape.
  * @return {string} An unescaped copy of `str`.
  */
@@ -663,14 +665,17 @@ goog.string.unescapePureXmlEntities_ = function (str) {
     }
   });
 };
+/** @private */
+goog.string.unescapePureXmlEntities_;
 
 /**
  * Regular expression that matches an HTML entity.
  * See also HTML5: Tokenization / Tokenizing character references.
- * @private
  * @type {!RegExp}
  */
 goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
+/** @private */
+goog.string.HTML_ENTITY_PATTERN_;
 
 /**
  * Do escaping of whitespace to preserve spatial formatting. We use character
@@ -794,7 +799,7 @@ goog.string.truncateMiddle = function (str, chars, opt_protectEscapedCharacters,
  * Special chars that need to be escaped for goog.string.quote.
  * @private {!Object<string, string>}
  */
-goog.string.specialEscapeChars_ = {
+goog.string.specialEscapeChars_ = /** @type {!Object<string, string>} */ ({
   '\0': '\\0',
   '\b': '\\b',
   '\f': '\\f',
@@ -810,15 +815,15 @@ goog.string.specialEscapeChars_ = {
   // escaped are documented at:
   // https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
   '<': '\\u003C', // NOTE: JSON.parse crashes on '\\x3c'.
-};
+});
 
 /**
  * Character mappings used internally for goog.string.escapeChar.
  * @private {!Object<string, string>}
  */
-goog.string.jsEscapeCache_ = {
+goog.string.jsEscapeCache_ = /** @type {!Object<string, string>} */ ({
   "'": "\\'",
-};
+});
 
 /**
  * Encloses a string in double quotes and escapes characters so that the
@@ -1000,13 +1005,13 @@ goog.string.regExpEscape = function (s) {
  * @return {string} A string containing `length` repetitions of
  *     `string`.
  */
-goog.string.repeat = String.prototype.repeat
-  ? function (string, length) {
+goog.string.repeat = /** @type {?} */ (String.prototype).repeat
+  ? /** @param {*} string @param {*} length */ function (string, length) {
       'use strict';
       // The native method is over 100 times faster than the alternative.
       return string.repeat(length);
     }
-  : function (string, length) {
+  : /** @param {*} string @param {*} length */ function (string, length) {
       'use strict';
       return new Array(length + 1).join(string);
     };
@@ -1102,9 +1107,10 @@ goog.string.hashCode = function (str) {
 /**
  * The most recent unique ID. |0 is equivalent to Math.floor in this case.
  * @type {number}
- * @private
  */
 goog.string.uniqueStringCounter_ = (Math.random() * 0x80000000) | 0;
+/** @private */
+goog.string.uniqueStringCounter_;
 
 /**
  * Generates and returns a string which is unique in the current document.
@@ -1277,7 +1283,7 @@ goog.string.capitalize = function (str) {
 goog.string.parseInt = function (value) {
   'use strict';
   // Force finite numbers to strings.
-  if (isFinite(value)) {
+  if (isFinite(/** @type {number} */ (value))) {
     value = String(value);
   }
 
@@ -1315,7 +1321,7 @@ goog.string.splitLimit = function (str, separator, limit) {
   // Only continue doing this while we haven't hit the limit and we have
   // parts left.
   while (limit > 0 && parts.length) {
-    returnVal.push(parts.shift());
+    returnVal.push(/** @type {string} */ (parts.shift()));
     limit--;
   }
 

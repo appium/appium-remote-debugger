@@ -131,10 +131,11 @@ goog.math.Box.prototype.contains = function (other) {
 goog.math.Box.prototype.expand = function (top, opt_right, opt_bottom, opt_left) {
   'use strict';
   if (goog.utils.isObject(top)) {
-    this.top -= top.top;
-    this.right += top.right;
-    this.bottom += top.bottom;
-    this.left -= top.left;
+    var topBox = /** @type {!goog.math.Box} */ (top);
+    this.top -= topBox.top;
+    this.right += topBox.right;
+    this.bottom += topBox.bottom;
+    this.left -= topBox.left;
   } else {
     this.top -= /** @type {number} */ (top);
     this.right += Number(opt_right);

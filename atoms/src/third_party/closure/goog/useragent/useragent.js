@@ -6,10 +6,10 @@
 
 /**
  * @fileoverview Rendering engine detection.
- * @see <a href="http://www.useragentstring.com/">User agent strings</a>
+ * (see: <a href="http://www.useragentstring.com/">User agent strings</a>
  * For information on the browser brand (such as Safari versus Chrome), see
  * goog.userAgent.product.
- * @see ../demos/useragent.html
+ * (see: ../demos/useragent.html
  */
 
 goog.provide('goog.userAgent');
@@ -64,7 +64,6 @@ goog.userAgent.ASSUME_ANY_VERSION = goog.define('goog.userAgent.ASSUME_ANY_VERSI
 /**
  * Whether we know the browser engine at compile-time.
  * @type {boolean}
- * @private
  */
 goog.userAgent.BROWSER_KNOWN_ =
   goog.userAgent.ASSUME_IE ||
@@ -73,6 +72,8 @@ goog.userAgent.BROWSER_KNOWN_ =
   goog.userAgent.ASSUME_MOBILE_WEBKIT ||
   goog.userAgent.ASSUME_WEBKIT ||
   goog.userAgent.ASSUME_OPERA;
+/** @private */
+goog.userAgent.BROWSER_KNOWN_;
 
 /**
  * Returns the userAgent string for the current browser.
@@ -156,12 +157,13 @@ goog.userAgent.WEBKIT = goog.userAgent.BROWSER_KNOWN_
  * TODO(nnaze): Investigate swapping in goog.labs.userAgent.device.isMobile().
  *
  * @return {boolean} Whether the user agent is running on a mobile device.
- * @private
  */
 goog.userAgent.isMobile_ = function () {
   'use strict';
   return goog.userAgent.WEBKIT && goog.labs.userAgent.util.matchUserAgent('Mobile');
 };
+/** @private */
+goog.userAgent.isMobile_;
 
 /**
  * Whether the user agent is running on a mobile device.
@@ -185,13 +187,14 @@ goog.userAgent.SAFARI = goog.userAgent.WEBKIT;
  * @return {string} the platform (operating system) the user agent is running
  *     on. Default to empty string because navigator.platform may not be defined
  *     (on Rhino, for example).
- * @private
  */
 goog.userAgent.determinePlatform_ = function () {
   'use strict';
   var navigator = goog.userAgent.getNavigatorTyped();
   return (navigator && navigator.platform) || '';
 };
+/** @private */
+goog.userAgent.determinePlatform_;
 
 /**
  * The platform (operating system) the user agent is running on. Default to
@@ -252,7 +255,6 @@ goog.userAgent.ASSUME_KAIOS = goog.define('goog.userAgent.ASSUME_KAIOS', false);
 
 /**
  * @type {boolean}
- * @private
  */
 goog.userAgent.PLATFORM_KNOWN_ =
   goog.userAgent.ASSUME_MAC ||
@@ -263,6 +265,8 @@ goog.userAgent.PLATFORM_KNOWN_ =
   goog.userAgent.ASSUME_IPHONE ||
   goog.userAgent.ASSUME_IPAD ||
   goog.userAgent.ASSUME_IPOD;
+/** @private */
+goog.userAgent.PLATFORM_KNOWN_;
 
 /**
  * Whether the user agent is running on a Macintosh operating system.
@@ -285,12 +289,13 @@ goog.userAgent.WINDOWS = goog.userAgent.PLATFORM_KNOWN_
  * goog.userAgent.LINUX, which considered ChromeOS to also be
  * Linux.
  * @return {boolean}
- * @private
  */
 goog.userAgent.isLegacyLinux_ = function () {
   'use strict';
   return goog.labs.userAgent.platform.isLinux() || goog.labs.userAgent.platform.isChromeOS();
 };
+/** @private */
+goog.userAgent.isLegacyLinux_;
 
 /**
  * Whether the user agent is running on a Linux operating system.
@@ -305,13 +310,14 @@ goog.userAgent.LINUX = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_LI
 
 /**
  * @return {boolean} Whether the user agent is an X11 windowing system.
- * @private
  */
 goog.userAgent.isX11_ = function () {
   'use strict';
   var navigator = goog.userAgent.getNavigatorTyped();
   return !!navigator && goog.string.internal.contains(navigator['appVersion'] || '', 'X11');
 };
+/** @private */
+goog.userAgent.isX11_;
 
 /**
  * Whether the user agent is running on a X11 windowing system.
@@ -370,7 +376,6 @@ goog.userAgent.KAIOS = goog.userAgent.PLATFORM_KNOWN_
 /**
  * @return {string} The string that describes the version number of the user
  *     agent.
- * @private
  */
 goog.userAgent.determineVersion_ = function () {
   'use strict';
@@ -398,6 +403,8 @@ goog.userAgent.determineVersion_ = function () {
 
   return version;
 };
+/** @private */
+goog.userAgent.determineVersion_;
 
 /**
  * @return {?IArrayLike<string>|undefined} The version regex matches from
@@ -405,7 +412,6 @@ goog.userAgent.determineVersion_ = function () {
  *     agent string. These regex statements must be executed inline so they can
  *     be compiled out by the closure compiler with the rest of the useragent
  *     detection logic when ASSUME_* is specified.
- * @private
  */
 goog.userAgent.getVersionRegexResult_ = function () {
   'use strict';
@@ -430,10 +436,11 @@ goog.userAgent.getVersionRegexResult_ = function () {
   }
   return undefined;
 };
+/** @private */
+goog.userAgent.getVersionRegexResult_;
 
 /**
  * @return {number|undefined} Returns the document mode (for testing).
- * @private
  */
 goog.userAgent.getDocumentMode_ = function () {
   'use strict';
@@ -441,6 +448,8 @@ goog.userAgent.getDocumentMode_ = function () {
   var doc = goog.global['document'];
   return doc ? doc['documentMode'] : undefined;
 };
+/** @private */
+goog.userAgent.getDocumentMode_;
 
 /**
  * The version of the user agent. This is a string because it might contain
@@ -470,9 +479,10 @@ goog.userAgent.compare = function (v1, v2) {
  * Calls to compareVersions are surprisingly expensive and, as a browser's
  * version number is unlikely to change during a session, we cache the results.
  * @const
- * @private
  */
 goog.userAgent.isVersionOrHigherCache_ = {};
+/** @private */
+goog.userAgent.isVersionOrHigherCache_;
 
 /**
  * Whether the user agent version is higher or the same as the given version.
@@ -480,9 +490,9 @@ goog.userAgent.isVersionOrHigherCache_ = {};
  * use the engine's version, not the browser's version number.  For example,
  * Firefox 3.0 corresponds to Gecko 1.9 and Safari 3.0 to Webkit 522.11.
  * Opera and Internet Explorer versions match the product release number.<br>
- * @see <a href="http://en.wikipedia.org/wiki/Safari_version_history">
+ * (see: <a href="http://en.wikipedia.org/wiki/Safari_version_history">
  *     Webkit</a>
- * @see <a href="http://en.wikipedia.org/wiki/Gecko_engine">Gecko</a>
+ * (see: <a href="http://en.wikipedia.org/wiki/Gecko_engine">Gecko</a>
  *
  * @param {string|number} version The version to check.
  * @return {boolean} Whether the user agent version is higher or the same as

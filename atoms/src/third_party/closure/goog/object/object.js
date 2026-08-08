@@ -10,7 +10,7 @@
 goog.module('goog.object');
 goog.module.declareLegacyNamespace();
 
-const utils = goog.require('goog.utils');
+var utils = goog.require('goog.utils');
 
 /**
  * Calls a function for each element in an object/map/hash.
@@ -46,7 +46,7 @@ function filter(obj, f, opt_obj) {
   const res = {};
   for (const key in obj) {
     if (f.call(/** @type {?} */ (opt_obj), obj[key], key, obj)) {
-      res[key] = obj[key];
+      /** @type {!Object<string, *>} */ (res)[key] = obj[key];
     }
   }
   return res;
@@ -67,7 +67,7 @@ function filter(obj, f, opt_obj) {
 function map(obj, f, opt_obj) {
   const res = {};
   for (const key in obj) {
-    res[key] = f.call(/** @type {?} */ (opt_obj), obj[key], key, obj);
+    /** @type {!Object<string, *>} */ (res)[key] = f.call(/** @type {?} */ (opt_obj), obj[key], key, obj);
   }
   return res;
 }
@@ -107,7 +107,7 @@ function some(obj, f, opt_obj) {
  */
 function every(obj, f, opt_obj) {
   for (const key in obj) {
-    if (!f.call(/** @type {?} */ (opt_obj), obj[key], key, obj)) {
+    if (!(/** @type {!Function} */ (f).call(/** @type {?} */ (opt_obj), obj[key], key, obj))) {
       return false;
     }
   }
@@ -214,7 +214,7 @@ function getValueByKeys(obj, var_args) {
   // Start with the 2nd parameter for the variable parameters syntax.
   for (let i = isArrayLike ? 0 : 1; i < keys.length; i++) {
     if (obj == null) return undefined;
-    obj = obj[keys[i]];
+    obj = /** @type {!Object<string, *>} */ (obj)[keys[i]];
   }
 
   return obj;
@@ -303,7 +303,7 @@ function isEmpty(obj) {
  */
 function clear(obj) {
   for (const i in obj) {
-    delete obj[i];
+    delete (/** @type {!Object<string, *>} */ (obj)[i]);
   }
 }
 
@@ -316,7 +316,7 @@ function clear(obj) {
 function remove(obj, key) {
   let rv;
   if ((rv = key in /** @type {!Object} */ (obj))) {
-    delete obj[key];
+    delete (/** @type {!Object<string, *>} */ (obj)[key]);
   }
   return rv;
 }
@@ -430,7 +430,7 @@ function equals(a, b) {
 function clone(obj) {
   const res = {};
   for (const key in obj) {
-    res[key] = obj[key];
+    /** @type {!Object<string, *>} */ (res)[key] = obj[key];
   }
   return res;
 }
@@ -449,13 +449,13 @@ function clone(obj) {
  */
 function unsafeClone(obj) {
   if (!obj || typeof obj !== 'object') return obj;
-  if (typeof obj.clone === 'function') return obj.clone();
+  if (typeof (/** @type {?} */ (obj).clone) === 'function') return /** @type {?} */ (obj).clone();
   if (typeof Map !== 'undefined' && obj instanceof Map) {
-    return new Map(obj);
+    return /** @type {T} */ (/** @type {?} */ (new Map(obj)));
   } else if (typeof Set !== 'undefined' && obj instanceof Set) {
-    return new Set(obj);
+    return /** @type {T} */ (/** @type {?} */ (new Set(obj)));
   } else if (obj instanceof Date) {
-    return new Date(obj.getTime());
+    return /** @type {T} */ (/** @type {?} */ (new Date(obj.getTime())));
   }
   const clone = Array.isArray(obj)
     ? []
@@ -463,7 +463,7 @@ function unsafeClone(obj) {
         typeof ArrayBuffer.isView === 'function' &&
         ArrayBuffer.isView(obj) &&
         !(obj instanceof DataView)
-      ? new obj.constructor(obj.length)
+      ? new /** @type {?} */ (obj).constructor(/** @type {?} */ (obj).length)
       : {};
   for (const key in obj) {
     clone[key] = unsafeClone(obj[key]);
@@ -481,7 +481,7 @@ function unsafeClone(obj) {
 function transpose(obj) {
   const transposed = {};
   for (const key in obj) {
-    transposed[obj[key]] = key;
+    /** @type {!Object<string, *>} */ (transposed)[/** @type {!Object<string, *>} */ (obj)[key]] = key;
   }
   return transposed;
 }
@@ -522,7 +522,7 @@ function extend(target, var_args) {
   for (let i = 1; i < arguments.length; i++) {
     source = arguments[i];
     for (key in source) {
-      target[key] = source[key];
+      /** @type {!Object<string, *>} */ (target)[key] = source[key];
     }
 
     // For IE the for-in-loop does not contain any properties that are not
@@ -534,7 +534,7 @@ function extend(target, var_args) {
     for (let j = 0; j < PROTOTYPE_FIELDS.length; j++) {
       key = PROTOTYPE_FIELDS[j];
       if (Object.prototype.hasOwnProperty.call(source, key)) {
-        target[key] = source[key];
+        /** @type {!Object<string, *>} */ (target)[key] = source[key];
       }
     }
   }
@@ -561,7 +561,7 @@ function create(var_args) {
 
   const rv = {};
   for (let i = 0; i < argLength; i += 2) {
-    rv[arguments[i]] = arguments[i + 1];
+    /** @type {!Object<string, *>} */ (rv)[arguments[i]] = arguments[i + 1];
   }
   return rv;
 }
@@ -582,7 +582,7 @@ function createSet(var_args) {
 
   const rv = {};
   for (let i = 0; i < argLength; i++) {
-    rv[arguments[i]] = true;
+    /** @type {!Object<string, *>} */ (rv)[arguments[i]] = true;
   }
   return rv;
 }
@@ -649,7 +649,7 @@ function getAllPropertyNames(obj, includeObjectPrototype = undefined, includeFun
   ) {
     const names = Object.getOwnPropertyNames(proto);
     for (let i = 0; i < names.length; i++) {
-      visitedSet[names[i]] = true;
+      /** @type {!Object<string, *>} */ (visitedSet)[names[i]] = true;
     }
     proto = Object.getPrototypeOf(proto);
   }

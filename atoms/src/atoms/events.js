@@ -51,7 +51,6 @@ bot.events.SUPPORTS_TOUCH_EVENTS = !(goog.userAgent.IE && !bot.userAgent.isEngin
 
 /**
  * Whether the browser supports a native touch api.
- * @private {boolean}
  * @const
  */
 bot.events.BROKEN_TOUCH_API_ = (function () {
@@ -61,6 +60,8 @@ bot.events.BROKEN_TOUCH_API_ = (function () {
   }
   return !bot.userAgent.IOS;
 })();
+/** @private {boolean} */
+bot.events.BROKEN_TOUCH_API_;
 
 /**
  * Whether the browser supports the construction of MSPointer events.
@@ -68,7 +69,7 @@ bot.events.BROKEN_TOUCH_API_ = (function () {
  * @const
  * @type {boolean}
  */
-bot.events.SUPPORTS_MSPOINTER_EVENTS = goog.userAgent.IE && bot.getWindow().navigator.msPointerEnabled;
+bot.events.SUPPORTS_MSPOINTER_EVENTS = !!(goog.userAgent.IE && bot.getWindow().navigator.msPointerEnabled);
 
 /**
  * Arguments to initialize an event.
@@ -88,7 +89,7 @@ bot.events.EventArgs;
  *            ctrlKey: boolean,
  *            shiftKey: boolean,
  *            metaKey: boolean,
- *            relatedTarget: Element,
+ *            relatedTarget: ?Element,
  *            wheelDelta: number}}
  */
 bot.events.MouseArgs;
@@ -116,9 +117,11 @@ bot.events.KeyboardArgs;
  *            ctrlKey: boolean,
  *            shiftKey: boolean,
  *            metaKey: boolean,
- *            relatedTarget: Element,
+ *            relatedTarget: ?Element,
  *            scale: number,
- *            rotation: number}}
+ *            rotation: number,
+ *            clientX: number,
+ *            clientY: number}}
  */
 bot.events.TouchArgs;
 
@@ -147,7 +150,7 @@ bot.events.Touch;
  *            velocityY: number,
  *            velocityExpansion: number,
  *            velocityAngular: number,
- *            relatedTarget: Element}}
+ *            relatedTarget: ?Element}}
  */
 bot.events.MSGestureArgs;
 
@@ -161,7 +164,7 @@ bot.events.MSGestureArgs;
  *            ctrlKey: boolean,
  *            shiftKey: boolean,
  *            metaKey: boolean,
- *            relatedTarget: Element,
+ *            relatedTarget: ?Element,
  *            width: number,
  *            height: number,
  *            pressure: number,
@@ -177,394 +180,364 @@ bot.events.MSPointerArgs;
 /**
  * Factory for event objects of a specific type.
  *
- * @constructor
- * @param {string} type Type of the created events.
- * @param {boolean} bubbles Whether the created events bubble.
- * @param {boolean} cancelable Whether the created events are cancelable.
- * @private
  */
-bot.events.EventFactory_ = function (type, bubbles, cancelable) {
-  /** @private {string} */
-  this.type_ = type;
+bot.events.EventFactory_ = class {
+  /**
+   * @param {string} type Type of the created events.
+   * @param {boolean} bubbles Whether the created events bubble.
+   * @param {boolean} cancelable Whether the created events are cancelable.
+   */
+  constructor(type, bubbles, cancelable) {
+    // Protected, not private: read by every EventFactory_ subclass's create() method.
+    /** @protected {string} */
+    this.type_ = type;
 
-  /** @private {boolean} */
-  this.bubbles_ = bubbles;
+    /** @protected {boolean} */
+    this.bubbles_ = bubbles;
 
-  /** @private {boolean} */
-  this.cancelable_ = cancelable;
-};
+    /** @protected {boolean} */
+    this.cancelable_ = cancelable;
+  }
 
-/**
- * Creates an event.
- *
- * @param {!Element|!Window} target Target element of the event.
- * @param {bot.events.EventArgs=} opt_args Event arguments.
- * @return {!Event} Newly created event.
- */
-bot.events.EventFactory_.prototype.create = function (target, opt_args) {
-  var doc = goog.dom.getOwnerDocument(target);
+  /**
+   * Creates an event.
+   *
+   * @param {!Element|!Window} target Target element of the event.
+   * @param {bot.events.EventArgs=} opt_args Event arguments.
+   * @return {!Event} Newly created event.
+   */
+  create(target, opt_args) {
+    var doc = goog.dom.getOwnerDocument(target);
 
-  var event = doc.createEvent('HTMLEvents');
-  event.initEvent(this.type_, this.bubbles_, this.cancelable_);
+    var event = doc.createEvent('HTMLEvents');
+    event.initEvent(this.type_, this.bubbles_, this.cancelable_);
 
-  return event;
-};
+    return event;
+  }
 
-/**
- * Overriding toString to return the unique type string improves debugging,
- * and it allows event types to be mapped in JS objects without collisions.
- *
- * @return {string} String representation of the event type.
- * @override
- */
-bot.events.EventFactory_.prototype.toString = function () {
-  return this.type_;
+  /**
+   * Overriding toString to return the unique type string improves debugging,
+   * and it allows event types to be mapped in JS objects without collisions.
+   *
+   * @return {string} String representation of the event type.
+   */
+  toString() {
+    return this.type_;
+  }
 };
 
 /**
  * Factory for mouse event objects of a specific type.
  *
- * @constructor
- * @param {string} type Type of the created events.
- * @param {boolean} bubbles Whether the created events bubble.
- * @param {boolean} cancelable Whether the created events are cancelable.
  * @extends {bot.events.EventFactory_}
- * @private
  */
-bot.events.MouseEventFactory_ = function (type, bubbles, cancelable) {
-  bot.events.EventFactory_.call(this, type, bubbles, cancelable);
-};
-goog.utils.inherits(bot.events.MouseEventFactory_, bot.events.EventFactory_);
-
-/**
- * @override
- * @param {!Element|!Window} target Target element of the event.
- * @param {bot.events.EventArgs=} opt_args Event arguments.
- * @return {!Event} Newly created event.
- */
-bot.events.MouseEventFactory_.prototype.create = function (target, opt_args) {
-  // Only Gecko supports the mouse pixel scroll event.
-  if (!goog.userAgent.GECKO && this == bot.events.EventType.MOUSEPIXELSCROLL) {
-    throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support a mouse pixel scroll event.');
+bot.events.MouseEventFactory_ = class extends bot.events.EventFactory_ {
+  /**
+   * @param {string} type Type of the created events.
+   * @param {boolean} bubbles Whether the created events bubble.
+   * @param {boolean} cancelable Whether the created events are cancelable.
+   */
+  constructor(type, bubbles, cancelable) {
+    super(type, bubbles, cancelable);
   }
 
-  var args = /** @type {!bot.events.MouseArgs} */ (opt_args);
-  var doc = goog.dom.getOwnerDocument(target);
-  var event;
-
-  var view = goog.dom.getWindow(doc);
-  event = doc.createEvent('MouseEvents');
-  var detail = 1;
-
-  // All browser but Firefox provide the wheelDelta value in the event.
-  // Firefox provides the scroll amount in the detail field, where it has the
-  // opposite polarity of the wheelDelta (upward scroll is negative) and is a
-  // factor of 40 less than the wheelDelta value.
-  // The wheelDelta value is normally some multiple of 40.
-  if (this == bot.events.EventType.MOUSEWHEEL) {
-    if (!goog.userAgent.GECKO) {
-      event.wheelDelta = args.wheelDelta;
+  /**
+   * @override
+   * @param {!Element|!Window} target Target element of the event.
+   * @param {bot.events.EventArgs=} opt_args Event arguments.
+   * @return {!Event} Newly created event.
+   */
+  create(target, opt_args) {
+    // Only Gecko supports the mouse pixel scroll event.
+    if (!goog.userAgent.GECKO && this == bot.events.EventType.MOUSEPIXELSCROLL) {
+      throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support a mouse pixel scroll event.');
     }
-    if (goog.userAgent.GECKO) {
-      detail = args.wheelDelta / -40;
-    }
-  }
 
-  // Only Gecko supports a mouse pixel scroll event, so we use it as the
-  // "standard" and pass it along as is as the "detail" of the event.
-  if (goog.userAgent.GECKO && this == bot.events.EventType.MOUSEPIXELSCROLL) {
-    detail = args.wheelDelta;
-  }
+    var args = /** @type {!bot.events.MouseArgs} */ (opt_args);
+    var doc = goog.dom.getOwnerDocument(target);
+    var event;
 
-  // For screenX and screenY, we set those to clientX and clientY values.
-  // While not strictly correct, applications under test depend on
-  // accurate relative positioning which is satisfied.
-  event.initMouseEvent(
-    this.type_,
-    this.bubbles_,
-    this.cancelable_,
-    view,
-    detail,
-    /*screenX*/ args.clientX,
-    /*screenY*/ args.clientY,
-    args.clientX,
-    args.clientY,
-    args.ctrlKey,
-    args.altKey,
-    args.shiftKey,
-    args.metaKey,
-    args.button,
-    args.relatedTarget,
-  );
-
-  // Trying to modify the properties throws an error,
-  // so we define getters to return the correct values.
-  if (goog.userAgent.IE && event.pageX === 0 && event.pageY === 0 && Object.defineProperty) {
-    var scrollElem = goog.dom.getDomHelper(target).getDocumentScrollElement();
-    var clientElem = goog.style.getClientViewportElement(doc);
-    var pageX = args.clientX + scrollElem.scrollLeft - clientElem.clientLeft;
-    var pageY = args.clientY + scrollElem.scrollTop - clientElem.clientTop;
-
-    Object.defineProperty(event, 'pageX', {
-      get: function () {
-        return pageX;
-      },
-    });
-    Object.defineProperty(event, 'pageY', {
-      get: function () {
-        return pageY;
-      },
-    });
-  }
-
-  return event;
-};
-
-/**
- * Factory for keyboard event objects of a specific type.
- *
- * @constructor
- * @param {string} type Type of the created events.
- * @param {boolean} bubbles Whether the created events bubble.
- * @param {boolean} cancelable Whether the created events are cancelable.
- * @extends {bot.events.EventFactory_}
- * @private
- */
-bot.events.KeyboardEventFactory_ = function (type, bubbles, cancelable) {
-  bot.events.EventFactory_.call(this, type, bubbles, cancelable);
-};
-goog.utils.inherits(bot.events.KeyboardEventFactory_, bot.events.EventFactory_);
-
-/**
- * @override
- * @param {!Element|!Window} target Target element of the event.
- * @param {bot.events.EventArgs=} opt_args Event arguments.
- * @return {!Event} Newly created event.
- */
-bot.events.KeyboardEventFactory_.prototype.create = function (target, opt_args) {
-  var args = /** @type {!bot.events.KeyboardArgs} */ (opt_args);
-  var doc = goog.dom.getOwnerDocument(target);
-  var event;
-
-  if (goog.userAgent.GECKO && !bot.userAgent.isEngineVersion(93)) {
     var view = goog.dom.getWindow(doc);
-    var keyCode = args.charCode ? 0 : args.keyCode;
-    event = doc.createEvent('KeyboardEvent');
-    event.initKeyEvent(
-      this.type_,
-      this.bubbles_,
-      this.cancelable_,
-      view,
-      args.ctrlKey,
-      args.altKey,
-      args.shiftKey,
-      args.metaKey,
-      keyCode,
-      args.charCode,
-    );
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=501496
-    if (this.type_ == bot.events.EventType.KEYPRESS && args.preventDefault) {
-      event.preventDefault();
-    }
-  } else {
-    event = doc.createEvent('Events');
-    event.initEvent(this.type_, this.bubbles_, this.cancelable_);
-    event.altKey = args.altKey;
-    event.ctrlKey = args.ctrlKey;
-    event.metaKey = args.metaKey;
-    event.shiftKey = args.shiftKey;
-    if (goog.userAgent.GECKO) {
-      event.keyCode = args.charCode ? 0 : args.keyCode;
-      event.charCode = args.charCode;
-    } else {
-      event.keyCode = args.charCode || args.keyCode;
-      if (goog.userAgent.WEBKIT || goog.userAgent.EDGE) {
-        event.charCode = this == bot.events.EventType.KEYPRESS ? event.keyCode : 0;
+    event = doc.createEvent('MouseEvents');
+    var detail = 1;
+
+    // All browser but Firefox provide the wheelDelta value in the event.
+    // Firefox provides the scroll amount in the detail field, where it has the
+    // opposite polarity of the wheelDelta (upward scroll is negative) and is a
+    // factor of 40 less than the wheelDelta value.
+    // The wheelDelta value is normally some multiple of 40.
+    if (this == bot.events.EventType.MOUSEWHEEL) {
+      if (!goog.userAgent.GECKO) {
+        event.wheelDelta = args.wheelDelta;
+      }
+      if (goog.userAgent.GECKO) {
+        detail = args.wheelDelta / -40;
       }
     }
-  }
 
-  return event;
-};
-
-/**
- * Enum representing which mechanism to use for creating touch events.
- * @enum {number}
- * @private
- */
-bot.events.TouchEventStrategy_ = {
-  MOUSE_EVENTS: 1,
-  INIT_TOUCH_EVENT: 2,
-  TOUCH_EVENT_CTOR: 3,
-};
-
-/**
- * Factory for touch event objects of a specific type.
- *
- * @constructor
- * @param {string} type Type of the created events.
- * @param {boolean} bubbles Whether the created events bubble.
- * @param {boolean} cancelable Whether the created events are cancelable.
- * @extends {bot.events.EventFactory_}
- * @private
- */
-bot.events.TouchEventFactory_ = function (type, bubbles, cancelable) {
-  bot.events.EventFactory_.call(this, type, bubbles, cancelable);
-};
-goog.utils.inherits(bot.events.TouchEventFactory_, bot.events.EventFactory_);
-
-/**
- * @override
- * @param {!Element|!Window} target Target element of the event.
- * @param {bot.events.EventArgs=} opt_args Event arguments.
- * @return {!Event} Newly created event.
- */
-bot.events.TouchEventFactory_.prototype.create = function (target, opt_args) {
-  if (!bot.events.SUPPORTS_TOUCH_EVENTS) {
-    throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support firing touch events.');
-  }
-
-  var args = /** @type {!bot.events.TouchArgs} */ (opt_args);
-  var doc = goog.dom.getOwnerDocument(target);
-  var view = goog.dom.getWindow(doc);
-
-  // Creates a TouchList, using native touch Api, for touch events.
-  function createNativeTouchList(touchListArgs) {
-    var touches = goog.array.map(touchListArgs, function (touchArg) {
-      return doc.createTouch(
-        view,
-        target,
-        touchArg.identifier,
-        touchArg.pageX,
-        touchArg.pageY,
-        touchArg.screenX,
-        touchArg.screenY,
-      );
-    });
-
-    return doc.createTouchList.apply(doc, touches);
-  }
-
-  // Creates a TouchList, using simulated touch Api, for touch events.
-  function createGenericTouchList(touchListArgs) {
-    var touches = goog.array.map(touchListArgs, function (touchArg) {
-      // The target field is not part of the W3C spec, but both android and iOS
-      // add the target field to each touch.
-      return {
-        identifier: touchArg.identifier,
-        screenX: touchArg.screenX,
-        screenY: touchArg.screenY,
-        clientX: touchArg.clientX,
-        clientY: touchArg.clientY,
-        pageX: touchArg.pageX,
-        pageY: touchArg.pageY,
-        target: target,
-      };
-    });
-    touches.item = function (i) {
-      return touches[i];
-    };
-    return touches;
-  }
-
-  function createTouchEventTouchList(touchListArgs) {
-    /** @type {!Array<!Touch>} */
-    var touches = goog.array.map(touchListArgs, function (touchArg) {
-      return new Touch({
-        identifier: touchArg.identifier,
-        screenX: touchArg.screenX,
-        screenY: touchArg.screenY,
-        clientX: touchArg.clientX,
-        clientY: touchArg.clientY,
-        pageX: touchArg.pageX,
-        pageY: touchArg.pageY,
-        target: target,
-      });
-    });
-    return touches;
-  }
-
-  function createTouchList(touchStrategy, touches) {
-    switch (touchStrategy) {
-      case bot.events.TouchEventStrategy_.MOUSE_EVENTS:
-        return createGenericTouchList(touches);
-      case bot.events.TouchEventStrategy_.INIT_TOUCH_EVENT:
-        return createNativeTouchList(touches);
-      case bot.events.TouchEventStrategy_.TOUCH_EVENT_CTOR:
-        return createTouchEventTouchList(touches);
+    // Only Gecko supports a mouse pixel scroll event, so we use it as the
+    // "standard" and pass it along as is as the "detail" of the event.
+    if (goog.userAgent.GECKO && this == bot.events.EventType.MOUSEPIXELSCROLL) {
+      detail = args.wheelDelta;
     }
-    return null;
-  }
 
-  // TODO(juangj): Always use the TouchEvent constructor, if available.
-  var strategy;
-  if (bot.events.BROKEN_TOUCH_API_) {
-    strategy = bot.events.TouchEventStrategy_.MOUSE_EVENTS;
-  } else {
-    if (TouchEvent.prototype.initTouchEvent) {
-      strategy = bot.events.TouchEventStrategy_.INIT_TOUCH_EVENT;
-    } else if (TouchEvent && TouchEvent.length > 0) {
-      strategy = bot.events.TouchEventStrategy_.TOUCH_EVENT_CTOR;
-    } else {
-      throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Not able to create touch events in this browser');
-    }
-  }
-
-  // As a performance optimization, reuse the created touchlist when the lists
-  // are the same, which is often the case in practice.
-  var changedTouches = createTouchList(strategy, args.changedTouches);
-  var touches = args.touches == args.changedTouches ? changedTouches : createTouchList(strategy, args.touches);
-  var targetTouches =
-    args.targetTouches == args.changedTouches ? changedTouches : createTouchList(strategy, args.targetTouches);
-
-  var event;
-  if (strategy == bot.events.TouchEventStrategy_.MOUSE_EVENTS) {
-    event = doc.createEvent('MouseEvents');
+    // For screenX and screenY, we set those to clientX and clientY values.
+    // While not strictly correct, applications under test depend on
+    // accurate relative positioning which is satisfied.
     event.initMouseEvent(
       this.type_,
       this.bubbles_,
       this.cancelable_,
       view,
-      /*detail*/ 1,
-      /*screenX*/ 0,
-      /*screenY*/ 0,
+      detail,
+      /*screenX*/ args.clientX,
+      /*screenY*/ args.clientY,
       args.clientX,
       args.clientY,
       args.ctrlKey,
       args.altKey,
       args.shiftKey,
       args.metaKey,
-      /*button*/ 0,
+      args.button,
       args.relatedTarget,
     );
-    event.touches = touches;
-    event.targetTouches = targetTouches;
-    event.changedTouches = changedTouches;
-    event.scale = args.scale;
-    event.rotation = args.rotation;
-  } else if (strategy == bot.events.TouchEventStrategy_.INIT_TOUCH_EVENT) {
-    event = doc.createEvent('TouchEvent');
-    // Different browsers have different implementations of initTouchEvent.
-    if (event.initTouchEvent.length == 0) {
-      // Chrome/Android.
-      event.initTouchEvent(
-        touches,
-        targetTouches,
-        changedTouches,
+
+    // Trying to modify the properties throws an error,
+    // so we define getters to return the correct values.
+    if (goog.userAgent.IE && event.pageX === 0 && event.pageY === 0 && Object.defineProperty) {
+      var scrollElem = goog.dom.getDomHelper(target).getDocumentScrollElement();
+      var clientElem = goog.style.getClientViewportElement(doc);
+      var pageX = args.clientX + scrollElem.scrollLeft - clientElem.clientLeft;
+      var pageY = args.clientY + scrollElem.scrollTop - clientElem.clientTop;
+
+      Object.defineProperty(event, 'pageX', {
+        get: function () {
+          return pageX;
+        },
+      });
+      Object.defineProperty(event, 'pageY', {
+        get: function () {
+          return pageY;
+        },
+      });
+    }
+
+    return event;
+  }
+};
+
+/**
+ * Factory for keyboard event objects of a specific type.
+ *
+ * @extends {bot.events.EventFactory_}
+ */
+bot.events.KeyboardEventFactory_ = class extends bot.events.EventFactory_ {
+  /**
+   * @param {string} type Type of the created events.
+   * @param {boolean} bubbles Whether the created events bubble.
+   * @param {boolean} cancelable Whether the created events are cancelable.
+   */
+  constructor(type, bubbles, cancelable) {
+    super(type, bubbles, cancelable);
+  }
+
+  /**
+   * @override
+   * @param {!Element|!Window} target Target element of the event.
+   * @param {bot.events.EventArgs=} opt_args Event arguments.
+   * @return {!Event} Newly created event.
+   */
+  create(target, opt_args) {
+    var args = /** @type {!bot.events.KeyboardArgs} */ (opt_args);
+    var doc = goog.dom.getOwnerDocument(target);
+    var event;
+
+    if (goog.userAgent.GECKO && !bot.userAgent.isEngineVersion(93)) {
+      var view = goog.dom.getWindow(doc);
+      var keyCode = args.charCode ? 0 : args.keyCode;
+      event = doc.createEvent('KeyboardEvent');
+      event.initKeyEvent(
         this.type_,
+        this.bubbles_,
+        this.cancelable_,
         view,
-        /*screenX*/ 0,
-        /*screenY*/ 0,
-        args.clientX,
-        args.clientY,
         args.ctrlKey,
         args.altKey,
         args.shiftKey,
         args.metaKey,
+        keyCode,
+        args.charCode,
       );
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=501496
+      if (/** @type {?} */ (this.type_) == bot.events.EventType.KEYPRESS && args.preventDefault) {
+        event.preventDefault();
+      }
     } else {
-      // iOS.
-      event.initTouchEvent(
+      event = doc.createEvent('Events');
+      event.initEvent(this.type_, this.bubbles_, this.cancelable_);
+      event.altKey = args.altKey;
+      event.ctrlKey = args.ctrlKey;
+      event.metaKey = args.metaKey;
+      event.shiftKey = args.shiftKey;
+      if (goog.userAgent.GECKO) {
+        event.keyCode = args.charCode ? 0 : args.keyCode;
+        event.charCode = args.charCode;
+      } else {
+        event.keyCode = args.charCode || args.keyCode;
+        if (goog.userAgent.WEBKIT || goog.userAgent.EDGE) {
+          event.charCode = /** @type {?} */ (this) == bot.events.EventType.KEYPRESS ? event.keyCode : 0;
+        }
+      }
+    }
+
+    return event;
+  }
+};
+
+/**
+ * Enum representing which mechanism to use for creating touch events.
+ * @enum {number}
+ */
+bot.events.TouchEventStrategy_ = {
+  MOUSE_EVENTS: 1,
+  INIT_TOUCH_EVENT: 2,
+  TOUCH_EVENT_CTOR: 3,
+};
+/** @private */
+bot.events.TouchEventStrategy_;
+
+/**
+ * Factory for touch event objects of a specific type.
+ *
+ * @extends {bot.events.EventFactory_}
+ */
+bot.events.TouchEventFactory_ = class extends bot.events.EventFactory_ {
+  /**
+   * @param {string} type Type of the created events.
+   * @param {boolean} bubbles Whether the created events bubble.
+   * @param {boolean} cancelable Whether the created events are cancelable.
+   */
+  constructor(type, bubbles, cancelable) {
+    super(type, bubbles, cancelable);
+  }
+
+  /**
+   * @override
+   * @param {!Element|!Window} target Target element of the event.
+   * @param {bot.events.EventArgs=} opt_args Event arguments.
+   * @return {!Event} Newly created event.
+   */
+  create(target, opt_args) {
+    if (!bot.events.SUPPORTS_TOUCH_EVENTS) {
+      throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support firing touch events.');
+    }
+
+    var args = /** @type {!bot.events.TouchArgs} */ (opt_args);
+    var doc = goog.dom.getOwnerDocument(target);
+    var view = goog.dom.getWindow(doc);
+
+    // Creates a TouchList, using native touch Api, for touch events.
+    /** @param {*} touchListArgs */ function createNativeTouchList(touchListArgs) {
+      var touches = goog.array.map(
+        touchListArgs,
+        /** @param {*} touchArg */ function (touchArg) {
+          return doc.createTouch(
+            view,
+            target,
+            touchArg.identifier,
+            touchArg.pageX,
+            touchArg.pageY,
+            touchArg.screenX,
+            touchArg.screenY,
+          );
+        },
+      );
+
+      return doc.createTouchList.apply(doc, touches);
+    }
+
+    // Creates a TouchList, using simulated touch Api, for touch events.
+    /** @param {*} touchListArgs */ function createGenericTouchList(touchListArgs) {
+      var touches = goog.array.map(
+        touchListArgs,
+        /** @param {*} touchArg */ function (touchArg) {
+          // The target field is not part of the W3C spec, but both android and iOS
+          // add the target field to each touch.
+          return {
+            identifier: touchArg.identifier,
+            screenX: touchArg.screenX,
+            screenY: touchArg.screenY,
+            clientX: touchArg.clientX,
+            clientY: touchArg.clientY,
+            pageX: touchArg.pageX,
+            pageY: touchArg.pageY,
+            target: target,
+          };
+        },
+      );
+      touches.item = /** @param {number} i */ function (i) {
+        return touches[i];
+      };
+      return touches;
+    }
+
+    /** @param {*} touchListArgs */ function createTouchEventTouchList(touchListArgs) {
+      /** @type {!Array<!Touch>} */
+      var touches = goog.array.map(
+        touchListArgs,
+        /** @param {*} touchArg */ function (touchArg) {
+          return new Touch({
+            identifier: touchArg.identifier,
+            screenX: touchArg.screenX,
+            screenY: touchArg.screenY,
+            clientX: touchArg.clientX,
+            clientY: touchArg.clientY,
+            pageX: touchArg.pageX,
+            pageY: touchArg.pageY,
+            target: target,
+          });
+        },
+      );
+      return touches;
+    }
+
+    /** @param {*} touchStrategy @param {*} touches */ function createTouchList(touchStrategy, touches) {
+      switch (touchStrategy) {
+        case bot.events.TouchEventStrategy_.MOUSE_EVENTS:
+          return createGenericTouchList(touches);
+        case bot.events.TouchEventStrategy_.INIT_TOUCH_EVENT:
+          return createNativeTouchList(touches);
+        case bot.events.TouchEventStrategy_.TOUCH_EVENT_CTOR:
+          return createTouchEventTouchList(touches);
+      }
+      return null;
+    }
+
+    // TODO(juangj): Always use the TouchEvent constructor, if available.
+    var strategy;
+    if (bot.events.BROKEN_TOUCH_API_) {
+      strategy = bot.events.TouchEventStrategy_.MOUSE_EVENTS;
+    } else {
+      if (TouchEvent.prototype.initTouchEvent) {
+        strategy = bot.events.TouchEventStrategy_.INIT_TOUCH_EVENT;
+      } else if (TouchEvent && TouchEvent.length > 0) {
+        strategy = bot.events.TouchEventStrategy_.TOUCH_EVENT_CTOR;
+      } else {
+        throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Not able to create touch events in this browser');
+      }
+    }
+
+    // As a performance optimization, reuse the created touchlist when the lists
+    // are the same, which is often the case in practice.
+    var changedTouches = createTouchList(strategy, args.changedTouches);
+    var touches = args.touches == args.changedTouches ? changedTouches : createTouchList(strategy, args.touches);
+    var targetTouches =
+      args.targetTouches == args.changedTouches ? changedTouches : createTouchList(strategy, args.targetTouches);
+
+    var event;
+    if (strategy == bot.events.TouchEventStrategy_.MOUSE_EVENTS) {
+      event = doc.createEvent('MouseEvents');
+      event.initMouseEvent(
         this.type_,
         this.bubbles_,
         this.cancelable_,
@@ -578,159 +551,207 @@ bot.events.TouchEventFactory_.prototype.create = function (target, opt_args) {
         args.altKey,
         args.shiftKey,
         args.metaKey,
-        touches,
-        targetTouches,
-        changedTouches,
-        args.scale,
-        args.rotation,
+        /*button*/ 0,
+        args.relatedTarget,
       );
+      event.touches = touches;
+      event.targetTouches = targetTouches;
+      event.changedTouches = changedTouches;
+      event.scale = args.scale;
+      event.rotation = args.rotation;
+    } else if (strategy == bot.events.TouchEventStrategy_.INIT_TOUCH_EVENT) {
+      event = doc.createEvent('TouchEvent');
+      // Different browsers have different implementations of initTouchEvent.
+      var untypedEvent = /** @type {?} */ (event);
+      if (untypedEvent.initTouchEvent.length == 0) {
+        // Chrome/Android.
+        untypedEvent.initTouchEvent(
+          touches,
+          targetTouches,
+          changedTouches,
+          this.type_,
+          view,
+          /*screenX*/ 0,
+          /*screenY*/ 0,
+          args.clientX,
+          args.clientY,
+          args.ctrlKey,
+          args.altKey,
+          args.shiftKey,
+          args.metaKey,
+        );
+      } else {
+        // iOS.
+        untypedEvent.initTouchEvent(
+          this.type_,
+          this.bubbles_,
+          this.cancelable_,
+          view,
+          /*detail*/ 1,
+          /*screenX*/ 0,
+          /*screenY*/ 0,
+          args.clientX,
+          args.clientY,
+          args.ctrlKey,
+          args.altKey,
+          args.shiftKey,
+          args.metaKey,
+          touches,
+          targetTouches,
+          changedTouches,
+          args.scale,
+          args.rotation,
+        );
+      }
+      event.relatedTarget = args.relatedTarget;
+    } else if (strategy == bot.events.TouchEventStrategy_.TOUCH_EVENT_CTOR) {
+      var touchProperties = /** @type {!TouchEventInit} */ ({
+        touches: touches,
+        targetTouches: targetTouches,
+        changedTouches: changedTouches,
+        bubbles: this.bubbles_,
+        cancelable: this.cancelable_,
+        ctrlKey: args.ctrlKey,
+        shiftKey: args.shiftKey,
+        altKey: args.altKey,
+        metaKey: args.metaKey,
+      });
+      event = new TouchEvent(this.type_, touchProperties);
+    } else {
+      throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Illegal TouchEventStrategy_ value (this is a bug)');
     }
-    event.relatedTarget = args.relatedTarget;
-  } else if (strategy == bot.events.TouchEventStrategy_.TOUCH_EVENT_CTOR) {
-    var touchProperties = /** @type {!TouchEventInit} */ ({
-      touches: touches,
-      targetTouches: targetTouches,
-      changedTouches: changedTouches,
-      bubbles: this.bubbles_,
-      cancelable: this.cancelable_,
-      ctrlKey: args.ctrlKey,
-      shiftKey: args.shiftKey,
-      altKey: args.altKey,
-      metaKey: args.metaKey,
-    });
-    event = new TouchEvent(this.type_, touchProperties);
-  } else {
-    throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Illegal TouchEventStrategy_ value (this is a bug)');
-  }
 
-  return event;
+    return event;
+  }
 };
 
 /**
  * Factory for MSGesture event objects of a specific type.
  *
- * @constructor
- * @param {string} type Type of the created events.
- * @param {boolean} bubbles Whether the created events bubble.
- * @param {boolean} cancelable Whether the created events are cancelable.
  * @extends {bot.events.EventFactory_}
- * @private
  */
-bot.events.MSGestureEventFactory_ = function (type, bubbles, cancelable) {
-  bot.events.EventFactory_.call(this, type, bubbles, cancelable);
-};
-goog.utils.inherits(bot.events.MSGestureEventFactory_, bot.events.EventFactory_);
-
-/**
- * @override
- * @param {!Element|!Window} target Target element of the event.
- * @param {bot.events.EventArgs=} opt_args Event arguments.
- * @return {!Event} Newly created event.
- */
-bot.events.MSGestureEventFactory_.prototype.create = function (target, opt_args) {
-  if (!bot.events.SUPPORTS_MSPOINTER_EVENTS) {
-    throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support MSGesture events.');
+bot.events.MSGestureEventFactory_ = class extends bot.events.EventFactory_ {
+  /**
+   * @param {string} type Type of the created events.
+   * @param {boolean} bubbles Whether the created events bubble.
+   * @param {boolean} cancelable Whether the created events are cancelable.
+   */
+  constructor(type, bubbles, cancelable) {
+    super(type, bubbles, cancelable);
   }
 
-  var args = /** @type {!bot.events.MSGestureArgs} */ (opt_args);
-  var doc = goog.dom.getOwnerDocument(target);
-  var view = goog.dom.getWindow(doc);
-  var event = doc.createEvent('MSGestureEvent');
-  var timestamp = new Date().getTime();
+  /**
+   * @override
+   * @param {!Element|!Window} target Target element of the event.
+   * @param {bot.events.EventArgs=} opt_args Event arguments.
+   * @return {!Event} Newly created event.
+   */
+  create(target, opt_args) {
+    if (!bot.events.SUPPORTS_MSPOINTER_EVENTS) {
+      throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support MSGesture events.');
+    }
 
-  // See http://msdn.microsoft.com/en-us/library/windows/apps/hh441187.aspx
-  event.initGestureEvent(
-    this.type_,
-    this.bubbles_,
-    this.cancelable_,
-    view,
-    /*detail*/ 1,
-    /*screenX*/ 0,
-    /*screenY*/ 0,
-    args.clientX,
-    args.clientY,
-    /*offsetX*/ 0,
-    /*offsetY*/ 0,
-    args.translationX,
-    args.translationY,
-    args.scale,
-    args.expansion,
-    args.rotation,
-    args.velocityX,
-    args.velocityY,
-    args.velocityExpansion,
-    args.velocityAngular,
-    timestamp,
-    args.relatedTarget,
-  );
-  return event;
+    var args = /** @type {!bot.events.MSGestureArgs} */ (opt_args);
+    var doc = goog.dom.getOwnerDocument(target);
+    var view = goog.dom.getWindow(doc);
+    var event = doc.createEvent('MSGestureEvent');
+    var timestamp = new Date().getTime();
+
+    // See http://msdn.microsoft.com/en-us/library/windows/apps/hh441187.aspx
+    event.initGestureEvent(
+      this.type_,
+      this.bubbles_,
+      this.cancelable_,
+      view,
+      /*detail*/ 1,
+      /*screenX*/ 0,
+      /*screenY*/ 0,
+      args.clientX,
+      args.clientY,
+      /*offsetX*/ 0,
+      /*offsetY*/ 0,
+      args.translationX,
+      args.translationY,
+      args.scale,
+      args.expansion,
+      args.rotation,
+      args.velocityX,
+      args.velocityY,
+      args.velocityExpansion,
+      args.velocityAngular,
+      timestamp,
+      args.relatedTarget,
+    );
+    return event;
+  }
 };
 
 /**
  * Factory for MSPointer event objects of a specific type.
  *
- * @constructor
- * @param {string} type Type of the created events.
- * @param {boolean} bubbles Whether the created events bubble.
- * @param {boolean} cancelable Whether the created events are cancelable.
  * @extends {bot.events.EventFactory_}
- * @private
  */
-bot.events.MSPointerEventFactory_ = function (type, bubbles, cancelable) {
-  bot.events.EventFactory_.call(this, type, bubbles, cancelable);
-};
-goog.utils.inherits(bot.events.MSPointerEventFactory_, bot.events.EventFactory_);
-
-/**
- * @override
- * @param {!Element|!Window} target Target element of the event.
- * @param {bot.events.EventArgs=} opt_args Event arguments.
- * @return {!Event} Newly created event.
- * @suppress {checkTypes} Closure compiler externs don't know about pointer
- *     events
- */
-bot.events.MSPointerEventFactory_.prototype.create = function (target, opt_args) {
-  if (!bot.events.SUPPORTS_MSPOINTER_EVENTS) {
-    throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support MSPointer events.');
+bot.events.MSPointerEventFactory_ = class extends bot.events.EventFactory_ {
+  /**
+   * @param {string} type Type of the created events.
+   * @param {boolean} bubbles Whether the created events bubble.
+   * @param {boolean} cancelable Whether the created events are cancelable.
+   */
+  constructor(type, bubbles, cancelable) {
+    super(type, bubbles, cancelable);
   }
 
-  var args = /** @type {!bot.events.MSPointerArgs} */ (opt_args);
-  var doc = goog.dom.getOwnerDocument(target);
-  var view = goog.dom.getWindow(doc);
-  var event = doc.createEvent('MSPointerEvent');
+  /**
+   * @override
+   * @param {!Element|!Window} target Target element of the event.
+   * @param {bot.events.EventArgs=} opt_args Event arguments.
+   * @return {!Event} Newly created event.
+   * @suppress {checkTypes} Closure compiler externs don't know about pointer
+   *     events
+   */
+  create(target, opt_args) {
+    if (!bot.events.SUPPORTS_MSPOINTER_EVENTS) {
+      throw new bot.Error(bot.ErrorCode.UNSUPPORTED_OPERATION, 'Browser does not support MSPointer events.');
+    }
 
-  // See http://msdn.microsoft.com/en-us/library/ie/hh772109(v=vs.85).aspx
-  event.initPointerEvent(
-    this.type_,
-    this.bubbles_,
-    this.cancelable_,
-    view,
-    /*detail*/ 0,
-    /*screenX*/ 0,
-    /*screenY*/ 0,
-    args.clientX,
-    args.clientY,
-    args.ctrlKey,
-    args.altKey,
-    args.shiftKey,
-    args.metaKey,
-    args.button,
-    args.relatedTarget,
-    /*offsetX*/ 0,
-    /*offsetY*/ 0,
-    args.width,
-    args.height,
-    args.pressure,
-    args.rotation,
-    args.tiltX,
-    args.tiltY,
-    args.pointerId,
-    args.pointerType,
-    /*hwTimeStamp*/ 0,
-    args.isPrimary,
-  );
+    var args = /** @type {!bot.events.MSPointerArgs} */ (opt_args);
+    var doc = goog.dom.getOwnerDocument(target);
+    var view = goog.dom.getWindow(doc);
+    var event = doc.createEvent('MSPointerEvent');
 
-  return event;
+    // See http://msdn.microsoft.com/en-us/library/ie/hh772109(v=vs.85).aspx
+    event.initPointerEvent(
+      this.type_,
+      this.bubbles_,
+      this.cancelable_,
+      view,
+      /*detail*/ 0,
+      /*screenX*/ 0,
+      /*screenY*/ 0,
+      args.clientX,
+      args.clientY,
+      args.ctrlKey,
+      args.altKey,
+      args.shiftKey,
+      args.metaKey,
+      args.button,
+      args.relatedTarget,
+      /*offsetX*/ 0,
+      /*offsetY*/ 0,
+      args.width,
+      args.height,
+      args.pressure,
+      args.rotation,
+      args.tiltX,
+      args.tiltY,
+      args.pointerId,
+      args.pointerType,
+      /*hwTimeStamp*/ 0,
+      args.isPrimary,
+    );
+
+    return event;
+  }
 };
 
 /**
@@ -810,7 +831,7 @@ bot.events.fire = function (target, type, opt_args) {
   // Ensure the event's isTrusted property is set to false, so that
   // bot.events.isSynthetic() can identify synthetic events from native ones.
   if (!('isTrusted' in event)) {
-    event['isTrusted'] = false;
+    /** @type {?} */ (event)['isTrusted'] = false;
   }
   return target.dispatchEvent(event);
 };
@@ -823,6 +844,6 @@ bot.events.fire = function (target, type, opt_args) {
  * @return {boolean} Whether the event was synthetically created.
  */
 bot.events.isSynthetic = function (event) {
-  var e = event.getBrowserEvent ? event.getBrowserEvent() : event;
+  var e = /** @type {?} */ (event.getBrowserEvent ? event.getBrowserEvent() : event);
   return 'isTrusted' in e ? !e['isTrusted'] : false;
 };

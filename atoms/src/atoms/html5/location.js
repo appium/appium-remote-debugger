@@ -47,9 +47,9 @@ bot.geolocation.DEFAULT_OPTIONS = /** @type {!GeolocationPositionOptions} */ ({
  * later callbacks with either position value or any error. The position/
  * error is updated with the callback functions.
  *
- * @param {function(?GeolocationPosition)} successCallback The callback method
+ * @param {function(?GeolocationPosition):*} successCallback The callback method
  *     which is invoked on success.
- * @param {function(?GeolocationPositionError)=} opt_errorCallback The callback
+ * @param {function(?GeolocationPositionError):*=} opt_errorCallback The callback
  *     method which is invoked on error.
  * @param {?GeolocationPositionOptions=} opt_options The optional parameters to
  *     navigator.geolocation.getCurrentPosition; defaults to

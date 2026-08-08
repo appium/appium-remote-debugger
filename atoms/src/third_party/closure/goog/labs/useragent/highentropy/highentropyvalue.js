@@ -11,8 +11,8 @@
 
 goog.module('goog.labs.userAgent.highEntropy.highEntropyValue');
 
-const util = goog.require('goog.labs.userAgent.util');
-const {compareVersions} = goog.require('goog.string.internal');
+var util = goog.require('goog.labs.userAgent.util');
+var {compareVersions} = goog.require('goog.string.internal');
 
 /**
  * Represents a value that can be asynchronously loaded.
@@ -25,13 +25,17 @@ class AsyncValue {
    * previously requested.
    * @return {VALUE_TYPE|undefined}
    */
-  getIfLoaded() {}
+  getIfLoaded() {
+    return /** @type {?} */ (undefined);
+  }
 
   /**
    * Request the value represented by this AsyncValue instance.
    * @return {!Promise<VALUE_TYPE>}
    */
-  load() {}
+  load() {
+    return /** @type {?} */ (undefined);
+  }
 }
 exports.AsyncValue = AsyncValue;
 
@@ -78,7 +82,6 @@ class HighEntropyValue {
 
   /**
    * @return {VALUE_TYPE|undefined}
-   * @override
    */
   getIfLoaded() {
     const userAgentData = util.getUserAgentData();
@@ -90,11 +93,10 @@ class HighEntropyValue {
 
   /**
    * @return {!Promise<VALUE_TYPE>}
-   * @override
    */
   async load() {
     const userAgentData = util.getUserAgentData();
-    if (!userAgentData) return undefined;
+    if (!userAgentData) return /** @type {?} */ (undefined);
     if (!this.promise_) {
       this.pending_ = true;
       this.promise_ = (async () => {

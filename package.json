@@ -38,6 +38,7 @@
   },
   "scripts": {
     "build": "tsc -b",
+    "typecheck:atoms": "tsc -p tsconfig.atoms.json",
     "clean": "npm run build -- --clean",
     "rebuild": "npm run clean; npm run build",
     "dev": "npm run build -- --watch",

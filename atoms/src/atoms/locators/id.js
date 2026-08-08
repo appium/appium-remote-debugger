@@ -29,18 +29,20 @@ goog.require('goog.dom');
  * @param {string} target The id to search for.
  * @return {boolean} Whether or not the root supports query selector APIs.
  * @see http://www.w3.org/TR/selectors-api/
- * @private
  */
 bot.locators.id.canUseQuerySelector_ = function (root, target) {
-  return !!(root.querySelectorAll && root.querySelector) && !/^\d.*/.test(target);
+  var untypedRoot = /** @type {?} */ (root);
+  return !!(untypedRoot.querySelectorAll && untypedRoot.querySelector) && !/^\d.*/.test(target);
 };
+/** @private */
+bot.locators.id.canUseQuerySelector_;
 
 /**
  * Find an element by using the value of the ID attribute.
  * @param {string} target The id to search for.
  * @param {!(Document|Element)} root The document or element to perform the
  *     search under.
- * @return {Element} The first matching element found in the DOM, or null if no
+ * @return {?Element} The first matching element found in the DOM, or null if no
  *     such element could be found.
  */
 bot.locators.id.single = function (target, root) {
@@ -57,9 +59,12 @@ bot.locators.id.single = function (target, root) {
   }
 
   var elements = dom.getElementsByTagNameAndClass('*');
-  var element = goog.array.find(elements, function (element) {
-    return bot.dom.getAttribute(element, 'id') == target && root != element && goog.dom.contains(root, element);
-  });
+  var element = goog.array.find(
+    elements,
+    /** @param {*} element */ function (element) {
+      return bot.dom.getAttribute(element, 'id') == target && root != element && goog.dom.contains(root, element);
+    },
+  );
   return /**@type{Element}*/ (element);
 };
 
@@ -84,9 +89,12 @@ bot.locators.id.many = function (target, root) {
   }
   var dom = goog.dom.getDomHelper(root);
   var elements = dom.getElementsByTagNameAndClass('*', null, root);
-  return goog.array.filter(elements, function (e) {
-    return bot.dom.getAttribute(e, 'id') == target;
-  });
+  return goog.array.filter(
+    elements,
+    /** @param {*} e */ function (e) {
+      return bot.dom.getAttribute(e, 'id') == target;
+    },
+  );
 };
 
 /**
@@ -103,9 +111,10 @@ bot.locators.id.many = function (target, root) {
  *
  * @param {!string} s String to escape CSS meaningful characters in.
  * @return {!string} Escaped string.
- * @private
  */
 bot.locators.id.cssEscape_ = function (s) {
   // One backslash escapes things in a regex statement; we need two in a string.
   return s.replace(/([\s'"\\#.:;,!?+<>=~*^$|%&@`{}\-\/\[\]\(\)])/g, '\\$1');
 };
+/** @private */
+bot.locators.id.cssEscape_;

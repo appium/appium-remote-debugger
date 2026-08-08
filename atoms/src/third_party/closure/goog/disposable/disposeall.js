@@ -12,8 +12,8 @@
 goog.module('goog.disposeAll');
 goog.module.declareLegacyNamespace();
 
-const dispose = goog.require('goog.dispose');
-const utils = goog.require('goog.utils');
+var disposeFn = goog.require('goog.dispose');
+var utils = goog.require('goog.utils');
 
 /**
  * Calls `dispose` on each member of the list that supports it. (If the
@@ -28,7 +28,7 @@ function disposeAll(var_args) {
     if (utils.isArrayLike(disposable)) {
       disposeAll.apply(null, disposable);
     } else {
-      dispose(disposable);
+      disposeFn(disposable);
     }
   }
 }

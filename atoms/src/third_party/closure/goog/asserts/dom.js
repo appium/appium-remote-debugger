@@ -7,10 +7,10 @@
 goog.module('goog.asserts.dom');
 goog.module.declareLegacyNamespace();
 
-const TagName = goog.require('goog.dom.TagName');
-const asserts = goog.require('goog.asserts');
-const element = goog.require('goog.dom.element');
-const utils = goog.require('goog.utils');
+var TagName = goog.require('goog.dom.TagName');
+var asserts = goog.require('goog.asserts');
+var element = goog.require('goog.dom.element');
+var utils = goog.require('goog.utils');
 
 /**
  * Checks if the value is a DOM Element if goog.asserts.ENABLE_ASSERTS is true.

@@ -59,14 +59,14 @@ bot.storage.database.openOrCreate = function (databaseName, opt_version, opt_dis
  * @param {string} databaseName The name of the database.
  * @param {string} query The SQL statement.
  * @param {!Array.<*>} args Arguments needed for the SQL statement.
- * @param {!function(!SQLTransaction, !bot.storage.database.ResultSet)}
+ * @param {!function(!SQLTransaction, !bot.storage.database.ResultSet):*}
  *     queryResultCallback Callback function to be invoked on successful query
  *     statement execution.
- * @param {!function(!SQLError)} txErrorCallback
+ * @param {!function(!SQLError):*} txErrorCallback
  *     Callback function to be invoked on transaction (commit) failure.
- * @param {!function()=} opt_txSuccessCallback
+ * @param {!function():*=} opt_txSuccessCallback
  *     Callback function to be invoked on successful transaction execution.
- * @param {function(!SQLTransaction, !SQLError)=} opt_queryErrorCallback
+ * @param {function(!SQLTransaction, !SQLError):*=} opt_queryErrorCallback
  *     Callback function to be invoked on successful query statement execution.
  * @see http://www.w3.org/TR/webdatabase/#executing-sql-statements
  */
@@ -84,14 +84,19 @@ bot.storage.database.executeSql = function (
   try {
     db = bot.storage.database.openOrCreate(databaseName);
   } catch (e) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, e.message);
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, /** @type {!Error} */ (e).message);
   }
 
+  /**
+   * @param {!SQLTransaction} tx
+   * @param {!SQLResultSet} result
+   */
   var queryCallback = function (tx, result) {
     var wrappedResult = new bot.storage.database.ResultSet(result);
     queryResultCallback(tx, wrappedResult);
   };
 
+  /** @param {!SQLTransaction} tx */
   var transactionCallback = function (tx) {
     tx.executeSql(query, args, queryCallback, opt_queryErrorCallback);
   };

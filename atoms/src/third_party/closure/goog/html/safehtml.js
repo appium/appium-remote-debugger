@@ -13,22 +13,22 @@
 goog.module('goog.html.SafeHtml');
 goog.module.declareLegacyNamespace();
 
-const Const = goog.require('goog.string.Const');
-const SafeScript = goog.require('goog.html.SafeScript');
-const SafeStyle = goog.require('goog.html.SafeStyle');
-const SafeStyleSheet = goog.require('goog.html.SafeStyleSheet');
-const SafeUrl = goog.require('goog.html.SafeUrl');
-const TagName = goog.require('goog.dom.TagName');
-const TrustedResourceUrl = goog.require('goog.html.TrustedResourceUrl');
-const TypedString = goog.require('goog.string.TypedString');
-const asserts = goog.require('goog.asserts');
-const browser = goog.require('goog.labs.userAgent.browser');
-const googArray = goog.require('goog.array');
-const googObject = goog.require('goog.object');
-const internal = goog.require('goog.string.internal');
-const tags = goog.require('goog.dom.tags');
-const trustedtypes = goog.require('goog.html.trustedtypes');
-const utils = goog.require('goog.utils');
+var Const = goog.require('goog.string.Const');
+var SafeScript = goog.require('goog.html.SafeScript');
+var SafeStyle = goog.require('goog.html.SafeStyle');
+var SafeStyleSheet = goog.require('goog.html.SafeStyleSheet');
+var SafeUrl = goog.require('goog.html.SafeUrl');
+var TagName = goog.require('goog.dom.TagName');
+var TrustedResourceUrl = goog.require('goog.html.TrustedResourceUrl');
+var TypedString = goog.require('goog.string.TypedString');
+var asserts = goog.require('goog.asserts');
+var browser = goog.require('goog.labs.userAgent.browser');
+var googArray = goog.require('goog.array');
+var googObject = goog.require('goog.object');
+var internal = goog.require('goog.string.internal');
+var tags = goog.require('goog.dom.tags');
+var trustedtypes = goog.require('goog.html.trustedtypes');
+var utils = goog.require('goog.utils');
 
 /**
  * Token used to ensure that object is created only from this file. No code
@@ -36,7 +36,8 @@ const utils = goog.require('goog.utils');
  * @type {!Object}
  * @const
  */
-const CONSTRUCTOR_TOKEN_PRIVATE = {};
+/** @type {!Object} */
+var CONSTRUCTOR_TOKEN_PRIVATE = {};
 
 /**
  * A string that is safe to use in HTML context in DOM APIs and HTML documents.
@@ -77,7 +78,7 @@ const CONSTRUCTOR_TOKEN_PRIVATE = {};
  * @see SafeHtml.htmlEscape
  * @final
  * @struct
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeHtml {
   /**
@@ -126,7 +127,6 @@ class SafeHtml {
    *
    * @return {string}
    * @see SafeHtml.unwrap
-   * @override
    */
   getTypedStringValue() {
     return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
@@ -140,7 +140,6 @@ class SafeHtml {
    *
    * @return {string}
    * @see SafeHtml.unwrap
-   * @override
    */
   toString() {
     return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
@@ -452,6 +451,7 @@ class SafeHtml {
     TrustedResourceUrl.unwrap(src);
 
     const fixedAttributes = {'src': src};
+    /** @type {!Object<string, string>} */
     const defaultAttributes = {};
     const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, defaultAttributes, attributes);
     return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('script', combinedAttrs);
@@ -485,9 +485,9 @@ class SafeHtml {
     }
 
     let content = '';
-    script = googArray.concat(script);
-    for (let i = 0; i < script.length; i++) {
-      content += SafeScript.unwrap(script[i]);
+    const scripts = googArray.concat(script);
+    for (let i = 0; i < scripts.length; i++) {
+      content += SafeScript.unwrap(scripts[i]);
     }
     // Convert to SafeHtml so that it's not HTML-escaped. This is safe because
     // as part of its contract, SafeScript should have no dangerous '<'.
@@ -512,13 +512,14 @@ class SafeHtml {
    */
   static createStyle(styleSheet, attributes = undefined) {
     const fixedAttributes = {'type': 'text/css'};
+    /** @type {!Object<string, string>} */
     const defaultAttributes = {};
     const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, defaultAttributes, attributes);
 
     let content = '';
-    styleSheet = googArray.concat(styleSheet);
-    for (let i = 0; i < styleSheet.length; i++) {
-      content += SafeStyleSheet.unwrap(styleSheet[i]);
+    const styleSheets = googArray.concat(styleSheet);
+    for (let i = 0; i < styleSheets.length; i++) {
+      content += SafeStyleSheet.unwrap(styleSheets[i]);
     }
     // Convert to SafeHtml so that it's not HTML-escaped. This is safe because
     // as part of its contract, SafeStyleSheet should have no dangerous '<'.
@@ -578,7 +579,7 @@ class SafeHtml {
    */
   static join(separator, parts) {
     const separatorHtml = SafeHtml.htmlEscape(separator);
-    const content = [];
+    const /** @type {Array<*>} */ content = [];
 
     /**
      * @param {!SafeHtml.TextOrHtml_|
@@ -702,13 +703,13 @@ class SafeHtml {
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty#Using_hasOwnProperty_as_a_property_name
       if (Object.prototype.hasOwnProperty.call(fixedAttributes, name)) {
         asserts.assert(name.toLowerCase() == name, 'Must be lower case');
-        combinedAttributes[name] = fixedAttributes[name];
+        /** @type {!Object<string, *>} */ (combinedAttributes)[name] = fixedAttributes[name];
       }
     }
     for (const name in defaultAttributes) {
       if (Object.prototype.hasOwnProperty.call(defaultAttributes, name)) {
         asserts.assert(name.toLowerCase() == name, 'Must be lower case');
-        combinedAttributes[name] = defaultAttributes[name];
+        /** @type {!Object<string, *>} */ (combinedAttributes)[name] = defaultAttributes[name];
       }
     }
 
@@ -724,9 +725,9 @@ class SafeHtml {
             );
           }
           if (nameLower in defaultAttributes) {
-            delete combinedAttributes[nameLower];
+            delete (/** @type {!Object<string, *>} */ (combinedAttributes)[nameLower]);
           }
-          combinedAttributes[name] = attributes[name];
+          /** @type {!Object<string, *>} */ (combinedAttributes)[name] = attributes[name];
         }
       }
     }
@@ -927,7 +928,7 @@ SafeHtml.DOCTYPE_HTML = /** @type {!SafeHtml} */ (
  * A SafeHtml instance corresponding to the empty string.
  * @const {!SafeHtml}
  */
-SafeHtml.EMPTY = new SafeHtml(
+SafeHtml.EMPTY = new /** @type {function(new:SafeHtml, ...?)} */ (/** @type {?} */ (SafeHtml))(
   (goog.global.trustedTypes && goog.global.trustedTypes.emptyHTML) || '',
   CONSTRUCTOR_TOKEN_PRIVATE,
 );

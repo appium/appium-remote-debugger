@@ -229,17 +229,18 @@ webdriver.atoms.inject.action.doubleClick = function (opt_mouseState, opt_window
  * @param {bot.inject.JsonWindow=} opt_window The window context for
  *     the execution of the function.
  * @return {string} The serialized JSON wire protocol result of the function.
- * @private
  */
 webdriver.atoms.inject.action.executeActionFunction_ = function (fn, args, opt_window) {
   var response;
   try {
     var targetWindow = webdriver.atoms.inject.getWindow(opt_window);
-    var unwrappedArgs = /** @type {Array} */ (bot.inject.unwrapValue(args, targetWindow.document));
+    var unwrappedArgs = /** @type {Array<*>} */ (bot.inject.unwrapValue(args, targetWindow.document));
     var functionResult = fn.apply(null, unwrappedArgs);
     response = bot.inject.wrapResponse(functionResult);
   } catch (ex) {
-    response = bot.inject.wrapError(ex);
+    response = bot.inject.wrapError(/** @type {!Error} */ (ex));
   }
   return goog.json.serialize(response);
 };
+/** @private */
+webdriver.atoms.inject.action.executeActionFunction_;

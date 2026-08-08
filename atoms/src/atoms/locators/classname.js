@@ -29,18 +29,20 @@ goog.require('goog.string');
  *     selector support.
  * @return {boolean} Whether or not the root supports query selector APIs.
  * @see http://www.w3.org/TR/selectors-api/
- * @private
  */
 bot.locators.className.canUseQuerySelector_ = function (root) {
-  return !!(root.querySelectorAll && root.querySelector);
+  var untypedRoot = /** @type {?} */ (root);
+  return !!(untypedRoot.querySelectorAll && untypedRoot.querySelector);
 };
+/** @private */
+bot.locators.className.canUseQuerySelector_;
 
 /**
  * Find an element by its class name.
  * @param {string} target The class name to search for.
  * @param {!(Document|Element)} root The document or element to perform the
  *     search under.
- * @return {Element} The first matching element found in the DOM, or null if no
+ * @return {?Element} The first matching element found in the DOM, or null if no
  *     such element could be found.
  */
 bot.locators.className.single = function (target, root) {

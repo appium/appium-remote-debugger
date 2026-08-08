@@ -53,7 +53,6 @@ bot.color.standardizeColor = function (propertyName, propertyValue) {
  * http://www.w3.org/TR/CSS/#properties
  *
  * @const
- * @private {!Array.<string>}
  */
 bot.color.COLOR_PROPERTIES_ = [
   'backgroundColor',
@@ -64,20 +63,22 @@ bot.color.COLOR_PROPERTIES_ = [
   'color',
   'outlineColor',
 ];
+/** @private {!Array.<string>} */
+bot.color.COLOR_PROPERTIES_;
 
 /**
  * Regular expression for extracting the digits in a hex color triplet.
- * @private {!RegExp}
  * @const
  */
 bot.color.HEX_TRIPLET_RE_ = /#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/;
+/** @private {!RegExp} */
+bot.color.HEX_TRIPLET_RE_;
 
 /**
  * Converts a hex representation of a color to RGB.
  * @param {string} hexOrColorName Color to convert.
- * @return {?Array} array containing [r, g, b, 1] as ints in [0, 255] or null
+ * @return {?Array<*>} array containing [r, g, b, 1] as ints in [0, 255] or null
  *     for invalid colors.
- * @private
  */
 bot.color.maybeConvertHexOrColorName_ = function (hexOrColorName) {
   hexOrColorName = hexOrColorName.toLowerCase();
@@ -100,20 +101,24 @@ bot.color.maybeConvertHexOrColorName_ = function (hexOrColorName) {
 
   return [r, g, b, 1];
 };
+/** @private */
+bot.color.maybeConvertHexOrColorName_;
 
 /**
  * Helper for isValidHexColor_.
- * @private {!RegExp}
  * @const
  */
 bot.color.VALID_HEX_COLOR_RE_ = /^#(?:[0-9a-f]{3}){1,2}$/i;
+/** @private {!RegExp} */
+bot.color.VALID_HEX_COLOR_RE_;
 
 /**
  * Regular expression for matching and capturing RGBA style strings.
- * @private {!RegExp}
  * @const
  */
 bot.color.RGBA_COLOR_RE_ = /^(?:rgba)?\((\d{1,3}),\s?(\d{1,3}),\s?(\d{1,3}),\s?(0|1|0\.\d*)\)$/i;
+/** @private {!RegExp} */
+bot.color.RGBA_COLOR_RE_;
 
 /**
  * Attempts to parse a string as an rgba color.  We expect strings of the
@@ -122,7 +127,6 @@ bot.color.RGBA_COLOR_RE_ = /^(?:rgba)?\((\d{1,3}),\s?(\d{1,3}),\s?(\d{1,3}),\s?(
  * @param {string} str String to check.
  * @return {?Array.<number>} the integers [r, g, b, a] for valid colors or null
  *     for invalid colors.
- * @private
  */
 bot.color.maybeParseRgbaColor_ = function (str) {
   // Each component is separate (rather than using a repeater) so we can
@@ -140,13 +144,16 @@ bot.color.maybeParseRgbaColor_ = function (str) {
   }
   return null;
 };
+/** @private */
+bot.color.maybeParseRgbaColor_;
 
 /**
  * Regular expression for matching and capturing RGB style strings.
- * @private {!RegExp}
  * @const
  */
 bot.color.RGB_COLOR_RE_ = /^(?:rgb)?\((0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2})\)$/i;
+/** @private {!RegExp} */
+bot.color.RGB_COLOR_RE_;
 
 /**
  * Attempts to parse a string as an rgb color.  We expect strings of the format
@@ -155,7 +162,6 @@ bot.color.RGB_COLOR_RE_ = /^(?:rgb)?\((0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2}),\s?(0
  * @param {string} str String to check.
  * @return {?Array.<number>} the integers [r, g, b, 1] for valid colors or null
  *     for invalid colors.
- * @private
  */
 bot.color.maybeParseRgbColor_ = function (str) {
   // Each component is separate (rather than using a repeater) so we can
@@ -172,3 +178,5 @@ bot.color.maybeParseRgbColor_ = function (str) {
   }
   return null;
 };
+/** @private */
+bot.color.maybeParseRgbColor_;

@@ -48,8 +48,7 @@ goog.require('goog.utils');
 
  *
  * @param {!Element} element The element to check.
- * @see bot.dom.isShown.
- * @private
+ * (see: bot.dom.isShown.
  */
 bot.action.checkShown_ = function (element) {
   if (!bot.dom.isShown(element, /*ignoreOpacity=*/ true)) {
@@ -59,14 +58,15 @@ bot.action.checkShown_ = function (element) {
     );
   }
 };
+/** @private */
+bot.action.checkShown_;
 
 /**
  * Throws an exception if the given element cannot be interacted with.
  *
  * @param {!Element} element The element to check.
  * @throws {bot.Error} If the element cannot be interacted with.
- * @see bot.dom.isInteractable.
- * @private
+ * (see: bot.dom.isInteractable.
  */
 bot.action.checkInteractable_ = function (element) {
   if (!bot.dom.isInteractable(element)) {
@@ -76,6 +76,8 @@ bot.action.checkInteractable_ = function (element) {
     );
   }
 };
+/** @private */
+bot.action.checkInteractable_;
 
 /**
  * Clears the given `element` if it is a editable text field.
@@ -89,14 +91,14 @@ bot.action.clear = function (element) {
     throw new bot.Error(bot.ErrorCode.INVALID_ELEMENT_STATE, 'Element must be user-editable in order to clear it.');
   }
 
-  if (element.value) {
+  if (/** @type {!HTMLElement} */ (element).value) {
     bot.action.LegacyDevice_.focusOnElement(element);
     if (goog.userAgent.IE && bot.dom.isInputType(element, 'range')) {
-      var min = element.min ? element.min : 0;
-      var max = element.max ? element.max : 100;
-      element.value = max < min ? min : min + (max - min) / 2;
+      var min = /** @type {!HTMLElement} */ (element).min ? Number(/** @type {!HTMLElement} */ (element).min) : 0;
+      var max = /** @type {!HTMLElement} */ (element).max ? Number(/** @type {!HTMLElement} */ (element).max) : 100;
+      /** @type {!HTMLElement} */ (element).value = String(max < min ? min : min + (max - min) / 2);
     } else {
-      element.value = '';
+      /** @type {!HTMLElement} */ (element).value = '';
     }
     bot.events.fire(element, bot.events.EventType.CHANGE);
     if (goog.userAgent.IE) {
@@ -111,13 +113,13 @@ bot.action.clear = function (element) {
   } else if (
     bot.dom.isElement(element, goog.dom.TagName.INPUT) &&
     element.getAttribute('type') &&
-    element.getAttribute('type').toLowerCase() == 'number'
+    /** @type {string} */ (element.getAttribute('type')).toLowerCase() == 'number'
   ) {
     // number input fields that have invalid inputs
     // report their value as empty string with no way to tell if there is a
     // current value or not
     bot.action.LegacyDevice_.focusOnElement(element);
-    element.value = '';
+    /** @type {!HTMLElement} */ (element).value = '';
   } else if (bot.dom.isContentEditable(element)) {
     // A single space is required, if you put empty string here you'll not be
     // able to interact with this element anymore in Firefox.
@@ -181,20 +183,23 @@ bot.action.type = function (element, values, opt_keyboard, opt_persistModifiers)
   var keyboard = opt_keyboard || new bot.Keyboard();
   keyboard.moveCursor(element);
 
-  function typeValue(value) {
+  /** @param {*} value */ function typeValue(value) {
     if (typeof value === 'string') {
-      goog.array.forEach(value.split(''), function (ch) {
-        var keyShiftPair = bot.Keyboard.Key.fromChar(ch);
-        var shiftIsPressed = keyboard.isPressed(bot.Keyboard.Keys.SHIFT);
-        if (keyShiftPair.shift && !shiftIsPressed) {
-          keyboard.pressKey(bot.Keyboard.Keys.SHIFT);
-        }
-        keyboard.pressKey(keyShiftPair.key);
-        keyboard.releaseKey(keyShiftPair.key);
-        if (keyShiftPair.shift && !shiftIsPressed) {
-          keyboard.releaseKey(bot.Keyboard.Keys.SHIFT);
-        }
-      });
+      goog.array.forEach(
+        value.split(''),
+        /** @param {*} ch */ function (ch) {
+          var keyShiftPair = bot.Keyboard.Key.fromChar(ch);
+          var shiftIsPressed = keyboard.isPressed(bot.Keyboard.Keys.SHIFT);
+          if (keyShiftPair.shift && !shiftIsPressed) {
+            keyboard.pressKey(bot.Keyboard.Keys.SHIFT);
+          }
+          keyboard.pressKey(keyShiftPair.key);
+          keyboard.releaseKey(keyShiftPair.key);
+          if (keyShiftPair.shift && !shiftIsPressed) {
+            keyboard.releaseKey(bot.Keyboard.Keys.SHIFT);
+          }
+        },
+      );
     } else if (goog.array.contains(bot.Keyboard.MODIFIERS, value)) {
       if (keyboard.isPressed(/** @type {!bot.Keyboard.Key} */ (value))) {
         keyboard.releaseKey(value);
@@ -209,8 +214,12 @@ bot.action.type = function (element, values, opt_keyboard, opt_persistModifiers)
 
   // mobile safari (iPhone / iPad). one cannot 'type' in a date field
   // chrome implements this, but desktop Safari doesn't, what's webkit again?
-  if (!(goog.userAgent.product.SAFARI && !goog.userAgent.MOBILE) && goog.userAgent.WEBKIT && element.type == 'date') {
-    var val = Array.isArray(values) ? (values = values.join('')) : values;
+  if (
+    !(goog.userAgent.product.SAFARI && !goog.userAgent.MOBILE) &&
+    goog.userAgent.WEBKIT &&
+    /** @type {!HTMLElement} */ (element).type == 'date'
+  ) {
+    var val = /** @type {string} */ (Array.isArray(values) ? (values = values.join('')) : values);
     var datePattern = /\d{4}-\d{2}-\d{2}/;
     if (val.match(datePattern)) {
       // The following events get fired on iOS first
@@ -219,7 +228,7 @@ bot.action.type = function (element, values, opt_keyboard, opt_persistModifiers)
         bot.events.fire(element, bot.events.EventType.TOUCHEND);
       }
       bot.events.fire(element, bot.events.EventType.FOCUS);
-      element.value = val.match(datePattern)[0];
+      /** @type {!HTMLElement} */ (element).value = /** @type {!Array<string>} */ (val.match(datePattern))[0];
       bot.events.fire(element, bot.events.EventType.CHANGE);
       bot.events.fire(element, bot.events.EventType.BLUR);
       return;
@@ -234,11 +243,14 @@ bot.action.type = function (element, values, opt_keyboard, opt_persistModifiers)
 
   if (!opt_persistModifiers) {
     // Release all the modifier keys.
-    goog.array.forEach(bot.Keyboard.MODIFIERS, function (key) {
-      if (keyboard.isPressed(key)) {
-        keyboard.releaseKey(key);
-      }
-    });
+    goog.array.forEach(
+      bot.Keyboard.MODIFIERS,
+      /** @param {*} key */ function (key) {
+        if (keyboard.isPressed(key)) {
+          keyboard.releaseKey(key);
+        }
+      },
+    );
   }
 };
 
@@ -392,7 +404,7 @@ bot.action.drag = function (element, dx, dy, opt_steps, opt_coords, opt_mouse) {
   }
   mouse.releaseButton();
 
-  function moveTo(x, y) {
+  /** @param {*} x @param {*} y */ function moveTo(x, y) {
     var currRect = bot.dom.getClientRect(element);
     var newPos = new goog.math.Coordinate(
       coords.x + initRect.left + x - currRect.left,
@@ -449,7 +461,7 @@ bot.action.swipe = function (element, dx, dy, opt_steps, opt_coords, opt_touchsc
   }
   touchscreen.release();
 
-  function moveTo(x, y) {
+  /** @param {*} x @param {*} y */ function moveTo(x, y) {
     var currRect = bot.dom.getClientRect(element);
     var newPos = new goog.math.Coordinate(
       coords.x + initRect.left + x - currRect.left,
@@ -478,14 +490,14 @@ bot.action.pinch = function (element, distance, opt_coords, opt_touchscreen) {
   if (distance == 0) {
     throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot pinch by a distance of zero.');
   }
-  function startSoThatEndsAtMax(offsetVec) {
+  /** @param {*} offsetVec */ function startSoThatEndsAtMax(offsetVec) {
     if (distance < 0) {
       var magnitude = offsetVec.magnitude();
       offsetVec.scale(magnitude ? (magnitude + distance) / magnitude : 0);
     }
   }
   var halfDistance = distance / 2;
-  function scaleByHalfDistance(offsetVec) {
+  /** @param {*} offsetVec */ function scaleByHalfDistance(offsetVec) {
     var magnitude = offsetVec.magnitude();
     offsetVec.scale(magnitude ? (magnitude - halfDistance) / magnitude : 0);
   }
@@ -510,11 +522,11 @@ bot.action.rotate = function (element, angle, opt_coords, opt_touchscreen) {
   if (angle == 0) {
     throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, 'Cannot rotate by an angle of zero.');
   }
-  function startHalfwayToMax(offsetVec) {
+  /** @param {*} offsetVec */ function startHalfwayToMax(offsetVec) {
     offsetVec.scale(0.5);
   }
   var halfRadians = (Math.PI * (angle / 180)) / 2;
-  function rotateByHalfAngle(offsetVec) {
+  /** @param {*} offsetVec */ function rotateByHalfAngle(offsetVec) {
     offsetVec.rotate(halfRadians);
   }
   bot.action.multiTouchAction_(element, startHalfwayToMax, rotateByHalfAngle, opt_coords, opt_touchscreen);
@@ -529,15 +541,14 @@ bot.action.rotate = function (element, angle, opt_coords, opt_touchscreen) {
  * twice to find the midpoint and final position of the fingers.
  *
  * @param {!Element} element Element to interact with.
- * @param {function(goog.math.Vec2)} transformStart Function to transform the
+ * @param {function(goog.math.Vec2):*} transformStart Function to transform the
  *   maximum offset vector to the starting offset vector.
- * @param {function(goog.math.Vec2)} transformHalf Function to transform the
+ * @param {function(goog.math.Vec2):*} transformHalf Function to transform the
  *   offset vector halfway to its destination.
  * @param {goog.math.Coordinate=} opt_coords Position relative to the element
  *   at the center of the pinch.
  * @param {bot.Touchscreen=} opt_touchscreen Touchscreen to use; if not
  *    provided, constructs one.
- * @private
  */
 bot.action.multiTouchAction_ = function (element, transformStart, transformHalf, opt_coords, opt_touchscreen) {
   var center = bot.action.prepareToInteractWith_(element, opt_coords);
@@ -571,6 +582,8 @@ bot.action.multiTouchAction_ = function (element, transformStart, transformHalf,
   touchScreen.move(element, end1, end2);
   touchScreen.release();
 };
+/** @private */
+bot.action.multiTouchAction_;
 
 /**
  * Prepares to interact with the given `element`. It checks if the the
@@ -581,7 +594,6 @@ bot.action.multiTouchAction_ = function (element, transformStart, transformHalf,
  * @param {goog.math.Coordinate=} opt_coords Position relative to the target.
  * @return {!goog.math.Vec2} Coordinates at the center of the interaction.
  * @throws {bot.Error} If the element cannot be interacted with.
- * @private
  */
 bot.action.prepareToInteractWith_ = function (element, opt_coords) {
   bot.action.checkShown_(element);
@@ -602,6 +614,8 @@ bot.action.prepareToInteractWith_ = function (element, opt_coords) {
     return new goog.math.Vec2(size.width / 2, size.height / 2);
   }
 };
+/** @private */
+bot.action.prepareToInteractWith_;
 
 /**
  * Returns the interactable size of an element.
@@ -611,24 +625,29 @@ bot.action.prepareToInteractWith_ = function (element, opt_coords) {
  */
 bot.action.getInteractableSize = function (elem) {
   var size = goog.style.getSize(elem);
-  return (size.width > 0 && size.height > 0) || !elem.offsetParent
+  return (size.width > 0 && size.height > 0) || !(/** @type {!HTMLElement} */ (elem).offsetParent)
     ? size
-    : bot.action.getInteractableSize(elem.offsetParent);
+    : bot.action.getInteractableSize(/** @type {!HTMLElement} */ (elem).offsetParent);
 };
 
 /**
  * A Device that is intended to allows access to protected members of the
  * Device superclass. A singleton.
  *
- * @constructor
  * @extends {bot.Device}
- * @private
  */
-bot.action.LegacyDevice_ = function () {
-  bot.Device.call(this);
+bot.action.LegacyDevice_ = class extends bot.Device {
+  constructor() {
+    super();
+  }
 };
-goog.utils.inherits(bot.action.LegacyDevice_, bot.Device);
 goog.utils.addSingletonGetter(bot.action.LegacyDevice_);
+/**
+ * Added dynamically by goog.utils.addSingletonGetter above; declared here since tsc can't see
+ * through that call.
+ * @type {function(): !bot.action.LegacyDevice_}
+ */
+bot.action.LegacyDevice_.getInstance;
 
 /**
  * Focuses on the given element.  See {@link bot.device.focusOnElement}.
@@ -655,7 +674,7 @@ bot.action.LegacyDevice_.submitForm = function (element, form) {
 /**
  * Find FORM element that is an ancestor of the passed in element.  See
  * {@link bot.device.findAncestorForm}.
- * @param {!Element} element The element to find an ancestor form.
+ * @param {Node} element The element to find an ancestor form.
  * @return {Element} form The ancestor form, or null if none.
  */
 bot.action.LegacyDevice_.findAncestorForm = function (element) {
@@ -699,7 +718,7 @@ bot.action.scrollIntoView = function (element, opt_region) {
   }
   return bot.dom.OverflowState.NONE == bot.dom.getOverflowState(element, opt_region);
 
-  function scrollClientRegionIntoContainerView(container) {
+  /** @param {*} container */ function scrollClientRegionIntoContainerView(container) {
     // Based largely from goog.style.scrollIntoContainerView.
     var containerRect = bot.dom.getClientRect(container);
     var containerBorder = goog.style.getBorderBox(container);

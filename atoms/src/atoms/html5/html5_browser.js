@@ -48,28 +48,30 @@ bot.html5.API = {
 
 /**
  * True if the current browser is IE version 8 or earlier.
- * @private {boolean}
  * @const
  */
 bot.html5.IS_IE8_OR_EARLIER_ = goog.userAgent.IE && !bot.userAgent.isEngineVersion(9);
+/** @private {boolean} */
+bot.html5.IS_IE8_OR_EARLIER_;
 
 /**
  * True if the current browser is Safari version 4 or earlier.
- * @private {boolean}
  * @const
  */
 bot.html5.IS_SAFARI4_OR_EARLIER_ = goog.userAgent.product.SAFARI && !bot.userAgent.isProductVersion(5);
+/** @private {boolean} */
+bot.html5.IS_SAFARI4_OR_EARLIER_;
 
 /**
  * True if the browser is Android version 2.2 (Froyo) or earlier.
- * @private {boolean}
  * @const
  */
 bot.html5.IS_ANDROID_FROYO_OR_EARLIER_ = goog.userAgent.product.ANDROID && !bot.userAgent.isProductVersion(2.3);
+/** @private {boolean} */
+bot.html5.IS_ANDROID_FROYO_OR_EARLIER_;
 
 /**
  * True if the current browser is Safari 5 on Windows.
- * @private {boolean}
  * @const
  */
 bot.html5.IS_SAFARI_WINDOWS_ =
@@ -77,6 +79,8 @@ bot.html5.IS_SAFARI_WINDOWS_ =
   goog.userAgent.product.SAFARI &&
   bot.userAgent.isProductVersion(4) &&
   !bot.userAgent.isProductVersion(6);
+/** @private {boolean} */
+bot.html5.IS_SAFARI_WINDOWS_;
 
 /**
  * Checks if the browser supports an HTML5 feature.

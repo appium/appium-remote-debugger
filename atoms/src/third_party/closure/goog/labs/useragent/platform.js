@@ -6,7 +6,7 @@
 
 /**
  * @fileoverview Closure user agent platform detection.
- * @see <a href="http://www.useragentstring.com/">User agent strings</a>
+ * (see: <a href="http://www.useragentstring.com/">User agent strings</a>
  * For more information on browser brand, rendering engine, or device see the
  * other sub-namespaces in goog.labs.userAgent (browser, engine, and device
  * respectively).
@@ -15,11 +15,11 @@
 goog.module('goog.labs.userAgent.platform');
 goog.module.declareLegacyNamespace();
 
-const googString = goog.require('goog.string.internal');
-const util = goog.require('goog.labs.userAgent.util');
-const {AsyncValue, Version} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
-const {platformVersion} = goog.require('goog.labs.userAgent.highEntropy.highEntropyData');
-const {useClientHints} = goog.require('goog.labs.userAgent');
+var googString = goog.require('goog.string.internal');
+var util = goog.require('goog.labs.userAgent.util');
+var {AsyncValue, Version} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
+var {platformVersion} = goog.require('goog.labs.userAgent.highEntropy.highEntropyData');
+var {useClientHints} = goog.require('goog.labs.userAgent');
 
 /**
  * @param {boolean=} ignoreClientHintsFlag Iff truthy, the `useClientHints`
@@ -171,8 +171,9 @@ function isKaiOS() {
  */
 function getVersion() {
   const userAgentString = util.getUserAgent();
-  let version = '',
-    re;
+  /** @type {?string} */
+  let version = '';
+  let re;
   if (isWindows()) {
     re = /Windows (?:NT|Phone) ([0-9.]+)/;
     const match = re.exec(userAgentString);
@@ -219,7 +220,7 @@ function isVersionOrHigher(version) {
 
 /**
  * Represents a high-entropy version string.
- * @implements {AsyncValue<!Version>}
+ * (implements AsyncValue<!Version>)
  */
 class PlatformVersion {
   constructor() {
@@ -229,7 +230,6 @@ class PlatformVersion {
 
   /**
    * @return {!Version|undefined}
-   * @override
    */
   getIfLoaded() {
     if (useUserAgentDataPlatform(true)) {
@@ -253,7 +253,6 @@ class PlatformVersion {
 
   /**
    * @return {!Promise<!Version>}
-   * @override
    */
   async load() {
     if (useUserAgentDataPlatform(true)) {

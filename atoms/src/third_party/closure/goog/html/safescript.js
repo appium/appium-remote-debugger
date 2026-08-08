@@ -13,18 +13,19 @@
 goog.module('goog.html.SafeScript');
 goog.module.declareLegacyNamespace();
 
-const Const = goog.require('goog.string.Const');
-const TypedString = goog.require('goog.string.TypedString');
-const trustedtypes = goog.require('goog.html.trustedtypes');
-const {fail} = goog.require('goog.asserts');
-const utils = goog.require('goog.utils');
+var Const = goog.require('goog.string.Const');
+var TypedString = goog.require('goog.string.TypedString');
+var trustedtypes = goog.require('goog.html.trustedtypes');
+var {fail} = goog.require('goog.asserts');
+var utils = goog.require('goog.utils');
 
 /**
  * Token used to ensure that object is created only from this file. No code
  * outside of this file can access this token.
  * @const {!Object}
  */
-const CONSTRUCTOR_TOKEN_PRIVATE = {};
+/** @type {!Object} */
+var CONSTRUCTOR_TOKEN_PRIVATE = {};
 
 /**
  * A string-like object which represents JavaScript code and that carries the
@@ -64,7 +65,7 @@ const CONSTRUCTOR_TOKEN_PRIVATE = {};
  *
  * @see SafeScript#fromConstant
  * @final
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeScript {
   /**
@@ -100,7 +101,6 @@ class SafeScript {
    *
    * @return {string}
    * @see SafeScript#unwrap
-   * @override
    */
   toString() {
     return this.privateDoNotAccessOrElseSafeScriptWrappedValue_.toString();
@@ -150,7 +150,6 @@ class SafeScript {
    * </pre>
    *
    * @see SafeScript#unwrap
-   * @override
    */
   getTypedStringValue() {
     return this.privateDoNotAccessOrElseSafeScriptWrappedValue_.toString();

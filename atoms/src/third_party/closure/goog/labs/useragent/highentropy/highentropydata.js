@@ -10,7 +10,7 @@
 
 goog.module('goog.labs.userAgent.highEntropy.highEntropyData');
 
-const {HighEntropyValue} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
+var {HighEntropyValue} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
 
 /**
  * @type {!HighEntropyValue<!Array<!NavigatorUABrandVersion>|undefined>}

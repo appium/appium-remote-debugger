@@ -44,7 +44,7 @@ webdriver.atoms.inject.executeScript = function (fn, args, opt_window) {
  * @param {!(string|Function)} fn The function to execute.
  * @param {Array.<*>} args Array of arguments to pass to fn.
  * @param {number} timeout The timeout to wait up to in millis.
- * @param {function(string)|function(!bot.response.ResponseObject)} onDone
+ * @param {function(string):*|function(!bot.response.ResponseObject):*} onDone
  *     The function to call when the given `fn` invokes its callback,
  *     or when an exception or timeout occurs. This will always be called.
  * @param {{WINDOW: string}=} opt_window The serialized window
@@ -68,7 +68,7 @@ webdriver.atoms.inject.executeAsyncScript = function (fn, args, timeout, onDone,
 webdriver.atoms.inject.getWindow = function (opt_window) {
   var win;
   if (opt_window) {
-    win = bot.inject.cache.getElement(opt_window[bot.inject.WINDOW_KEY]);
+    win = bot.inject.cache.getElement(/** @type {?} */ (opt_window)[bot.inject.WINDOW_KEY]);
   } else {
     win = window;
   }

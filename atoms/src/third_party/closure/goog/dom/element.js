@@ -7,9 +7,9 @@
 goog.module('goog.dom.element');
 goog.module.declareLegacyNamespace();
 
-const NodeType = goog.require('goog.dom.NodeType');
-const TagName = goog.require('goog.dom.TagName');
-const utils = goog.require('goog.utils');
+var NodeType = goog.require('goog.dom.NodeType');
+var TagName = goog.require('goog.dom.TagName');
+var utils = goog.require('goog.utils');
 
 /** @const {string}  */
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';

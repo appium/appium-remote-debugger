@@ -13,20 +13,21 @@
 goog.module('goog.html.SafeStyleSheet');
 goog.module.declareLegacyNamespace();
 
-const Const = goog.require('goog.string.Const');
-const SafeStyle = goog.require('goog.html.SafeStyle');
-const TypedString = goog.require('goog.string.TypedString');
-const googObject = goog.require('goog.object');
-const {assert, fail} = goog.require('goog.asserts');
-const {contains} = goog.require('goog.string.internal');
-const utils = goog.require('goog.utils');
+var Const = goog.require('goog.string.Const');
+var SafeStyle = goog.require('goog.html.SafeStyle');
+var TypedString = goog.require('goog.string.TypedString');
+var googObject = goog.require('goog.object');
+var {assert, fail} = goog.require('goog.asserts');
+var {contains: stringContains} = goog.require('goog.string.internal');
+var utils = goog.require('goog.utils');
 
 /**
  * Token used to ensure that object is created only from this file. No code
  * outside of this file can access this token.
  * @const {!Object}
  */
-const CONSTRUCTOR_TOKEN_PRIVATE = {};
+/** @type {!Object} */
+var CONSTRUCTOR_TOKEN_PRIVATE = {};
 
 /**
  * A string-like object which represents a CSS style sheet and that carries the
@@ -66,7 +67,7 @@ const CONSTRUCTOR_TOKEN_PRIVATE = {};
  *
  * @see SafeStyleSheet#fromConstant
  * @final
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeStyleSheet {
   /**
@@ -102,7 +103,6 @@ class SafeStyleSheet {
    *
    * @return {string}
    * @see SafeStyleSheet#unwrap
-   * @override
    */
   toString() {
     return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_.toString();
@@ -111,7 +111,7 @@ class SafeStyleSheet {
   /**
    * Creates a style sheet consisting of one selector and one style definition.
    * Use {@link SafeStyleSheet.concat} to create longer style sheets.
-   * This function doesn't support @import, @media and similar constructs.
+   * This function doesn't support the import, media, and similar at-rule constructs.
    * @param {string} selector CSS selector, e.g. '#id' or 'tag .class, #id'. We
    *     support CSS3 selectors: https://w3.org/TR/css3-selectors/#selectors.
    * @param {!SafeStyle.PropertyMap|!SafeStyle} style Style
@@ -120,7 +120,7 @@ class SafeStyleSheet {
    * @throws {!Error} If invalid selector is provided.
    */
   static createRule(selector, style) {
-    if (contains(selector, '<')) {
+    if (stringContains(selector, '<')) {
       throw new Error(`Selector does not allow '<', got: ${selector}`);
     }
 
@@ -151,7 +151,7 @@ class SafeStyleSheet {
    * @private
    */
   static hasBalancedBrackets_(s) {
-    const brackets = {'(': ')', '[': ']'};
+    const brackets = /** @type {!Object<string, string>} */ ({'(': ')', '[': ']'});
     const expectedBrackets = [];
     for (let i = 0; i < s.length; i++) {
       const ch = s[i];
@@ -209,7 +209,10 @@ class SafeStyleSheet {
     }
     // > is a valid character in CSS selectors and there's no strict need to
     // block it if we already block <.
-    assert(!contains(styleSheetString, '<'), `Forbidden '<' character in style sheet string: ${styleSheetString}`);
+    assert(
+      !stringContains(styleSheetString, '<'),
+      `Forbidden '<' character in style sheet string: ${styleSheetString}`,
+    );
     return SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
   }
 
@@ -232,7 +235,6 @@ class SafeStyleSheet {
    * </pre>
    *
    * @see SafeStyleSheet#unwrap
-   * @override
    */
   getTypedStringValue() {
     return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;

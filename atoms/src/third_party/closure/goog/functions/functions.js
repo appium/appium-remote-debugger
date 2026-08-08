@@ -35,7 +35,7 @@ goog.functions.constant = function (retValue) {
 
 /**
  * Always returns false.
- * @type {function(...): boolean}
+ * @type {function(...*): boolean}
  */
 goog.functions.FALSE = function () {
   'use strict';
@@ -44,7 +44,7 @@ goog.functions.FALSE = function () {
 
 /**
  * Always returns true.
- * @type {function(...): boolean}
+ * @type {function(...*): boolean}
  */
 goog.functions.TRUE = function () {
   'use strict';
@@ -53,7 +53,7 @@ goog.functions.TRUE = function () {
 
 /**
  * Always returns `null`.
- * @type {function(...): null}
+ * @type {function(...*): null}
  */
 goog.functions.NULL = function () {
   'use strict';
@@ -62,7 +62,7 @@ goog.functions.NULL = function () {
 
 /**
  * Always returns `undefined`.
- * @type {function(...): undefined}
+ * @type {function(...*): undefined}
  */
 goog.functions.UNDEFINED = function () {
   return undefined;
@@ -78,13 +78,13 @@ goog.functions.EMPTY = /** @type {?} */ (goog.functions.UNDEFINED);
  * A simple function that returns the first argument of whatever is passed
  * into it.
  * @param {T=} opt_returnValue The single value that will be returned.
- * @param {...*} var_args Optional trailing arguments. These are ignored.
+ * @param {*=} var_args Optional trailing arguments. These are ignored.
  * @return {T} The first argument passed in, or undefined if nothing was passed.
  * @template T
  */
 goog.functions.identity = function (opt_returnValue, var_args) {
   'use strict';
-  return opt_returnValue;
+  return /** @type {T} */ (opt_returnValue);
 };
 
 /**
@@ -124,6 +124,7 @@ goog.functions.fail = function (err) {
 goog.functions.lock = function (f, opt_numArgs) {
   'use strict';
   opt_numArgs = opt_numArgs || 0;
+  /** @this {?} */
   return function () {
     'use strict';
     const self = /** @type {*} */ (this);
@@ -162,6 +163,7 @@ goog.functions.nth = function (n) {
 goog.functions.partialRight = function (fn, var_args) {
   'use strict';
   const rightArgs = Array.prototype.slice.call(arguments, 1);
+  /** @this {?} */
   return function () {
     'use strict';
     // Even in strict mode, IE10/11 and Edge (non-Chromium) use global context
@@ -188,7 +190,7 @@ goog.functions.partialRight = function (fn, var_args) {
  */
 goog.functions.withReturnValue = function (f, retValue) {
   'use strict';
-  return goog.functions.sequence(f, goog.functions.constant(retValue));
+  return /** @type {function(...?):T} */ (goog.functions.sequence(f, goog.functions.constant(retValue)));
 };
 
 /**
@@ -222,6 +224,7 @@ goog.functions.compose = function (fn, var_args) {
   'use strict';
   const functions = arguments;
   const length = functions.length;
+  /** @this {?} */
   return function () {
     'use strict';
     const self = /** @type {*} */ (this);
@@ -248,6 +251,7 @@ goog.functions.sequence = function (var_args) {
   'use strict';
   const functions = arguments;
   const length = functions.length;
+  /** @this {?} */
   return function () {
     'use strict';
     const self = /** @type {*} */ (this);
@@ -272,6 +276,7 @@ goog.functions.and = function (var_args) {
   'use strict';
   const functions = arguments;
   const length = functions.length;
+  /** @this {?} */
   return function () {
     'use strict';
     const self = /** @type {*} */ (this);
@@ -297,6 +302,7 @@ goog.functions.or = function (var_args) {
   'use strict';
   const functions = arguments;
   const length = functions.length;
+  /** @this {?} */
   return function () {
     'use strict';
     const self = /** @type {*} */ (this);
@@ -318,6 +324,7 @@ goog.functions.or = function (var_args) {
  */
 goog.functions.not = function (f) {
   'use strict';
+  /** @this {?} */
   return function () {
     'use strict';
     const self = /** @type {*} */ (this);
@@ -333,7 +340,7 @@ goog.functions.not = function (f) {
  *
  * var factory = goog.partial(goog.functions.create, Class);
  *
- * @param {function(new:T, ...)} constructor The constructor for the Object.
+ * @param {function(new:T, ...*):*} constructor The constructor for the Object.
  * @param {...*} var_args The arguments to be passed to the constructor.
  * @return {T} A new instance of the class given in `constructor`.
  * @template T
@@ -356,8 +363,8 @@ goog.functions.create = function (constructor, var_args) {
   // obj is initialized by constructor.
   // arguments is only array-like so lacks shift(), but can be used with
   // the Array prototype function.
-  constructor.apply(obj, Array.prototype.slice.call(arguments, 1));
-  return obj;
+  constructor.apply(/** @type {T} */ (obj), Array.prototype.slice.call(arguments, 1));
+  return /** @type {T} */ (obj);
 };
 
 /**
@@ -384,7 +391,7 @@ goog.functions.CACHE_RETURN_VALUE = goog.define('goog.functions.CACHE_RETURN_VAL
 goog.functions.cacheReturnValue = function (fn) {
   'use strict';
   let called = false;
-  let value;
+  let /** @type {*} */ value;
 
   return function () {
     'use strict';
@@ -415,6 +422,7 @@ goog.functions.once = function (f) {
   'use strict';
   // Keep a reference to the function that we null out when we're done with
   // it -- that way, the function can be GC'd when we're done with it.
+  /** @type {?function():*} */
   let inner = f;
   return function () {
     'use strict';
@@ -439,7 +447,7 @@ goog.functions.once = function (f) {
  * pausing, resuming, and canceling debounced actions, use
  * `goog.async.Debouncer`.
  *
- * @param {function(this:SCOPE, ...?)} f Function to call.
+ * @param {function(this:SCOPE, ...?):*} f Function to call.
  * @param {number} interval Interval over which to debounce. The function will
  *     only be called after the full interval has elapsed since the last call.
  * @param {SCOPE=} opt_scope Object in whose scope to call the function.
@@ -449,14 +457,14 @@ goog.functions.once = function (f) {
 goog.functions.debounce = function (f, interval, opt_scope) {
   'use strict';
   let timeout = 0;
-  return /** @type {function(...?)} */ (
+  return /** @type {function(...?):*} */ (
     function (var_args) {
       'use strict';
       goog.global.clearTimeout(timeout);
-      const args = arguments;
+      const args = /** @type {!Array<*>} */ (/** @type {?} */ (arguments));
       timeout = goog.global.setTimeout(function () {
         'use strict';
-        f.apply(opt_scope, args);
+        f.apply(/** @type {?} */ (opt_scope), args);
       }, interval);
     }
   );
@@ -472,7 +480,7 @@ goog.functions.debounce = function (f, interval, opt_scope) {
  * the interval before sending a request out, as it leads to a perception of
  * slowness for the user.
  *
- * @param {function(this:SCOPE, ...?)} f Function to call.
+ * @param {function(this:SCOPE, ...?):*} f Function to call.
  * @param {number} interval Interval over which to throttle. The function can
  *     only be called once per interval.
  * @param {SCOPE=} opt_scope Object in whose scope to call the function.
@@ -483,7 +491,7 @@ goog.functions.throttle = function (f, interval, opt_scope) {
   'use strict';
   let timeout = 0;
   let shouldFire = false;
-  let storedArgs = [];
+  let /** @type {Array<*>} */ storedArgs = [];
 
   const handleTimeout = function () {
     'use strict';
@@ -499,13 +507,13 @@ goog.functions.throttle = function (f, interval, opt_scope) {
     timeout = goog.global.setTimeout(handleTimeout, interval);
     let args = storedArgs;
     storedArgs = []; // Avoid a space leak by clearing stored arguments.
-    f.apply(opt_scope, args);
+    f.apply(/** @type {?} */ (opt_scope), args);
   };
 
-  return /** @type {function(...?)} */ (
+  return /** @type {function(...?):*} */ (
     function (var_args) {
       'use strict';
-      storedArgs = arguments;
+      storedArgs = /** @type {!Array<*>} */ (/** @type {?} */ (arguments));
       if (!timeout) {
         fire();
       } else {
@@ -525,7 +533,7 @@ goog.functions.throttle = function (f, interval, opt_scope) {
  * final action, so there's no need to wait until the end of the interval before
  * sending the request out.
  *
- * @param {function(this:SCOPE, ...?)} f Function to call.
+ * @param {function(this:SCOPE, ...?):*} f Function to call.
  * @param {number} interval Interval over which to rate-limit. The function will
  *     only be called once per interval, and ignored for the remainer of the
  *     interval.
@@ -542,12 +550,12 @@ goog.functions.rateLimit = function (f, interval, opt_scope) {
     timeout = 0;
   };
 
-  return /** @type {function(...?)} */ (
+  return /** @type {function(...?):*} */ (
     function (var_args) {
       'use strict';
       if (!timeout) {
         timeout = goog.global.setTimeout(handleTimeout, interval);
-        f.apply(opt_scope, arguments);
+        f.apply(/** @type {?} */ (opt_scope), /** @type {!Array<*>} */ (/** @type {?} */ (arguments)));
       }
     }
   );

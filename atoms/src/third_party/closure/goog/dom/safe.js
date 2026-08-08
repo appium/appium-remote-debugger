@@ -62,20 +62,23 @@ goog.dom.safe.InsertAdjacentHtmlPosition = {
  */
 goog.dom.safe.insertAdjacentHtml = function (node, position, html) {
   'use strict';
-  node.insertAdjacentHTML(position, goog.html.SafeHtml.unwrapTrustedHTML(html));
+  /** @type {!HTMLElement} */ (node).insertAdjacentHTML(
+    /** @type {?} */ (position),
+    goog.html.SafeHtml.unwrapTrustedHTML(html),
+  );
 };
 
 /**
  * Tags not allowed in goog.dom.safe.setInnerHtml.
- * @private @const {!Object<string, boolean>}
+ * @const {!Object<string, boolean>}
  */
-goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = {
+goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = /** @type {!Object<string, boolean>} */ ({
   'MATH': true,
   'SCRIPT': true,
   'STYLE': true,
   'SVG': true,
   'TEMPLATE': true,
-};
+});
 
 /**
  * Whether assigning to innerHTML results in a non-spec-compliant clean-up. Used
@@ -93,7 +96,6 @@ goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = {
  * to the latter's recursive behavior), implying that this workaround would
  * not hurt performance and might actually improve it.
  * @return {boolean}
- * @private
  */
 goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(function () {
   'use strict';
@@ -112,10 +114,12 @@ goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(fun
   if (goog.DEBUG && !div.firstChild) {
     return false;
   }
-  var innerChild = div.firstChild.firstChild;
+  var innerChild = /** @type {!Node} */ (div.firstChild).firstChild;
   div.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(goog.html.SafeHtml.EMPTY);
-  return !innerChild.parentElement;
+  return !(/** @type {!Node} */ (innerChild).parentElement);
 });
+/** @private */
+goog.dom.safe.isInnerHtmlCleanupRecursive_;
 
 /**
  * Assigns HTML to an element's innerHTML property. Helper to use only here and
@@ -127,12 +131,13 @@ goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(fun
 goog.dom.safe.unsafeSetInnerHtmlDoNotUseOrElse = function (elem, html) {
   'use strict';
   // See comment above goog.dom.safe.isInnerHtmlCleanupRecursive_.
+  var nonNullElem = /** @type {!Element|!ShadowRoot} */ (elem);
   if (goog.dom.safe.isInnerHtmlCleanupRecursive_()) {
-    while (elem.lastChild) {
-      elem.removeChild(elem.lastChild);
+    while (nonNullElem.lastChild) {
+      nonNullElem.removeChild(nonNullElem.lastChild);
     }
   }
-  elem.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(html);
+  nonNullElem.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(html);
 };
 
 /**
@@ -289,7 +294,7 @@ goog.dom.safe.setInputFormAction = function (input, url) {
  */
 goog.dom.safe.setStyle = function (elem, style) {
   'use strict';
-  elem.style.cssText = goog.html.SafeStyle.unwrap(style);
+  /** @type {!HTMLElement} */ (elem).style.cssText = goog.html.SafeStyle.unwrap(style);
 };
 
 /**
@@ -405,7 +410,7 @@ goog.dom.safe.setVideoSrc = function (videoElement, url) {
 goog.dom.safe.setEmbedSrc = function (embed, url) {
   'use strict';
   goog.asserts.dom.assertIsHtmlEmbedElement(embed);
-  embed.src = goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url);
+  embed.src = /** @type {string} */ (goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url));
 };
 
 /**
@@ -505,7 +510,7 @@ goog.dom.safe.setLinkHrefAndRel = function (link, url, rel) {
       url instanceof goog.html.TrustedResourceUrl,
       'URL must be TrustedResourceUrl because "rel" contains "stylesheet"',
     );
-    link.href = goog.html.TrustedResourceUrl.unwrap(url);
+    link.href = goog.html.TrustedResourceUrl.unwrap(/** @type {!goog.html.TrustedResourceUrl} */ (url));
     const win = link.ownerDocument && link.ownerDocument.defaultView;
     const nonce = goog.dom.safe.getStyleNonce(win);
     if (nonce) {
@@ -541,7 +546,7 @@ goog.dom.safe.setLinkHrefAndRel = function (link, url, rel) {
 goog.dom.safe.setObjectData = function (object, url) {
   'use strict';
   goog.asserts.dom.assertIsHtmlObjectElement(object);
-  object.data = goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url);
+  object.data = /** @type {string} */ (goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url));
 };
 
 /**
@@ -563,7 +568,7 @@ goog.dom.safe.setScriptSrc = function (script, url) {
   'use strict';
   goog.asserts.dom.assertIsHtmlScriptElement(script);
   goog.dom.safe.setNonceForScriptElement_(script);
-  script.src = goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url);
+  script.src = /** @type {string} */ (goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(url));
 };
 
 /**
@@ -592,7 +597,6 @@ goog.dom.safe.setScriptContent = function (script, content) {
  * Set nonce-based CSPs to dynamically created scripts.
  * @param {!HTMLScriptElement} script The script element whose nonce value
  *     is to be calculated
- * @private
  */
 goog.dom.safe.setNonceForScriptElement_ = function (script) {
   'use strict';
@@ -602,6 +606,8 @@ goog.dom.safe.setNonceForScriptElement_ = function (script) {
     script.setAttribute('nonce', nonce);
   }
 };
+/** @private */
+goog.dom.safe.setNonceForScriptElement_;
 
 /**
  * Safely assigns a URL to a Location object's href property.
@@ -721,14 +727,14 @@ goog.dom.safe.replaceLocation = function (loc, url) {
  * user-/attacker-controlled value.
  *
  * @param {string|!goog.html.SafeUrl} url The URL to open.
- * @param {Window=} opt_openerWin Window of which to call the .open() method.
+ * @param {?Window=} opt_openerWin Window of which to call the .open() method.
  *     Defaults to the global window.
  * @param {!goog.string.Const|string=} opt_name Name of the window to open in.
  *     Can be _top, etc as allowed by window.open(). This accepts string for
  *     legacy reasons. Pass goog.string.Const if possible.
  * @param {string=} opt_specs Comma-separated list of specifications, same as
  *     in window.open().
- * @return {Window} Window the url was opened in.
+ * @return {?Window} Window the url was opened in.
  */
 goog.dom.safe.openInWindow = function (url, opt_openerWin, opt_name, opt_specs) {
   'use strict';
@@ -776,7 +782,7 @@ goog.dom.safe.parseFromStringHtml = function (parser, html) {
  */
 goog.dom.safe.parseFromString = function (parser, content, type) {
   'use strict';
-  return parser.parseFromString(goog.html.SafeHtml.unwrapTrustedHTML(content), type);
+  return parser.parseFromString(goog.html.SafeHtml.unwrapTrustedHTML(content), /** @type {?} */ (type));
 };
 
 /**
@@ -844,16 +850,17 @@ goog.dom.safe.getStyleNonce = function (opt_window) {
 /**
  * According to the CSP3 spec a nonce must be a valid base64 string.
  * @see https://www.w3.org/TR/CSP3/#grammardef-base64-value
- * @private @const
+ * @const
  */
 goog.dom.safe.NONCE_PATTERN_ = /^[\w+/_-]+[=]{0,2}$/;
+/** @private */
+goog.dom.safe.NONCE_PATTERN_;
 
 /**
  * Returns CSP nonce, if set for any tag of given type.
  * @param {string} selector Selector for locating the element with nonce.
  * @param {?Window=} win The window context used to retrieve the nonce.
  * @return {string} CSP nonce or empty string if no nonce is present.
- * @private
  */
 goog.dom.safe.getNonce_ = function (selector, win) {
   const doc = (win || goog.global).document;
@@ -866,10 +873,12 @@ goog.dom.safe.getNonce_ = function (selector, win) {
     // implement additional nonce protection features (currently only Chrome) to
     // prevent nonce stealing via CSS do not expose the nonce via attributes.
     // See https://github.com/whatwg/html/issues/2369
-    const nonce = el['nonce'] || el.getAttribute('nonce');
+    const nonce = /** @type {?} */ (el)['nonce'] || el.getAttribute('nonce');
     if (nonce && goog.dom.safe.NONCE_PATTERN_.test(nonce)) {
       return nonce;
     }
   }
   return '';
 };
+/** @private */
+goog.dom.safe.getNonce_;

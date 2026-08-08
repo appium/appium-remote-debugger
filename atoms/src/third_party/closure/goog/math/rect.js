@@ -19,27 +19,30 @@ goog.require('goog.math.Size');
 
 /**
  * Class for representing rectangular regions.
- * @param {number} x Left.
- * @param {number} y Top.
- * @param {number} w Width.
- * @param {number} h Height.
  * @struct
- * @constructor
  * @implements {goog.math.IRect}
  */
-goog.math.Rect = function (x, y, w, h) {
-  'use strict';
-  /** @type {number} */
-  this.left = x;
+goog.math.Rect = class {
+  /**
+   * @param {number} x Left.
+   * @param {number} y Top.
+   * @param {number} w Width.
+   * @param {number} h Height.
+   */
+  constructor(x, y, w, h) {
+    'use strict';
+    /** @type {number} */
+    this.left = x;
 
-  /** @type {number} */
-  this.top = y;
+    /** @type {number} */
+    this.top = y;
 
-  /** @type {number} */
-  this.width = w;
+    /** @type {number} */
+    this.width = w;
 
-  /** @type {number} */
-  this.height = h;
+    /** @type {number} */
+    this.height = h;
+  }
 };
 
 /**
@@ -149,7 +152,7 @@ goog.math.Rect.prototype.intersection = function (rect) {
  * intersect if they had the same top and left.
  * @param {goog.math.IRect} a A Rectangle.
  * @param {goog.math.IRect} b A Rectangle.
- * @return {goog.math.Rect} A new intersection rect (even if width and height
+ * @return {?goog.math.Rect} A new intersection rect (even if width and height
  *     are 0), or null if there is no intersection.
  */
 goog.math.Rect.intersection = function (a, b) {
@@ -282,7 +285,7 @@ goog.math.Rect.prototype.boundingRect = function (rect) {
  * Returns a new rectangle which completely contains both input rectangles.
  * @param {goog.math.IRect} a A rectangle.
  * @param {goog.math.IRect} b A rectangle.
- * @return {goog.math.Rect} A new bounding rect, or null if either rect is
+ * @return {?goog.math.Rect} A new bounding rect, or null if either rect is
  *     null.
  */
 goog.math.Rect.boundingRect = function (a, b) {

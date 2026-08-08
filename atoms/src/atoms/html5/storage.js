@@ -41,7 +41,7 @@ goog.require('bot.html5');
  * otherwise similar to the implementation in the Closure library
  * (goog.storage.mechanism.HTML5LocalStorage).
  *
- * @param {Window=} opt_window The window whose storage to access;
+ * @param {?Window=} opt_window The window whose storage to access;
  *     defaults to the main window.
  * @return {!bot.storage.Storage} The wrapper Storage object.
  */
@@ -59,7 +59,7 @@ bot.storage.getLocalStorage = function (opt_window) {
  * A factory method to create a wrapper to access the HTML5 sessionStorage
  * object.
  *
- * @param {Window=} opt_window The window whose storage to access;
+ * @param {?Window=} opt_window The window whose storage to access;
  *     defaults to the main window.
  * @return {!bot.storage.Storage} The wrapper Storage object.
  */
@@ -81,9 +81,10 @@ bot.storage.getSessionStorage = function (opt_window) {
  *     sessionStorage.
  */
 bot.storage.Storage = function (storageMap) {
+  /** @private {Storage} */
+  bot.storage.Storage.prototype.storageMap_;
   /**
    * Member variable to access the assigned HTML5 storage object.
-   * @private {Storage}
    * @const
    */
   this.storageMap_ = storageMap;
@@ -104,7 +105,7 @@ bot.storage.Storage.prototype.setItem = function (key, value) {
     // the string "null". We are setting the value to the string "null".
     this.storageMap_.setItem(key, value + '');
   } catch (e) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, e.message);
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, /** @type {!Error} */ (e).message);
   }
 };
 
@@ -130,7 +131,7 @@ bot.storage.Storage.prototype.keySet = function () {
   var keys = [];
   var length = this.size();
   for (var i = 0; i < length; i++) {
-    keys[i] = this.storageMap_.key(i);
+    keys[i] = /** @type {string} */ (this.storageMap_.key(i));
   }
   return keys;
 };

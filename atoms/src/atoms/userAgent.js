@@ -104,7 +104,6 @@ bot.userAgent.MOBILE = bot.userAgent.IOS || goog.userAgent.product.ANDROID;
 
 /**
  * Android Operating System Version.
- * @private {string}
  * @const
  */
 bot.userAgent.ANDROID_VERSION_ = (function () {
@@ -116,6 +115,8 @@ bot.userAgent.ANDROID_VERSION_ = (function () {
     return '0';
   }
 })();
+/** @private {string} */
+bot.userAgent.ANDROID_VERSION_;
 
 /**
  * Whether the current document is IE in a documentMode older than 8.

@@ -70,48 +70,52 @@ bot.ErrorCode = {
 /**
  * Represents an error returned from a WebDriver command request.
  *
- * @param {!bot.ErrorCode} code The error's status code.
- * @param {string=} opt_message Optional error message.
- * @constructor
  * @extends {Error}
  */
-bot.Error = function (code, opt_message) {
+bot.Error = class extends Error {
   /**
-   * This error's status code.
-   * @type {!bot.ErrorCode}
+   * @param {!bot.ErrorCode} code The error's status code.
+   * @param {string=} opt_message Optional error message.
    */
-  this.code = code;
+  constructor(code, opt_message) {
+    super(opt_message || '');
 
-  /** @type {string} */
-  this.state = bot.Error.CODE_TO_STATE_[code] || bot.Error.State.UNKNOWN_ERROR;
+    /**
+     * This error's status code.
+     * @type {!bot.ErrorCode}
+     */
+    this.code = code;
 
-  /** @override */
-  this.message = opt_message || '';
+    /** @type {string} */
+    this.state = /** @type {!Object<number, *>} */ (bot.Error.CODE_TO_STATE_)[code] || bot.Error.State.UNKNOWN_ERROR;
 
-  var name = this.state.replace(/((?:^|\s+)[a-z])/g, function (str) {
-    // IE<9 does not support String#trim(). Also, IE does not include 0xa0
-    // (the non-breaking-space) in the \s character class, so we have to
-    // explicitly include it.
-    return str.toUpperCase().replace(/^[\s\xa0]+/g, '');
-  });
+    /** @override */
+    this.message = opt_message || '';
 
-  var l = name.length - 'Error'.length;
-  if (l < 0 || name.indexOf('Error', l) != l) {
-    name += 'Error';
+    var name = this.state.replace(/((?:^|\s+)[a-z])/g, function (str) {
+      // IE<9 does not support String#trim(). Also, IE does not include 0xa0
+      // (the non-breaking-space) in the \s character class, so we have to
+      // explicitly include it.
+      return str.toUpperCase().replace(/^[\s\xa0]+/g, '');
+    });
+
+    var l = name.length - 'Error'.length;
+    if (l < 0 || name.indexOf('Error', l) != l) {
+      name += 'Error';
+    }
+
+    /** @override */
+    this.name = name;
+
+    // Generate a stacktrace for our custom error; ensure the error has our
+    // custom name and message so the stack prints correctly in all browsers.
+    var template = new Error(this.message);
+    template.name = this.name;
+
+    /** @override */
+    this.stack = template.stack || '';
   }
-
-  /** @override */
-  this.name = name;
-
-  // Generate a stacktrace for our custom error; ensure the error has our
-  // custom name and message so the stack prints correctly in all browsers.
-  var template = new Error(this.message);
-  template.name = this.name;
-
-  /** @override */
-  this.stack = template.stack || '';
 };
-goog.utils.inherits(bot.Error, Error);
 
 /**
  * Status strings enumerated in the W3C WebDriver protocol.
@@ -147,39 +151,40 @@ bot.Error.State = {
 
 /**
  * A map of error codes to state string.
- * @private {!Object.<bot.ErrorCode, bot.Error.State>}
  */
 bot.Error.CODE_TO_STATE_ = {};
+/** @private {!Object.<bot.ErrorCode, bot.Error.State>} */
+bot.Error.CODE_TO_STATE_;
 goog.scope(function () {
   var map = bot.Error.CODE_TO_STATE_;
   var code = bot.ErrorCode;
   var state = bot.Error.State;
 
-  map[code.ELEMENT_NOT_SELECTABLE] = state.ELEMENT_NOT_SELECTABLE;
-  map[code.ELEMENT_NOT_VISIBLE] = state.ELEMENT_NOT_VISIBLE;
-  map[code.IME_ENGINE_ACTIVATION_FAILED] = state.UNKNOWN_ERROR;
-  map[code.IME_NOT_AVAILABLE] = state.UNKNOWN_ERROR;
-  map[code.INVALID_COOKIE_DOMAIN] = state.INVALID_COOKIE_DOMAIN;
-  map[code.INVALID_ELEMENT_COORDINATES] = state.INVALID_ELEMENT_COORDINATES;
-  map[code.INVALID_ELEMENT_STATE] = state.INVALID_ELEMENT_STATE;
-  map[code.INVALID_SELECTOR_ERROR] = state.INVALID_SELECTOR;
-  map[code.INVALID_XPATH_SELECTOR] = state.INVALID_SELECTOR;
-  map[code.INVALID_XPATH_SELECTOR_RETURN_TYPE] = state.INVALID_SELECTOR;
-  map[code.JAVASCRIPT_ERROR] = state.JAVASCRIPT_ERROR;
-  map[code.METHOD_NOT_ALLOWED] = state.UNSUPPORTED_OPERATION;
-  map[code.MOVE_TARGET_OUT_OF_BOUNDS] = state.MOVE_TARGET_OUT_OF_BOUNDS;
-  map[code.NO_SUCH_ALERT] = state.NO_SUCH_ALERT;
-  map[code.NO_SUCH_ELEMENT] = state.NO_SUCH_ELEMENT;
-  map[code.NO_SUCH_FRAME] = state.NO_SUCH_FRAME;
-  map[code.NO_SUCH_WINDOW] = state.NO_SUCH_WINDOW;
-  map[code.SCRIPT_TIMEOUT] = state.SCRIPT_TIMEOUT;
-  map[code.SESSION_NOT_CREATED] = state.SESSION_NOT_CREATED;
-  map[code.STALE_ELEMENT_REFERENCE] = state.STALE_ELEMENT_REFERENCE;
-  map[code.TIMEOUT] = state.TIMEOUT;
-  map[code.UNABLE_TO_SET_COOKIE] = state.UNABLE_TO_SET_COOKIE;
-  map[code.UNEXPECTED_ALERT_OPEN] = state.UNEXPECTED_ALERT_OPEN;
-  map[code.UNKNOWN_ERROR] = state.UNKNOWN_ERROR;
-  map[code.UNSUPPORTED_OPERATION] = state.UNKNOWN_COMMAND;
+  /** @type {!Object<number, *>} */ (map)[code.ELEMENT_NOT_SELECTABLE] = state.ELEMENT_NOT_SELECTABLE;
+  /** @type {!Object<number, *>} */ (map)[code.ELEMENT_NOT_VISIBLE] = state.ELEMENT_NOT_VISIBLE;
+  /** @type {!Object<number, *>} */ (map)[code.IME_ENGINE_ACTIVATION_FAILED] = state.UNKNOWN_ERROR;
+  /** @type {!Object<number, *>} */ (map)[code.IME_NOT_AVAILABLE] = state.UNKNOWN_ERROR;
+  /** @type {!Object<number, *>} */ (map)[code.INVALID_COOKIE_DOMAIN] = state.INVALID_COOKIE_DOMAIN;
+  /** @type {!Object<number, *>} */ (map)[code.INVALID_ELEMENT_COORDINATES] = state.INVALID_ELEMENT_COORDINATES;
+  /** @type {!Object<number, *>} */ (map)[code.INVALID_ELEMENT_STATE] = state.INVALID_ELEMENT_STATE;
+  /** @type {!Object<number, *>} */ (map)[code.INVALID_SELECTOR_ERROR] = state.INVALID_SELECTOR;
+  /** @type {!Object<number, *>} */ (map)[code.INVALID_XPATH_SELECTOR] = state.INVALID_SELECTOR;
+  /** @type {!Object<number, *>} */ (map)[code.INVALID_XPATH_SELECTOR_RETURN_TYPE] = state.INVALID_SELECTOR;
+  /** @type {!Object<number, *>} */ (map)[code.JAVASCRIPT_ERROR] = state.JAVASCRIPT_ERROR;
+  /** @type {!Object<number, *>} */ (map)[code.METHOD_NOT_ALLOWED] = state.UNSUPPORTED_OPERATION;
+  /** @type {!Object<number, *>} */ (map)[code.MOVE_TARGET_OUT_OF_BOUNDS] = state.MOVE_TARGET_OUT_OF_BOUNDS;
+  /** @type {!Object<number, *>} */ (map)[code.NO_SUCH_ALERT] = state.NO_SUCH_ALERT;
+  /** @type {!Object<number, *>} */ (map)[code.NO_SUCH_ELEMENT] = state.NO_SUCH_ELEMENT;
+  /** @type {!Object<number, *>} */ (map)[code.NO_SUCH_FRAME] = state.NO_SUCH_FRAME;
+  /** @type {!Object<number, *>} */ (map)[code.NO_SUCH_WINDOW] = state.NO_SUCH_WINDOW;
+  /** @type {!Object<number, *>} */ (map)[code.SCRIPT_TIMEOUT] = state.SCRIPT_TIMEOUT;
+  /** @type {!Object<number, *>} */ (map)[code.SESSION_NOT_CREATED] = state.SESSION_NOT_CREATED;
+  /** @type {!Object<number, *>} */ (map)[code.STALE_ELEMENT_REFERENCE] = state.STALE_ELEMENT_REFERENCE;
+  /** @type {!Object<number, *>} */ (map)[code.TIMEOUT] = state.TIMEOUT;
+  /** @type {!Object<number, *>} */ (map)[code.UNABLE_TO_SET_COOKIE] = state.UNABLE_TO_SET_COOKIE;
+  /** @type {!Object<number, *>} */ (map)[code.UNEXPECTED_ALERT_OPEN] = state.UNEXPECTED_ALERT_OPEN;
+  /** @type {!Object<number, *>} */ (map)[code.UNKNOWN_ERROR] = state.UNKNOWN_ERROR;
+  /** @type {!Object<number, *>} */ (map)[code.UNSUPPORTED_OPERATION] = state.UNKNOWN_COMMAND;
 }); // goog.scope
 
 /**
@@ -192,7 +197,7 @@ goog.scope(function () {
  * @see https://w3c.github.io/webdriver/webdriver-spec.html#handling-errors
  */
 bot.Error.stateForCode = function (code) {
-  return bot.Error.CODE_TO_STATE_[code] || bot.Error.State.UNKNOWN_ERROR;
+  return /** @type {!Object<number, *>} */ (bot.Error.CODE_TO_STATE_)[code] || bot.Error.State.UNKNOWN_ERROR;
 };
 
 /**

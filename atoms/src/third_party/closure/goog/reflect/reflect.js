@@ -61,7 +61,7 @@ goog.reflect.objectProperty = function (prop, object) {
  */
 goog.reflect.sinkValue = function (x) {
   'use strict';
-  goog.reflect.sinkValue[' '](x);
+  /** @type {?} */ (goog.reflect.sinkValue[' '])(x);
   return x;
 };
 
@@ -81,7 +81,7 @@ goog.reflect.sinkValue[' '] = function () {};
 goog.reflect.canAccessProperty = function (obj, prop) {
   'use strict';
   try {
-    goog.reflect.sinkValue(obj[prop]);
+    goog.reflect.sinkValue(/** @type {!Object<string, *>} */ (obj)[prop]);
     return true;
   } catch (e) {}
   return false;

@@ -62,8 +62,7 @@ goog.html.TrustedResourceUrl = class {
      * The contained value of this TrustedResourceUrl.  The field has a
      * purposely ugly name to make (non-compiled) code that attempts to directly
      * access this field stand out.
-     * @const
-     * @private {!TrustedScriptURL|string}
+     * @const {!TrustedScriptURL|string}
      */
     this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = value;
   }
@@ -76,7 +75,6 @@ goog.html.TrustedResourceUrl = class {
    *
    * @return {string}
    * @see goog.html.TrustedResourceUrl#unwrap
-   * @override
    */
   toString() {
     return this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ + '';
@@ -131,7 +129,7 @@ goog.html.TrustedResourceUrl.prototype.getTypedStringValue = function () {
 goog.html.TrustedResourceUrl.prototype.cloneWithParams = function (searchParams, opt_hashParams) {
   'use strict';
   var url = goog.html.TrustedResourceUrl.unwrap(this);
-  var parts = goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url);
+  var parts = /** @type {!Array<string>} */ (goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url));
   var urlBase = parts[1];
   var urlSearch = parts[2] || '';
   var urlHash = parts[3] || '';
@@ -258,9 +256,11 @@ goog.html.TrustedResourceUrl.format = function (format, args) {
 };
 
 /**
- * @private @const {!RegExp}
+ * @const {!RegExp}
  */
 goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
+/** @private */
+goog.html.TrustedResourceUrl.FORMAT_MARKER_;
 
 /**
  * The URL must be absolute, scheme-relative or path-absolute. So it must
@@ -287,7 +287,7 @@ goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
  *   not be using goog.uri.
  * - Simplicity. Using goog.uri would likely not result in simpler nor shorter
  *   code.
- * @private @const {!RegExp}
+ * @const {!RegExp}
  */
 goog.html.TrustedResourceUrl.BASE_URL_ = new RegExp(
   '^((https:)?//[0-9a-z.:[\\]-]+/' + // Origin.
@@ -298,13 +298,17 @@ goog.html.TrustedResourceUrl.BASE_URL_ = new RegExp(
     ')',
   'i',
 );
+/** @private */
+goog.html.TrustedResourceUrl.BASE_URL_;
 
 /**
  * RegExp for splitting a URL into the base, search field, and hash field.
  *
- * @private @const {!RegExp}
+ * @const {!RegExp}
  */
 goog.html.TrustedResourceUrl.URL_PARAM_PARSER_ = /^([^?#]*)(\?[^#]*)?(#[\s\S]*)?/;
+/** @private */
+goog.html.TrustedResourceUrl.URL_PARAM_PARSER_;
 
 /**
  * Formats the URL same as TrustedResourceUrl.format and then adds extra URL
@@ -404,10 +408,11 @@ goog.html.TrustedResourceUrl.fromSafeScript = function (safeScript) {
 /**
  * Token used to ensure that object is created only from this file. No code
  * outside of this file can access this token.
- * @private {!Object}
  * @const
  */
 goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
+/** @private {!Object} */
+goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_;
 
 /**
  * Package-internal utility method to create TrustedResourceUrl instances.
@@ -424,7 +429,9 @@ goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessO
   const noinlineUrl = url;
   const policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse();
   const value = policy ? policy.createScriptURL(noinlineUrl) : noinlineUrl;
-  return new goog.html.TrustedResourceUrl(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
+  return new /** @type {function(new:goog.html.TrustedResourceUrl, ...?)} */ (
+    /** @type {?} */ (goog.html.TrustedResourceUrl)
+  )(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
 };
 
 /**
@@ -449,7 +456,6 @@ goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessO
  *   - If `undefined` or `null`, it will be skipped.
  *   - Otherwise, it will be turned into a string, escaped, and appended.
  * @return {string}
- * @private
  */
 goog.html.TrustedResourceUrl.stringifyParams_ = function (prefix, currentString, params) {
   'use strict';
@@ -484,3 +490,5 @@ goog.html.TrustedResourceUrl.stringifyParams_ = function (prefix, currentString,
   }
   return currentString;
 };
+/** @private */
+goog.html.TrustedResourceUrl.stringifyParams_;

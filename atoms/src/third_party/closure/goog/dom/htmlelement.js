@@ -13,7 +13,6 @@ goog.provide('goog.dom.HtmlElement');
  * then the compiler must assume that it might still be e.g. HTMLScriptElement.
  * With this, the type check knows that it couldn't be any special element.
  *
- * @constructor
  * @extends {HTMLElement}
  */
-goog.dom.HtmlElement = function () {};
+goog.dom.HtmlElement = class extends HTMLElement {};

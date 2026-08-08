@@ -6,7 +6,7 @@
 
 /**
  * @fileoverview Closure user agent detection (Browser).
- * @see <a href="http://www.useragentstring.com/">User agent strings</a>
+ * (see: <a href="http://www.useragentstring.com/">User agent strings</a>
  * For more information on rendering engine, platform, or device see the other
  * sub-namespaces in goog.labs.userAgent, goog.labs.userAgent.platform,
  * goog.labs.userAgent.device respectively.)
@@ -15,12 +15,12 @@
 goog.module('goog.labs.userAgent.browser');
 goog.module.declareLegacyNamespace();
 
-const util = goog.require('goog.labs.userAgent.util');
-const {AsyncValue, Version} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
-const {assert, assertExists} = goog.require('goog.asserts');
-const {compareVersions} = goog.require('goog.string.internal');
-const {fullVersionList} = goog.require('goog.labs.userAgent.highEntropy.highEntropyData');
-const {useClientHints} = goog.require('goog.labs.userAgent');
+var util = goog.require('goog.labs.userAgent.util');
+var {AsyncValue, Version} = goog.require('goog.labs.userAgent.highEntropy.highEntropyValue');
+var {assert, assertExists} = goog.require('goog.asserts');
+var {compareVersions} = goog.require('goog.string.internal');
+var {fullVersionList} = goog.require('goog.labs.userAgent.highEntropy.highEntropyData');
+var {useClientHints} = goog.require('goog.labs.userAgent');
 
 // TODO(nnaze): Refactor to remove excessive exclusion logic in matching
 // functions.
@@ -326,11 +326,14 @@ function createVersionMap(versionTuples) {
     // first two.
     const key = tuple[0];
     const value = tuple[1];
-    versionMap[key] = value;
+    /** @type {!Object<string, *>} */ (versionMap)[key] = value;
   });
 
   // Gives the value with the first key it finds, otherwise empty string.
-  return (keys) => versionMap[keys.find((key) => key in versionMap)] || '';
+  return (keys) =>
+    /** @type {!Object<string, *>} */ (versionMap)[
+      /** @type {string} */ (/** @type {?} */ (keys.find((key) => key in versionMap)))
+    ] || '';
 }
 
 /**
@@ -555,7 +558,7 @@ function versionOf_(browser) {
   // so if checking its version, always fall back to the user agent string.
   if (useUserAgentDataBrand() && browser !== Brand.SILK) {
     const data = util.getUserAgentData();
-    const matchingBrand = data.brands.find(({brand}) => brand === browser);
+    const matchingBrand = data.brands.find((/** @type {{brand: string}} */ {brand}) => brand === browser);
     if (!matchingBrand || !matchingBrand.version) {
       return NaN;
     }
@@ -609,7 +612,7 @@ exports.isAtMost = isAtMost;
 /**
  * Loads the high-entropy browser brand/version data and wraps the correct
  * version string in a Version object.
- * @implements {AsyncValue<!Version>}
+ * (implements AsyncValue<!Version>)
  */
 class HighEntropyBrandVersion {
   /**
@@ -633,13 +636,12 @@ class HighEntropyBrandVersion {
 
   /**
    * @return {!Version|undefined}
-   * @override
    */
   getIfLoaded() {
     if (this.useUach_) {
       const loadedVersionList = fullVersionList.getIfLoaded();
       if (loadedVersionList !== undefined) {
-        const matchingBrand = loadedVersionList.find(({brand}) => this.brand_ === brand);
+        const matchingBrand = loadedVersionList.find((/** @type {{brand: string}} */ {brand}) => this.brand_ === brand);
         // We assumed in fullVersionOf that if the fullVersionList is defined
         // the brands must match. Double-check this here.
         assertExists(matchingBrand);
@@ -660,13 +662,12 @@ class HighEntropyBrandVersion {
 
   /**
    * @return {!Promise<!Version>}
-   * @override
    */
   async load() {
     if (this.useUach_) {
       const loadedVersionList = await fullVersionList.load();
       if (loadedVersionList !== undefined) {
-        const matchingBrand = loadedVersionList.find(({brand}) => this.brand_ === brand);
+        const matchingBrand = loadedVersionList.find((/** @type {{brand: string}} */ {brand}) => this.brand_ === brand);
         assertExists(matchingBrand);
         return new Version(matchingBrand.version);
       }
@@ -749,7 +750,7 @@ function fullVersionOf(browser) {
     // Operate under the assumption that the low-entropy and high-entropy lists
     // of brand/version pairs contain an identical set of brands. Therefore, if
     // the low-entropy list doesn't contain the given brand, return undefined.
-    if (!data.brands.find(({brand}) => brand === browser)) {
+    if (!data.brands.find((/** @type {{brand: string}} */ {brand}) => brand === browser)) {
       return undefined;
     }
   } else if (fallbackVersionString === '') {
@@ -778,7 +779,7 @@ function getVersionStringForLogging(browser) {
       }
       // No full version, return the major version instead.
       const data = util.getUserAgentData();
-      const matchingBrand = data.brands.find(({brand}) => brand === browser);
+      const matchingBrand = data.brands.find((/** @type {{brand: string}} */ {brand}) => brand === browser);
       // Checking for the existence of matchingBrand is not necessary because
       // the existence of fullVersionObj implies that there is already a
       // matching brand.

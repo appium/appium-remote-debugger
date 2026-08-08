@@ -55,7 +55,6 @@ exports.forEach = forEach;
  * iterator to a new value, using a mapping function. Similar to Array.map, but
  * for Iterable.
  * @template TO,FROM
- * @implements {IteratorIterable<TO>}
  */
 class MapIterator {
   /**
@@ -74,7 +73,7 @@ class MapIterator {
     return this;
   }
 
-  /** @override */
+  /** */
   next() {
     const childResult = this.childIterator_.next();
     // Always return a new object, even when childResult.done == true. This is
@@ -101,7 +100,7 @@ class MapIterator {
  * @template VALUE, RESULT
  */
 exports.map = function (iterable, f) {
-  return new MapIterator(iterable, f);
+  return /** @type {!IteratorIterable<RESULT>} */ (new MapIterator(iterable, f));
 };
 
 /**
@@ -109,7 +108,6 @@ exports.map = function (iterable, f) {
  * items, based on a filter function. Similar to Array.filter, but for
  * Iterable.
  * @template T
- * @implements {IteratorIterable<T>}
  */
 class FilterIterator {
   /**
@@ -128,7 +126,7 @@ class FilterIterator {
     return this;
   }
 
-  /** @override */
+  /** */
   next() {
     while (true) {
       const childResult = this.childIter_.next();
@@ -159,12 +157,11 @@ class FilterIterator {
  * @template VALUE
  */
 exports.filter = function (iterable, f) {
-  return new FilterIterator(iterable, f);
+  return /** @type {!IteratorIterable<VALUE>} */ (new FilterIterator(iterable, f));
 };
 
 /**
  * @template T
- * @implements {IteratorIterable<T>}
  */
 class ConcatIterator {
   /** @param {!Array<!Iterator<T>>} iterators */
@@ -180,7 +177,7 @@ class ConcatIterator {
     return this;
   }
 
-  /** @override */
+  /** */
   next() {
     while (this.iterIndex_ < this.iterators_.length) {
       const result = this.iterators_[this.iterIndex_].next();
@@ -219,7 +216,7 @@ exports.concat = function (...iterables) {
  * @template VALUE
  */
 exports.toArray = function (iterator) {
-  const arr = [];
+  const /** @type {Array<*>} */ arr = [];
   forEach(iterator, (e) => arr.push(e));
   return arr;
 };

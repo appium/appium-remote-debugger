@@ -14,8 +14,7 @@ goog.require('goog.object');
 /**
  * The void elements specified by
  * http://www.w3.org/TR/html-markup/syntax.html#void-elements.
- * @const @private {!Object<string, boolean>}
- */
+ * @const */
 goog.dom.tags.VOID_TAGS_ = goog.object.createSet(
   'area',
   'base',
@@ -34,6 +33,8 @@ goog.dom.tags.VOID_TAGS_ = goog.object.createSet(
   'track',
   'wbr',
 );
+/** @private {!Object<string, boolean>} */
+goog.dom.tags.VOID_TAGS_;
 
 /**
  * Checks whether the tag is void (with no contents allowed and no legal end

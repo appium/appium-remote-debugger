@@ -75,7 +75,6 @@ goog.dom.asserts.assertIsLocation = function (o) {
  *
  * @param {*} value An object, or primitive.
  * @return {string} The best display name for the value.
- * @private
  */
 goog.dom.asserts.debugStringForType_ = function (value) {
   'use strict';
@@ -93,22 +92,23 @@ goog.dom.asserts.debugStringForType_ = function (value) {
     return value === undefined ? 'undefined' : value === null ? 'null' : typeof value;
   }
 };
+/** @private */
+goog.dom.asserts.debugStringForType_;
 
 /**
  * Gets window of element.
  * @param {?Object} o
  * @return {?Window}
- * @private
  * @suppress {strictMissingProperties} ownerDocument not defined on Object
  */
 goog.dom.asserts.getWindow_ = function (o) {
   'use strict';
   try {
-    var doc = o && o.ownerDocument;
+    var doc = o && /** @type {*} */ (o).ownerDocument;
     // This can throw “Blocked a frame with origin "chrome-extension://..." from
     // accessing a cross-origin frame” in Chrome extension.
     var win = doc && /** @type {?Window} */ (doc.defaultView || doc.parentWindow);
-    win = win || /** @type {!Window} */ (goog.global);
+    win = win || /** @type {!Window} */ (/** @type {?} */ (goog.global));
     // This can throw “Permission denied to access property "Element" on
     // cross-origin object”.
     if (win.Element && win.Location) {
@@ -117,3 +117,5 @@ goog.dom.asserts.getWindow_ = function (o) {
   } catch (ex) {}
   return null;
 };
+/** @private */
+goog.dom.asserts.getWindow_;

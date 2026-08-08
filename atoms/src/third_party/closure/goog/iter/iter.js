@@ -21,29 +21,27 @@ goog.require('goog.math');
 goog.require('goog.utils');
 
 /**
- * @typedef {{length:number}|{__iterator__}}
+ * @typedef {{length:number}|{__iterator__:!Function}}
  */
 goog.iter.Iterable;
 
 /**
  * Class/interface for iterators.
- * @constructor
  * @template VALUE
  * @implements {Iterator<VALUE>}
  * @deprecated Use objects implementing JavaScript iterable protocol introduced
  *     in ES6.
  *     https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
  */
-goog.iter.Iterator = function () {};
-
-/**
- * Returns the next value of the iteration as an an ES6 IIterableResult.
- * @return {!IIterableResult<VALUE>}
- * @override
- */
-goog.iter.Iterator.prototype.next = function () {
-  'use strict';
-  return goog.iter.ES6_ITERATOR_DONE;
+goog.iter.Iterator = class {
+  /**
+   * Returns the next value of the iteration as an an ES6 IIterableResult.
+   * @return {!IIterableResult<VALUE>}
+   */
+  next() {
+    'use strict';
+    return goog.iter.ES6_ITERATOR_DONE;
+  }
 };
 
 /**
@@ -96,8 +94,8 @@ goog.iter.toIterator = function (iterable) {
   if (iterable instanceof goog.iter.Iterator) {
     return iterable;
   }
-  if (typeof iterable.__iterator__ == 'function') {
-    return /** @type {{__iterator__:function(this:?, boolean=)}} */ (iterable).__iterator__(false);
+  if (typeof (/** @type {?} */ (iterable).__iterator__) == 'function') {
+    return /** @type {{__iterator__:function(this:?, boolean=):*}} */ (iterable).__iterator__(false);
   }
   if (goog.utils.isArrayLike(iterable)) {
     const like = /** @type {!IArrayLike<number|string>} */ (iterable);
@@ -136,7 +134,7 @@ goog.iter.toIterator = function (iterable) {
  * @param {goog.iter.Iterator<VALUE>|goog.iter.Iterable} iterable  The iterator
  *     to iterate over. If the iterable is an object `toIterator` will be
  *     called on it.
- * @param {function(this:THIS,VALUE,?,!goog.iter.Iterator<VALUE>)} f
+ * @param {function(this:THIS,VALUE,?,!goog.iter.Iterator<VALUE>):*} f
  *     The function to call for every element.  This function takes 3 arguments
  *     (the element, undefined, and the iterator) and the return value is
  *     irrelevant.  The reason for passing undefined as the second argument is
@@ -158,7 +156,7 @@ goog.iter.forEach = function (iterable, f, opt_obj) {
     while (true) {
       const {done, value} = iterator.next();
       if (done) return;
-      f.call(opt_obj, value, undefined, iterator);
+      f.call(/** @type {?} */ (opt_obj), value, undefined, iterator);
     }
   }
 };
@@ -169,8 +167,7 @@ goog.iter.forEach = function (iterable, f, opt_obj) {
  *
  * @param {goog.iter.Iterator<VALUE>|goog.iter.Iterable} iterable The iterator
  *     to iterate over.
- * @param {
- *     function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
+ * @param {!function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
  *     The function to call for every element. This function takes 3 arguments
  *     (the element, undefined, and the iterator) and should return a boolean.
  *     If the return value is true the element will be included in the returned
@@ -194,7 +191,7 @@ goog.iter.filter = function (iterable, f, opt_obj) {
     while (true) {
       const {done, value} = iterator.next();
       if (done) return goog.iter.ES6_ITERATOR_DONE;
-      if (f.call(opt_obj, value, undefined, iterator)) {
+      if (f.call(/** @type {?} */ (opt_obj), value, undefined, iterator)) {
         return goog.iter.createEs6IteratorYield(value);
       }
     }
@@ -209,8 +206,7 @@ goog.iter.filter = function (iterable, f, opt_obj) {
  *
  * @param {goog.iter.Iterator<VALUE>|goog.iter.Iterable} iterable The iterator
  *     to iterate over.
- * @param {
- *     function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
+ * @param {!function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
  *     The function to call for every element. This function takes 3 arguments
  *     (the element, undefined, and the iterator) and should return a boolean.
  *     If the return value is false the element will be included in the returned
@@ -251,7 +247,7 @@ goog.iter.range = function (startOrStop, opt_stop, opt_step) {
   let step = opt_step || 1;
   if (arguments.length > 1) {
     start = startOrStop;
-    stop = +opt_stop;
+    stop = +(/** @type {number} */ (opt_stop));
   }
   if (step == 0) {
     throw new Error('Range step argument must not be zero');
@@ -294,8 +290,7 @@ goog.iter.join = function (iterable, deliminator) {
  *
  * @param {!goog.iter.Iterator<VALUE>|!goog.iter.Iterable} iterable The
  *     iterator to iterate over.
- * @param {
- *     function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):RESULT} f
+ * @param {!function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):RESULT} f
  *     The function to call for every element.  This function takes 3 arguments
  *     (the element, undefined, and the iterator) and should return a new value.
  * @param {THIS=} opt_obj The object to be used as the value of 'this' within
@@ -317,7 +312,7 @@ goog.iter.map = function (iterable, f, opt_obj) {
     'use strict';
     const {done, value} = iterator.next();
     if (done) return goog.iter.ES6_ITERATOR_DONE;
-    const mappedVal = f.call(opt_obj, value, undefined, iterator);
+    const mappedVal = f.call(/** @type {?} */ (opt_obj), value, undefined, iterator);
     return goog.iter.createEs6IteratorYield(mappedVal);
   };
 
@@ -328,7 +323,7 @@ goog.iter.map = function (iterable, f, opt_obj) {
  * Passes every element of an iterator into a function and accumulates the
  * result.
  *
- * @param {!goog.iter.Iterator<VALUE>|!goog.iter.Iterable<VALUE>} iterable The
+ * @param {!goog.iter.Iterator<VALUE>|!goog.iter.Iterable} iterable The
  *     iterator to iterate over.
  * @param {function(this:THIS,RVALUE,VALUE):RVALUE} f The function to call for
  *     every element. This function takes 2 arguments (the function's previous
@@ -347,7 +342,7 @@ goog.iter.reduce = function (iterable, f, val, opt_obj) {
   let rval = val;
   goog.iter.forEach(iterable, function (val) {
     'use strict';
-    rval = f.call(opt_obj, rval, val);
+    rval = f.call(/** @type {?} */ (opt_obj), rval, val);
   });
   return rval;
 };
@@ -359,8 +354,7 @@ goog.iter.reduce = function (iterable, f, val, opt_obj) {
  *
  * @param {goog.iter.Iterator<VALUE>|goog.iter.Iterable} iterable The iterator
  *     object.
- * @param {
- *     function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
+ * @param {!function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
  *     The function to call for every value. This function takes 3 arguments
  *     (the value, undefined, and the iterator) and should return a boolean.
  * @param {THIS=} opt_obj The object to be used as the value of 'this' within
@@ -375,7 +369,7 @@ goog.iter.some = function (iterable, f, opt_obj) {
   while (true) {
     const {done, value} = iterator.next();
     if (done) return false;
-    if (f.call(opt_obj, value, undefined, iterator)) {
+    if (f.call(/** @type {?} */ (opt_obj), value, undefined, iterator)) {
       return true;
     }
   }
@@ -388,8 +382,7 @@ goog.iter.some = function (iterable, f, opt_obj) {
  *
  * @param {goog.iter.Iterator<VALUE>|goog.iter.Iterable} iterable The iterator
  *     object.
- * @param {
- *     function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
+ * @param {!function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
  *     The function to call for every value. This function takes 3 arguments
  *     (the value, undefined, and the iterator) and should return a boolean.
  * @param {THIS=} opt_obj The object to be used as the value of 'this' within
@@ -404,7 +397,7 @@ goog.iter.every = function (iterable, f, opt_obj) {
   while (true) {
     const {done, value} = iterator.next();
     if (done) return true;
-    if (!f.call(opt_obj, value, undefined, iterator)) {
+    if (!f.call(/** @type {?} */ (opt_obj), value, undefined, iterator)) {
       return false;
     }
   }
@@ -439,7 +432,7 @@ goog.iter.chainFromIterable = function (iterable) {
   'use strict';
   const iteratorOfIterators = goog.iter.toIterator(iterable);
   const iter = /** @type {!goog.iter.Iterator<VALUE>} */ (new goog.iter.Iterator());
-  let current = null;
+  let /** @type {*} */ current = null;
 
   /**
    * @return {!IIterableResult<VALUE>}
@@ -474,8 +467,7 @@ goog.iter.chainFromIterable = function (iterable) {
  * long as a supplied function returns true.
  * @param {goog.iter.Iterator<VALUE>|goog.iter.Iterable} iterable The iterator
  *     object.
- * @param {
- *     function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
+ * @param {!function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
  *     The function to call for every value. This function takes 3 arguments
  *     (the value, undefined, and the iterator) and should return a boolean.
  * @param {THIS=} opt_obj The object to be used as the value of 'this' within
@@ -500,7 +492,7 @@ goog.iter.dropWhile = function (iterable, f, opt_obj) {
     while (true) {
       const {done, value} = iterator.next();
       if (done) return goog.iter.ES6_ITERATOR_DONE;
-      if (dropping && f.call(opt_obj, value, undefined, iterator)) {
+      if (dropping && f.call(/** @type {?} */ (opt_obj), value, undefined, iterator)) {
         continue;
       } else {
         dropping = false;
@@ -517,8 +509,7 @@ goog.iter.dropWhile = function (iterable, f, opt_obj) {
  * supplied function returns true.
  * @param {goog.iter.Iterator<VALUE>|goog.iter.Iterable} iterable The iterator
  *     object.
- * @param {
- *     function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
+ * @param {!function(this:THIS,VALUE,undefined,!goog.iter.Iterator<VALUE>):boolean} f
  *     The function to call for every value. This function takes 3 arguments
  *     (the value, undefined, and the iterator) and should return a boolean.
  * @param {THIS=} opt_obj This is used as the 'this' object in f when called.
@@ -539,7 +530,7 @@ goog.iter.takeWhile = function (iterable, f, opt_obj) {
     'use strict';
     const {done, value} = iterator.next();
     if (done) return goog.iter.ES6_ITERATOR_DONE;
-    if (f.call(opt_obj, value, undefined, iterator)) {
+    if (f.call(/** @type {?} */ (opt_obj), value, undefined, iterator)) {
       return goog.iter.createEs6IteratorYield(value);
     }
     return goog.iter.ES6_ITERATOR_DONE;
@@ -562,7 +553,7 @@ goog.iter.toArray = function (iterable) {
     return goog.array.toArray(/** @type {!IArrayLike<?>} */ (iterable));
   }
   iterable = goog.iter.toIterator(iterable);
-  const array = [];
+  const /** @type {Array<*>} */ array = [];
   goog.iter.forEach(iterable, function (val) {
     'use strict';
     array.push(val);
@@ -591,10 +582,13 @@ goog.iter.equals = function (iterable1, iterable2, opt_equalsFn) {
   const fillValue = {};
   const pairs = goog.iter.zipLongest(fillValue, iterable1, iterable2);
   const equalsFn = opt_equalsFn || goog.array.defaultCompareEquality;
-  return goog.iter.every(pairs, function (pair) {
-    'use strict';
-    return equalsFn(pair[0], pair[1]);
-  });
+  return goog.iter.every(
+    pairs,
+    /** @param {*} pair */ function (pair) {
+      'use strict';
+      return equalsFn(pair[0], pair[1]);
+    },
+  );
 };
 
 /**
@@ -652,10 +646,13 @@ goog.iter.product = function (var_args) {
   iter.next = function () {
     'use strict';
     if (indices) {
-      const retVal = goog.array.map(indices, function (valueIndex, arrayIndex) {
-        'use strict';
-        return arrays[arrayIndex][valueIndex];
-      });
+      const retVal = goog.array.map(
+        indices,
+        /** @param {*} valueIndex @param {*} arrayIndex */ function (valueIndex, arrayIndex) {
+          'use strict';
+          return arrays[arrayIndex][valueIndex];
+        },
+      );
 
       // Generate the next-largest indices for the next call.
       // Increase the rightmost index. If it goes over, increase the next
@@ -690,7 +687,7 @@ goog.iter.product = function (var_args) {
 /**
  * Create an iterator to cycle over the iterable's elements indefinitely.
  * For example, ([1, 2, 3]) would return : 1, 2, 3, 1, 2, 3, ...
- * @see: http://docs.python.org/library/itertools.html#itertools.cycle.
+ * (see: http://docs.python.org/library/itertools.html#itertools.cycle.
  * @param {!goog.iter.Iterator<VALUE>|!goog.iter.Iterable} iterable The
  *     iterable object.
  * @return {!goog.iter.Iterator<VALUE>} An iterator that iterates indefinitely
@@ -704,7 +701,7 @@ goog.iter.cycle = function (iterable) {
   // We maintain a cache to store the iterable elements as we iterate
   // over them. The cache is used to return elements once we have
   // iterated over the iterable once.
-  const cache = [];
+  const /** @type {Array<*>} */ cache = [];
   let cacheIndex = 0;
 
   const iter = /** @type {!goog.iter.Iterator<VALUE>} */ (new goog.iter.Iterator());
@@ -763,7 +760,7 @@ goog.iter.count = function (opt_start, opt_step) {
 
   /**
    * @return {!IIterableResult<number>}
-   * @override @see {!goog.iter.Iterator}
+   * @override (see: {!goog.iter.Iterator}
    */
   iter.next = function () {
     'use strict';
@@ -815,7 +812,7 @@ goog.iter.accumulate = function (iterable) {
 
   /**
    * @return {!IIterableResult<number>}
-   * @override @see {!goog.iter.Iterator}
+   * @override (see: {!goog.iter.Iterator}
    */
   iter.next = function () {
     'use strict';
@@ -990,51 +987,54 @@ goog.iter.compress = function (iterable, selectors) {
 
 /**
  * Implements the `goog.iter.groupBy` iterator.
- * @param {!goog.iter.Iterator<VALUE>|!goog.iter.Iterable} iterable The
- *     iterable to group.
- * @param {function(VALUE): KEY=} opt_keyFunc  Optional function for
- *     determining the key value for each group in the `iterable`. Default
- *     is the identity function.
- * @constructor
  * @extends {goog.iter.Iterator<!Array<?>>}
  * @template KEY, VALUE
- * @private
  */
-goog.iter.GroupByIterator_ = function (iterable, opt_keyFunc) {
-  'use strict';
+goog.iter.GroupByIterator_ = class extends goog.iter.Iterator {
   /**
-   * The iterable to group, coerced to an iterator.
-   * @type {!goog.iter.Iterator}
+   * @param {!goog.iter.Iterator<VALUE>|!goog.iter.Iterable} iterable The
+   *     iterable to group.
+   * @param {function(VALUE): KEY=} opt_keyFunc  Optional function for
+   *     determining the key value for each group in the `iterable`. Default
+   *     is the identity function.
    */
-  this.iterator = goog.iter.toIterator(iterable);
+  constructor(iterable, opt_keyFunc) {
+    'use strict';
+    super();
 
-  /**
-   * A function for determining the key value for each element in the iterable.
-   * If no function is provided, the identity function is used and returns the
-   * element unchanged.
-   * @type {function(VALUE): KEY}
-   */
-  this.keyFunc = opt_keyFunc || goog.functions.identity;
+    /**
+     * The iterable to group, coerced to an iterator.
+     * @type {!goog.iter.Iterator<?>}
+     */
+    this.iterator = goog.iter.toIterator(iterable);
 
-  /**
-   * The target key for determining the start of a group.
-   * @type {KEY}
-   */
-  this.targetKey;
+    /**
+     * A function for determining the key value for each element in the iterable.
+     * If no function is provided, the identity function is used and returns the
+     * element unchanged.
+     * @type {function(VALUE): KEY}
+     */
+    this.keyFunc = opt_keyFunc || /** @type {function(VALUE): KEY} */ (goog.functions.identity);
 
-  /**
-   * The current key visited during iteration.
-   * @type {KEY}
-   */
-  this.currentKey;
+    /**
+     * The target key for determining the start of a group.
+     * @type {KEY}
+     */
+    this.targetKey;
 
-  /**
-   * The current value being added to the group.
-   * @type {VALUE}
-   */
-  this.currentValue;
+    /**
+     * The current key visited during iteration.
+     * @type {KEY}
+     */
+    this.currentKey;
+
+    /**
+     * The current value being added to the group.
+     * @type {VALUE}
+     */
+    this.currentValue;
+  }
 };
-goog.utils.inherits(goog.iter.GroupByIterator_, goog.iter.Iterator);
 
 /**
  * @return {!IIterableResult<!Array<?>>}
@@ -1052,11 +1052,12 @@ goog.iter.GroupByIterator_.prototype.next = function () {
   return goog.iter.createEs6IteratorYield([this.currentKey, this.groupItems_(this.targetKey)]);
 };
 
+/** @private */
+goog.iter.GroupByIterator_.prototype.groupItems_;
 /**
  * Performs the grouping of objects using the given key.
  * @param {KEY} targetKey  The target key object for the group.
  * @return {!Array<VALUE>} An array of grouped objects.
- * @private
  */
 goog.iter.GroupByIterator_.prototype.groupItems_ = function (targetKey) {
   'use strict';
@@ -1129,7 +1130,7 @@ goog.iter.starMap = function (iterable, f, opt_obj) {
     const it = /** @type {!IIterableResult<!goog.iter.Iterator<?>>} */ (iterator.next());
     if (it.done) return goog.iter.ES6_ITERATOR_DONE;
     const args = goog.iter.toArray(it.value);
-    const value = f.apply(opt_obj, [].concat(args, undefined, iterator));
+    const value = f.apply(/** @type {?} */ (opt_obj), /** @type {!Array<*>} */ ([]).concat(args, undefined, iterator));
     return goog.iter.createEs6IteratorYield(value);
   };
 
@@ -1311,16 +1312,17 @@ goog.iter.slice = function (iterable, start, opt_end) {
  * @param {?IArrayLike<VALUE>} arr The array to check for
  *     duplicates.
  * @return {boolean} True, if the array contains duplicates, false otherwise.
- * @private
  * @template VALUE
  */
 // TODO(user): Consider moving this into goog.array as a public function.
 goog.iter.hasDuplicates_ = function (arr) {
   'use strict';
-  const deduped = [];
+  const /** @type {Array<*>} */ deduped = [];
   goog.array.removeDuplicates(arr, deduped);
-  return arr.length != deduped.length;
+  return /** @type {!IArrayLike<VALUE>} */ (arr).length != deduped.length;
 };
+/** @private */
+goog.iter.hasDuplicates_;
 
 /**
  * Creates an iterator that returns permutations of elements in
@@ -1347,10 +1349,13 @@ goog.iter.permutations = function (iterable, opt_length) {
   const sets = goog.array.repeat(elements, length);
   const product = goog.iter.product.apply(undefined, sets);
 
-  return goog.iter.filter(product, function (arr) {
-    'use strict';
-    return !goog.iter.hasDuplicates_(arr);
-  });
+  return goog.iter.filter(
+    product,
+    /** @param {*} arr */ function (arr) {
+      'use strict';
+      return !goog.iter.hasDuplicates_(arr);
+    },
+  );
 };
 
 /**
@@ -1376,14 +1381,17 @@ goog.iter.combinations = function (iterable, length) {
   const indexIterator = goog.iter.permutations(indexes, length);
   // sortedIndexIterator will now give arrays of with the given length that
   // indicate what indexes into "elements" should be returned on each iteration.
-  const sortedIndexIterator = goog.iter.filter(indexIterator, function (arr) {
-    'use strict';
-    return goog.array.isSorted(arr);
-  });
+  const sortedIndexIterator = goog.iter.filter(
+    indexIterator,
+    /** @param {*} arr */ function (arr) {
+      'use strict';
+      return goog.array.isSorted(arr);
+    },
+  );
 
   const iter = /** @type {!goog.iter.Iterator<VALUE>} */ (new goog.iter.Iterator());
 
-  function getIndexFromElements(index) {
+  /** @param {*} index */ function getIndexFromElements(index) {
     return elements[index];
   }
   /**
@@ -1425,14 +1433,17 @@ goog.iter.combinationsWithReplacement = function (iterable, length) {
   const indexIterator = goog.iter.product.apply(undefined, sets);
   // sortedIndexIterator will now give arrays of with the given length that
   // indicate what indexes into "elements" should be returned on each iteration.
-  const sortedIndexIterator = goog.iter.filter(indexIterator, function (arr) {
-    'use strict';
-    return goog.array.isSorted(arr);
-  });
+  const sortedIndexIterator = goog.iter.filter(
+    indexIterator,
+    /** @param {*} arr */ function (arr) {
+      'use strict';
+      return goog.array.isSorted(arr);
+    },
+  );
 
   const iter = /** @type {!goog.iter.Iterator<VALUE>} */ (new goog.iter.Iterator());
 
-  function getIndexFromElements(index) {
+  /** @param {*} index */ function getIndexFromElements(index) {
     return elements[index];
   }
 

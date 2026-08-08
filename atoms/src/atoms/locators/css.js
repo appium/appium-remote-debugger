@@ -33,7 +33,7 @@ goog.require('goog.utils');
  * @param {string} target The selector to search for.
  * @param {!(Document|Element)} root The document or element to perform the
  *     search under.
- * @return {Element} The first matching element found in the DOM, or null if no
+ * @return {?Element} The first matching element found in the DOM, or null if no
  *     such element could be found.
  */
 bot.locators.css.single = function (target, root) {

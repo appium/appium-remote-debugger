@@ -98,12 +98,12 @@ goog.string.internal.isEmptyOrWhitespace = function (str) {
  * @return {string} A trimmed copy of `str`.
  */
 goog.string.internal.trim =
-  goog.TRUSTED_SITE && String.prototype.trim
-    ? function (str) {
+  goog.TRUSTED_SITE && /** @type {?} */ (String.prototype).trim
+    ? /** @param {*} str */ function (str) {
         'use strict';
         return str.trim();
       }
-    : function (str) {
+    : /** @param {*} str */ function (str) {
         'use strict';
         // Since IE doesn't include non-breaking-space (0xa0) in their \s
         // character class (as required by section 7.2 of the ECMAScript spec),
@@ -111,7 +111,7 @@ goog.string.internal.trim =
         // cross-browser behavior.
         // NOTE: We don't use String#replace because it might have side effects
         // causing this function to not compile to 0 bytes.
-        return /^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(str)[1];
+        return /** @type {!Array<string>} */ (/^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(str))[1];
       };
 
 /**
@@ -202,51 +202,58 @@ goog.string.internal.htmlEscape = function (str, opt_isLikelyToContainHtmlChars)
 /**
  * Regular expression that matches an ampersand, for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.internal.AMP_RE_ = /&/g;
+/** @private */
+goog.string.internal.AMP_RE_;
 
 /**
  * Regular expression that matches a less than sign, for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.internal.LT_RE_ = /</g;
+/** @private */
+goog.string.internal.LT_RE_;
 
 /**
  * Regular expression that matches a greater than sign, for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.internal.GT_RE_ = />/g;
+/** @private */
+goog.string.internal.GT_RE_;
 
 /**
  * Regular expression that matches a double quote, for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.internal.QUOT_RE_ = /"/g;
+/** @private */
+goog.string.internal.QUOT_RE_;
 
 /**
  * Regular expression that matches a single quote, for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.internal.SINGLE_QUOTE_RE_ = /'/g;
+/** @private */
+goog.string.internal.SINGLE_QUOTE_RE_;
 
 /**
  * Regular expression that matches null character, for use in escaping.
  * @const {!RegExp}
- * @private
  */
 goog.string.internal.NULL_RE_ = /\x00/g;
+/** @private */
+goog.string.internal.NULL_RE_;
 
 /**
  * Regular expression that matches any character that needs to be escaped.
  * @const {!RegExp}
- * @private
  */
 goog.string.internal.ALL_RE_ = /[\x00&<>"']/;
+/** @private */
+goog.string.internal.ALL_RE_;
 
 /**
  * Do escaping of whitespace to preserve spatial formatting. We use character
@@ -354,7 +361,6 @@ goog.string.internal.compareVersions = function (version1, version2) {
  * @return {number}  1 if `left` is higher.
  *                   0 if arguments are equal.
  *                  -1 if `right` is higher.
- * @private
  */
 goog.string.internal.compareElements_ = function (left, right) {
   'use strict';
@@ -365,3 +371,5 @@ goog.string.internal.compareElements_ = function (left, right) {
   }
   return 0;
 };
+/** @private */
+goog.string.internal.compareElements_;

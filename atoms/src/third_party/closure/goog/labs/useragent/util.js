@@ -13,8 +13,8 @@
 goog.module('goog.labs.userAgent.util');
 goog.module.declareLegacyNamespace();
 
-const {caseInsensitiveContains, contains} = goog.require('goog.string.internal');
-const {useClientHints} = goog.require('goog.labs.userAgent');
+var {caseInsensitiveContains, contains: stringContains} = goog.require('goog.string.internal');
+var {useClientHints} = goog.require('goog.labs.userAgent');
 
 /**
  * @const {boolean} If true, use navigator.userAgentData without check.
@@ -129,7 +129,7 @@ function matchUserAgentDataBrand(str) {
   if (!useClientHints()) return false;
   const data = getUserAgentData();
   if (!data) return false;
-  return data.brands.some(({brand}) => brand && contains(brand, str));
+  return data.brands.some(({brand}) => brand && stringContains(brand, str));
 }
 
 /**
@@ -138,7 +138,7 @@ function matchUserAgentDataBrand(str) {
  */
 function matchUserAgent(str) {
   const userAgent = getUserAgent();
-  return contains(userAgent, str);
+  return stringContains(userAgent, str);
 }
 
 /**
@@ -154,8 +154,8 @@ function matchUserAgentIgnoreCase(str) {
 /**
  * Parses the user agent into tuples for each section.
  * @param {string} userAgent
- * @return {!Array<!Array<string>>} Tuples of key, version, and the contents of
- *     the parenthetical.
+ * @return {!Array<!Array<(string|undefined)>>} Tuples of key, version, and the
+ *     contents of the parenthetical.
  */
 function extractVersionTuples(userAgent) {
   // Matches each section of a user agent string.

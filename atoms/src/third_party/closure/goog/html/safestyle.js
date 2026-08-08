@@ -13,12 +13,12 @@
 goog.module('goog.html.SafeStyle');
 goog.module.declareLegacyNamespace();
 
-const Const = goog.require('goog.string.Const');
-const SafeUrl = goog.require('goog.html.SafeUrl');
-const TypedString = goog.require('goog.string.TypedString');
-const {AssertionError, assert, fail} = goog.require('goog.asserts');
-const {contains, endsWith} = goog.require('goog.string.internal');
-const utils = goog.require('goog.utils');
+var Const = goog.require('goog.string.Const');
+var SafeUrl = goog.require('goog.html.SafeUrl');
+var TypedString = goog.require('goog.string.TypedString');
+var {AssertionError, assert, fail} = goog.require('goog.asserts');
+var {contains: stringContains, endsWith} = goog.require('goog.string.internal');
+var utils = goog.require('goog.utils');
 
 /**
  * Token used to ensure that object is created only from this file. No code
@@ -26,7 +26,8 @@ const utils = goog.require('goog.utils');
  * @type {!Object}
  * @const
  */
-const CONSTRUCTOR_TOKEN_PRIVATE = {};
+/** @type {!Object} */
+var CONSTRUCTOR_TOKEN_PRIVATE = {};
 
 /**
  * A string-like object which represents a sequence of CSS declarations
@@ -111,7 +112,7 @@ const CONSTRUCTOR_TOKEN_PRIVATE = {};
  * @see http://www.w3.org/TR/css3-syntax/
  * @final
  * @struct
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeStyle {
   /**
@@ -165,7 +166,7 @@ class SafeStyle {
     }
     assert(endsWith(styleString, ';'), `Last character of style string is not ';': ${styleString}`);
     assert(
-      contains(styleString, ':'),
+      stringContains(styleString, ':'),
       "Style string must contain at least one ':', to " + 'specify a "name: value" pair: ' + styleString,
     );
     return SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(styleString);
@@ -191,7 +192,6 @@ class SafeStyle {
    *
    * @return {string}
    * @see SafeStyle#unwrap
-   * @override
    */
   getTypedStringValue() {
     return this.privateDoNotAccessOrElseSafeStyleWrappedValue_;
@@ -205,7 +205,6 @@ class SafeStyle {
    *
    * @return {string}
    * @see SafeStyle#unwrap
-   * @override
    */
   toString() {
     return this.privateDoNotAccessOrElseSafeStyleWrappedValue_.toString();
@@ -530,10 +529,13 @@ const COMMENT_RE = /\/\*/;
 function sanitizeUrl(value) {
   return value.replace(URL_RE, (match, before, url, after) => {
     let quote = '';
-    url = url.replace(/^(['"])(.*)\1$/, (match, start, inside) => {
-      quote = start;
-      return inside;
-    });
+    url = url.replace(
+      /^(['"])(.*)\1$/,
+      /** @param {*} match @param {*} start @param {*} inside */ (match, start, inside) => {
+        quote = start;
+        return inside;
+      },
+    );
     const sanitized = SafeUrl.sanitize(url).getTypedStringValue();
     return before + quote + sanitized + quote + after;
   });

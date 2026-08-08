@@ -34,7 +34,7 @@ goog.require('goog.dom.TagName');
  * @return {!Window} The top window.
  */
 bot.frame.defaultContent = function () {
-  return bot.getWindow().top;
+  return /** @type {!Window} */ (bot.getWindow().top);
 };
 
 /**
@@ -62,7 +62,7 @@ bot.frame.parentFrame = function (opt_root) {
  *
  * @param {!(HTMLIFrameElement|HTMLFrameElement)} element The iframe or frame
  *     element.
- * @return {Window} The window reference for the given iframe or frame element.
+ * @return {?Window} The window reference for the given iframe or frame element.
  */
 bot.frame.getFrameWindow = function (element) {
   if (bot.frame.isFrame_(element)) {
@@ -77,11 +77,12 @@ bot.frame.getFrameWindow = function (element) {
  *
  * @param {!Element} element The element to check.
  * @return {boolean} Whether the element is a frame (or iframe).
- * @private
  */
 bot.frame.isFrame_ = function (element) {
   return bot.dom.isElement(element, goog.dom.TagName.FRAME) || bot.dom.isElement(element, goog.dom.TagName.IFRAME);
 };
+/** @private */
+bot.frame.isFrame_;
 
 /**
  * Looks for a frame by its name or id (preferring name over id)
@@ -92,7 +93,7 @@ bot.frame.isFrame_ = function (element) {
  *     index of the frame in the containing window.
  * @param {!Window=} opt_root The window to perform the search under.
  *     Defaults to `bot.getWindow()`.
- * @return {Window} The window if found, null otherwise.
+ * @return {?Window} The window if found, null otherwise.
  */
 bot.frame.findFrameByNameOrId = function (nameOrId, opt_root) {
   var domWindow = opt_root || bot.getWindow();
@@ -101,14 +102,15 @@ bot.frame.findFrameByNameOrId = function (nameOrId, opt_root) {
   var numFrames = domWindow.frames.length;
   for (var i = 0; i < numFrames; i++) {
     var frame = domWindow.frames[i];
+    /** @type {Element|Window} */
     var frameElement = frame.frameElement || frame;
-    if (frameElement.name == nameOrId) {
+    if (/** @type {?} */ (frameElement).name == nameOrId) {
       // This is needed because Safari 4 returns
       // an HTMLFrameElement instead of a Window object.
       if (frame.document) {
         return frame;
       } else {
-        return goog.dom.getFrameContentWindow(frame);
+        return goog.dom.getFrameContentWindow(/** @type {?} */ (frame));
       }
     }
   }
@@ -116,6 +118,7 @@ bot.frame.findFrameByNameOrId = function (nameOrId, opt_root) {
   // Lookup frame by id
   var elements = bot.locators.findElements({id: nameOrId}, domWindow.document);
   for (var i = 0; i < elements.length; i++) {
+    /** @type {Element|Window} */
     var frameElement = elements[i];
     if (frameElement && bot.frame.isFrame_(frameElement)) {
       return goog.dom.getFrameContentWindow(frameElement);
