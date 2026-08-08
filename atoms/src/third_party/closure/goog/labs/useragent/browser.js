@@ -558,7 +558,7 @@ function versionOf_(browser) {
   // so if checking its version, always fall back to the user agent string.
   if (useUserAgentDataBrand() && browser !== Brand.SILK) {
     const data = util.getUserAgentData();
-    const matchingBrand = data.brands.find(({brand}) => brand === browser);
+    const matchingBrand = data.brands.find((/** @type {{brand: string}} */ {brand}) => brand === browser);
     if (!matchingBrand || !matchingBrand.version) {
       return NaN;
     }
@@ -612,7 +612,7 @@ exports.isAtMost = isAtMost;
 /**
  * Loads the high-entropy browser brand/version data and wraps the correct
  * version string in a Version object.
- * @implements {AsyncValue<!Version>}
+ * (implements AsyncValue<!Version>)
  */
 class HighEntropyBrandVersion {
   /**
@@ -641,7 +641,7 @@ class HighEntropyBrandVersion {
     if (this.useUach_) {
       const loadedVersionList = fullVersionList.getIfLoaded();
       if (loadedVersionList !== undefined) {
-        const matchingBrand = loadedVersionList.find(({brand}) => this.brand_ === brand);
+        const matchingBrand = loadedVersionList.find((/** @type {{brand: string}} */ {brand}) => this.brand_ === brand);
         // We assumed in fullVersionOf that if the fullVersionList is defined
         // the brands must match. Double-check this here.
         assertExists(matchingBrand);
@@ -667,7 +667,7 @@ class HighEntropyBrandVersion {
     if (this.useUach_) {
       const loadedVersionList = await fullVersionList.load();
       if (loadedVersionList !== undefined) {
-        const matchingBrand = loadedVersionList.find(({brand}) => this.brand_ === brand);
+        const matchingBrand = loadedVersionList.find((/** @type {{brand: string}} */ {brand}) => this.brand_ === brand);
         assertExists(matchingBrand);
         return new Version(matchingBrand.version);
       }
@@ -750,7 +750,7 @@ function fullVersionOf(browser) {
     // Operate under the assumption that the low-entropy and high-entropy lists
     // of brand/version pairs contain an identical set of brands. Therefore, if
     // the low-entropy list doesn't contain the given brand, return undefined.
-    if (!data.brands.find(({brand}) => brand === browser)) {
+    if (!data.brands.find((/** @type {{brand: string}} */ {brand}) => brand === browser)) {
       return undefined;
     }
   } else if (fallbackVersionString === '') {
@@ -779,7 +779,7 @@ function getVersionStringForLogging(browser) {
       }
       // No full version, return the major version instead.
       const data = util.getUserAgentData();
-      const matchingBrand = data.brands.find(({brand}) => brand === browser);
+      const matchingBrand = data.brands.find((/** @type {{brand: string}} */ {brand}) => brand === browser);
       // Checking for the existence of matchingBrand is not necessary because
       // the existence of fullVersionObj implies that there is already a
       // matching brand.
