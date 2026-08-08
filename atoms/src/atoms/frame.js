@@ -34,7 +34,7 @@ goog.require('goog.dom.TagName');
  * @return {!Window} The top window.
  */
 bot.frame.defaultContent = function () {
-  return bot.getWindow().top;
+  return /** @type {!Window} */ (bot.getWindow().top);
 };
 
 /**
@@ -62,7 +62,7 @@ bot.frame.parentFrame = function (opt_root) {
  *
  * @param {!(HTMLIFrameElement|HTMLFrameElement)} element The iframe or frame
  *     element.
- * @return {Window} The window reference for the given iframe or frame element.
+ * @return {?Window} The window reference for the given iframe or frame element.
  */
 bot.frame.getFrameWindow = function (element) {
   if (bot.frame.isFrame_(element)) {
@@ -104,13 +104,13 @@ bot.frame.findFrameByNameOrId = function (nameOrId, opt_root) {
     var frame = domWindow.frames[i];
     /** @type {Element|Window} */
     var frameElement = frame.frameElement || frame;
-    if (frameElement.name == nameOrId) {
+    if (/** @type {?} */ (frameElement).name == nameOrId) {
       // This is needed because Safari 4 returns
       // an HTMLFrameElement instead of a Window object.
       if (frame.document) {
         return frame;
       } else {
-        return goog.dom.getFrameContentWindow(frame);
+        return goog.dom.getFrameContentWindow(/** @type {?} */ (frame));
       }
     }
   }
