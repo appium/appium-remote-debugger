@@ -39,14 +39,14 @@ export enum ErrorCode {
 
 /**
  * Status strings enumerated in the W3C WebDriver protocol.
- * @see https://w3c.github.io/webdriver/webdriver-spec.html#handling-errors
+ * @see https://w3c.github.io/webdriver/#errors
  */
 export enum ErrorState {
   ELEMENT_NOT_SELECTABLE = 'element not selectable',
   ELEMENT_NOT_VISIBLE = 'element not visible',
   INVALID_ARGUMENT = 'invalid argument',
   INVALID_COOKIE_DOMAIN = 'invalid cookie domain',
-  INVALID_ELEMENT_COORDINATES = 'invalid element coordinates',
+  INVALID_ELEMENT_COORDINATES = 'invalid coordinates',
   INVALID_ELEMENT_STATE = 'invalid element state',
   INVALID_SELECTOR = 'invalid selector',
   INVALID_SESSION_ID = 'invalid session id',
@@ -71,8 +71,8 @@ export enum ErrorState {
 const CODE_TO_STATE: Partial<Record<ErrorCode, ErrorState>> = {
   [ErrorCode.ELEMENT_NOT_SELECTABLE]: ErrorState.ELEMENT_NOT_SELECTABLE,
   [ErrorCode.ELEMENT_NOT_VISIBLE]: ErrorState.ELEMENT_NOT_VISIBLE,
-  [ErrorCode.IME_ENGINE_ACTIVATION_FAILED]: ErrorState.UNKNOWN_ERROR,
-  [ErrorCode.IME_NOT_AVAILABLE]: ErrorState.UNKNOWN_ERROR,
+  [ErrorCode.IME_ENGINE_ACTIVATION_FAILED]: ErrorState.UNSUPPORTED_OPERATION,
+  [ErrorCode.IME_NOT_AVAILABLE]: ErrorState.UNSUPPORTED_OPERATION,
   [ErrorCode.INVALID_COOKIE_DOMAIN]: ErrorState.INVALID_COOKIE_DOMAIN,
   [ErrorCode.INVALID_ELEMENT_COORDINATES]: ErrorState.INVALID_ELEMENT_COORDINATES,
   [ErrorCode.INVALID_ELEMENT_STATE]: ErrorState.INVALID_ELEMENT_STATE,
@@ -80,7 +80,7 @@ const CODE_TO_STATE: Partial<Record<ErrorCode, ErrorState>> = {
   [ErrorCode.INVALID_XPATH_SELECTOR]: ErrorState.INVALID_SELECTOR,
   [ErrorCode.INVALID_XPATH_SELECTOR_RETURN_TYPE]: ErrorState.INVALID_SELECTOR,
   [ErrorCode.JAVASCRIPT_ERROR]: ErrorState.JAVASCRIPT_ERROR,
-  [ErrorCode.METHOD_NOT_ALLOWED]: ErrorState.UNSUPPORTED_OPERATION,
+  [ErrorCode.METHOD_NOT_ALLOWED]: ErrorState.UNKNOWN_METHOD,
   [ErrorCode.MOVE_TARGET_OUT_OF_BOUNDS]: ErrorState.MOVE_TARGET_OUT_OF_BOUNDS,
   [ErrorCode.NO_SUCH_ALERT]: ErrorState.NO_SUCH_ALERT,
   [ErrorCode.NO_SUCH_ELEMENT]: ErrorState.NO_SUCH_ELEMENT,
@@ -100,7 +100,7 @@ const CODE_TO_STATE: Partial<Record<ErrorCode, ErrorState>> = {
  * Looks up the W3C WebDriver status string for a legacy error code, for
  * callers that need to report an error using both the legacy numeric code
  * and its W3C string equivalent.
- * @see https://w3c.github.io/webdriver/webdriver-spec.html#handling-errors
+ * @see https://w3c.github.io/webdriver/#errors
  */
 export function stateForCode(code: ErrorCode): ErrorState {
   return CODE_TO_STATE[code] ?? ErrorState.UNKNOWN_ERROR;
