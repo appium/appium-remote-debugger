@@ -49,8 +49,9 @@ bot.locators.strategy;
  * and are specified at:
  * https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol
  * @const
+ * @private {Object.<string,bot.locators.strategy>}
  */
-bot.locators.STRATEGIES_ = {
+bot.locators.STRATEGIES_ = /** @type {Object.<string,bot.locators.strategy>} */ ({
   'className': bot.locators.className,
   'class name': bot.locators.className,
 
@@ -73,9 +74,7 @@ bot.locators.STRATEGIES_ = {
   'tag name': bot.locators.tagName,
 
   'xpath': bot.locators.xpath,
-};
-/** @private {Object.<string,bot.locators.strategy>} */
-bot.locators.STRATEGIES_;
+});
 
 /**
  * Add or override an existing strategy for locating elements.
