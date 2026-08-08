@@ -129,7 +129,7 @@ goog.html.TrustedResourceUrl.prototype.getTypedStringValue = function () {
 goog.html.TrustedResourceUrl.prototype.cloneWithParams = function (searchParams, opt_hashParams) {
   'use strict';
   var url = goog.html.TrustedResourceUrl.unwrap(this);
-  var parts = goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url);
+  var parts = /** @type {!Array<string>} */ (goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url));
   var urlBase = parts[1];
   var urlSearch = parts[2] || '';
   var urlHash = parts[3] || '';
@@ -429,7 +429,9 @@ goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessO
   const noinlineUrl = url;
   const policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse();
   const value = policy ? policy.createScriptURL(noinlineUrl) : noinlineUrl;
-  return new goog.html.TrustedResourceUrl(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
+  return new (/** @type {function(new:goog.html.TrustedResourceUrl, ...?)} */ (
+    /** @type {?} */ (goog.html.TrustedResourceUrl)
+  ))(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
 };
 
 /**
