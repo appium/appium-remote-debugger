@@ -71,7 +71,14 @@ goog.debug.catchErrors = function (logFunc, opt_cancel, opt_target) {
    *     to the latest spec will inlude this parameter.
    * @return {boolean} Whether to prevent the error from reaching the browser.
    */
-  /** @type {*} */ (target).onerror = function (message, url, line, opt_col, opt_error) {
+  /**
+   * @param {string} message
+   * @param {string} url
+   * @param {number} line
+   * @param {number=} opt_col
+   * @param {Error=} opt_error
+   */
+  function onError(message, url, line, opt_col, opt_error) {
     'use strict';
     if (oldErrorHandler) {
       oldErrorHandler(message, url, line, opt_col, opt_error);
@@ -85,7 +92,8 @@ goog.debug.catchErrors = function (logFunc, opt_cancel, opt_target) {
       error: opt_error,
     });
     return retVal;
-  };
+  }
+  /** @type {*} */ (target).onerror = onError;
 };
 
 /**
@@ -143,10 +151,15 @@ goog.debug.deepExpose = function (obj, opt_showFn) {
   uidsToCleanup = [];
   var ancestorUids = {};
 
+  /**
+   * @param {*} obj
+   * @param {string} space
+   */
   var helper = function (obj, space) {
     'use strict';
     var nestspace = space + '  ';
 
+    /** @param {string} str */
     var indentMultiline = function (str) {
       'use strict';
       return str.replace(/\n/g, '\n' + space);
@@ -408,10 +421,10 @@ goog.debug.enhanceError = function (err, opt_message) {
   if (opt_message) {
     // find the first unoccupied 'messageX' property
     var x = 0;
-    while (error['message' + x]) {
+    while (/** @type {!Object<string, *>} */ (error)['message' + x]) {
       ++x;
     }
-    error['message' + x] = String(opt_message);
+    /** @type {!Object<string, *>} */ (error)['message' + x] = String(opt_message);
   }
   return error;
 };
@@ -506,7 +519,7 @@ goog.debug.getNativeStackTrace_ = function (fn) {
     try {
       throw tempErr;
     } catch (e) {
-      tempErr = e;
+      tempErr = /** @type {!Error} */ (e);
     }
     var stack = tempErr.stack;
     if (stack) {
