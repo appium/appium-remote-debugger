@@ -54,6 +54,7 @@ goog.structs.Map = function (opt_map, var_args) {
    * This array can contain deleted keys so it's necessary to check the map
    * as well to see if the key is still in the map (this doesn't require a
    * memory allocation in IE).
+   * @type {!Array<string>}
    */
   this.keys_ = [];
 
@@ -316,7 +317,7 @@ goog.structs.Map.prototype.get = function (key, opt_val) {
   if (goog.structs.Map.hasKey_(this.map_, key)) {
     return /** @type {!Object<string, *>} */ (this.map_)[key];
   }
-  return opt_val;
+  return /** @type {?} */ (opt_val);
 };
 
 /**
@@ -371,7 +372,7 @@ goog.structs.Map.prototype.forEach = function (f, opt_obj) {
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     var value = this.get(key);
-    f.call(opt_obj, value, key, this);
+    /** @type {?} */ (f).call(opt_obj, value, key, this);
   }
 };
 
@@ -403,7 +404,7 @@ goog.structs.Map.prototype.transpose = function () {
   for (var i = 0; i < this.keys_.length; i++) {
     var key = this.keys_[i];
     var value = /** @type {!Object<string, *>} */ (this.map_)[key];
-    transposed.set(value, key);
+    transposed.set(value, /** @type {?} */ (key));
   }
 
   return transposed;
@@ -503,8 +504,7 @@ goog.structs.Map.prototype.__iterator__ = function (opt_keys) {
 
   var newIter = new goog.iter.Iterator();
   /**
-   * @return {!IIterableResult<K|V>}
-   * @override
+   * @return {!IIterableResult<?>}
    */
   newIter.next = function () {
     'use strict';
