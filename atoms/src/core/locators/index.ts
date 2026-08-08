@@ -1,11 +1,11 @@
 import {BotError, ErrorCode} from '../error.js';
-import * as className from './className.js';
+import * as className from './class-name.js';
 import * as css from './css.js';
 import * as id from './id.js';
-import {linkText, partialLinkText} from './linkText.js';
+import {linkText, partialLinkText} from './link-text.js';
 import * as name from './name.js';
 import * as relative from './relative.js';
-import * as tagName from './tagName.js';
+import * as tagName from './tag-name.js';
 import * as xpath from './xpath.js';
 
 interface Strategy {

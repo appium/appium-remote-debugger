@@ -2,7 +2,7 @@ import * as dom from '../../core/dom.js';
 import * as inject from '../../core/inject.js';
 import {get as getAttribute} from '../attribute.js';
 import {getLocationInView} from '../element.js';
-import {getWindow, type JsonWindow} from './executeScript.js';
+import {getWindow, type JsonWindow} from './execute-script.js';
 
 function executeDomFunction(fn: Function, args: unknown[], win?: JsonWindow): string {
   let response: inject.ResponseObject;

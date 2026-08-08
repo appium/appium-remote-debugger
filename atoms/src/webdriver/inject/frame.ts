@@ -1,5 +1,5 @@
 import * as frame from '../../core/frame.js';
-import {executeScript} from './executeScript.js';
+import {executeScript} from './execute-script.js';
 
 /** Finds a frame by id or name. */
 export function findFrameByIdOrName(idOrName: string, root?: Window): string {

@@ -1,1 +1,1 @@
-export {removeItem as default} from '../webdriver/inject/localStorage.js';
+export {removeItem as default} from '../webdriver/inject/local-storage.js';

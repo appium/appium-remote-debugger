@@ -1,6 +1,6 @@
 import * as inject from '../../core/inject.js';
 import {findElement as domFindElement, findElements as domFindElements} from '../../core/locators/index.js';
-import {getWindow, type JsonWindow} from './executeScript.js';
+import {getWindow, type JsonWindow} from './execute-script.js';
 
 interface JsonElementRef {
   ELEMENT: string;

@@ -3,7 +3,7 @@ import * as inject from '../../core/inject.js';
 import {Button} from '../../core/mouse.js';
 import * as element from '../element.js';
 import * as inputs from '../inputs.js';
-import {getWindow, type JsonWindow} from './executeScript.js';
+import {getWindow, type JsonWindow} from './execute-script.js';
 
 function executeActionFunction(fn: Function, args: unknown[], win?: JsonWindow): string {
   let response: inject.ResponseObject;

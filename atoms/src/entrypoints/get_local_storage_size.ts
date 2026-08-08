@@ -1,1 +1,1 @@
-export {size as default} from '../webdriver/inject/localStorage.js';
+export {size as default} from '../webdriver/inject/local-storage.js';

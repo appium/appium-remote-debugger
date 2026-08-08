@@ -1,5 +1,5 @@
 import {standardizeColor} from './color.js';
-import {getAttribute, getOwnerDocument, getProperty, isElement, isSelectable, isSelected} from './domCore.js';
+import {getAttribute, getOwnerDocument, getProperty, isElement, isSelectable, isSelected} from './dom-core.js';
 import * as cssLocator from './locators/css.js';
 import {Box, Coordinate, Rect, clamp} from './types.js';
 

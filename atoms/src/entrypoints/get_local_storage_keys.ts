@@ -1,1 +1,1 @@
-export {keySet as default} from '../webdriver/inject/localStorage.js';
+export {keySet as default} from '../webdriver/inject/local-storage.js';

@@ -1,5 +1,5 @@
 import * as storageLocal from '../storage/local.js';
-import {executeScript} from './executeScript.js';
+import {executeScript} from './execute-script.js';
 
 export function setItem(key: string, value: unknown): string {
   return executeScript(storageLocal.setItem, [key, value]);

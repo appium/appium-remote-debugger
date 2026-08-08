@@ -1,1 +1,1 @@
-export {setItem as default} from '../webdriver/inject/localStorage.js';
+export {setItem as default} from '../webdriver/inject/local-storage.js';

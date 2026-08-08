@@ -1,1 +1,1 @@
-export {findElement as default} from '../webdriver/inject/findElement.js';
+export {findElement as default} from '../webdriver/inject/find-element.js';

@@ -1,4 +1,4 @@
-import {getOwnerDocument} from '../domCore.js';
+import {getOwnerDocument} from '../dom-core.js';
 import {BotError, ErrorCode} from '../error.js';
 
 enum XPathResultType {

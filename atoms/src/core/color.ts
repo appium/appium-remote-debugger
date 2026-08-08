@@ -1,4 +1,4 @@
-import {COLOR_NAMES} from './colorNames.js';
+import {COLOR_NAMES} from './color-names.js';
 
 // Extracted from the W3C CSS spec: http://www.w3.org/TR/CSS/#properties
 const COLOR_PROPERTIES = new Set([

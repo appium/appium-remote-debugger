@@ -1,4 +1,4 @@
-import {isElement} from './domCore.js';
+import {isElement} from './dom-core.js';
 import {BotError, ErrorCode} from './error.js';
 import * as idLocator from './locators/id.js';
 

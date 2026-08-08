@@ -1,5 +1,5 @@
 import * as storageSession from '../storage/session.js';
-import {executeScript} from './executeScript.js';
+import {executeScript} from './execute-script.js';
 
 export function setItem(key: string, value: unknown): string {
   return executeScript(storageSession.setItem, [key, value]);

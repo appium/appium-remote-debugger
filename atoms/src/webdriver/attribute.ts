@@ -1,4 +1,4 @@
-import {getAttribute, getProperty, isElement, isSelectable, isSelected} from '../core/domCore.js';
+import {getAttribute, getProperty, isElement, isSelectable, isSelected} from '../core/dom-core.js';
 
 /** Common aliases: maps names users use to the correct property name. */
 const PROPERTY_ALIASES: Record<string, string> = {

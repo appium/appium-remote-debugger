@@ -1,4 +1,4 @@
-import {getAttribute} from '../domCore.js';
+import {getAttribute} from '../dom-core.js';
 
 /**
  * Finds an element by the value of its `name` attribute.

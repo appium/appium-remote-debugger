@@ -1,1 +1,1 @@
-export {setItem as default} from '../webdriver/inject/sessionStorage.js';
+export {setItem as default} from '../webdriver/inject/session-storage.js';

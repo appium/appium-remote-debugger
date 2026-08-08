@@ -1,5 +1,5 @@
+import {getAncestor, isElement} from './dom-core.js';
 import {getActiveElement, getDocumentScroll, isFocusable, isInteractable, isSelectable, isSelected} from './dom.js';
-import {getAncestor, isElement} from './domCore.js';
 import {BotError, ErrorCode} from './error.js';
 import * as events from './events.js';
 import {Coordinate} from './types.js';

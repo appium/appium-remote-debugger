@@ -1,4 +1,4 @@
-import {getAttribute, getOwnerDocument} from '../domCore.js';
+import {getAttribute, getOwnerDocument} from '../dom-core.js';
 
 // Escapes characters that have special meaning in CSS: https://mathiasbynens.be/notes/css-escapes
 // An ID can contain anything but spaces, but we also escape whitespace because some webpages use
