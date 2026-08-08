@@ -32,8 +32,6 @@ goog.require('goog.utils');
  * are two different objects.  WARNING: Any object that is added to a
  * goog.structs.Set will be modified!  Because goog.getUid() is used to
  * identify objects, every object in the set will be mutated.
- * @implements {goog.structs.Collection<T>}
- * @implements {Iterable<T>}
  * @final
  * @template T
  * @deprecated This type is misleading: use ES6 Set instead.
@@ -102,7 +100,7 @@ goog.structs.Set.prototype.getCount = function () {
  */
 goog.structs.Set.prototype.add = function (element) {
   'use strict';
-  this.map_.set(goog.structs.Set.getKey_(element), element);
+  this.map_.set(goog.structs.Set.getKey_(element), /** @type {?} */ (element));
   this.setSizeInternal_(this.map_.size);
 };
 
@@ -271,7 +269,7 @@ goog.structs.Set.prototype.difference = function (col) {
  */
 goog.structs.Set.prototype.getValues = function () {
   'use strict';
-  return this.map_.getValues();
+  return /** @type {!Array<T>} */ (/** @type {?} */ (this.map_.getValues()));
 };
 
 /**
@@ -280,7 +278,7 @@ goog.structs.Set.prototype.getValues = function () {
  */
 goog.structs.Set.prototype.values = function () {
   'use strict';
-  return this.map_.values();
+  return /** @type {!IteratorIterable<T>} */ (this.map_.values());
 };
 
 /**
@@ -354,7 +352,7 @@ goog.structs.Set.prototype.__iterator__ = function (opt_keys) {
  * @return {!IteratorIterable<T>} An ES6 Iterator that iterates over the values
  *     in the set.
  */
-goog.structs.Set.prototype[Symbol.iterator] = function () {
+/** @type {?} */ (goog.structs.Set.prototype)[Symbol.iterator] = function () {
   return this.values();
 };
 
