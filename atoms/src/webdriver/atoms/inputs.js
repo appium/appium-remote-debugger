@@ -69,7 +69,7 @@ webdriver.atoms.inputs.click = function (element, opt_state) {
   if (!element) {
     throw Error('No element to send keys to');
   }
-  bot.action.click(element, null, mouse);
+  bot.action.click(element, /** @type {?} */ (null), mouse);
   return mouse.getState();
 };
 
@@ -183,7 +183,9 @@ webdriver.atoms.inputs.mouseClick = function (button, opt_state) {
   // If no target element is specified, try to find it from the
   // client (x, y) location. No, this is not exact.
   if (opt_state && opt_state['clientXY'] && !opt_state['element'] && document.elementFromPoint) {
-    opt_state['element'] = document.elementFromPoint(opt_state['clientXY']['x'], opt_state['clientXY']['y']);
+    opt_state['element'] = /** @type {!Element} */ (
+      document.elementFromPoint(opt_state['clientXY']['x'], opt_state['clientXY']['y'])
+    );
   }
   var mouse = new bot.Mouse(opt_state);
   mouse.pressButton(button);

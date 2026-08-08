@@ -75,8 +75,8 @@ webdriver.atoms.inject.locators.findElements = function (strategy, using, opt_ro
  * Performs a search for one or more elements.
  * @param {string} strategy The strategy to use to locate the element.
  * @param {string} target The locator to use.
- * @param {(function(!Object, (Document|Element)=): Element|
- *          function(!Object, (Document|Element)=): !IArrayLike)}
+ * @param {(function(!Object, (Document|Element)=): Element)|
+ *         (function(!Object, (Document|Element)=): !IArrayLike)}
  *     searchFn The search function to invoke.
  * @param {?{ELEMENT: string, 'element-6066-11e4-a52e-4f735466cecf': (string|undefined)}=} opt_root The WebElement reference for the
  *     element to perform the search under. If not specified, will use
@@ -109,7 +109,7 @@ webdriver.atoms.inject.locators.performSearch_ = function (strategy, target, sea
     // Step 4: encode our response.
     response = bot.inject.wrapResponse(found);
   } catch (ex) {
-    response = bot.inject.wrapError(ex);
+    response = bot.inject.wrapError(/** @type {!Error} */ (ex));
   }
   return goog.json.serialize(response);
 };

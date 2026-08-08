@@ -152,7 +152,7 @@ goog.math.Rect.prototype.intersection = function (rect) {
  * intersect if they had the same top and left.
  * @param {goog.math.IRect} a A Rectangle.
  * @param {goog.math.IRect} b A Rectangle.
- * @return {goog.math.Rect} A new intersection rect (even if width and height
+ * @return {?goog.math.Rect} A new intersection rect (even if width and height
  *     are 0), or null if there is no intersection.
  */
 goog.math.Rect.intersection = function (a, b) {
@@ -285,7 +285,7 @@ goog.math.Rect.prototype.boundingRect = function (rect) {
  * Returns a new rectangle which completely contains both input rectangles.
  * @param {goog.math.IRect} a A rectangle.
  * @param {goog.math.IRect} b A rectangle.
- * @return {goog.math.Rect} A new bounding rect, or null if either rect is
+ * @return {?goog.math.Rect} A new bounding rect, or null if either rect is
  *     null.
  */
 goog.math.Rect.boundingRect = function (a, b) {

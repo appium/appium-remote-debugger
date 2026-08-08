@@ -98,7 +98,7 @@ goog.string.internal.isEmptyOrWhitespace = function (str) {
  * @return {string} A trimmed copy of `str`.
  */
 goog.string.internal.trim =
-  goog.TRUSTED_SITE && String.prototype.trim
+  goog.TRUSTED_SITE && /** @type {?} */ (String.prototype).trim
     ? /** @param {*} str */ function (str) {
         'use strict';
         return str.trim();
@@ -111,7 +111,7 @@ goog.string.internal.trim =
         // cross-browser behavior.
         // NOTE: We don't use String#replace because it might have side effects
         // causing this function to not compile to 0 bytes.
-        return /^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(str)[1];
+        return /** @type {!Array<string>} */ (/^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(str))[1];
       };
 
 /**
