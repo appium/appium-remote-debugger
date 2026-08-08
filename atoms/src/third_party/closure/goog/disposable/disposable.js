@@ -26,7 +26,7 @@ goog.require('goog.utils');
  * it should extend this class or implement the disposable interface (defined
  * in goog.disposable.IDisposable). See description of
  * goog.disposable.IDisposable for examples of cleanup.
- * @implements {goog.disposable.IDisposable}
+ * (implements goog.disposable.IDisposable)
  */
 goog.Disposable = class {
   constructor() {
@@ -45,7 +45,9 @@ goog.Disposable = class {
       goog.Disposable.instances_[goog.utils.getUid(this)] = this;
     }
     // Support sealing
+    /** @type {boolean} */
     this.disposed_ = this.disposed_;
+    /** @type {Array<!Function>|undefined} */
     this.onDisposeCallbacks_ = this.onDisposeCallbacks_;
   }
 };
@@ -130,7 +132,7 @@ goog.Disposable.prototype.disposed_ = false;
 
 /**
  * Callbacks to invoke when this object is disposed.
- * @type {Array<!Function>}
+ * @type {Array<!Function>|undefined}
  * @private
  */
 goog.Disposable.prototype.onDisposeCallbacks_;
@@ -204,7 +206,7 @@ goog.Disposable.prototype.dispose = function () {
  */
 goog.Disposable.prototype.registerDisposable = function (disposable) {
   'use strict';
-  this.addOnDisposeCallback(goog.utils.partial(goog.dispose, disposable));
+  this.addOnDisposeCallback(/** @type {?} */ (goog.utils.partial(goog.dispose, disposable)));
 };
 
 /**
@@ -218,14 +220,16 @@ goog.Disposable.prototype.registerDisposable = function (disposable) {
 goog.Disposable.prototype.addOnDisposeCallback = function (callback, opt_scope) {
   'use strict';
   if (this.disposed_) {
-    opt_scope !== undefined ? callback.call(opt_scope) : callback();
+    opt_scope !== undefined ? callback.call(opt_scope) : /** @type {?} */ (callback)();
     return;
   }
   if (!this.onDisposeCallbacks_) {
     this.onDisposeCallbacks_ = [];
   }
 
-  this.onDisposeCallbacks_.push(opt_scope !== undefined ? goog.utils.bind(callback, opt_scope) : callback);
+  this.onDisposeCallbacks_.push(
+    opt_scope !== undefined ? /** @type {!Function} */ (/** @type {?} */ (goog.utils.bind)(callback, opt_scope)) : callback,
+  );
 };
 
 /** @protected */
@@ -259,7 +263,7 @@ goog.Disposable.prototype.disposeInternal = function () {
   'use strict';
   if (this.onDisposeCallbacks_) {
     while (this.onDisposeCallbacks_.length) {
-      this.onDisposeCallbacks_.shift()();
+      /** @type {!Function} */ (this.onDisposeCallbacks_.shift())();
     }
   }
 };
