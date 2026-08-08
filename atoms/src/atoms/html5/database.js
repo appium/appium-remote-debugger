@@ -84,14 +84,19 @@ bot.storage.database.executeSql = function (
   try {
     db = bot.storage.database.openOrCreate(databaseName);
   } catch (e) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, e.message);
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, /** @type {!Error} */ (e).message);
   }
 
+  /**
+   * @param {!SQLTransaction} tx
+   * @param {!SQLResultSet} result
+   */
   var queryCallback = function (tx, result) {
     var wrappedResult = new bot.storage.database.ResultSet(result);
     queryResultCallback(tx, wrappedResult);
   };
 
+  /** @param {!SQLTransaction} tx */
   var transactionCallback = function (tx) {
     tx.executeSql(query, args, queryCallback, opt_queryErrorCallback);
   };
