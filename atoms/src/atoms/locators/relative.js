@@ -208,7 +208,7 @@ bot.locators.relative.near_ = function (selector, opt_distance) {
   var /** @type {*} */ distance;
   if (opt_distance) {
     distance = opt_distance;
-  } else if (typeof /** @type {?} */ (selector)['distance'] === 'number') {
+  } else if (typeof (/** @type {?} */ (selector)['distance']) === 'number') {
     distance = /** @type {number} */ (/** @type {?} */ (selector)['distance']);
     // delete selector['distance'];
   }
