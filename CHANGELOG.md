@@ -1,3 +1,9 @@
+## [16.4.0](https://github.com/appium/appium-remote-debugger/compare/v16.3.0...v16.4.0) (2026-08-08)
+
+### Features
+
+* Add typescript checks to atoms ([#526](https://github.com/appium/appium-remote-debugger/issues/526)) ([cd2700f](https://github.com/appium/appium-remote-debugger/commit/cd2700fae4f03cee02c8ffb0f9c92efce79b1f3a))
+
 ## [16.3.0](https://github.com/appium/appium-remote-debugger/compare/v16.2.1...v16.3.0) (2026-08-07)
 
 ### Features
