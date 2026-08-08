@@ -2,7 +2,7 @@ import appiumConfig, {defineConfig, ignorePatterns} from '@appium/oxc-config/oxl
 
 export default defineConfig({
   extends: [appiumConfig],
-  ignorePatterns: [...ignorePatterns, 'atoms/*.js', 'atoms_build_dir/**'],
+  ignorePatterns: [...ignorePatterns, 'atoms/*.js'],
   overrides: [
     {
       // Atom sources run injected into a WebKit page context, never under Node.
