@@ -44,10 +44,10 @@ goog.dom.TagName = class {
 
   constructor() {
     /** @private {null} */
-    this.googDomTagName_doNotImplementThisTypeOrElse_;
+    this.googDomTagName_doNotImplementThisTypeOrElse_ = /** @type {?} */ (null);
 
     /** @private {T} */
-    this.ensureTypeScriptRemembersTypeT_;
+    this.ensureTypeScriptRemembersTypeT_ = /** @type {?} */ (undefined);
   }
 
   /**
@@ -58,7 +58,9 @@ goog.dom.TagName = class {
    *
    * @return {string}
    */
-  toString() {}
+  toString() {
+    return /** @type {?} */ (undefined);
+  }
 };
 
 /** @const {!goog.dom.TagName<!HTMLAnchorElement>} */
