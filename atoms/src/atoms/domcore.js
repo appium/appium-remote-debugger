@@ -70,7 +70,7 @@ bot.dom.core.getAttribute = function (element, attributeName) {
     attributeName == 'value' &&
     bot.dom.core.isElement(element, goog.dom.TagName.INPUT)
   ) {
-    return element['value'];
+    return /** @type {?} */ (element)['value'];
   }
 
   // In IE < 9, element.getAttributeNode will return null for some boolean
@@ -79,7 +79,7 @@ bot.dom.core.getAttribute = function (element, attributeName) {
   // to boolean attributes whose reflected property names are all lowercase
   // (as attributeName is by this point), like "selected". We have not
   // found a boolean attribute for which this does not work.
-  if (bot.userAgent.IE_DOC_PRE9 && element[attributeName] === true) {
+  if (bot.userAgent.IE_DOC_PRE9 && /** @type {?} */ (element)[attributeName] === true) {
     return String(element.getAttribute(attributeName));
   }
 
@@ -126,9 +126,8 @@ bot.dom.core.standardizeStyleAttribute_ = function (value) {
       }
     },
   );
-  css = css.join('');
-  css = css.charAt(css.length - 1) == ';' ? css : css + ';';
-  return css;
+  var cssText = css.join('');
+  return cssText.charAt(cssText.length - 1) == ';' ? cssText : cssText + ';';
 };
 /** @private */
 bot.dom.core.standardizeStyleAttribute_;
@@ -153,7 +152,7 @@ bot.dom.core.getProperty = function (element, propertyName) {
   ) {
     return goog.dom.getRawTextContent(element);
   }
-  return element[propertyName];
+  return /** @type {?} */ (element)[propertyName];
 };
 
 /**
