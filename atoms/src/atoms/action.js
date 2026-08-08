@@ -94,9 +94,9 @@ bot.action.clear = function (element) {
   if (/** @type {!HTMLElement} */ (element).value) {
     bot.action.LegacyDevice_.focusOnElement(element);
     if (goog.userAgent.IE && bot.dom.isInputType(element, 'range')) {
-      var min = /** @type {!HTMLElement} */ (element).min ? /** @type {!HTMLElement} */ (element).min : 0;
-      var max = /** @type {!HTMLElement} */ (element).max ? /** @type {!HTMLElement} */ (element).max : 100;
-      /** @type {!HTMLElement} */ (element).value = max < min ? min : min + (max - min) / 2;
+      var min = /** @type {!HTMLElement} */ (element).min ? Number(/** @type {!HTMLElement} */ (element).min) : 0;
+      var max = /** @type {!HTMLElement} */ (element).max ? Number(/** @type {!HTMLElement} */ (element).max) : 100;
+      /** @type {!HTMLElement} */ (element).value = String(max < min ? min : min + (max - min) / 2);
     } else {
       /** @type {!HTMLElement} */ (element).value = '';
     }
@@ -113,7 +113,7 @@ bot.action.clear = function (element) {
   } else if (
     bot.dom.isElement(element, goog.dom.TagName.INPUT) &&
     element.getAttribute('type') &&
-    element.getAttribute('type').toLowerCase() == 'number'
+    /** @type {string} */ (element.getAttribute('type')).toLowerCase() == 'number'
   ) {
     // number input fields that have invalid inputs
     // report their value as empty string with no way to tell if there is a
@@ -219,7 +219,7 @@ bot.action.type = function (element, values, opt_keyboard, opt_persistModifiers)
     goog.userAgent.WEBKIT &&
     /** @type {!HTMLElement} */ (element).type == 'date'
   ) {
-    var val = Array.isArray(values) ? (values = values.join('')) : values;
+    var val = /** @type {string} */ (Array.isArray(values) ? (values = values.join('')) : values);
     var datePattern = /\d{4}-\d{2}-\d{2}/;
     if (val.match(datePattern)) {
       // The following events get fired on iOS first
@@ -228,7 +228,7 @@ bot.action.type = function (element, values, opt_keyboard, opt_persistModifiers)
         bot.events.fire(element, bot.events.EventType.TOUCHEND);
       }
       bot.events.fire(element, bot.events.EventType.FOCUS);
-      /** @type {!HTMLElement} */ (element).value = val.match(datePattern)[0];
+      /** @type {!HTMLElement} */ (element).value = /** @type {!Array<string>} */ (val.match(datePattern))[0];
       bot.events.fire(element, bot.events.EventType.CHANGE);
       bot.events.fire(element, bot.events.EventType.BLUR);
       return;
