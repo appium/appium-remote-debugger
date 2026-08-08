@@ -1,5 +1,12 @@
 import {BotError, ErrorCode, stateForCode} from './error.js';
 
+/**
+ * An arbitrary function of unknown arity/signature, as decompiled from an injected script. Uses
+ * `any` params (not `unknown`) so concretely-typed functions (e.g. `(el: Element) => void`) remain
+ * assignable to it.
+ */
+export type AnyFunction = (...args: any[]) => unknown;
+
 /** Key used to identify DOM elements in the WebDriver wire protocol. */
 export const ELEMENT_KEY = 'ELEMENT';
 
@@ -147,7 +154,7 @@ export function wrapError(err: Error & {code?: ErrorCode}): ResponseObject {
  * an external source injecting a script for execution.
  */
 export function executeScript(
-  fn: Function | string,
+  fn: AnyFunction | string,
   args: unknown[],
   stringify?: boolean,
   win: Window = window,
@@ -169,7 +176,7 @@ export function executeScript(
  * invoked with a single {@link ResponseObject} argument (or its JSON string, if `stringify`).
  */
 export function executeAsyncScript(
-  fn: Function | string,
+  fn: AnyFunction | string,
   args: unknown[],
   timeout: number,
   onDone: (result: string | ResponseObject) => void,
@@ -263,6 +270,8 @@ export function addElement(el: Element | Window): string {
     }
   }
   if (!id) {
+    // getCache() above always initializes nextId before returning.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     id = ELEMENT_KEY_PREFIX + cache.nextId!++;
     cache[id] = el;
   }
@@ -312,13 +321,15 @@ function isArrayLike(val: unknown): val is ArrayLike<unknown> {
  * the function is executed. Assumes `fn` can be decompiled via `Function.prototype.toString` and
  * only refers to symbols defined in the target window's context.
  */
-function recompileFunction(fn: Function | string, theWindow: Window): Function {
+function recompileFunction(fn: AnyFunction | string, theWindow: Window): AnyFunction {
   if (typeof fn === 'string') {
-    return new (theWindow as unknown as {Function: FunctionConstructor}).Function(fn);
+    return new (theWindow as unknown as {Function: FunctionConstructor}).Function(fn) as AnyFunction;
   }
   return theWindow === window
     ? fn
-    : new (theWindow as unknown as {Function: FunctionConstructor}).Function(`return (${fn}).apply(null,arguments);`);
+    : (new (theWindow as unknown as {Function: FunctionConstructor}).Function(
+        `return (${fn}).apply(null,arguments);`,
+      ) as AnyFunction);
 }
 
 // The property key used to store the element cache on the DOCUMENT node when it is injected into

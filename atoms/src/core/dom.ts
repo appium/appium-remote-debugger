@@ -1,7 +1,8 @@
 import {standardizeColor} from './color.js';
 import {getAttribute, getOwnerDocument, getProperty, isElement, isSelectable, isSelected} from './dom-core.js';
 import * as cssLocator from './locators/css.js';
-import {Box, Coordinate, Rect, clamp} from './types.js';
+import {Coordinate, Rect, clamp} from './types.js';
+import type {Box} from './types.js';
 
 export {getAttribute, getProperty, isElement, isSelectable, isSelected};
 
@@ -333,7 +334,7 @@ export function getOverflowState(elem: Element, region?: Coordinate | Rect): Ove
   }
 
   // Check if the element overflows any ancestor element.
-  for (let container = getOverflowParent(elem); !!container; container = getOverflowParent(container)) {
+  for (let container = getOverflowParent(elem); container; container = getOverflowParent(container)) {
     const containerOverflow = getOverflowStyles(container);
 
     // If the container has overflow:visible, the element cannot overflow it.
@@ -488,6 +489,7 @@ export function getParentNodeInComposedDom(node: Node): Node | null {
   // Shadow DOM v1
   if (parent && (parent as Element).shadowRoot && (node as HTMLSlotElement).assignedSlot !== undefined) {
     // Can be null on purpose, meaning it has no parent as it hasn't yet been slotted.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guarded by the ternary check just before
     return (node as HTMLSlotElement).assignedSlot ? (node as HTMLSlotElement).assignedSlot!.parentNode : null;
   }
 
@@ -873,7 +875,10 @@ function appendVisibleTextLinesFromTextNode(
 
   if (textTransform === 'capitalize') {
     // 1) don't treat '_' as a separator (protects snake_case)
+    // The combining-mark ranges below are intentional: they let a base letter followed by a
+    // combining diacritic still count as a "letter" for the separator check.
     text = text.replace(
+      // eslint-disable-next-line no-misleading-character-class
       /(^|[^'_0-9A-Za-z\u00C0-\u02AF\u1E00-\u1EFF\u24B6-\u24E9\u0300-\u036F\u1AB0-\u1AFF\u1DC0-\u1DFF])([A-Za-z\u00C0-\u02AF\u1E00-\u1EFF\u24B6-\u24E9])/g,
       (_m, a: string, b: string) => a + b.toUpperCase(),
     );
@@ -919,9 +924,12 @@ function appendVisibleTextLinesFromNodeInComposedDom(
           assignedNodes?: () => Node[];
           childNodes: NodeListOf<ChildNode>;
         };
+        // A CONTENT element always has getDistributedNodes; a SLOT element always has assignedNodes.
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const shadowChildren = isElement(node, 'CONTENT')
           ? contentElem.getDistributedNodes!()
           : contentElem.assignedNodes!();
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
         const childrenToTraverse = shadowChildren.length > 0 ? shadowChildren : [...contentElem.childNodes];
         for (const child of childrenToTraverse) {
           appendVisibleTextLinesFromNodeInComposedDom(child, lines, shown, whitespace, textTransform);

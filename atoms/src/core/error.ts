@@ -7,6 +7,9 @@ export enum ErrorCode {
 
   NO_SUCH_ELEMENT = 7,
   NO_SUCH_FRAME = 8,
+  // The JSON Wire Protocol spec overloads code 9 for both UNKNOWN_COMMAND and
+  // UNSUPPORTED_OPERATION; kept as an intentional duplicate to match the real protocol.
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   UNKNOWN_COMMAND = 9,
   UNSUPPORTED_OPERATION = 9,
   STALE_ELEMENT_REFERENCE = 10,

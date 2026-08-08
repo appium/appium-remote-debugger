@@ -17,7 +17,8 @@ import {fire, EventType} from './events.js';
 import {Keyboard, Keys as KeyboardKeys, MODIFIERS as KEYBOARD_MODIFIERS, keyFromChar, type Key} from './keyboard.js';
 import {Mouse, Button} from './mouse.js';
 import {Touchscreen} from './touchscreen.js';
-import {Box, Coordinate, Rect, Size, Vec2} from './types.js';
+import {Box, Coordinate, Size, Vec2} from './types.js';
+import type {Rect} from './types.js';
 
 /**
  * Clears the given `element` if it is an editable text field.

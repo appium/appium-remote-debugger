@@ -2,7 +2,7 @@ import {getAncestor, isElement} from './dom-core.js';
 import {getActiveElement, getDocumentScroll, isFocusable, isInteractable, isSelectable, isSelected} from './dom.js';
 import {BotError, ErrorCode} from './error.js';
 import * as events from './events.js';
-import {Coordinate} from './types.js';
+import type {Coordinate} from './types.js';
 
 /** An enum for the various modifier keys (keycode-independent). */
 export enum Modifier {

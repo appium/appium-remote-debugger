@@ -64,7 +64,7 @@ const BOOLEAN_PROPERTIES = new Set([
  * the value is false. For the "style" attribute, converts the style into a string.
  */
 export function get(element: Element, attribute: string): string | null {
-  let value: unknown = null;
+  let value: unknown;
   const name = attribute.toLowerCase();
 
   if (name === 'style') {

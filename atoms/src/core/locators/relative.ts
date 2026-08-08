@@ -157,8 +157,8 @@ function straightRightOf(selector: Selector): Filter {
  */
 function near(selector: Selector, optDistance?: number): Filter {
   let distance: number | undefined = optDistance;
-  if (!distance && typeof (selector as Record<string, unknown>)['distance'] === 'number') {
-    distance = (selector as Record<string, unknown>)['distance'] as number;
+  if (!distance && typeof (selector as Record<string, unknown>).distance === 'number') {
+    distance = (selector as Record<string, unknown>).distance as number;
   }
   if (!distance) {
     distance = 50;

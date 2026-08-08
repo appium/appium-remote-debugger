@@ -1,4 +1,5 @@
-import {Device, ModifiersState, EventEmitter} from './device.js';
+import {Device} from './device.js';
+import type {ModifiersState, EventEmitter} from './device.js';
 import {isElement, getClientRect, isInteractable} from './dom.js';
 import {BotError, ErrorCode} from './error.js';
 import * as events from './events.js';
@@ -39,9 +40,12 @@ const MOUSE_BUTTON_VALUE_MAP = new Map<events.EventTypeValue, Array<number | nul
   [events.EventType.MOUSEOUT, [0, 1, 2, 0]],
   [events.EventType.MOUSEMOVE, [0, 1, 2, 0]],
 ]);
+// Each `.get()` above reads a key set two lines earlier in the same map literal, so it's always present.
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 MOUSE_BUTTON_VALUE_MAP.set(events.EventType.DBLCLICK, MOUSE_BUTTON_VALUE_MAP.get(events.EventType.CLICK)!);
 MOUSE_BUTTON_VALUE_MAP.set(events.EventType.MOUSEDOWN, MOUSE_BUTTON_VALUE_MAP.get(events.EventType.MOUSEUP)!);
 MOUSE_BUTTON_VALUE_MAP.set(events.EventType.MOUSEOVER, MOUSE_BUTTON_VALUE_MAP.get(events.EventType.MOUSEOUT)!);
+/* eslint-enable @typescript-eslint/no-non-null-assertion */
 
 /**
  * A mouse that provides atomic mouse actions. Currently only supports having one button pressed

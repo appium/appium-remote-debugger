@@ -44,7 +44,7 @@ export function isDisplayed(element: unknown, win?: JsonWindow): string {
   return executeDomFunction(dom.isShown, [element, true], win);
 }
 
-function executeDomFunction(fn: Function, args: unknown[], win?: JsonWindow): string {
+function executeDomFunction(fn: inject.AnyFunction, args: unknown[], win?: JsonWindow): string {
   let response: inject.ResponseObject;
   try {
     const targetWindow = getWindow(win);

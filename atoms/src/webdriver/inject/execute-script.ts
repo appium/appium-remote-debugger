@@ -18,13 +18,13 @@ export function getWindow(win?: JsonWindow): Window {
 }
 
 /** Wrapper allowing a serialized window object to be passed to `executeScript`. */
-export function executeScript(fn: string | Function, args: unknown[], win?: JsonWindow): string {
+export function executeScript(fn: string | inject.AnyFunction, args: unknown[], win?: JsonWindow): string {
   return inject.executeScript(fn, args, true, getWindow(win)) as string;
 }
 
 /** Wrapper allowing a serialized window object to be passed to `executeAsyncScript`. */
 export function executeAsyncScript(
-  fn: string | Function,
+  fn: string | inject.AnyFunction,
   args: unknown[],
   timeout: number,
   onDone: (result: string | inject.ResponseObject) => void,

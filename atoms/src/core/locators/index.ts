@@ -18,28 +18,28 @@ interface Strategy {
  * https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol
  */
 const STRATEGIES: Record<string, Strategy> = {
-  className: className,
+  className,
   'class name': className,
 
-  css: css,
+  css,
   'css selector': css,
 
   relative: relative as unknown as Strategy,
 
-  id: id,
+  id,
 
-  linkText: linkText,
+  linkText,
   'link text': linkText,
 
-  name: name,
+  name,
 
-  partialLinkText: partialLinkText,
+  partialLinkText,
   'partial link text': partialLinkText,
 
-  tagName: tagName,
+  tagName,
   'tag name': tagName,
 
-  xpath: xpath,
+  xpath,
 };
 
 /** Adds or overrides an existing strategy for locating elements. */

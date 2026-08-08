@@ -1,6 +1,6 @@
 import * as action from '../../core/action.js';
 import * as inject from '../../core/inject.js';
-import {Button} from '../../core/mouse.js';
+import type {Button} from '../../core/mouse.js';
 import * as element from '../element.js';
 import * as inputs from '../inputs.js';
 import {getWindow, type JsonWindow} from './execute-script.js';
@@ -65,7 +65,7 @@ export function doubleClick(mouseState?: unknown, win?: JsonWindow): string {
   return executeActionFunction(inputs.doubleClick, [mouseState], win);
 }
 
-function executeActionFunction(fn: Function, args: unknown[], win?: JsonWindow): string {
+function executeActionFunction(fn: inject.AnyFunction, args: unknown[], win?: JsonWindow): string {
   let response: inject.ResponseObject;
   try {
     const targetWindow = getWindow(win);
