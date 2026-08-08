@@ -365,7 +365,7 @@ export function getOverflowState(elem: Element, region?: Coordinate | Rect): Ove
       const unscrollableY = clientRegion.bottom < containerRect.top - containerScroll.y;
       if (
         (unscrollableX && containerOverflow.x !== 'visible') ||
-        (unscrollableY && containerOverflow.x !== 'visible')
+        (unscrollableY && containerOverflow.y !== 'visible')
       ) {
         return OverflowState.HIDDEN;
       }
@@ -383,7 +383,7 @@ export function getOverflowState(elem: Element, region?: Coordinate | Rect): Ove
         const docScroll = getScroll(container);
         if (
           clientRegion.left >= htmlElem.scrollWidth - docScroll.x ||
-          clientRegion.right >= htmlElem.scrollHeight - docScroll.y
+          clientRegion.top >= htmlElem.scrollHeight - docScroll.y
         ) {
           return OverflowState.HIDDEN;
         }

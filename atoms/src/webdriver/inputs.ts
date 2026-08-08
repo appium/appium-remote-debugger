@@ -32,7 +32,7 @@ export function click(el: Element | null, state?: MouseState): MouseState {
   const mouse = new Mouse(state);
   const target = el || mouse.getState().element;
   if (!target) {
-    throw new Error('No element to send keys to');
+    throw new Error('No element to click');
   }
   action.click(target, undefined, mouse);
   return mouse.getState();

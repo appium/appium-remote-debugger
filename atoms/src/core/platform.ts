@@ -17,7 +17,13 @@ export function isIPhone(): boolean {
 
 /** Whether the current device is an iPad. */
 export function isIPad(): boolean {
-  return matchUserAgent('iPad');
+  return (
+    matchUserAgent('iPad') ||
+    // iPadOS requests desktop sites by default, spoofing a `Macintosh` desktop-Safari user
+    // agent with no `iPad` substring — but unlike a real Mac (0 touch points), it reports
+    // touch support. This is the standard way to tell the two apart.
+    (matchUserAgent('Macintosh') && navigator.maxTouchPoints > 1)
+  );
 }
 
 /** Whether the current device is running iOS. */

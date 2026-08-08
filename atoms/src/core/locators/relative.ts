@@ -46,7 +46,10 @@ export function single(target: {root: unknown; filters: FilterSpec[]}, _root?: D
 
 /** Finds elements by using a relative locator. `root` is accepted for interface parity but ignored. */
 export function many(target: {root?: unknown; filters?: FilterSpec[]}, root?: Document | Element): Element[] {
-  if (!Object.hasOwn(target, 'root') || !Object.hasOwn(target, 'filters')) {
+  if (
+    !Object.prototype.hasOwnProperty.call(target, 'root') ||
+    !Object.prototype.hasOwnProperty.call(target, 'filters')
+  ) {
     throw new BotError(
       ErrorCode.INVALID_ARGUMENT,
       `Locator not suitable for relative locators: ${JSON.stringify(target)}`,

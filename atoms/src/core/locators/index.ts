@@ -85,7 +85,7 @@ export function findElements(target: Record<string, unknown>, root: Document | E
  */
 function getOnlyKey(target: Record<string, unknown>): string | null {
   for (const k in target) {
-    if (Object.hasOwn(target, k)) {
+    if (Object.prototype.hasOwnProperty.call(target, k)) {
       return k;
     }
   }
