@@ -75,7 +75,7 @@ bot.Mouse = class extends bot.Device {
       }
 
       try {
-        if (bot.dom.isElement(opt_state['elementPressed'])) {
+        if (bot.dom.isElement(/** @type {!Node} */ (opt_state['elementPressed']))) {
           this.elementPressed_ = opt_state['elementPressed'];
         }
       } catch (ignored) {
@@ -258,6 +258,7 @@ bot.Mouse = class extends bot.Device {
     var rect = bot.dom.getClientRect(element);
     this.clientXY_.x = coords.x + rect.left;
     this.clientXY_.y = coords.y + rect.top;
+    /** @type {?Element} */
     var fromElement = this.getElement();
 
     if (element != fromElement) {
@@ -388,7 +389,7 @@ bot.Mouse = class extends bot.Device {
    * @private
    */
   getButtonValue_(eventType) {
-    if (!(eventType in bot.Mouse.MOUSE_BUTTON_VALUE_MAP_)) {
+    if (!(/** @type {string} */ (/** @type {?} */ (eventType)) in bot.Mouse.MOUSE_BUTTON_VALUE_MAP_)) {
       return 0;
     }
 
@@ -429,7 +430,7 @@ bot.Mouse = class extends bot.Device {
  * dictionary with all properties accessed using array notation to
  * ensure properties are not renamed by the compiler.
  * @typedef {{buttonPressed: ?bot.Mouse.Button,
- *           elementPressed: Element,
+ *           elementPressed: ?Element,
  *           clientXY: {x: number, y: number},
  *           nextClickIsDoubleClick: boolean,
  *           hasEverInteracted: boolean,
