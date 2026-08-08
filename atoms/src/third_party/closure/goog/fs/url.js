@@ -47,7 +47,9 @@ goog.fs.url.UrlObject_;
  * @param {!File|!Blob|!MediaSource|!MediaStream} arg
  * @return {string}
  */
-goog.fs.url.UrlObject_.prototype.createObjectURL = function (arg) {};
+goog.fs.url.UrlObject_.prototype.createObjectURL = function (arg) {
+  return /** @type {?} */ (undefined);
+};
 
 /**
  * @param {string} s
@@ -88,7 +90,7 @@ goog.fs.url.findUrlObject_ = function () {
     return /** @type {!goog.fs.url.UrlObject_} */ (goog.global.URL);
     // This is what the spec used to say to do
   } else if (goog.global.createObjectURL !== undefined) {
-    return /** @type {!goog.fs.url.UrlObject_} */ (goog.global);
+    return /** @type {!goog.fs.url.UrlObject_} */ (/** @type {?} */ (goog.global));
   } else {
     return null;
   }

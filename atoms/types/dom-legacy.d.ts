@@ -67,11 +67,14 @@ interface Window {
   // Every window exposes its own realm's constructor references (used for cross-realm
   // `instanceof` checks, e.g. `o instanceof win.Location`); not part of lib.dom.d.ts's Window.
   readonly Location: typeof Location;
+  readonly Element: typeof Element;
   // Legacy IE-only globals: execScript (predates eval-in-global-scope support), attachEvent/
   // detachEvent (predate addEventListener/removeEventListener).
   execScript?(code: string, language?: string): void;
   attachEvent?(type: string, listener: Function): boolean;
   detachEvent?(type: string, listener: Function): void;
+  // Deprecated and removed from lib.dom.d.ts, but still checked defensively at runtime.
+  readonly applicationCache?: any;
 }
 
 // lib.dom.d.ts's Document.write/writeln don't yet accept Trusted Types values, though real

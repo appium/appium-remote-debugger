@@ -201,7 +201,7 @@ webdriver.atoms.element.type = function (element, keys, opt_keyboard, opt_persis
   goog.array.forEach(
     convertedSequences,
     /** @param {*} sequence */ function (sequence) {
-      bot.action.type(element, sequence.keys, opt_keyboard, sequence.persist);
+      bot.action.type(element, sequence.keys, /** @type {bot.Keyboard|undefined} */ (opt_keyboard), sequence.persist);
     },
   );
 

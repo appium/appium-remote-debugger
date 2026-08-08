@@ -61,7 +61,7 @@ goog.fs.blob.getBlobWithProperties = function (parts, opt_type, opt_endings) {
     }
     return bb.getBlob(opt_type);
   } else if (goog.global.Blob !== undefined) {
-    const properties = {};
+    const properties = /** @type {!Object<string, *>} */ ({});
     if (opt_type) {
       properties['type'] = opt_type;
     }

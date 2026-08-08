@@ -71,11 +71,10 @@ goog.json.isValid = function (s) {
 
 /**
  * Logs a parsing error in `JSON.parse` solvable by using `eval`.
+ * @private {function(string, !Error)} The first parameter is the error message,
+ *     the second is the exception thrown by `JSON.parse`.
  */
-goog.json.errorLogger_ = () => {};
-/** @private {function(string, !Error)} The first parameter is the error message,
- *     the second is the exception thrown by `JSON.parse`. */
-goog.json.errorLogger_;
+goog.json.errorLogger_ = /** @type {function(string, !Error):*} */ (() => {});
 
 /**
  * Sets an error logger to use if there's a recoverable parsing error.
@@ -113,7 +112,7 @@ goog.json.parse = goog.json.USE_NATIVE_JSON
         try {
           const result = /** @type {?Object} */ (eval('(' + o + ')'));
           if (error) {
-            goog.json.errorLogger_('Invalid JSON: ' + o, error);
+            goog.json.errorLogger_('Invalid JSON: ' + o, /** @type {!Error} */ (error));
           }
           return result;
         } catch (ex) {}

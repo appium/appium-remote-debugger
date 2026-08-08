@@ -68,7 +68,7 @@ webdriver.atoms.inject.executeAsyncScript = function (fn, args, timeout, onDone,
 webdriver.atoms.inject.getWindow = function (opt_window) {
   var win;
   if (opt_window) {
-    win = bot.inject.cache.getElement(opt_window[bot.inject.WINDOW_KEY]);
+    win = bot.inject.cache.getElement(/** @type {?} */ (opt_window)[bot.inject.WINDOW_KEY]);
   } else {
     win = window;
   }

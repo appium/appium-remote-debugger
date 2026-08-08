@@ -31,7 +31,8 @@ goog.require('goog.dom');
  * @see http://www.w3.org/TR/selectors-api/
  */
 bot.locators.id.canUseQuerySelector_ = function (root, target) {
-  return !!(root.querySelectorAll && root.querySelector) && !/^\d.*/.test(target);
+  var untypedRoot = /** @type {?} */ (root);
+  return !!(untypedRoot.querySelectorAll && untypedRoot.querySelector) && !/^\d.*/.test(target);
 };
 /** @private */
 bot.locators.id.canUseQuerySelector_;

@@ -105,7 +105,7 @@ bot.storage.Storage.prototype.setItem = function (key, value) {
     // the string "null". We are setting the value to the string "null".
     this.storageMap_.setItem(key, value + '');
   } catch (e) {
-    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, e.message);
+    throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR, /** @type {!Error} */ (e).message);
   }
 };
 
@@ -131,7 +131,7 @@ bot.storage.Storage.prototype.keySet = function () {
   var keys = [];
   var length = this.size();
   for (var i = 0; i < length; i++) {
-    keys[i] = this.storageMap_.key(i);
+    keys[i] = /** @type {string} */ (this.storageMap_.key(i));
   }
   return keys;
 };

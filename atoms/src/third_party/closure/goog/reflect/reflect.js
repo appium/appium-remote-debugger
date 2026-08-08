@@ -61,7 +61,7 @@ goog.reflect.objectProperty = function (prop, object) {
  */
 goog.reflect.sinkValue = function (x) {
   'use strict';
-  goog.reflect.sinkValue[' '](x);
+  /** @type {?} */ (goog.reflect.sinkValue[' '])(x);
   return x;
 };
 

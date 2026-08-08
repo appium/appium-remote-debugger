@@ -154,8 +154,8 @@ function matchUserAgentIgnoreCase(str) {
 /**
  * Parses the user agent into tuples for each section.
  * @param {string} userAgent
- * @return {!Array<!Array<string>>} Tuples of key, version, and the contents of
- *     the parenthetical.
+ * @return {!Array<!Array<(string|undefined)>>} Tuples of key, version, and the
+ *     contents of the parenthetical.
  */
 function extractVersionTuples(userAgent) {
   // Matches each section of a user agent string.

@@ -29,10 +29,10 @@ var utils = goog.require('goog.utils');
  *
  * @const {!Object<string, string>}
  */
-var PROPERTY_ALIASES = {
+var PROPERTY_ALIASES = /** @type {!Object<string, string>} */ ({
   'class': 'className',
   'readonly': 'readOnly',
-};
+});
 
 /**
  * Used to determine whether we should return a boolean value from getAttribute.

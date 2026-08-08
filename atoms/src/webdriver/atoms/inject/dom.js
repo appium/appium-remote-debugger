@@ -160,7 +160,7 @@ webdriver.atoms.inject.dom.executeDomFunction_ = function (fn, args, opt_window)
     var functionResult = fn.apply(null, unwrappedArgs);
     response = bot.inject.wrapResponse(functionResult);
   } catch (ex) {
-    response = bot.inject.wrapError(ex);
+    response = bot.inject.wrapError(/** @type {!Error} */ (ex));
   }
   return goog.json.serialize(response);
 };

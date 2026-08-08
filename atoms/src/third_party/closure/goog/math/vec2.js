@@ -196,7 +196,10 @@ goog.math.Vec2.rotateAroundPoint = function (v, axisPoint, angle) {
   return res.subtract(axisPoint).rotate(angle).add(axisPoint);
 };
 
-/** @override */
+/**
+ * @param {*} b
+ * @override
+ */
 goog.math.Vec2.prototype.equals = function (b) {
   'use strict';
   if (this === b) {

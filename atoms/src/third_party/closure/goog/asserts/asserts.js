@@ -198,7 +198,7 @@ exports.assertExists = function (value, opt_message, var_args) {
   if (exports.ENABLE_ASSERTS && value == null) {
     doAssertFailure('Expected to exist: %s.', [value], opt_message, Array.prototype.slice.call(arguments, 2));
   }
-  return value;
+  return /** @type {?} */ (value);
 };
 
 /**

@@ -108,7 +108,7 @@ goog.dom.asserts.getWindow_ = function (o) {
     // This can throw “Blocked a frame with origin "chrome-extension://..." from
     // accessing a cross-origin frame” in Chrome extension.
     var win = doc && /** @type {?Window} */ (doc.defaultView || doc.parentWindow);
-    win = win || /** @type {!Window} */ (goog.global);
+    win = win || /** @type {!Window} */ (/** @type {?} */ (goog.global));
     // This can throw “Permission denied to access property "Element" on
     // cross-origin object”.
     if (win.Element && win.Location) {
