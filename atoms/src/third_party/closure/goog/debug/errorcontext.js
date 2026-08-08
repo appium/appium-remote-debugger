@@ -18,10 +18,11 @@ goog.provide('goog.debug.errorcontext');
  */
 goog.debug.errorcontext.addErrorContext = function (err, contextKey, contextValue) {
   'use strict';
-  if (!err[goog.debug.errorcontext.CONTEXT_KEY_]) {
-    err[goog.debug.errorcontext.CONTEXT_KEY_] = {};
+  var untypedErr = /** @type {!Object<string, *>} */ (err);
+  if (!untypedErr[goog.debug.errorcontext.CONTEXT_KEY_]) {
+    untypedErr[goog.debug.errorcontext.CONTEXT_KEY_] = {};
   }
-  err[goog.debug.errorcontext.CONTEXT_KEY_][contextKey] = contextValue;
+  untypedErr[goog.debug.errorcontext.CONTEXT_KEY_][contextKey] = contextValue;
 };
 
 /**
@@ -30,7 +31,7 @@ goog.debug.errorcontext.addErrorContext = function (err, contextKey, contextValu
  */
 goog.debug.errorcontext.getErrorContext = function (err) {
   'use strict';
-  return err[goog.debug.errorcontext.CONTEXT_KEY_] || {};
+  return /** @type {!Object<string, *>} */ (err)[goog.debug.errorcontext.CONTEXT_KEY_] || {};
 };
 
 // TODO(user): convert this to a Symbol once goog.debug.ErrorReporter is
