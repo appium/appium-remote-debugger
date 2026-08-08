@@ -171,8 +171,9 @@ function isKaiOS() {
  */
 function getVersion() {
   const userAgentString = util.getUserAgent();
-  let version = '',
-    re;
+  /** @type {?string} */
+  let version = '';
+  let re;
   if (isWindows()) {
     re = /Windows (?:NT|Phone) ([0-9.]+)/;
     const match = re.exec(userAgentString);
@@ -219,7 +220,7 @@ function isVersionOrHigher(version) {
 
 /**
  * Represents a high-entropy version string.
- * @implements {AsyncValue<!Version>}
+ * (implements AsyncValue<!Version>)
  */
 class PlatformVersion {
   constructor() {
