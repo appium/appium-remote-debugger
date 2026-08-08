@@ -6,6 +6,70 @@ import {findElement, findElements} from './index.js';
 type Selector = Element | (() => Selector) | Record<string, unknown>;
 type Filter = (element: Element) => boolean;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FilterFactory = (...args: any[]) => Filter;
+
+const FILTER_STRATEGIES: Record<string, FilterFactory> = {
+  above,
+  below,
+  left: leftOf,
+  near,
+  right: rightOf,
+  straightAbove,
+  straightBelow,
+  straightLeft: straightLeftOf,
+  straightRight: straightRightOf,
+};
+
+const RESOLVERS: Record<string, (...args: unknown[]) => Element> = {
+  above: resolve as (...args: unknown[]) => Element,
+  below: resolve as (...args: unknown[]) => Element,
+  left: resolve as (...args: unknown[]) => Element,
+  near: resolve as (...args: unknown[]) => Element,
+  right: resolve as (...args: unknown[]) => Element,
+  straightAbove: resolve as (...args: unknown[]) => Element,
+  straightBelow: resolve as (...args: unknown[]) => Element,
+  straightLeft: resolve as (...args: unknown[]) => Element,
+  straightRight: resolve as (...args: unknown[]) => Element,
+};
+
+interface FilterSpec {
+  kind: string;
+  args: unknown[];
+}
+
+/** Finds an element by using a relative locator. `root` is accepted for interface parity but ignored. */
+export function single(target: {root: unknown; filters: FilterSpec[]}, _root?: Document | Element): Element | null {
+  const matches = many(target, _root);
+  return matches.length === 0 ? null : matches[0];
+}
+
+/** Finds elements by using a relative locator. `root` is accepted for interface parity but ignored. */
+export function many(target: {root?: unknown; filters?: FilterSpec[]}, root?: Document | Element): Element[] {
+  if (!Object.hasOwn(target, 'root') || !Object.hasOwn(target, 'filters')) {
+    throw new BotError(
+      ErrorCode.INVALID_ARGUMENT,
+      `Locator not suitable for relative locators: ${JSON.stringify(target)}`,
+    );
+  }
+  if (!Array.isArray(target.filters)) {
+    throw new BotError(ErrorCode.INVALID_ARGUMENT, `Targets should be an array: ${JSON.stringify(target)}`);
+  }
+
+  let elements: ArrayLike<Element>;
+  if (isElement(target.root as Node)) {
+    elements = [target.root as Element];
+  } else {
+    elements = findElements(target.root as Record<string, unknown>, root);
+  }
+
+  if (elements.length === 0) {
+    return [];
+  }
+
+  return filterElements(elements, target.filters);
+}
+
 function proximity(selector: Selector, matches: (expected: Rect, toFind: Rect) => boolean): Filter {
   return (compareTo: Element): boolean => {
     const element = resolve(selector);
@@ -137,38 +201,6 @@ function resolve(selector: Selector): Element {
   throw new BotError(ErrorCode.INVALID_ARGUMENT, `Selector is of wrong type: ${JSON.stringify(selector)}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FilterFactory = (...args: any[]) => Filter;
-
-const FILTER_STRATEGIES: Record<string, FilterFactory> = {
-  above,
-  below,
-  left: leftOf,
-  near,
-  right: rightOf,
-  straightAbove,
-  straightBelow,
-  straightLeft: straightLeftOf,
-  straightRight: straightRightOf,
-};
-
-const RESOLVERS: Record<string, (...args: unknown[]) => Element> = {
-  above: resolve as (...args: unknown[]) => Element,
-  below: resolve as (...args: unknown[]) => Element,
-  left: resolve as (...args: unknown[]) => Element,
-  near: resolve as (...args: unknown[]) => Element,
-  right: resolve as (...args: unknown[]) => Element,
-  straightAbove: resolve as (...args: unknown[]) => Element,
-  straightBelow: resolve as (...args: unknown[]) => Element,
-  straightLeft: resolve as (...args: unknown[]) => Element,
-  straightRight: resolve as (...args: unknown[]) => Element,
-};
-
-interface FilterSpec {
-  kind: string;
-  args: unknown[];
-}
-
 function filterElements(allElements: ArrayLike<Element>, filters: FilterSpec[]): Element[] {
   const toReturn: Element[] = [];
   for (const element of Array.from(allElements)) {
@@ -226,36 +258,4 @@ function sortByProximity(anchor: Element, elements: Element[]): Element[] {
   }
 
   return [...elements].sort((left, right) => distance(left) - distance(right));
-}
-
-/** Finds an element by using a relative locator. `root` is accepted for interface parity but ignored. */
-export function single(target: {root: unknown; filters: FilterSpec[]}, _root?: Document | Element): Element | null {
-  const matches = many(target, _root);
-  return matches.length === 0 ? null : matches[0];
-}
-
-/** Finds elements by using a relative locator. `root` is accepted for interface parity but ignored. */
-export function many(target: {root?: unknown; filters?: FilterSpec[]}, root?: Document | Element): Element[] {
-  if (!Object.hasOwn(target, 'root') || !Object.hasOwn(target, 'filters')) {
-    throw new BotError(
-      ErrorCode.INVALID_ARGUMENT,
-      `Locator not suitable for relative locators: ${JSON.stringify(target)}`,
-    );
-  }
-  if (!Array.isArray(target.filters)) {
-    throw new BotError(ErrorCode.INVALID_ARGUMENT, `Targets should be an array: ${JSON.stringify(target)}`);
-  }
-
-  let elements: ArrayLike<Element>;
-  if (isElement(target.root as Node)) {
-    elements = [target.root as Element];
-  } else {
-    elements = findElements(target.root as Record<string, unknown>, root);
-  }
-
-  if (elements.length === 0) {
-    return [];
-  }
-
-  return filterElements(elements, target.filters);
 }

@@ -9,17 +9,6 @@ export const W3C_ELEMENT_KEY = 'element-6066-11e4-a52e-4f735466cecf';
 /** Key used to identify Window objects in the WebDriver wire protocol. */
 export const WINDOW_KEY = 'WINDOW';
 
-function isPlainObjectLike(value: unknown): value is Record<string, unknown> {
-  return (typeof value === 'object' && value !== null) || typeof value === 'function';
-}
-
-function isArrayLike(val: unknown): val is ArrayLike<unknown> {
-  if (Array.isArray(val)) {
-    return true;
-  }
-  return typeof val === 'object' && val !== null && typeof (val as {length?: unknown}).length === 'number';
-}
-
 /**
  * Converts a value to a JSON-friendly value so it can be stringified for transmission:
  *  - booleans, numbers, strings, and null are returned as-is
@@ -123,20 +112,7 @@ export function unwrapValue(value: unknown, doc?: Document): unknown {
   return value;
 }
 
-/**
- * Recompiles `fn` in the context of another window, so the correct symbol table is used when
- * the function is executed. Assumes `fn` can be decompiled via `Function.prototype.toString` and
- * only refers to symbols defined in the target window's context.
- */
-function recompileFunction(fn: Function | string, theWindow: Window): Function {
-  if (typeof fn === 'string') {
-    return new (theWindow as unknown as {Function: FunctionConstructor}).Function(fn);
-  }
-  return theWindow === window
-    ? fn
-    : new (theWindow as unknown as {Function: FunctionConstructor}).Function(`return (${fn}).apply(null,arguments);`);
-}
-
+/** The status/value envelope used to report the result of an injected script back to the caller. */
 export interface ResponseObject {
   status: ErrorCode;
   value: unknown;
@@ -261,14 +237,95 @@ export function executeAsyncScript(
   }
 }
 
+/** The prefix for each key stored in the cache. */
+export const ELEMENT_KEY_PREFIX = ':wdc:';
+
+/**
+ * Adds an element (or Window) to its owner document's cache.
+ * @return The key generated for the cached element.
+ */
+export function addElement(el: Element | Window): string {
+  // For a Window, `ownerDocument` is undefined, so this (like the original Selenium code) falls
+  // back to the currently executing document/frame's cache rather than the target window's own.
+  const ownerDocument = (el as unknown as {ownerDocument?: Document}).ownerDocument;
+  const cache = getCache(ownerDocument);
+  // `cache` also carries the `nextId` counter, so the real entry count is one less than the
+  // object's own-property count.
+  if (Object.keys(cache).length - 1 >= SWEEP_THRESHOLD) {
+    sweep(ownerDocument || document);
+  }
+
+  let id: string | undefined;
+  for (const key of Object.keys(cache)) {
+    if (cache[key] === el) {
+      id = key;
+      break;
+    }
+  }
+  if (!id) {
+    id = ELEMENT_KEY_PREFIX + cache.nextId!++;
+    cache[id] = el;
+  }
+  return id;
+}
+
+/**
+ * Retrieves an element (or Window) from the cache, verifying it is still attached to the DOM (or
+ * open, for a Window) before returning it.
+ */
+export function getElement(key: string, doc?: Document): Element | Window {
+  key = decodeURIComponent(key);
+  const d = doc || document;
+  const cache = getCache(d);
+  if (!(key in cache)) {
+    // Throw STALE_ELEMENT_REFERENCE instead of NO_SUCH_ELEMENT, since the key may have been
+    // defined by a prior document's cache.
+    throw new BotError(ErrorCode.STALE_ELEMENT_REFERENCE, 'Element does not exist in cache');
+  }
+
+  const el = cache[key] as Element | Window;
+
+  if (!isStale(d, el)) {
+    return el;
+  }
+
+  delete cache[key];
+  if ('setInterval' in el) {
+    throw new BotError(ErrorCode.NO_SUCH_WINDOW, 'Window has been closed.');
+  }
+  throw new BotError(ErrorCode.STALE_ELEMENT_REFERENCE, 'Element is no longer attached to the DOM');
+}
+
+function isPlainObjectLike(value: unknown): value is Record<string, unknown> {
+  return (typeof value === 'object' && value !== null) || typeof value === 'function';
+}
+
+function isArrayLike(val: unknown): val is ArrayLike<unknown> {
+  if (Array.isArray(val)) {
+    return true;
+  }
+  return typeof val === 'object' && val !== null && typeof (val as {length?: unknown}).length === 'number';
+}
+
+/**
+ * Recompiles `fn` in the context of another window, so the correct symbol table is used when
+ * the function is executed. Assumes `fn` can be decompiled via `Function.prototype.toString` and
+ * only refers to symbols defined in the target window's context.
+ */
+function recompileFunction(fn: Function | string, theWindow: Window): Function {
+  if (typeof fn === 'string') {
+    return new (theWindow as unknown as {Function: FunctionConstructor}).Function(fn);
+  }
+  return theWindow === window
+    ? fn
+    : new (theWindow as unknown as {Function: FunctionConstructor}).Function(`return (${fn}).apply(null,arguments);`);
+}
+
 // The property key used to store the element cache on the DOCUMENT node when it is injected into
 // the page. Since compiling each browser atom results in a different symbol table, this known key
 // is used to access the cache, ensuring the same object is used between injections of different
 // atoms.
 const CACHE_KEY = '$wdc_';
-
-/** The prefix for each key stored in the cache. */
-export const ELEMENT_KEY_PREFIX = ':wdc:';
 
 interface ElementCache {
   [key: string]: Element | Window | number | undefined;
@@ -341,60 +398,4 @@ function sweep(doc: Document): void {
       delete cache[key];
     }
   }
-}
-
-/**
- * Adds an element (or Window) to its owner document's cache.
- * @return The key generated for the cached element.
- */
-export function addElement(el: Element | Window): string {
-  // For a Window, `ownerDocument` is undefined, so this (like the original Selenium code) falls
-  // back to the currently executing document/frame's cache rather than the target window's own.
-  const ownerDocument = (el as unknown as {ownerDocument?: Document}).ownerDocument;
-  const cache = getCache(ownerDocument);
-  // `cache` also carries the `nextId` counter, so the real entry count is one less than the
-  // object's own-property count.
-  if (Object.keys(cache).length - 1 >= SWEEP_THRESHOLD) {
-    sweep(ownerDocument || document);
-  }
-
-  let id: string | undefined;
-  for (const key of Object.keys(cache)) {
-    if (cache[key] === el) {
-      id = key;
-      break;
-    }
-  }
-  if (!id) {
-    id = ELEMENT_KEY_PREFIX + cache.nextId!++;
-    cache[id] = el;
-  }
-  return id;
-}
-
-/**
- * Retrieves an element (or Window) from the cache, verifying it is still attached to the DOM (or
- * open, for a Window) before returning it.
- */
-export function getElement(key: string, doc?: Document): Element | Window {
-  key = decodeURIComponent(key);
-  const d = doc || document;
-  const cache = getCache(d);
-  if (!(key in cache)) {
-    // Throw STALE_ELEMENT_REFERENCE instead of NO_SUCH_ELEMENT, since the key may have been
-    // defined by a prior document's cache.
-    throw new BotError(ErrorCode.STALE_ELEMENT_REFERENCE, 'Element does not exist in cache');
-  }
-
-  const el = cache[key] as Element | Window;
-
-  if (!isStale(d, el)) {
-    return el;
-  }
-
-  delete cache[key];
-  if ('setInterval' in el) {
-    throw new BotError(ErrorCode.NO_SUCH_WINDOW, 'Window has been closed.');
-  }
-  throw new BotError(ErrorCode.STALE_ELEMENT_REFERENCE, 'Element is no longer attached to the DOM');
 }

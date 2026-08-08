@@ -5,19 +5,6 @@ import * as element from '../element.js';
 import * as inputs from '../inputs.js';
 import {getWindow, type JsonWindow} from './execute-script.js';
 
-function executeActionFunction(fn: Function, args: unknown[], win?: JsonWindow): string {
-  let response: inject.ResponseObject;
-  try {
-    const targetWindow = getWindow(win);
-    const unwrappedArgs = inject.unwrapValue(args, targetWindow.document) as unknown[];
-    const functionResult = fn.apply(null, unwrappedArgs);
-    response = inject.wrapResponse(functionResult);
-  } catch (ex) {
-    response = inject.wrapError(ex as Error);
-  }
-  return JSON.stringify(response);
-}
-
 /** Sends key events to simulate typing on an element. */
 export function type(el: unknown, keys: unknown, win?: JsonWindow): string {
   return executeActionFunction(element.type, [el, keys], win);
@@ -76,4 +63,17 @@ export function mouseButtonUp(mouseState?: unknown, win?: JsonWindow): string {
 /** Double-clicks the primary mouse button. */
 export function doubleClick(mouseState?: unknown, win?: JsonWindow): string {
   return executeActionFunction(inputs.doubleClick, [mouseState], win);
+}
+
+function executeActionFunction(fn: Function, args: unknown[], win?: JsonWindow): string {
+  let response: inject.ResponseObject;
+  try {
+    const targetWindow = getWindow(win);
+    const unwrappedArgs = inject.unwrapValue(args, targetWindow.document) as unknown[];
+    const functionResult = fn.apply(null, unwrappedArgs);
+    response = inject.wrapResponse(functionResult);
+  } catch (ex) {
+    response = inject.wrapError(ex as Error);
+  }
+  return JSON.stringify(response);
 }

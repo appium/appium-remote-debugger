@@ -1,3 +1,4 @@
+/** Arguments used to construct a mouse event. */
 export interface MouseArgs {
   clientX: number;
   clientY: number;
@@ -10,6 +11,7 @@ export interface MouseArgs {
   wheelDelta: number;
 }
 
+/** Arguments used to construct a keyboard event. */
 export interface KeyboardArgs {
   keyCode: number;
   charCode: number;
@@ -20,6 +22,7 @@ export interface KeyboardArgs {
   preventDefault: boolean;
 }
 
+/** A single touch point, as used within `TouchArgs`. */
 export interface TouchInfo {
   identifier: number;
   screenX: number;
@@ -30,6 +33,7 @@ export interface TouchInfo {
   pageY: number;
 }
 
+/** Arguments used to construct a touch event. */
 export interface TouchArgs {
   touches: TouchInfo[];
   targetTouches: TouchInfo[];
@@ -45,6 +49,7 @@ export interface TouchArgs {
   clientY: number;
 }
 
+/** The union of argument types accepted when firing an event via `fire`. */
 export type EventArgs = MouseArgs | KeyboardArgs | TouchArgs;
 
 type EventTarget_ = Element | Window;
@@ -141,22 +146,6 @@ enum TouchEventStrategy {
   TOUCH_EVENT_CTOR = 'TOUCH_EVENT_CTOR',
 }
 
-function toNativeTouches(target: EventTarget_, touchInfos: TouchInfo[]): Touch[] {
-  return touchInfos.map(
-    (t) =>
-      new Touch({
-        identifier: t.identifier,
-        target: target as EventTarget,
-        screenX: t.screenX,
-        screenY: t.screenY,
-        clientX: t.clientX,
-        clientY: t.clientY,
-        pageX: t.pageX,
-        pageY: t.pageY,
-      }),
-  );
-}
-
 class TouchEventFactory extends EventFactory {
   override create(target: EventTarget_, opt_args?: EventArgs): Event {
     const args = opt_args as TouchArgs;
@@ -227,6 +216,7 @@ class TouchEventFactory extends EventFactory {
  */
 export type EventTypeValue = EventFactory;
 
+/** The named events this module can fire, each mapped to the `EventFactory` that creates it. */
 export const EventType = {
   BLUR: new EventFactory('blur', false, false),
   CHANGE: new EventFactory('change', true, false),
@@ -274,4 +264,20 @@ export function fire(target: EventTarget_, type: EventFactory, opt_args?: EventA
     (event as unknown as {isTrusted: boolean}).isTrusted = false;
   }
   return target.dispatchEvent(event);
+}
+
+function toNativeTouches(target: EventTarget_, touchInfos: TouchInfo[]): Touch[] {
+  return touchInfos.map(
+    (t) =>
+      new Touch({
+        identifier: t.identifier,
+        target: target as EventTarget,
+        screenX: t.screenX,
+        screenY: t.screenY,
+        clientX: t.clientX,
+        clientY: t.clientY,
+        pageX: t.pageX,
+        pageY: t.pageY,
+      }),
+  );
 }

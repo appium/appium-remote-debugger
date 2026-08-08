@@ -17,6 +17,24 @@ const RGBA_COLOR_RE = /^(?:rgba)?\((\d{1,3}),\s?(\d{1,3}),\s?(\d{1,3}),\s?(0|1|0
 const RGB_COLOR_RE = /^(?:rgb)?\((0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2}),\s?(0|[1-9]\d{0,2})\)$/i;
 
 /**
+ * Returns a property, with a standardized color if it contains a
+ * convertible color.
+ * @param propertyName Name of the CSS property in camelCase.
+ * @param propertyValue The value of the CSS property.
+ * @return The value, in a standardized format if it is a color property.
+ */
+export function standardizeColor(propertyName: string, propertyValue: string): string {
+  if (!COLOR_PROPERTIES.has(propertyName)) {
+    return propertyValue;
+  }
+  const rgba =
+    maybeParseRgbaColor(propertyValue) ||
+    maybeParseRgbColor(propertyValue) ||
+    maybeConvertHexOrColorName(propertyValue);
+  return rgba ? `rgba(${rgba.join(', ')})` : propertyValue;
+}
+
+/**
  * Converts a hex or CSS color-name representation of a color to RGB.
  * @return [r, g, b, 1] as ints in [0, 255], or null for invalid colors.
  */
@@ -76,22 +94,4 @@ function maybeParseRgbColor(str: string): [number, number, number, number] | nul
     }
   }
   return null;
-}
-
-/**
- * Returns a property, with a standardized color if it contains a
- * convertible color.
- * @param propertyName Name of the CSS property in camelCase.
- * @param propertyValue The value of the CSS property.
- * @return The value, in a standardized format if it is a color property.
- */
-export function standardizeColor(propertyName: string, propertyValue: string): string {
-  if (!COLOR_PROPERTIES.has(propertyName)) {
-    return propertyValue;
-  }
-  const rgba =
-    maybeParseRgbaColor(propertyValue) ||
-    maybeParseRgbColor(propertyValue) ||
-    maybeConvertHexOrColorName(propertyValue);
-  return rgba ? `rgba(${rgba.join(', ')})` : propertyValue;
 }

@@ -5,26 +5,31 @@
  * per-device UA facts, not build-time constants, so they stay as runtime checks.
  */
 
-function matchUserAgent(str: string): boolean {
-  return navigator.userAgent.includes(str);
-}
-
+/** Whether the current device is an iPod. */
 export function isIPod(): boolean {
   return matchUserAgent('iPod');
 }
 
+/** Whether the current device is an iPhone. */
 export function isIPhone(): boolean {
   return matchUserAgent('iPhone') && !matchUserAgent('iPod') && !matchUserAgent('iPad');
 }
 
+/** Whether the current device is an iPad. */
 export function isIPad(): boolean {
   return matchUserAgent('iPad');
 }
 
+/** Whether the current device is running iOS. */
 export function isIOS(): boolean {
   return isIPhone() || isIPad() || isIPod();
 }
 
+/** Whether the current device is a Mac. */
 export function isMac(): boolean {
   return matchUserAgent('Macintosh');
+}
+
+function matchUserAgent(str: string): boolean {
+  return navigator.userAgent.includes(str);
 }

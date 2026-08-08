@@ -19,45 +19,6 @@ import {Mouse, Button} from './mouse.js';
 import {Touchscreen} from './touchscreen.js';
 import {Box, Coordinate, Rect, Size, Vec2} from './types.js';
 
-function checkShown(element: Element): void {
-  if (!isShown(element, /* ignoreOpacity */ true)) {
-    throw new BotError(ErrorCode.ELEMENT_NOT_VISIBLE, 'Element is not currently visible and may not be manipulated');
-  }
-}
-
-function checkInteractable(element: Element): void {
-  if (!isInteractable(element)) {
-    throw new BotError(
-      ErrorCode.INVALID_ELEMENT_STATE,
-      'Element is not currently interactable and may not be manipulated',
-    );
-  }
-}
-
-// A Device used only to reach Device's public focus/submit/find-ancestor-form behavior. A
-// singleton, matching the vendored source (which needed this to reach otherwise-protected members
-// of a Closure class; no longer strictly necessary now that Device's methods are all public, but
-// kept as a shared instance for parity).
-let legacyDevice: Device | undefined;
-function getLegacyDevice(): Device {
-  if (!legacyDevice) {
-    legacyDevice = new Device();
-  }
-  return legacyDevice;
-}
-
-function legacyFocusOnElement(element: Element): boolean {
-  const instance = getLegacyDevice();
-  instance.setElement(element);
-  return instance.focusOnElement();
-}
-
-function legacySubmitForm(element: Element, form: Element): void {
-  const instance = getLegacyDevice();
-  instance.setElement(element);
-  instance.submitForm(form);
-}
-
 /**
  * Clears the given `element` if it is an editable text field.
  * @throws If the element is not an editable text field.
@@ -362,78 +323,9 @@ export function rotate(element: Element, angle: number, coords?: Coordinate, tou
 }
 
 /**
- * Performs a two-finger multi-touch action on the given element, by manipulating an "offset
- * vector" — the vector away from the center of the interaction at which the fingers are
- * positioned. Computes the maximum offset vector and passes it to `transformStart` to find the
- * fingers' starting position, then to `transformHalf` twice to find their midpoint and final
- * position.
+ * Gets the size of the given `element`, temporarily forcing it visible off-screen to measure its
+ * real dimensions if it's currently `display: none`.
  */
-function multiTouchAction(
-  element: Element,
-  transformStart: (v: Vec2) => void,
-  transformHalf: (v: Vec2) => void,
-  coords?: Coordinate,
-  touchscreen?: Touchscreen,
-): void {
-  const center = prepareToInteractWith(element, coords);
-  const size = getInteractableSize(element);
-  const offsetVec = new Vec2(Math.min(center.x, size.width - center.x), Math.min(center.y, size.height - center.y));
-
-  const touchScreen = touchscreen || new Touchscreen();
-  transformStart(offsetVec);
-  const start1 = Vec2.sum(center, offsetVec);
-  const start2 = Vec2.difference(center, offsetVec);
-  touchScreen.move(element, start1, start2);
-  touchScreen.press(/* press2 */ true);
-
-  const initRect = getClientRect(element);
-  transformHalf(offsetVec);
-  const mid1 = Vec2.sum(center, offsetVec);
-  const mid2 = Vec2.difference(center, offsetVec);
-  touchScreen.move(element, mid1, mid2);
-
-  const midRect = getClientRect(element);
-  const movedVec = Vec2.difference(new Vec2(midRect.left, midRect.top), new Vec2(initRect.left, initRect.top));
-  transformHalf(offsetVec);
-  const end1 = Vec2.sum(center, offsetVec).subtract(movedVec);
-  const end2 = Vec2.difference(center, offsetVec).subtract(movedVec);
-  touchScreen.move(element, end1, end2);
-  touchScreen.release();
-}
-
-/**
- * Prepares to interact with the given `element`: checks it is shown, scrolls it into view, and
- * returns the coordinates of the interaction (the center of the element, if not provided).
- */
-function prepareToInteractWith(element: Element, coords?: Coordinate): Vec2 {
-  checkShown(element);
-  scrollIntoView(element, coords);
-
-  // Ideally we'd check that any provided coordinates fall within the bounds of the element, but
-  // that's proven difficult: browsers sometimes lie about an element's true size (e.g. when text
-  // overflows its box), and elements with position:absolute children often don't have a bounding
-  // box surrounding all of their children even though it's useful to interact with the parent as
-  // if it does.
-  if (coords) {
-    return Vec2.fromCoordinate(coords);
-  }
-  const size = getInteractableSize(element);
-  return new Vec2(size.width / 2, size.height / 2);
-}
-
-function getComputedSize(element: Element): Size {
-  const el = element as HTMLElement;
-  const offsetWidth = el.offsetWidth;
-  const offsetHeight = el.offsetHeight;
-  const offsetsZero = !offsetWidth && !offsetHeight;
-  if (offsetsZero && el.getBoundingClientRect) {
-    // Fall back to getBoundingClientRect when offsetWidth/Height are zero (e.g. for SVG elements).
-    const rect = el.getBoundingClientRect();
-    return new Size(rect.right - rect.left, rect.bottom - rect.top);
-  }
-  return new Size(offsetWidth, offsetHeight);
-}
-
 export function getSize(element: Element): Size {
   if (getEffectiveStyle(element, 'display') !== 'none') {
     return getComputedSize(element);
@@ -522,4 +414,116 @@ function getBorderBox(element: Element): Box {
   const top = parseFloat(style?.borderTopWidth || '0');
   const bottom = parseFloat(style?.borderBottomWidth || '0');
   return new Box(top, right, bottom, left);
+}
+
+function checkShown(element: Element): void {
+  if (!isShown(element, /* ignoreOpacity */ true)) {
+    throw new BotError(ErrorCode.ELEMENT_NOT_VISIBLE, 'Element is not currently visible and may not be manipulated');
+  }
+}
+
+function checkInteractable(element: Element): void {
+  if (!isInteractable(element)) {
+    throw new BotError(
+      ErrorCode.INVALID_ELEMENT_STATE,
+      'Element is not currently interactable and may not be manipulated',
+    );
+  }
+}
+
+// A Device used only to reach Device's public focus/submit/find-ancestor-form behavior. A
+// singleton, matching the vendored source (which needed this to reach otherwise-protected members
+// of a Closure class; no longer strictly necessary now that Device's methods are all public, but
+// kept as a shared instance for parity).
+let legacyDevice: Device | undefined;
+function getLegacyDevice(): Device {
+  if (!legacyDevice) {
+    legacyDevice = new Device();
+  }
+  return legacyDevice;
+}
+
+function legacyFocusOnElement(element: Element): boolean {
+  const instance = getLegacyDevice();
+  instance.setElement(element);
+  return instance.focusOnElement();
+}
+
+function legacySubmitForm(element: Element, form: Element): void {
+  const instance = getLegacyDevice();
+  instance.setElement(element);
+  instance.submitForm(form);
+}
+
+/**
+ * Performs a two-finger multi-touch action on the given element, by manipulating an "offset
+ * vector" — the vector away from the center of the interaction at which the fingers are
+ * positioned. Computes the maximum offset vector and passes it to `transformStart` to find the
+ * fingers' starting position, then to `transformHalf` twice to find their midpoint and final
+ * position.
+ */
+function multiTouchAction(
+  element: Element,
+  transformStart: (v: Vec2) => void,
+  transformHalf: (v: Vec2) => void,
+  coords?: Coordinate,
+  touchscreen?: Touchscreen,
+): void {
+  const center = prepareToInteractWith(element, coords);
+  const size = getInteractableSize(element);
+  const offsetVec = new Vec2(Math.min(center.x, size.width - center.x), Math.min(center.y, size.height - center.y));
+
+  const touchScreen = touchscreen || new Touchscreen();
+  transformStart(offsetVec);
+  const start1 = Vec2.sum(center, offsetVec);
+  const start2 = Vec2.difference(center, offsetVec);
+  touchScreen.move(element, start1, start2);
+  touchScreen.press(/* press2 */ true);
+
+  const initRect = getClientRect(element);
+  transformHalf(offsetVec);
+  const mid1 = Vec2.sum(center, offsetVec);
+  const mid2 = Vec2.difference(center, offsetVec);
+  touchScreen.move(element, mid1, mid2);
+
+  const midRect = getClientRect(element);
+  const movedVec = Vec2.difference(new Vec2(midRect.left, midRect.top), new Vec2(initRect.left, initRect.top));
+  transformHalf(offsetVec);
+  const end1 = Vec2.sum(center, offsetVec).subtract(movedVec);
+  const end2 = Vec2.difference(center, offsetVec).subtract(movedVec);
+  touchScreen.move(element, end1, end2);
+  touchScreen.release();
+}
+
+/**
+ * Prepares to interact with the given `element`: checks it is shown, scrolls it into view, and
+ * returns the coordinates of the interaction (the center of the element, if not provided).
+ */
+function prepareToInteractWith(element: Element, coords?: Coordinate): Vec2 {
+  checkShown(element);
+  scrollIntoView(element, coords);
+
+  // Ideally we'd check that any provided coordinates fall within the bounds of the element, but
+  // that's proven difficult: browsers sometimes lie about an element's true size (e.g. when text
+  // overflows its box), and elements with position:absolute children often don't have a bounding
+  // box surrounding all of their children even though it's useful to interact with the parent as
+  // if it does.
+  if (coords) {
+    return Vec2.fromCoordinate(coords);
+  }
+  const size = getInteractableSize(element);
+  return new Vec2(size.width / 2, size.height / 2);
+}
+
+function getComputedSize(element: Element): Size {
+  const el = element as HTMLElement;
+  const offsetWidth = el.offsetWidth;
+  const offsetHeight = el.offsetHeight;
+  const offsetsZero = !offsetWidth && !offsetHeight;
+  if (offsetsZero && el.getBoundingClientRect) {
+    // Fall back to getBoundingClientRect when offsetWidth/Height are zero (e.g. for SVG elements).
+    const rect = el.getBoundingClientRect();
+    return new Size(rect.right - rect.left, rect.bottom - rect.top);
+  }
+  return new Size(offsetWidth, offsetHeight);
 }

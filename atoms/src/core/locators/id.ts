@@ -1,12 +1,5 @@
 import {getAttribute, getOwnerDocument} from '../dom-core.js';
 
-// Escapes characters that have special meaning in CSS: https://mathiasbynens.be/notes/css-escapes
-// An ID can contain anything but spaces, but we also escape whitespace because some webpages use
-// spaces, and getElementById allows spaces in every browser.
-function cssEscape(s: string): string {
-  return s.replace(/([\s'"\\#.:;,!?+<>=~*^$|%&@`{}\-/[\]()])/g, '\\$1');
-}
-
 /**
  * Finds an element by the value of its `id` attribute.
  */
@@ -44,4 +37,11 @@ export function many(target: string, root: Document | Element): Element[] {
   }
   const elements = root.getElementsByTagName('*');
   return [...elements].filter((e) => getAttribute(e, 'id') === target);
+}
+
+// Escapes characters that have special meaning in CSS: https://mathiasbynens.be/notes/css-escapes
+// An ID can contain anything but spaces, but we also escape whitespace because some webpages use
+// spaces, and getElementById allows spaces in every browser.
+function cssEscape(s: string): string {
+  return s.replace(/([\s'"\\#.:;,!?+<>=~*^$|%&@`{}\-/[\]()])/g, '\\$1');
 }

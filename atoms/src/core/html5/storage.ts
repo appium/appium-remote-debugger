@@ -54,6 +54,7 @@ export class WebStorage {
   }
 }
 
+/** Returns a `WebStorage` wrapper around `win.localStorage`, throwing if it is unavailable. */
 export function getLocalStorage(win: Window = window): WebStorage {
   if (win.localStorage == null) {
     throw new BotError(ErrorCode.UNKNOWN_ERROR, 'Local storage undefined');
@@ -61,6 +62,7 @@ export function getLocalStorage(win: Window = window): WebStorage {
   return new WebStorage(win.localStorage);
 }
 
+/** Returns a `WebStorage` wrapper around `win.sessionStorage`, throwing if it is unavailable. */
 export function getSessionStorage(win: Window = window): WebStorage {
   if (win.sessionStorage?.clear != null) {
     return new WebStorage(win.sessionStorage);

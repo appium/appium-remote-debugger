@@ -68,4 +68,5 @@ export const Key = {
   META: '\uE03D', // alias for Windows key
 } as const;
 
+/** The union of all `Key` code point values. */
 export type KeyValue = (typeof Key)[keyof typeof Key];

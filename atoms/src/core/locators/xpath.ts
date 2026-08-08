@@ -6,6 +6,37 @@ enum XPathResultType {
   FIRST_ORDERED_NODE_TYPE = 9,
 }
 
+/** Finds an element using an XPath expression. */
+export function single(target: string, root: Document | Element): Element | null {
+  const result = evaluateXPath(root, target, XPathResultType.FIRST_ORDERED_NODE_TYPE);
+  const node = result ? result.singleNodeValue : null;
+
+  if (node !== null) {
+    checkElement(node, target);
+  }
+  return node as Element | null;
+}
+
+/** Finds elements using an XPath expression. */
+export function many(target: string, root: Document | Element): Element[] {
+  const result = evaluateXPath(root, target, XPathResultType.ORDERED_NODE_SNAPSHOT_TYPE);
+  const nodes: Node[] = [];
+  if (result) {
+    for (let i = 0; i < result.snapshotLength; i++) {
+      const item = result.snapshotItem(i);
+      if (item) {
+        nodes.push(item);
+      }
+    }
+  }
+
+  for (const n of nodes) {
+    checkElement(n, target);
+  }
+  // checkElement above throws for any non-Element result, so every node here is an Element.
+  return nodes as Element[];
+}
+
 const DEFAULT_NAMESPACES: Record<string, string> = {svg: 'http://www.w3.org/2000/svg'};
 function defaultResolver(prefix: string | null): string | null {
   return (prefix && DEFAULT_NAMESPACES[prefix]) || null;
@@ -72,35 +103,4 @@ function checkElement(node: Node | null | undefined, path: string): void {
       `The result of the xpath expression "${path}" is: ${node}. It should be an element.`,
     );
   }
-}
-
-/** Finds an element using an XPath expression. */
-export function single(target: string, root: Document | Element): Element | null {
-  const result = evaluateXPath(root, target, XPathResultType.FIRST_ORDERED_NODE_TYPE);
-  const node = result ? result.singleNodeValue : null;
-
-  if (node !== null) {
-    checkElement(node, target);
-  }
-  return node as Element | null;
-}
-
-/** Finds elements using an XPath expression. */
-export function many(target: string, root: Document | Element): Element[] {
-  const result = evaluateXPath(root, target, XPathResultType.ORDERED_NODE_SNAPSHOT_TYPE);
-  const nodes: Node[] = [];
-  if (result) {
-    for (let i = 0; i < result.snapshotLength; i++) {
-      const item = result.snapshotItem(i);
-      if (item) {
-        nodes.push(item);
-      }
-    }
-  }
-
-  for (const n of nodes) {
-    checkElement(n, target);
-  }
-  // checkElement above throws for any non-Element result, so every node here is an Element.
-  return nodes as Element[];
 }

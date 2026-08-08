@@ -48,18 +48,6 @@ export function add(strategyName: string, strategy: Strategy): void {
 }
 
 /**
- * Returns one key from the object that is not present in Object.prototype, if any exists.
- */
-function getOnlyKey(target: Record<string, unknown>): string | null {
-  for (const k in target) {
-    if (Object.hasOwn(target, k)) {
-      return k;
-    }
-  }
-  return null;
-}
-
-/**
  * Finds the first element in the DOM matching the target. The target object should have a single
  * key, the name of which determines the locator strategy and the value of which gives the value
  * to search for — e.g. `{id: 'foo'}` finds the first element with id "foo".
@@ -90,4 +78,16 @@ export function findElements(target: Record<string, unknown>, root: Document | E
     }
   }
   throw new BotError(ErrorCode.INVALID_ARGUMENT, `Unsupported locator strategy: ${key}`);
+}
+
+/**
+ * Returns one key from the object that is not present in Object.prototype, if any exists.
+ */
+function getOnlyKey(target: Record<string, unknown>): string | null {
+  for (const k in target) {
+    if (Object.hasOwn(target, k)) {
+      return k;
+    }
+  }
+  return null;
 }

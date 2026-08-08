@@ -38,15 +38,6 @@ export function click(el: Element | null, state?: MouseState): MouseState {
   return mouse.getState();
 }
 
-function getClientPosition(el: Element): Coordinate {
-  try {
-    const box = el.getBoundingClientRect();
-    return new Coordinate(box.left, box.top);
-  } catch {
-    return new Coordinate(0, 0);
-  }
-}
-
 /** Moves the mouse to a specific element and/or coordinate location. */
 export function mouseMove(
   el: Element | null,
@@ -128,4 +119,13 @@ export function mouseClick(button: Button, state?: MouseState): MouseState {
   mouse.pressButton(button);
   mouse.releaseButton();
   return mouse.getState();
+}
+
+function getClientPosition(el: Element): Coordinate {
+  try {
+    const box = el.getBoundingClientRect();
+    return new Coordinate(box.left, box.top);
+  } catch {
+    return new Coordinate(0, 0);
+  }
 }

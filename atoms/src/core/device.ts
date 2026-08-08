@@ -64,10 +64,6 @@ export class EventEmitter {
   }
 }
 
-function isForm(node: Node | null): boolean {
-  return isElement(node, 'FORM');
-}
-
 /** Finds the FORM element that is an ancestor of (or is) the given node. */
 export function findAncestorForm(node: Node): Element | null {
   return getAncestor(node, isForm, /* includeNode */ true) as Element | null;
@@ -344,4 +340,8 @@ export class Device {
       }
     }
   }
+}
+
+function isForm(node: Node | null): boolean {
+  return isElement(node, 'FORM');
 }

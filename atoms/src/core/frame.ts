@@ -2,29 +2,17 @@ import {isElement} from './dom-core.js';
 import {BotError, ErrorCode} from './error.js';
 import * as idLocator from './locators/id.js';
 
-function isFrame(element: Element): boolean {
-  return isElement(element, 'FRAME') || isElement(element, 'IFRAME');
-}
-
-function getFrameContentWindow(frame: HTMLFrameElement | HTMLIFrameElement): Window | null {
-  try {
-    if (frame.contentWindow) {
-      return frame.contentWindow;
-    }
-    return frame.contentDocument ? frame.contentDocument.defaultView : null;
-  } catch {
-    return null;
-  }
-}
-
+/** Returns the top window of the current window hierarchy. */
 export function defaultContent(): Window {
   return window.top as Window;
 }
 
+/** Returns the currently focused element on the page, or the body if none is focused. */
 export function activeElement(): Element {
   return document.activeElement || document.body;
 }
 
+/** Returns the parent window of the given window, or of the current window if none is given. */
 export function parentFrame(root: Window = window): Window {
   return root.parent;
 }
@@ -100,4 +88,19 @@ export function getFrameIndex(element: HTMLFrameElement | HTMLIFrameElement, roo
     }
   }
   return null;
+}
+
+function isFrame(element: Element): boolean {
+  return isElement(element, 'FRAME') || isElement(element, 'IFRAME');
+}
+
+function getFrameContentWindow(frame: HTMLFrameElement | HTMLIFrameElement): Window | null {
+  try {
+    if (frame.contentWindow) {
+      return frame.contentWindow;
+    }
+    return frame.contentDocument ? frame.contentDocument.defaultView : null;
+  } catch {
+    return null;
+  }
 }

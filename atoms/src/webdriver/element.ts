@@ -27,22 +27,6 @@ export function getLocation(element: Element): Rect | null {
   return getBounds(element);
 }
 
-function getPageOffset(el: Element): Coordinate {
-  const doc = el.ownerDocument;
-  if (el === doc.documentElement) {
-    return new Coordinate(0, 0);
-  }
-  const box = el.getBoundingClientRect();
-  const scrollCoord = getDocumentScroll(doc);
-  return new Coordinate(box.left + scrollCoord.x, box.top + scrollCoord.y);
-}
-
-function getBounds(element: Element): Rect {
-  const o = getPageOffset(element);
-  const s = action.getSize(element);
-  return new Rect(o.x, o.y, s.width, s.height);
-}
-
 /**
  * Scrolls the element into the client's view and returns its position relative to the client
  * viewport. If the element or region is too large to fit in the view, it is aligned to the
@@ -57,10 +41,6 @@ export function getLocationInView(elem: Element, elemRegion?: Rect): Coordinate 
 /** Gets the visible text of an element, or an empty string. */
 export function getText(element: Element): string {
   return getVisibleText(element);
-}
-
-function isWebDriverKey(c: string): boolean {
-  return c >= '' && c <= '';
 }
 
 /** Maps JSON wire protocol key values to their `Key` counterpart. `null` means release/terminate. */
@@ -184,4 +164,24 @@ export function type(element: Element, keys: string[], keyboard?: Keyboard, pers
   for (const sequence of convertedSequences) {
     action.type(element, sequence.keys, keyboard, sequence.persist);
   }
+}
+
+function getPageOffset(el: Element): Coordinate {
+  const doc = el.ownerDocument;
+  if (el === doc.documentElement) {
+    return new Coordinate(0, 0);
+  }
+  const box = el.getBoundingClientRect();
+  const scrollCoord = getDocumentScroll(doc);
+  return new Coordinate(box.left + scrollCoord.x, box.top + scrollCoord.y);
+}
+
+function getBounds(element: Element): Rect {
+  const o = getPageOffset(element);
+  const s = action.getSize(element);
+  return new Rect(o.x, o.y, s.width, s.height);
+}
+
+function isWebDriverKey(c: string): boolean {
+  return c >= '' && c <= '';
 }

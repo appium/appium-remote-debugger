@@ -1,28 +1,5 @@
 import {BotError, ErrorCode} from './error.js';
 
-// Splits a style-attribute value on semicolons, but not when the semicolon is enclosed in
-// parens or quotes.
-const SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP =
-  /[;]+(?=(?:(?:[^"]*"){2})*[^"]*$)(?=(?:(?:[^']*'){2})*[^']*$)(?=(?:[^()]*\([^()]*\))*[^()]*$)/;
-
-/**
- * Standardizes a style attribute value: lower-cases property names and
- * ensures the result ends in a trailing semicolon.
- */
-function standardizeStyleAttribute(value: string): string {
-  const styleArray = value.split(SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP);
-  const css: string[] = [];
-  for (const pair of styleArray) {
-    const i = pair.indexOf(':');
-    if (i > 0) {
-      const keyValue = [pair.slice(0, i), pair.slice(i + 1)];
-      css.push(keyValue[0].toLowerCase(), ':', keyValue[1], ';');
-    }
-  }
-  const cssText = css.join('');
-  return cssText.charAt(cssText.length - 1) === ';' ? cssText : `${cssText};`;
-}
-
 /**
  * Gets the user-specified value of the given attribute of the element, or
  * null if the attribute is not present.
@@ -118,4 +95,27 @@ export function isSelected(element: Element): boolean {
   const propertyName = type === 'checkbox' || type === 'radio' ? 'checked' : 'selected';
 
   return !!getProperty(element, propertyName);
+}
+
+// Splits a style-attribute value on semicolons, but not when the semicolon is enclosed in
+// parens or quotes.
+const SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP =
+  /[;]+(?=(?:(?:[^"]*"){2})*[^"]*$)(?=(?:(?:[^']*'){2})*[^']*$)(?=(?:[^()]*\([^()]*\))*[^()]*$)/;
+
+/**
+ * Standardizes a style attribute value: lower-cases property names and
+ * ensures the result ends in a trailing semicolon.
+ */
+function standardizeStyleAttribute(value: string): string {
+  const styleArray = value.split(SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP);
+  const css: string[] = [];
+  for (const pair of styleArray) {
+    const i = pair.indexOf(':');
+    if (i > 0) {
+      const keyValue = [pair.slice(0, i), pair.slice(i + 1)];
+      css.push(keyValue[0].toLowerCase(), ':', keyValue[1], ';');
+    }
+  }
+  const cssText = css.join('');
+  return cssText.charAt(cssText.length - 1) === ';' ? cssText : `${cssText};`;
 }

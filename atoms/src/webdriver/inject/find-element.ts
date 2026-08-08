@@ -6,6 +6,16 @@ interface JsonElementRef {
   ELEMENT: string;
 }
 
+/** Finds an element by using the given lookup strategy. */
+export function findElement(strategy: string, using: string, root?: JsonElementRef | null, win?: JsonWindow): string {
+  return performSearch(strategy, using, domFindElement, root, win);
+}
+
+/** Finds all elements by using the given lookup strategy. */
+export function findElements(strategy: string, using: string, root?: JsonElementRef | null, win?: JsonWindow): string {
+  return performSearch(strategy, using, domFindElements, root, win);
+}
+
 function performSearch(
   strategy: string,
   target: string,
@@ -32,14 +42,4 @@ function performSearch(
     response = inject.wrapError(ex as Error);
   }
   return JSON.stringify(response);
-}
-
-/** Finds an element by using the given lookup strategy. */
-export function findElement(strategy: string, using: string, root?: JsonElementRef | null, win?: JsonWindow): string {
-  return performSearch(strategy, using, domFindElement, root, win);
-}
-
-/** Finds all elements by using the given lookup strategy. */
-export function findElements(strategy: string, using: string, root?: JsonElementRef | null, win?: JsonWindow): string {
-  return performSearch(strategy, using, domFindElements, root, win);
 }

@@ -23,26 +23,6 @@ export class Key {
 
 const CHAR_TO_KEY = new Map<string, {key: Key; shift: boolean}>();
 
-/**
- * Constructs a new key and, if it is a character key, adds a mapping from the character to it in
- * `CHAR_TO_KEY`.
- */
-function newKey(code: number | null, char?: string, shiftChar?: string): Key {
-  const key = new Key(code, char, shiftChar);
-
-  // For a character key, potentially map the character to the key. Because of the numpad,
-  // multiple keys may have the same character; to avoid mapping numpad keys, only overwrite a
-  // mapping when the key has a distinct shift character.
-  if (char && (!CHAR_TO_KEY.has(char) || shiftChar)) {
-    CHAR_TO_KEY.set(char, {key, shift: false});
-    if (shiftChar) {
-      CHAR_TO_KEY.set(shiftChar, {key, shift: true});
-    }
-  }
-
-  return key;
-}
-
 /** The set of keys known to this module. */
 export const Keys = {
   BACKSPACE: newKey(8),
@@ -538,4 +518,24 @@ export class Keyboard extends Device {
   getModifiersState(): ModifiersState {
     return this.modifiersState;
   }
+}
+
+/**
+ * Constructs a new key and, if it is a character key, adds a mapping from the character to it in
+ * `CHAR_TO_KEY`.
+ */
+function newKey(code: number | null, char?: string, shiftChar?: string): Key {
+  const key = new Key(code, char, shiftChar);
+
+  // For a character key, potentially map the character to the key. Because of the numpad,
+  // multiple keys may have the same character; to avoid mapping numpad keys, only overwrite a
+  // mapping when the key has a distinct shift character.
+  if (char && (!CHAR_TO_KEY.has(char) || shiftChar)) {
+    CHAR_TO_KEY.set(char, {key, shift: false});
+    if (shiftChar) {
+      CHAR_TO_KEY.set(shiftChar, {key, shift: true});
+    }
+  }
+
+  return key;
 }

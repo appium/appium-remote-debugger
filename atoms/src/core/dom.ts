@@ -8,10 +8,6 @@ export {getAttribute, getProperty, isElement, isSelectable, isSelected};
 /** Whether Shadow DOM operations are supported by the browser. */
 export const IS_SHADOW_DOM_ENABLED = typeof ShadowRoot === 'function';
 
-function toCamelCase(str: string): string {
-  return str.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
-}
-
 /**
  * Retrieves the active element for a node's owner document.
  */
@@ -31,10 +27,6 @@ export function getActiveElement(nodeOrWindow: Node | Window): Element | null {
  */
 export function isInteractable(element: Element): boolean {
   return isShown(element, true) && isEnabled(element) && !hasPointerEventsDisabled(element);
-}
-
-function hasPointerEventsDisabled(element: Element): boolean {
-  return getEffectiveStyle(element, 'pointer-events') === 'none';
 }
 
 const FOCUSABLE_FORM_FIELDS = ['A', 'AREA', 'BUTTON', 'INPUT', 'LABEL', 'SELECT', 'TEXTAREA'];
@@ -118,14 +110,17 @@ export function isTextual(element: Element): boolean {
   return isContentEditable(element);
 }
 
+/** Whether the element is a file input (`<input type="file">`). */
 export function isFileInput(element: Element): boolean {
   return isElement(element, 'INPUT') && (element as HTMLInputElement).type.toLowerCase() === 'file';
 }
 
+/** Whether the element is an `<input>` of the given `type`. */
 export function isInputType(element: Element, inputType: string): boolean {
   return isElement(element, 'INPUT') && (element as HTMLInputElement).type.toLowerCase() === inputType;
 }
 
+/** Whether the element is content-editable, per its `contentEditable` state. */
 export function isContentEditable(element: Element): boolean {
   const el = element as HTMLElement;
   if (el.contentEditable === undefined) {
@@ -180,31 +175,6 @@ export function getParentElement(node: Node): Element | null {
   return elem && isElement(elem) ? (elem as Element) : null;
 }
 
-function getComputedStyleValue(elem: Element, property: string): string {
-  const view = elem.ownerDocument.defaultView;
-  if (view?.getComputedStyle) {
-    const styles = view.getComputedStyle(elem, null);
-    if (styles) {
-      return (styles as unknown as Record<string, string>)[property] || styles.getPropertyValue(property) || '';
-    }
-  }
-  return '';
-}
-
-function getCascadedStyle(elem: Element, styleName: string): string | null {
-  const style = (elem as HTMLElement).style;
-  let value: string | undefined = (style as unknown as Record<string, string>)[styleName];
-  if (value === undefined && typeof style.getPropertyValue === 'function') {
-    value = style.getPropertyValue(styleName);
-  }
-
-  if (value !== 'inherit') {
-    return value !== undefined ? value : null;
-  }
-  const parent = getParentElement(elem);
-  return parent ? getCascadedStyle(parent, styleName) : null;
-}
-
 /**
  * Retrieves the implicitly-set, effective style of an element, or null if unknown. Returns the
  * computed style where available; otherwise looks up the DOM tree for the first style value not
@@ -220,118 +190,6 @@ export function getEffectiveStyle(elem: Element, propertyName: string): string |
     return null;
   }
   return standardizeColor(styleName, style);
-}
-
-/**
- * Extracted helper for `isShown`.
- */
-function isShownImpl(elem: Element, ignoreOpacity: boolean, displayedFn: (e: Node) => boolean): boolean {
-  if (!isElement(elem)) {
-    throw new Error('Argument to isShown must be of type Element');
-  }
-
-  // By convention, BODY is always shown: it represents the document, so even if there's nothing
-  // rendered, the user can always see there's a document.
-  if (isElement(elem, 'BODY')) {
-    return true;
-  }
-
-  // Option or optgroup is shown iff the enclosing select is shown (ignoring the select's opacity).
-  if (isElement(elem, 'OPTION') || isElement(elem, 'OPTGROUP')) {
-    let node: Node | null = elem.parentNode;
-    while (node && !isElement(node, 'SELECT')) {
-      node = node.parentNode;
-    }
-    return !!node && isShownImpl(node as Element, true, displayedFn);
-  }
-
-  // Image map elements are shown if the image using it is shown and the area has positive size.
-  const imageMap = maybeFindImageMap(elem);
-  if (imageMap) {
-    return (
-      !!imageMap.image &&
-      imageMap.rect.width > 0 &&
-      imageMap.rect.height > 0 &&
-      isShownImpl(imageMap.image, ignoreOpacity, displayedFn)
-    );
-  }
-
-  // A hidden input is never shown.
-  if (isElement(elem, 'INPUT') && (elem as HTMLInputElement).type.toLowerCase() === 'hidden') {
-    return false;
-  }
-
-  // A NOSCRIPT element is never shown.
-  if (isElement(elem, 'NOSCRIPT')) {
-    return false;
-  }
-
-  // An element with hidden/collapsed visibility is not shown.
-  const visibility = getEffectiveStyle(elem, 'visibility');
-  if (visibility === 'collapse' || visibility === 'hidden') {
-    return false;
-  }
-
-  if (!displayedFn(elem)) {
-    return false;
-  }
-
-  // A transparent element is not shown.
-  if (!ignoreOpacity && getOpacity(elem) === 0) {
-    return false;
-  }
-
-  // An element without positive size dimensions is not shown.
-  function positiveSize(e: Node): boolean {
-    const rect = getClientRect(e as Element);
-    if (rect.height > 0 && rect.width > 0) {
-      return true;
-    }
-    // A vertical or horizontal SVG Path element reports zero width or height but is "shown" if it
-    // has a positive stroke-width.
-    if (isElement(e, 'PATH') && (rect.height > 0 || rect.width > 0)) {
-      const strokeWidth = getEffectiveStyle(e as Element, 'stroke-width');
-      return !!strokeWidth && parseInt(strokeWidth, 10) > 0;
-    }
-
-    const elemVisibility = getEffectiveStyle(e as Element, 'visibility');
-    if (elemVisibility === 'collapse' || elemVisibility === 'hidden') {
-      return false;
-    }
-
-    if (!displayedFn(e)) {
-      return false;
-    }
-    // Zero-sized elements should still be considered to have positive size if they have a child
-    // element or text node with positive size, unless their 'overflow' style is 'hidden'.
-    return (
-      getEffectiveStyle(e as Element, 'overflow') !== 'hidden' &&
-      [...e.childNodes].some((n) => {
-        if (n.nodeType === Node.TEXT_NODE) {
-          const text = n.nodeValue ?? '';
-          // Ignore text nodes that are purely structural whitespace (contain newlines/tabs and
-          // nothing else besides spaces).
-          if (/^[\s]*$/.test(text) && /[\n\r\t]/.test(text)) {
-            return false;
-          }
-          return true;
-        }
-        return isElement(n) && positiveSize(n);
-      })
-    );
-  }
-  if (!positiveSize(elem)) {
-    return false;
-  }
-
-  // Elements hidden by overflow are not shown.
-  function hiddenByOverflow(e: Element): boolean {
-    return (
-      getOverflowState(e) === OverflowState.HIDDEN &&
-      [...e.childNodes].every((n) => !isElement(n) || hiddenByOverflow(n as Element) || !positiveSize(n))
-    );
-  }
-  return !hiddenByOverflow(elem);
 }
 
 /**
@@ -389,6 +247,7 @@ export enum OverflowState {
   SCROLL = 'scroll',
 }
 
+/** Returns the scroll offset of the given document's viewport. */
 export function getDocumentScroll(doc: Document): Coordinate {
   const el = doc.scrollingElement || doc.documentElement;
   const win = doc.defaultView as Window;
@@ -571,6 +430,242 @@ export function getClientRect(elem: Element): Rect {
   );
 }
 
+/**
+ * Gets the element's client rectangle as a box, optionally clipped to the given coordinate or
+ * rectangle relative to the client's position. A coordinate is treated as a 1x1 rectangle whose
+ * top-left corner is the coordinate.
+ */
+export function getClientRegion(elem: Element, region?: Coordinate | Rect): Box {
+  const clientRegion = getClientRect(elem).toBox();
+
+  if (region) {
+    const rect = region instanceof Rect ? region : new Rect(region.x, region.y, 1, 1);
+    clientRegion.left = clamp(clientRegion.left + rect.left, clientRegion.left, clientRegion.right);
+    clientRegion.top = clamp(clientRegion.top + rect.top, clientRegion.top, clientRegion.bottom);
+    clientRegion.right = clamp(clientRegion.left + rect.width, clientRegion.left, clientRegion.right);
+    clientRegion.bottom = clamp(clientRegion.top + rect.height, clientRegion.top, clientRegion.bottom);
+  }
+
+  return clientRegion;
+}
+
+/** Returns the visible text within (and under) the given element, as a user would perceive it. */
+export function getVisibleText(elem: Element): string {
+  const lines: string[] = [];
+  if (IS_SHADOW_DOM_ENABLED) {
+    appendVisibleTextLinesFromElementInComposedDom(elem, lines);
+  } else {
+    appendVisibleTextLinesFromElement(elem, lines);
+  }
+  return concatenateCleanedLines(lines);
+}
+
+/**
+ * Gets the opacity of a node (accounting for the cascaded/computed opacity of its ancestors).
+ */
+export function getOpacity(elem: Element): number {
+  let elemOpacity = 1;
+
+  const opacityStyle = getEffectiveStyle(elem, 'opacity');
+  if (opacityStyle) {
+    elemOpacity = Number(opacityStyle);
+  }
+
+  const parentElement = getParentElement(elem);
+  if (parentElement) {
+    elemOpacity *= getOpacity(parentElement);
+  }
+  return elemOpacity;
+}
+
+/**
+ * Returns the display parent of the given node, or null. Differs from `getParentElement` in the
+ * presence of Shadow DOM and `<shadow>`/`<content>` tags/slots.
+ */
+export function getParentNodeInComposedDom(node: Node): Node | null {
+  const parent: Node | null = node.parentNode;
+
+  // Shadow DOM v1
+  if (parent && (parent as Element).shadowRoot && (node as HTMLSlotElement).assignedSlot !== undefined) {
+    // Can be null on purpose, meaning it has no parent as it hasn't yet been slotted.
+    return (node as HTMLSlotElement).assignedSlot ? (node as HTMLSlotElement).assignedSlot!.parentNode : null;
+  }
+
+  // Shadow DOM v0 (deprecated)
+  const legacyNode = node as unknown as {getDestinationInsertionPoints?: () => Node[]};
+  if (legacyNode.getDestinationInsertionPoints) {
+    const destinations = legacyNode.getDestinationInsertionPoints();
+    if (destinations.length > 0) {
+      return destinations[destinations.length - 1];
+    }
+  }
+
+  return parent;
+}
+
+/**
+ * Whether a given node has been distributed into a Shadow DOM element somewhere.
+ */
+export function isNodeDistributedIntoShadowDom(node: Node): boolean {
+  const isElementOrText = node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE;
+  if (!isElementOrText) {
+    return false;
+  }
+  const elemOrText = node as (Element | Text) & {
+    assignedSlot?: HTMLSlotElement | null;
+    getDestinationInsertionPoints?: () => Node[];
+  };
+  return !!(
+    elemOrText.assignedSlot != null ||
+    (elemOrText.getDestinationInsertionPoints && elemOrText.getDestinationInsertionPoints().length > 0)
+  );
+}
+
+function toCamelCase(str: string): string {
+  return str.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+}
+
+function hasPointerEventsDisabled(element: Element): boolean {
+  return getEffectiveStyle(element, 'pointer-events') === 'none';
+}
+
+function getComputedStyleValue(elem: Element, property: string): string {
+  const view = elem.ownerDocument.defaultView;
+  if (view?.getComputedStyle) {
+    const styles = view.getComputedStyle(elem, null);
+    if (styles) {
+      return (styles as unknown as Record<string, string>)[property] || styles.getPropertyValue(property) || '';
+    }
+  }
+  return '';
+}
+
+function getCascadedStyle(elem: Element, styleName: string): string | null {
+  const style = (elem as HTMLElement).style;
+  let value: string | undefined = (style as unknown as Record<string, string>)[styleName];
+  if (value === undefined && typeof style.getPropertyValue === 'function') {
+    value = style.getPropertyValue(styleName);
+  }
+
+  if (value !== 'inherit') {
+    return value !== undefined ? value : null;
+  }
+  const parent = getParentElement(elem);
+  return parent ? getCascadedStyle(parent, styleName) : null;
+}
+
+/**
+ * Extracted helper for `isShown`.
+ */
+function isShownImpl(elem: Element, ignoreOpacity: boolean, displayedFn: (e: Node) => boolean): boolean {
+  if (!isElement(elem)) {
+    throw new Error('Argument to isShown must be of type Element');
+  }
+
+  // By convention, BODY is always shown: it represents the document, so even if there's nothing
+  // rendered, the user can always see there's a document.
+  if (isElement(elem, 'BODY')) {
+    return true;
+  }
+
+  // Option or optgroup is shown iff the enclosing select is shown (ignoring the select's opacity).
+  if (isElement(elem, 'OPTION') || isElement(elem, 'OPTGROUP')) {
+    let node: Node | null = elem.parentNode;
+    while (node && !isElement(node, 'SELECT')) {
+      node = node.parentNode;
+    }
+    return !!node && isShownImpl(node as Element, true, displayedFn);
+  }
+
+  // Image map elements are shown if the image using it is shown and the area has positive size.
+  const imageMap = maybeFindImageMap(elem);
+  if (imageMap) {
+    return (
+      !!imageMap.image &&
+      imageMap.rect.width > 0 &&
+      imageMap.rect.height > 0 &&
+      isShownImpl(imageMap.image, ignoreOpacity, displayedFn)
+    );
+  }
+
+  // A hidden input is never shown.
+  if (isElement(elem, 'INPUT') && (elem as HTMLInputElement).type.toLowerCase() === 'hidden') {
+    return false;
+  }
+
+  // A NOSCRIPT element is never shown.
+  if (isElement(elem, 'NOSCRIPT')) {
+    return false;
+  }
+
+  // An element with hidden/collapsed visibility is not shown.
+  const visibility = getEffectiveStyle(elem, 'visibility');
+  if (visibility === 'collapse' || visibility === 'hidden') {
+    return false;
+  }
+
+  if (!displayedFn(elem)) {
+    return false;
+  }
+
+  // A transparent element is not shown.
+  if (!ignoreOpacity && getOpacity(elem) === 0) {
+    return false;
+  }
+
+  // An element without positive size dimensions is not shown.
+  function positiveSize(e: Node): boolean {
+    const rect = getClientRect(e as Element);
+    if (rect.height > 0 && rect.width > 0) {
+      return true;
+    }
+    // A vertical or horizontal SVG Path element reports zero width or height but is "shown" if it
+    // has a positive stroke-width.
+    if (isElement(e, 'PATH') && (rect.height > 0 || rect.width > 0)) {
+      const strokeWidth = getEffectiveStyle(e as Element, 'stroke-width');
+      return !!strokeWidth && parseInt(strokeWidth, 10) > 0;
+    }
+
+    const elemVisibility = getEffectiveStyle(e as Element, 'visibility');
+    if (elemVisibility === 'collapse' || elemVisibility === 'hidden') {
+      return false;
+    }
+
+    if (!displayedFn(e)) {
+      return false;
+    }
+    // Zero-sized elements should still be considered to have positive size if they have a child
+    // element or text node with positive size, unless their 'overflow' style is 'hidden'.
+    return (
+      getEffectiveStyle(e as Element, 'overflow') !== 'hidden' &&
+      [...e.childNodes].some((n) => {
+        if (n.nodeType === Node.TEXT_NODE) {
+          const text = n.nodeValue ?? '';
+          // Ignore text nodes that are purely structural whitespace (contain newlines/tabs and
+          // nothing else besides spaces).
+          if (/^[\s]*$/.test(text) && /[\n\r\t]/.test(text)) {
+            return false;
+          }
+          return true;
+        }
+        return isElement(n) && positiveSize(n);
+      })
+    );
+  }
+  if (!positiveSize(elem)) {
+    return false;
+  }
+
+  // Elements hidden by overflow are not shown.
+  function hiddenByOverflow(e: Element): boolean {
+    return (
+      getOverflowState(e) === OverflowState.HIDDEN &&
+      [...e.childNodes].every((n) => !isElement(n) || hiddenByOverflow(n as Element) || !positiveSize(n))
+    );
+  }
+  return !hiddenByOverflow(elem);
+}
+
 interface ImageMap {
   image: Element | null;
   rect: Rect;
@@ -647,25 +742,6 @@ function getAreaRelativeRect(area: Element): Rect {
   return new Rect(0, 0, 0, 0);
 }
 
-/**
- * Gets the element's client rectangle as a box, optionally clipped to the given coordinate or
- * rectangle relative to the client's position. A coordinate is treated as a 1x1 rectangle whose
- * top-left corner is the coordinate.
- */
-export function getClientRegion(elem: Element, region?: Coordinate | Rect): Box {
-  const clientRegion = getClientRect(elem).toBox();
-
-  if (region) {
-    const rect = region instanceof Rect ? region : new Rect(region.x, region.y, 1, 1);
-    clientRegion.left = clamp(clientRegion.left + rect.left, clientRegion.left, clientRegion.right);
-    clientRegion.top = clamp(clientRegion.top + rect.top, clientRegion.top, clientRegion.bottom);
-    clientRegion.right = clamp(clientRegion.left + rect.width, clientRegion.left, clientRegion.right);
-    clientRegion.bottom = clamp(clientRegion.top + rect.height, clientRegion.top, clientRegion.bottom);
-  }
-
-  return clientRegion;
-}
-
 // Trims leading/trailing whitespace, leaving non-breaking-space characters in place.
 function trimExcludingNonBreakingSpace(str: string): string {
   return str.replace(/^[^\S\xa0]+|[^\S\xa0]+$/g, '');
@@ -676,16 +752,6 @@ function concatenateCleanedLines(lines: string[]): string {
   const joined = trimmedLines.join('\n');
   const trimmed = trimExcludingNonBreakingSpace(joined);
   return trimmed.replace(/\xa0/g, ' ');
-}
-
-export function getVisibleText(elem: Element): string {
-  const lines: string[] = [];
-  if (IS_SHADOW_DOM_ENABLED) {
-    appendVisibleTextLinesFromElementInComposedDom(elem, lines);
-  } else {
-    appendVisibleTextLinesFromElement(elem, lines);
-  }
-  return concatenateCleanedLines(lines);
 }
 
 const INLINE_DISPLAY_BOXES = new Set([
@@ -829,49 +895,6 @@ function appendVisibleTextLinesFromTextNode(
   lines.push(currLine + text);
 }
 
-/**
- * Gets the opacity of a node (accounting for the cascaded/computed opacity of its ancestors).
- */
-export function getOpacity(elem: Element): number {
-  let elemOpacity = 1;
-
-  const opacityStyle = getEffectiveStyle(elem, 'opacity');
-  if (opacityStyle) {
-    elemOpacity = Number(opacityStyle);
-  }
-
-  const parentElement = getParentElement(elem);
-  if (parentElement) {
-    elemOpacity *= getOpacity(parentElement);
-  }
-  return elemOpacity;
-}
-
-/**
- * Returns the display parent of the given node, or null. Differs from `getParentElement` in the
- * presence of Shadow DOM and `<shadow>`/`<content>` tags/slots.
- */
-export function getParentNodeInComposedDom(node: Node): Node | null {
-  const parent: Node | null = node.parentNode;
-
-  // Shadow DOM v1
-  if (parent && (parent as Element).shadowRoot && (node as HTMLSlotElement).assignedSlot !== undefined) {
-    // Can be null on purpose, meaning it has no parent as it hasn't yet been slotted.
-    return (node as HTMLSlotElement).assignedSlot ? (node as HTMLSlotElement).assignedSlot!.parentNode : null;
-  }
-
-  // Shadow DOM v0 (deprecated)
-  const legacyNode = node as unknown as {getDestinationInsertionPoints?: () => Node[]};
-  if (legacyNode.getDestinationInsertionPoints) {
-    const destinations = legacyNode.getDestinationInsertionPoints();
-    if (destinations.length > 0) {
-      return destinations[destinations.length - 1];
-    }
-  }
-
-  return parent;
-}
-
 function appendVisibleTextLinesFromNodeInComposedDom(
   node: Node,
   lines: string[],
@@ -928,24 +951,6 @@ function appendVisibleTextLinesFromNodeInComposedDom(
       appendVisibleTextLinesFromElementInComposedDom(castElem, lines);
     }
   }
-}
-
-/**
- * Whether a given node has been distributed into a Shadow DOM element somewhere.
- */
-export function isNodeDistributedIntoShadowDom(node: Node): boolean {
-  const isElementOrText = node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE;
-  if (!isElementOrText) {
-    return false;
-  }
-  const elemOrText = node as (Element | Text) & {
-    assignedSlot?: HTMLSlotElement | null;
-    getDestinationInsertionPoints?: () => Node[];
-  };
-  return !!(
-    elemOrText.assignedSlot != null ||
-    (elemOrText.getDestinationInsertionPoints && elemOrText.getDestinationInsertionPoints().length > 0)
-  );
 }
 
 function appendVisibleTextLinesFromElementInComposedDom(elem: Element, lines: string[]): void {

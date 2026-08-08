@@ -6,15 +6,6 @@
 
 type TextField = HTMLInputElement | HTMLTextAreaElement;
 
-function hasSelectionSupport(el: Element): boolean {
-  try {
-    return typeof (el as TextField).selectionStart === 'number';
-  } catch {
-    // Firefox throws when accessing selectionStart on a `display: none` element.
-    return false;
-  }
-}
-
 /** Sets where the selection should start inside a textarea or text input. */
 export function setStart(textfield: Element, pos: number): void {
   if (hasSelectionSupport(textfield)) {
@@ -96,4 +87,13 @@ export function checkCanUpdateSelection(element: Element): void {
 /** Whether the given element supports the input-selection API. */
 export function supportsSelection(element: Element): boolean {
   return hasSelectionSupport(element);
+}
+
+function hasSelectionSupport(el: Element): boolean {
+  try {
+    return typeof (el as TextField).selectionStart === 'number';
+  } catch {
+    // Firefox throws when accessing selectionStart on a `display: none` element.
+    return false;
+  }
 }

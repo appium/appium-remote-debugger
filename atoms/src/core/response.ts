@@ -9,10 +9,7 @@ export interface ResponseObject {
   value: unknown;
 }
 
-function isObject(val: unknown): val is Record<string, unknown> {
-  return (typeof val === 'object' && val !== null) || typeof val === 'function';
-}
-
+/** Whether the given value is a well-formed response object. */
 export function isResponseObject(value: unknown): value is ResponseObject {
   return isObject(value) && typeof value.status === 'number';
 }
@@ -67,4 +64,8 @@ export function checkResponse(responseObj: ResponseObject): ResponseObject {
   }
 
   throw new BotError(status, `${value.message}`);
+}
+
+function isObject(val: unknown): val is Record<string, unknown> {
+  return (typeof val === 'object' && val !== null) || typeof val === 'function';
 }

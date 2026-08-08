@@ -62,6 +62,7 @@ export class Vec2 {
   }
 }
 
+/** A width/height pair. */
 export class Size {
   width: number;
   height: number;
@@ -87,6 +88,7 @@ export class Box {
   }
 }
 
+/** A rectangle specified as left/top/width/height. */
 export class Rect {
   left: number;
   top: number;
@@ -121,6 +123,7 @@ export class Rect {
   }
 }
 
+/** Clamps `value` to lie within the range [`min`, `max`]. */
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
