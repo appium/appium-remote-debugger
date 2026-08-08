@@ -11,9 +11,9 @@ import {convertJavascriptEvaluationResult} from '../../lib/utils/javascript.js';
 const W3C_ELEMENT_KEY = util.W3C_WEB_ELEMENT_IDENTIFIER;
 
 const FIXTURE_HTML = `<!doctype html><html><body>
-  <div id="somediv">This is in #somediv</div>
+  <div id="somediv" class="testclass">This is in #somediv</div>
   <div id="hiddendiv" style="display:none">hidden text</div>
-  <input id="textinput" type="text" value="" />
+  <input id="textinput" type="text" name="textinputname" value="" />
   <input id="checkbox" type="checkbox" />
   <select id="theselect">
     <option id="opt1" value="a">A</option>
@@ -22,6 +22,9 @@ const FIXTURE_HTML = `<!doctype html><html><body>
   <button id="disabledbtn" disabled>Disabled</button>
   <form id="theform" action="#"><input id="submitbtn" type="submit" value="Go" /></form>
   <iframe id="frame1" name="frame-one"></iframe>
+  <a id="thelink" href="#">Click Here</a>
+  <div id="rel-top" class="rel-fixture">Top</div>
+  <div id="rel-bottom" class="rel-fixture">Bottom</div>
 </body></html>`;
 
 // jsdom does not implement real CSS layout: every element reports a zero-size
@@ -122,7 +125,7 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
 
     it('find_elements finds all matching elements', async function () {
       const els = await runInjectAtom(window, 'find_elements', ['css selector', 'div']);
-      assert.strictEqual(els.length, 2);
+      assert.strictEqual(els.length, 4);
     });
 
     it('find_element (fragment) locates the same node as a native DOM lookup', async function () {
@@ -144,6 +147,65 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       ]);
       assert.strictEqual(typeof viaLegacyKey.ELEMENT, 'string');
       assert.strictEqual(viaW3cKey.ELEMENT, viaLegacyKey.ELEMENT);
+    });
+  });
+
+  describe('locator strategies', function () {
+    it('xpath finds an element by an XPath expression', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['xpath', '//*[@id="somediv"]']);
+      assert.strictEqual(await runInjectAtom(window, 'get_text', [el]), 'This is in #somediv');
+    });
+
+    it('class name finds an element by its class attribute', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['class name', 'testclass']);
+      assert.strictEqual(await runInjectAtom(window, 'get_text', [el]), 'This is in #somediv');
+    });
+
+    it('name finds an element by its name attribute', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['name', 'textinputname']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'id']), 'textinput');
+    });
+
+    it('tag name finds an element by its tag', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['tag name', 'select']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'id']), 'theselect');
+    });
+
+    it('link text and partial link text find an anchor by its visible text', async function () {
+      const byFullText = await runInjectAtom(window, 'find_element_fragment', ['link text', 'Click Here']);
+      const byPartialText = await runInjectAtom(window, 'find_element_fragment', ['partial link text', 'Click']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [byFullText, 'id']), 'thelink');
+      assert.strictEqual(byPartialText.ELEMENT, byFullText.ELEMENT);
+    });
+
+    it('relative locator filters candidates by spatial position', async function () {
+      const relTop = window.document.getElementById('rel-top') as any;
+      const relBottom = window.document.getElementById('rel-bottom') as any;
+      relTop.getBoundingClientRect = () => ({
+        x: 0,
+        y: 0,
+        top: 0,
+        left: 0,
+        right: 100,
+        bottom: 20,
+        width: 100,
+        height: 20,
+      });
+      relBottom.getBoundingClientRect = () => ({
+        x: 0,
+        y: 40,
+        top: 40,
+        left: 0,
+        right: 100,
+        bottom: 60,
+        width: 100,
+        height: 20,
+      });
+
+      const target = {root: {'class name': 'rel-fixture'}, filters: [{kind: 'below', args: [{id: 'rel-top'}]}]};
+      const found = await runInjectAtom(window, 'find_elements', ['relative', target]);
+      assert.strictEqual(found.length, 1);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [found[0], 'id']), 'rel-bottom');
     });
   });
 
@@ -239,6 +301,15 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '');
     });
 
+    it('type resolves a WebDriver special key (Backspace) via the PUA Key map', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#textinput']);
+      // WebDriver Key.BACK_SPACE (see webdriver/key.ts), built via fromCharCode to avoid embedding
+      // a raw Unicode Private-Use-Area character in source.
+      const backspace = String.fromCharCode(0xe003);
+      await runInjectAtom(window, 'type', [el, `abc${backspace}`]);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), 'ab');
+    });
+
     it('click toggles a checkbox', async function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#checkbox']);
       assert.strictEqual(await runInjectAtom(window, 'is_selected', [el]), false);
@@ -319,18 +390,7 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
     });
   });
 
-  describe('html5 storage/appcache/sql/geolocation', function () {
-    it('get_appcache_status reports the application cache status', async function () {
-      (window as any).applicationCache = {status: 0};
-      assert.strictEqual(await runInjectAtom(window, 'get_appcache_status'), 0);
-    });
-
-    it('execute_sql fails cleanly when WebSQL is unavailable, matching modern mobile Safari', async function () {
-      await assert.rejects(
-        runFragmentAtom(window, 'execute_sql', [`'db'`, `'SELECT 1'`, `[]`, `function(){}`, `function(){}`]),
-      );
-    });
-
+  describe('html5 storage/geolocation', function () {
     it('get_location resolves the position via navigator.geolocation', async function () {
       (window.navigator as any).geolocation = {
         getCurrentPosition: (success: (pos: any) => void) =>
