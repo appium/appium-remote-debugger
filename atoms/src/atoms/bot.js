@@ -27,13 +27,13 @@ goog.provide('bot');
  * defined (for example in firefox extensions)
  * @private {!Window}
  */
-bot.window_;
+bot.window_ = /** @type {!Window} */ (/** @type {?} */ (undefined));
 
 try {
   bot.window_ = window;
 } catch (ignored) {
   // We only reach this place in a firefox extension.
-  bot.window_ = goog.global;
+  bot.window_ = /** @type {!Window} */ (/** @type {?} */ (goog.global));
 }
 
 /**
