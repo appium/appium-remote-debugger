@@ -78,7 +78,7 @@ var CONSTRUCTOR_TOKEN_PRIVATE = {};
  * @see SafeHtml.htmlEscape
  * @final
  * @struct
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeHtml {
   /**
@@ -451,6 +451,7 @@ class SafeHtml {
     TrustedResourceUrl.unwrap(src);
 
     const fixedAttributes = {'src': src};
+    /** @type {!Object<string, string>} */
     const defaultAttributes = {};
     const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, defaultAttributes, attributes);
     return SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse('script', combinedAttrs);
@@ -484,9 +485,9 @@ class SafeHtml {
     }
 
     let content = '';
-    script = googArray.concat(script);
-    for (let i = 0; i < script.length; i++) {
-      content += SafeScript.unwrap(script[i]);
+    const scripts = googArray.concat(script);
+    for (let i = 0; i < scripts.length; i++) {
+      content += SafeScript.unwrap(scripts[i]);
     }
     // Convert to SafeHtml so that it's not HTML-escaped. This is safe because
     // as part of its contract, SafeScript should have no dangerous '<'.
@@ -511,13 +512,14 @@ class SafeHtml {
    */
   static createStyle(styleSheet, attributes = undefined) {
     const fixedAttributes = {'type': 'text/css'};
+    /** @type {!Object<string, string>} */
     const defaultAttributes = {};
     const combinedAttrs = SafeHtml.combineAttributes(fixedAttributes, defaultAttributes, attributes);
 
     let content = '';
-    styleSheet = googArray.concat(styleSheet);
-    for (let i = 0; i < styleSheet.length; i++) {
-      content += SafeStyleSheet.unwrap(styleSheet[i]);
+    const styleSheets = googArray.concat(styleSheet);
+    for (let i = 0; i < styleSheets.length; i++) {
+      content += SafeStyleSheet.unwrap(styleSheets[i]);
     }
     // Convert to SafeHtml so that it's not HTML-escaped. This is safe because
     // as part of its contract, SafeStyleSheet should have no dangerous '<'.
@@ -927,7 +929,7 @@ SafeHtml.DOCTYPE_HTML = /** @type {!SafeHtml} */ (
  * A SafeHtml instance corresponding to the empty string.
  * @const {!SafeHtml}
  */
-SafeHtml.EMPTY = new SafeHtml(
+SafeHtml.EMPTY = new (/** @type {function(new:SafeHtml, ...?)} */ (/** @type {?} */ (SafeHtml)))(
   (goog.global.trustedTypes && goog.global.trustedTypes.emptyHTML) || '',
   CONSTRUCTOR_TOKEN_PRIVATE,
 );

@@ -65,7 +65,7 @@ var CONSTRUCTOR_TOKEN_PRIVATE = {};
  *
  * @see SafeScript#fromConstant
  * @final
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeScript {
   /**

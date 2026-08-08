@@ -112,7 +112,7 @@ var CONSTRUCTOR_TOKEN_PRIVATE = {};
  * @see http://www.w3.org/TR/css3-syntax/
  * @final
  * @struct
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeStyle {
   /**

@@ -107,7 +107,7 @@ function some(obj, f, opt_obj) {
  */
 function every(obj, f, opt_obj) {
   for (const key in obj) {
-    if (!f.call(/** @type {?} */ (opt_obj), obj[key], key, obj)) {
+    if (!(/** @type {!Function} */ (f).call(/** @type {?} */ (opt_obj), obj[key], key, obj))) {
       return false;
     }
   }
@@ -449,13 +449,13 @@ function clone(obj) {
  */
 function unsafeClone(obj) {
   if (!obj || typeof obj !== 'object') return obj;
-  if (typeof obj.clone === 'function') return obj.clone();
+  if (typeof (/** @type {?} */ (obj).clone) === 'function') return /** @type {?} */ (obj).clone();
   if (typeof Map !== 'undefined' && obj instanceof Map) {
-    return new Map(obj);
+    return /** @type {T} */ (/** @type {?} */ (new Map(obj)));
   } else if (typeof Set !== 'undefined' && obj instanceof Set) {
-    return new Set(obj);
+    return /** @type {T} */ (/** @type {?} */ (new Set(obj)));
   } else if (obj instanceof Date) {
-    return new Date(obj.getTime());
+    return /** @type {T} */ (/** @type {?} */ (new Date(obj.getTime())));
   }
   const clone = Array.isArray(obj)
     ? []
@@ -463,7 +463,7 @@ function unsafeClone(obj) {
         typeof ArrayBuffer.isView === 'function' &&
         ArrayBuffer.isView(obj) &&
         !(obj instanceof DataView)
-      ? new obj.constructor(obj.length)
+      ? new (/** @type {?} */ (obj).constructor)(/** @type {?} */ (obj).length)
       : {};
   for (const key in obj) {
     clone[key] = unsafeClone(obj[key]);

@@ -67,7 +67,7 @@ var CONSTRUCTOR_TOKEN_PRIVATE = {};
  *
  * @see SafeStyleSheet#fromConstant
  * @final
- * @implements {TypedString}
+ * @implements {goog.string.TypedString}
  */
 class SafeStyleSheet {
   /**
@@ -111,7 +111,7 @@ class SafeStyleSheet {
   /**
    * Creates a style sheet consisting of one selector and one style definition.
    * Use {@link SafeStyleSheet.concat} to create longer style sheets.
-   * This function doesn't support @import, @media and similar constructs.
+   * This function doesn't support the import, media, and similar at-rule constructs.
    * @param {string} selector CSS selector, e.g. '#id' or 'tag .class, #id'. We
    *     support CSS3 selectors: https://w3.org/TR/css3-selectors/#selectors.
    * @param {!SafeStyle.PropertyMap|!SafeStyle} style Style
@@ -151,7 +151,7 @@ class SafeStyleSheet {
    * @private
    */
   static hasBalancedBrackets_(s) {
-    const brackets = {'(': ')', '[': ']'};
+    const brackets = /** @type {!Object<string, string>} */ ({'(': ')', '[': ']'});
     const expectedBrackets = [];
     for (let i = 0; i < s.length; i++) {
       const ch = s[i];
