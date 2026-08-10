@@ -1,3 +1,13 @@
+## [17.0.0](https://github.com/appium/appium-remote-debugger/compare/v16.4.0...v17.0.0) (2026-08-10)
+
+### ⚠ BREAKING CHANGES
+
+* Dropped support of older browsers and platforms in atoms. Current atoms are only targeting mobile Safari since iOS 17
+
+### Features
+
+* Rewrite atoms/src as plain TypeScript, remove Closure Compiler ([#527](https://github.com/appium/appium-remote-debugger/issues/527)) ([bdbe585](https://github.com/appium/appium-remote-debugger/commit/bdbe5856a900dae64da75abc25c24df3f0d3aae7))
+
 ## [16.4.0](https://github.com/appium/appium-remote-debugger/compare/v16.3.0...v16.4.0) (2026-08-08)
 
 ### Features
