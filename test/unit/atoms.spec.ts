@@ -318,6 +318,18 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '0.25');
     });
 
+    it('type sends a leading-dot decimal into a number input', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, '.25']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '.25');
+    });
+
+    it('type sends scientific notation into a number input', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, '1e-3']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '1e-3');
+    });
+
     it('type falls back to per-key handling for a number input when a special key breaks the fast path', async function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
       // '\n' converts to a Key.ENTER object (see webdriver/element.ts), so `values` here is
