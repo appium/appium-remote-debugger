@@ -15,6 +15,10 @@ export interface MouseArgs {
 export interface KeyboardArgs {
   keyCode: number;
   charCode: number;
+  /** Standard `KeyboardEvent.key` value, e.g. '7' or 'ArrowLeft'; 'Unidentified' if unknown. */
+  key: string;
+  /** Standard `KeyboardEvent.code` value, e.g. 'Digit7' or 'ArrowLeft'; '' if unknown. */
+  code: string;
   altKey: boolean;
   ctrlKey: boolean;
   shiftKey: boolean;
@@ -129,6 +133,8 @@ class KeyboardEventFactory extends EventFactory {
       shiftKey?: boolean;
       keyCode?: number;
       charCode?: number;
+      key?: string;
+      code?: string;
     };
     event.initEvent(this.type, this.bubbles, this.cancelable);
     event.altKey = args.altKey;
@@ -137,6 +143,8 @@ class KeyboardEventFactory extends EventFactory {
     event.shiftKey = args.shiftKey;
     event.keyCode = args.charCode || args.keyCode;
     event.charCode = this.type === 'keypress' ? event.keyCode : 0;
+    event.key = args.key;
+    event.code = args.code;
     return event;
   }
 }

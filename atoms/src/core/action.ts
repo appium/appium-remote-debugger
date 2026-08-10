@@ -133,14 +133,15 @@ export function type(
     }
   }
 
-  // A `number` input resets its value to '' on any intermediate assignment that isn't yet a
-  // valid number (e.g. '0.'), so the per-character `.value +=` path below loses characters
-  // (appium/appium#18765). Assign the full string once instead, as with 'date' above. `type()`
-  // must append, not replace: `sendKeys` never implies a prior clear (that's a separate atom), so
-  // continuing to type into an already-filled number input has to add onto its existing value.
+  // A `number` input resets its value to '' on an intermediate assignment that isn't yet a valid
+  // number (e.g. '0.'), losing characters typed via the per-character loop below
+  // (appium/appium#18765). Assign the whole string at once instead, but only when it contains a
+  // sign/decimal/exponent char that could hit that intermediate-invalid state — a plain run of
+  // digits is always valid, so it stays on the per-character loop, which some number-input
+  // widgets need for their own per-keystroke handling (appium/appium#16697).
   if ((element as HTMLInputElement).type === 'number') {
     const val = Array.isArray(values) ? values.join('') : values;
-    if (typeof val === 'string' && val.length > 0 && /^[-+.\deE]*$/.test(val)) {
+    if (typeof val === 'string' && val.length > 0 && /^[-+.\deE]*$/.test(val) && /[-+.eE]/.test(val)) {
       (element as HTMLInputElement).value += val;
       fire(element, EventType.TEXTINPUT);
       fire(element, EventType.INPUT);
