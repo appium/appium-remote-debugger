@@ -141,23 +141,9 @@ class KeyboardEventFactory extends EventFactory {
   }
 }
 
-enum TouchEventStrategy {
-  INIT_TOUCH_EVENT = 'INIT_TOUCH_EVENT',
-  TOUCH_EVENT_CTOR = 'TOUCH_EVENT_CTOR',
-}
-
 class TouchEventFactory extends EventFactory {
   override create(target: EventTarget_, opt_args?: EventArgs): Event {
     const args = opt_args as TouchArgs;
-    const doc = 'ownerDocument' in target ? target.ownerDocument : target.document;
-    const view = doc.defaultView as Window;
-
-    // Different iOS/Safari versions expose different touch-event creation mechanisms; feature
-    // detect rather than assume one.
-    const strategy: TouchEventStrategy =
-      typeof (TouchEvent.prototype as unknown as {initTouchEvent?: unknown}).initTouchEvent === 'function'
-        ? TouchEventStrategy.INIT_TOUCH_EVENT
-        : TouchEventStrategy.TOUCH_EVENT_CTOR;
 
     // As a performance optimization, reuse the created touch list when the lists are the same,
     // which is often the case in practice.
@@ -166,36 +152,13 @@ class TouchEventFactory extends EventFactory {
     const targetTouches =
       args.targetTouches === args.changedTouches ? changedTouches : toNativeTouches(target, args.targetTouches);
 
-    if (strategy === TouchEventStrategy.INIT_TOUCH_EVENT) {
-      const event = doc.createEvent('TouchEvent') as TouchEvent & {
-        initTouchEvent: (...args: unknown[]) => void;
-        relatedTarget?: Element | null;
-      };
-      // iOS's initTouchEvent signature.
-      event.initTouchEvent(
-        this.type,
-        this.bubbles,
-        this.cancelable,
-        view,
-        /* detail */ 1,
-        /* screenX */ 0,
-        /* screenY */ 0,
-        args.clientX,
-        args.clientY,
-        args.ctrlKey,
-        args.altKey,
-        args.shiftKey,
-        args.metaKey,
-        touches,
-        targetTouches,
-        changedTouches,
-        args.scale,
-        args.rotation,
-      );
-      event.relatedTarget = args.relatedTarget;
-      return event;
-    }
-
+    // The standard TouchEvent constructor accepts touches/targetTouches/changedTouches as plain
+    // arrays of Touch (per the WebIDL `sequence<Touch>` type) and has been supported since Safari
+    // 9.3 — well below this package's safari15 floor. WebKit's older `initTouchEvent()` method is
+    // deliberately not used here even though some Safari versions still expose it: unlike this
+    // constructor, it requires a genuine `TouchList` (historically built via the now-removed
+    // `document.createTouchList()`/`document.createTouch()`), not a plain array, and passing one
+    // throws (`Argument ... must be an instance of TouchList`) rather than silently working.
     return new TouchEvent(this.type, {
       touches,
       targetTouches,

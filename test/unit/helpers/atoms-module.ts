@@ -34,10 +34,39 @@ const DOM_GLOBAL_NAMES = [
   'Event',
   'MouseEvent',
   'KeyboardEvent',
-  'Touch',
   'TouchEvent',
   'DOMRect',
 ] as const;
+
+// jsdom implements the `TouchEvent` constructor but not `Touch` (https://github.com/jsdom/jsdom
+// has never added it), even though real WebKit has supported both since Safari 9.3. Polyfilled
+// here, test-side only, so atoms/src code that does `new Touch({...})` (core/events.ts) has
+// something to construct against.
+class TouchPolyfill implements Touch {
+  readonly identifier: number;
+  readonly target: EventTarget;
+  readonly screenX: number;
+  readonly screenY: number;
+  readonly clientX: number;
+  readonly clientY: number;
+  readonly pageX: number;
+  readonly pageY: number;
+  readonly radiusX = 0;
+  readonly radiusY = 0;
+  readonly rotationAngle = 0;
+  readonly force = 0;
+
+  constructor(init: TouchInit) {
+    this.identifier = init.identifier;
+    this.target = init.target;
+    this.screenX = init.screenX ?? 0;
+    this.screenY = init.screenY ?? 0;
+    this.clientX = init.clientX ?? 0;
+    this.clientY = init.clientY ?? 0;
+    this.pageX = init.pageX ?? 0;
+    this.pageY = init.pageY ?? 0;
+  }
+}
 
 let domInstalled = false;
 
@@ -57,6 +86,12 @@ export function installDomGlobals(): void {
       enumerable: true,
     });
   }
+  Object.defineProperty(globalThis, 'Touch', {
+    value: TouchPolyfill,
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
   domInstalled = true;
 }
 
