@@ -1,5 +1,5 @@
 import {Device, Modifier, findAncestorForm, isFormSubmitElement, type ModifiersState} from './device.js';
-import {isEditable, isElement} from './dom.js';
+import {getActiveElement, isEditable, isElement} from './dom.js';
 import {BotError, ErrorCode} from './error.js';
 import * as events from './events.js';
 import {isMac} from './platform.js';
@@ -345,6 +345,8 @@ export class Keyboard extends Device {
       throw new BotError(ErrorCode.UNKNOWN_ERROR, 'Cannot press a modifier key that is already pressed.');
     }
 
+    this.followActiveElement();
+
     const performDefault = key.code !== null && this.fireKeyEventInternal(events.EventType.KEYDOWN, key);
     if (performDefault) {
       if (!this.requiresKeyPress(key) || this.fireKeyEventInternal(events.EventType.KEYPRESS, key, false)) {
@@ -415,11 +417,29 @@ export class Keyboard extends Device {
     if (!this.isPressed(key)) {
       throw new BotError(ErrorCode.UNKNOWN_ERROR, `Cannot release a key that is not pressed. (${key.code})`);
     }
+
+    this.followActiveElement();
+
     if (key.code !== null) {
       this.fireKeyEventInternal(events.EventType.KEYUP, key);
     }
 
     this.setKeyPressed(key, false);
+  }
+
+  /**
+   * Re-targets this keyboard at the currently focused element, mirroring how a physical keyboard
+   * always types wherever focus is — an app's own JS (e.g. a masked input's auto-advance) can move
+   * focus between keystrokes, which a fixed target element would miss (appium/appium#16697).
+   */
+  private followActiveElement(): void {
+    const active = getActiveElement(this.getElement());
+    if (!active || active === this.getElement()) {
+      return;
+    }
+    this.setElement(active);
+    this.editable = isEditable(active);
+    this.updateCurrentPos(selection.supportsSelection(active) ? selection.getStart(active) : 0);
   }
 
   /** Given the current SHIFT/CAPS_LOCK state, returns the character typed by pressing `key`. */
