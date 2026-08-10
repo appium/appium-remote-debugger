@@ -1,3 +1,9 @@
+## [17.0.1](https://github.com/appium/appium-remote-debugger/compare/v17.0.0...v17.0.1) (2026-08-10)
+
+### Bug Fixes
+
+* Preserve full string when typing into number inputs ([#528](https://github.com/appium/appium-remote-debugger/issues/528)) ([8d88f33](https://github.com/appium/appium-remote-debugger/commit/8d88f3399c135a94344559127c1d2efd7f899e12))
+
 ## [17.0.0](https://github.com/appium/appium-remote-debugger/compare/v16.4.0...v17.0.0) (2026-08-10)
 
 ### ⚠ BREAKING CHANGES
