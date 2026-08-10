@@ -103,6 +103,19 @@ describe('atoms/src/core/inject.ts', function () {
     });
   });
 
+  describe('wrapValue (exported)', function () {
+    it('wraps a ShadowRoot as an element reference instead of recursing on its host back-reference', async function () {
+      const {wrapValue, ELEMENT_KEY, W3C_ELEMENT_KEY} = await importAtomsModule(['core', 'inject.ts']);
+      const {window} = new JSDOM('<div id="host"></div>');
+      const host = window.document.getElementById('host')!;
+      const shadowRoot = host.attachShadow({mode: 'open'});
+
+      const wrapped = wrapValue(shadowRoot) as Record<string, unknown>;
+      assert.strictEqual(typeof wrapped[ELEMENT_KEY], 'string');
+      assert.strictEqual(wrapped[ELEMENT_KEY], wrapped[W3C_ELEMENT_KEY]);
+    });
+  });
+
   describe('sweep (private helper)', function () {
     it('removes only stale entries, leaving live entries and the nextId counter intact', async function () {
       const mod = await importAtomsModuleInternal(['core', 'inject.ts'], ['getCache', 'sweep']);
