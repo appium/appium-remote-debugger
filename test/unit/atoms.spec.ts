@@ -339,6 +339,15 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '007');
     });
 
+    it('type accepts a raw JS number for values, not just a string', async function () {
+      // xcuitest-driver's setValue()/sendKeys() accept a plain number and, under the default
+      // sendKeyStrategy, forward it to this atom unconverted (only the 'oneByOne' strategy and the
+      // native path stringify it first) — a bare number used to throw "keys is not iterable" here.
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, 123]);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '123');
+    });
+
     it('type falls back to per-key handling for a number input when a special key breaks the fast path', async function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
       // '\n' converts to a Key.ENTER object (see webdriver/element.ts), so `values` here is
