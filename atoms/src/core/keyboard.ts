@@ -345,14 +345,14 @@ export class Keyboard extends Device {
       throw new BotError(ErrorCode.UNKNOWN_ERROR, 'Cannot press a modifier key that is already pressed.');
     }
 
-    this.followActiveElement();
+    const followedFocus = this.followActiveElement();
 
     const performDefault = key.code !== null && this.fireKeyEventInternal(events.EventType.KEYDOWN, key);
     if (performDefault) {
       if (!this.requiresKeyPress(key) || this.fireKeyEventInternal(events.EventType.KEYPRESS, key, false)) {
         this.maybeSubmitForm(key);
         if (this.editable) {
-          this.maybeEditText(key);
+          this.maybeEditText(key, followedFocus);
         }
       }
     }
@@ -387,10 +387,13 @@ export class Keyboard extends Device {
     }
   }
 
-  /** Maybe edits text when a key is pressed in an editable form. */
-  private maybeEditText(key: Key): void {
+  /**
+   * Maybe edits text when a key is pressed in an editable form.
+   * @param replaceUnselectableValue See `updateOnCharacter`.
+   */
+  private maybeEditText(key: Key, replaceUnselectableValue: boolean): void {
     if (key.character) {
-      this.updateOnCharacter(key);
+      this.updateOnCharacter(key, replaceUnselectableValue);
     } else {
       switch (key) {
         case Keys.ENTER:
@@ -412,13 +415,18 @@ export class Keyboard extends Device {
     }
   }
 
-  /** Releases the given key. Releasing a key that is not pressed throws. */
+  /**
+   * Releases the given key. Releasing a key that is not pressed throws.
+   *
+   * Deliberately doesn't re-resolve the active element the way `pressKey` does: this key's keyup
+   * must target the same element its keydown just did, not wherever focus has moved to as a
+   * *result* of that keydown (e.g. a masked input's auto-advance) — the next `pressKey` picks that
+   * up for the following key instead.
+   */
   releaseKey(key: Key): void {
     if (!this.isPressed(key)) {
       throw new BotError(ErrorCode.UNKNOWN_ERROR, `Cannot release a key that is not pressed. (${key.code})`);
     }
-
-    this.followActiveElement();
 
     if (key.code !== null) {
       this.fireKeyEventInternal(events.EventType.KEYUP, key);
@@ -431,15 +439,17 @@ export class Keyboard extends Device {
    * Re-targets this keyboard at the currently focused element, mirroring how a physical keyboard
    * always types wherever focus is — an app's own JS (e.g. a masked input's auto-advance) can move
    * focus between keystrokes, which a fixed target element would miss (appium/appium#16697).
+   * @return Whether the target actually changed.
    */
-  private followActiveElement(): void {
+  private followActiveElement(): boolean {
     const active = getActiveElement(this.getElement());
     if (!active || active === this.getElement()) {
-      return;
+      return false;
     }
     this.setElement(active);
     this.editable = isEditable(active);
     this.updateCurrentPos(selection.supportsSelection(active) ? selection.getStart(active) : 0);
+    return true;
   }
 
   /** Given the current SHIFT/CAPS_LOCK state, returns the character typed by pressing `key`. */
@@ -451,14 +461,27 @@ export class Keyboard extends Device {
     return (shiftPressed ? key.shiftChar : key.character) as string;
   }
 
-  private updateOnCharacter(key: Key): void {
+  /**
+   * @param replaceUnselectableValue Whether to replace, rather than append to, an element whose
+   * value can't be checked for an existing selection (e.g. `type="number"`, where
+   * `selectionStart`/`End` throw). True only for the first character after `pressKey` just
+   * followed focus to a new element: there's no way to tell whether the app selected that
+   * element's content when it moved focus there — a common auto-advance pattern for
+   * masked/segmented inputs (appium/appium#16697) — so assume it did, matching how a real
+   * keystroke would replace a selection rather than append past it. The element the caller
+   * originally targeted must still append, per `sendKeys` semantics.
+   */
+  private updateOnCharacter(key: Key, replaceUnselectableValue: boolean): void {
     const character = this.getChar(key);
-    const newPos = selection.getStart(this.getElement()) + 1;
-    if (selection.supportsSelection(this.getElement())) {
-      selection.setText(this.getElement(), character);
-      selection.setStart(this.getElement(), newPos);
+    const element = this.getElement();
+    const newPos = selection.getStart(element) + 1;
+    if (selection.supportsSelection(element)) {
+      selection.setText(element, character);
+      selection.setStart(element, newPos);
+    } else if (replaceUnselectableValue) {
+      (element as HTMLInputElement).value = character;
     } else {
-      (this.getElement() as HTMLInputElement).value += character;
+      (element as HTMLInputElement).value += character;
     }
     this.fireHtmlEvent(events.EventType.TEXTINPUT);
     this.fireHtmlEvent(events.EventType.INPUT);
