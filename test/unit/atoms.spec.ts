@@ -330,11 +330,13 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '1e-3');
     });
 
-    it('type appends to a number input that already has a value, matching sendKeys semantics', async function () {
+    it('type appends to a number input that already has a value, matching sendKeys semantics (#16697)', async function () {
+      // Same sequence reported in #16697 ("00" then "7"): appending, not replacing, is the
+      // spec-conformant `sendKeys` behavior here, since `sendKeys` never implies a prior clear.
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
-      await runInjectAtom(window, 'type', [el, '1']);
-      await runInjectAtom(window, 'type', [el, '2']);
-      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '12');
+      await runInjectAtom(window, 'type', [el, '00']);
+      await runInjectAtom(window, 'type', [el, '7']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '007');
     });
 
     it('type falls back to per-key handling for a number input when a special key breaks the fast path', async function () {
