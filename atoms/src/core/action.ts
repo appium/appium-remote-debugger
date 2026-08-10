@@ -118,7 +118,7 @@ export function type(
   // One cannot "type" in a date field on mobile Safari; this package only ever targets mobile
   // Safari, so (unlike the vendored source) there's no need to also rule out desktop Safari.
   if ((element as HTMLInputElement).type === 'date') {
-    const val = Array.isArray(values) ? (values = values.join('')) : values;
+    const val = Array.isArray(values) ? values.join('') : values;
     const datePattern = /\d{4}-\d{2}-\d{2}/;
     const match = typeof val === 'string' ? val.match(datePattern) : null;
     if (match) {
@@ -129,6 +129,19 @@ export function type(
       (element as HTMLInputElement).value = match[0];
       fire(element, EventType.CHANGE);
       fire(element, EventType.BLUR);
+      return;
+    }
+  }
+
+  // A `number` input resets its value to '' on any intermediate assignment that isn't yet a
+  // valid number (e.g. '0.'), so the per-character `.value +=` path below loses characters
+  // (appium/appium#18765). Assign the full string once instead, as with 'date' above.
+  if ((element as HTMLInputElement).type === 'number') {
+    const val = Array.isArray(values) ? values.join('') : values;
+    if (typeof val === 'string' && val.length > 0 && /^[-+.\deE]*$/.test(val)) {
+      (element as HTMLInputElement).value += val;
+      fire(element, EventType.TEXTINPUT);
+      fire(element, EventType.INPUT);
       return;
     }
   }

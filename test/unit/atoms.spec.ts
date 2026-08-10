@@ -14,6 +14,8 @@ const FIXTURE_HTML = `<!doctype html><html><body>
   <div id="somediv" class="testclass">This is in #somediv</div>
   <div id="hiddendiv" style="display:none">hidden text</div>
   <input id="textinput" type="text" name="textinputname" value="" />
+  <input id="numberinput" type="number" name="numberinputname" value="" />
+  <input id="dateinput" type="date" name="dateinputname" value="" />
   <input id="checkbox" type="checkbox" />
   <select id="theselect">
     <option id="opt1" value="a">A</option>
@@ -308,6 +310,38 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       const backspace = String.fromCharCode(0xe003);
       await runInjectAtom(window, 'type', [el, `abc${backspace}`]);
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), 'ab');
+    });
+
+    it('type sends the full decimal string into a number input without dropping characters (#18765)', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, '0.25']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '0.25');
+    });
+
+    it('type sends a leading-dot decimal into a number input', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, '.25']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '.25');
+    });
+
+    it('type sends scientific notation into a number input', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, '1e-3']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '1e-3');
+    });
+
+    it('type falls back to per-key handling for a number input when a special key breaks the fast path', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      // '\n' converts to a Key.ENTER object (see webdriver/element.ts), so `values` here is
+      // ['1', '2', Key.ENTER] — an array mixing strings and a Key, not a plain numeric string.
+      await runInjectAtom(window, 'type', [el, '12\n']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '12');
+    });
+
+    it('type sets a date input without crashing on the touchstart/touchend simulation', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#dateinput']);
+      await runInjectAtom(window, 'type', [el, '2024-01-31']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '2024-01-31');
     });
 
     it('click toggles a checkbox', async function () {

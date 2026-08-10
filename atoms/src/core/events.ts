@@ -141,9 +141,27 @@ class KeyboardEventFactory extends EventFactory {
   }
 }
 
+const EMPTY_TOUCH_ARGS: TouchArgs = {
+  touches: [],
+  targetTouches: [],
+  changedTouches: [],
+  altKey: false,
+  ctrlKey: false,
+  shiftKey: false,
+  metaKey: false,
+  relatedTarget: null,
+  scale: 0,
+  rotation: 0,
+  clientX: 0,
+  clientY: 0,
+};
+
 class TouchEventFactory extends EventFactory {
   override create(target: EventTarget_, opt_args?: EventArgs): Event {
-    const args = opt_args as TouchArgs;
+    // Callers that just want to simulate "a tap happened" (e.g. action.ts's date-field typing
+    // special-case) fire touchstart/touchend with no args; default to an empty touch instead of
+    // crashing on `args.changedTouches`.
+    const args = (opt_args ?? EMPTY_TOUCH_ARGS) as TouchArgs;
 
     // As a performance optimization, reuse the created touch list when the lists are the same,
     // which is often the case in practice.
