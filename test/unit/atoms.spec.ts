@@ -318,6 +318,14 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '0.25');
     });
 
+    it('type falls back to per-key handling for a number input when a special key breaks the fast path', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      // '\n' converts to a Key.ENTER object (see webdriver/element.ts), so `values` here is
+      // ['1', '2', Key.ENTER] — an array mixing strings and a Key, not a plain numeric string.
+      await runInjectAtom(window, 'type', [el, '12\n']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '12');
+    });
+
     it('type sets a date input without crashing on the touchstart/touchend simulation', async function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#dateinput']);
       await runInjectAtom(window, 'type', [el, '2024-01-31']);
