@@ -135,11 +135,15 @@ export function type(
 
   // A `number` input resets its value to '' on any intermediate assignment that isn't yet a
   // valid number (e.g. '0.'), so the per-character `.value +=` path below loses characters
-  // (appium/appium#18765). Assign the full string once instead, as with 'date' above.
+  // (appium/appium#18765). Assign the full string once instead, as with 'date' above. Replace
+  // rather than append to it: number inputs don't support the selection API, so there's no way
+  // to detect/target an existing selection, and Safari selects a number input's whole value when
+  // it gains focus — appending onto that leftover value instead of overwriting it produced e.g.
+  // "007" from a pre-filled "00" plus a typed "7" (appium/appium#16697).
   if ((element as HTMLInputElement).type === 'number') {
     const val = Array.isArray(values) ? values.join('') : values;
     if (typeof val === 'string' && val.length > 0 && /^[-+.\deE]*$/.test(val)) {
-      (element as HTMLInputElement).value += val;
+      (element as HTMLInputElement).value = val;
       fire(element, EventType.TEXTINPUT);
       fire(element, EventType.INPUT);
       return;

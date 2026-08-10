@@ -330,6 +330,13 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '1e-3');
     });
 
+    it('type replaces (rather than appends to) a number input that already has a value (#16697)', async function () {
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, '00']);
+      await runInjectAtom(window, 'type', [el, '7']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '7');
+    });
+
     it('type falls back to per-key handling for a number input when a special key breaks the fast path', async function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
       // '\n' converts to a Key.ENTER object (see webdriver/element.ts), so `values` here is
