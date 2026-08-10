@@ -133,6 +133,28 @@ export function type(
     }
   }
 
+  // A `number` input's value setter runs the HTML spec's value-sanitization algorithm on every
+  // assignment, silently resetting the value to '' whenever the string assigned isn't a valid
+  // floating-point number yet (e.g. '0.' after typing '0' then '.', before the rest of '0.25'
+  // completes it into a valid number). The generic per-character path below assigns through that
+  // setter (`.value +=`, in core/keyboard.ts's `updateOnCharacter`) on every keystroke, so it hits
+  // this mid-entry and silently drops characters (https://github.com/appium/appium/issues/18765).
+  // Real keystroke typing never hits this because the browser keeps the in-progress string in the
+  // input's own editing buffer rather than assigning through the sanitizing setter each time.
+  // Avoid it the same way as the 'date' case above: type the whole numeric string in a single
+  // assignment instead of one character at a time. Unlike the date case, this is genuine keyboard
+  // typing rather than a picker-tap interaction, so there's no touchstart/touchend/blur
+  // choreography to mimic, and the element is already focused by `kb.moveCursor()` above.
+  if ((element as HTMLInputElement).type === 'number') {
+    const val = Array.isArray(values) ? (values = values.join('')) : values;
+    if (typeof val === 'string' && /^[-+.\deE]*$/.test(val)) {
+      (element as HTMLInputElement).value += val;
+      fire(element, EventType.TEXTINPUT);
+      fire(element, EventType.INPUT);
+      return;
+    }
+  }
+
   if (Array.isArray(values)) {
     values.forEach(typeValue);
   } else {
