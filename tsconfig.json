@@ -9,5 +9,6 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext"
   },
-  "include": ["lib", "test"]
+  "include": ["lib", "test"],
+  "exclude": ["test/unit/atoms-src", "test/unit/helpers/atoms-module.ts"]
 }

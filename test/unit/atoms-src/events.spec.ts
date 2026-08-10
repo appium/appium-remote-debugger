@@ -12,9 +12,10 @@ import {importAtomsModule} from '../helpers/atoms-module.js';
 //
 // atoms/src references `document`/`TouchEvent` as ambient globals (never imports them), resolved
 // against whatever `installDomGlobals` (see ../helpers/atoms-module.ts) put on `globalThis` — so
-// these tests build fixtures from that same `globalThis.document`, not a separate `new
-// JSDOM(...)` instance, to stay in the same realm as the code under test. No `lib.dom` types are
-// available in this package's tsconfig (`types: ["node"]`), hence the `any` casts.
+// these tests build fixtures from that same global `document`, not a separate `new JSDOM(...)`
+// instance, to stay in the same realm as the code under test. `document`/`TouchEvent` type-check
+// here (unlike the rest of test/, which is plain Node) because this directory is carved out into
+// its own DOM-lib-enabled project — see tsconfig.atoms-tests.json.
 describe('atoms/src/core/events.ts', function () {
   function touchInfo(overrides: Partial<Record<string, number>> = {}) {
     return {
@@ -31,15 +32,14 @@ describe('atoms/src/core/events.ts', function () {
 
   it('fires a touchstart event without throwing, even when the legacy initTouchEvent method is also present', async function () {
     const {fire, EventType} = await importAtomsModule(['core', 'events.ts']);
-    const doc = (globalThis as any).document;
-    const TouchEventCtor = (globalThis as any).TouchEvent;
-    const el = doc.createElement('div');
-    doc.body.appendChild(el);
+    const el = document.createElement('div');
+    document.body.appendChild(el);
 
     // Simulates the iOS 26.5 environment: a WebKit build that still exposes the legacy method
     // alongside the standard constructor. If the fix regresses back to preferring this method,
-    // calling it here throws, which fails the test below.
-    TouchEventCtor.prototype.initTouchEvent = () => {
+    // calling it here throws, which fails the test below. `initTouchEvent` isn't part of
+    // lib.dom's `TouchEvent` type (it was never standardized), hence the cast.
+    (TouchEvent.prototype as unknown as {initTouchEvent: () => void}).initTouchEvent = () => {
       throw new Error('initTouchEvent should not be called: it requires a real TouchList, not a plain array');
     };
     try {
@@ -60,19 +60,18 @@ describe('atoms/src/core/events.ts', function () {
       });
       assert.strictEqual(result, true);
     } finally {
-      delete TouchEventCtor.prototype.initTouchEvent;
+      delete (TouchEvent.prototype as unknown as {initTouchEvent?: unknown}).initTouchEvent;
     }
   });
 
   it('dispatches a real TouchEvent whose touches/changedTouches carry the given coordinates', async function () {
     const {fire, EventType} = await importAtomsModule(['core', 'events.ts']);
-    const doc = (globalThis as any).document;
-    const el = doc.createElement('div');
-    doc.body.appendChild(el);
+    const el = document.createElement('div');
+    document.body.appendChild(el);
 
-    let seen: any = null;
-    el.addEventListener('touchstart', (e: unknown) => {
-      seen = e;
+    let seen: TouchEvent | null = null;
+    el.addEventListener('touchstart', (e) => {
+      seen = e as TouchEvent;
     });
 
     const touches = [touchInfo({clientX: 42, clientY: 99})];
@@ -92,9 +91,10 @@ describe('atoms/src/core/events.ts', function () {
     });
 
     assert.ok(seen);
-    assert.strictEqual(seen.touches.length, 1);
-    assert.strictEqual(seen.touches[0].clientX, 42);
-    assert.strictEqual(seen.touches[0].clientY, 99);
-    assert.strictEqual(seen.changedTouches.length, 1);
+    const event: TouchEvent = seen;
+    assert.strictEqual(event.touches.length, 1);
+    assert.strictEqual(event.touches[0].clientX, 42);
+    assert.strictEqual(event.touches[0].clientY, 99);
+    assert.strictEqual(event.changedTouches.length, 1);
   });
 });

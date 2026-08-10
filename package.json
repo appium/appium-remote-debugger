@@ -37,7 +37,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b tsconfig.atoms-tests.json",
     "typecheck:atoms": "tsc -p tsconfig.atoms.json",
     "clean": "npm run build -- --clean",
     "rebuild": "npm run clean; npm run build",

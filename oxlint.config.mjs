@@ -9,5 +9,11 @@ export default defineConfig({
       files: ['atoms/src/**'],
       env: {browser: true, node: false},
     },
+    {
+      // These tests reference DOM globals (document, TouchEvent, ...) installed onto globalThis
+      // by test/unit/helpers/atoms-module.ts, to run atoms/src code in the same realm it expects.
+      files: ['test/unit/atoms-src/**'],
+      env: {browser: true, node: true},
+    },
   ],
 });

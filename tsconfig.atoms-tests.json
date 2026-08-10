@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@appium/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build",
+    "rootDir": ".",
+    "types": ["node"],
+    "strict": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // Unlike the rest of test/ (plain Node, per the root tsconfig.json), these tests import
+    // atoms/src modules that run injected into a WebKit page and reference DOM globals (e.g.
+    // `document`, `TouchEvent`) directly, so this subset alone gets the DOM lib.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "references": [{"path": "./tsconfig.json"}],
+  "include": ["test/unit/atoms-src/**/*.ts", "test/unit/helpers/atoms-module.ts"]
+}
