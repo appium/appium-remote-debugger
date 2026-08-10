@@ -522,8 +522,7 @@ export class Keyboard extends Device {
     // If the endpoints are equal (e.g. cursor at the beginning/end of the input), the field won't
     // change.
     endpoints = selection.getEndPoints(this.getElement());
-    const value = (this.getElement() as HTMLInputElement).value;
-    const textChanged = !(endpoints[0] === value.length || endpoints[1] === 0);
+    const textChanged = !(endpoints[0] === selection.getLength(this.getElement()) || endpoints[1] === 0);
     selection.setText(this.getElement(), '');
 
     if (textChanged) {
@@ -566,7 +565,7 @@ export class Keyboard extends Device {
       if (this.isPressed(Keys.SHIFT)) {
         if (this.currentPos === end) {
           startPos = start;
-          endPos = Math.min(end + 1, (element as HTMLInputElement).value.length);
+          endPos = Math.min(end + 1, selection.getLength(element));
           newPos = endPos;
         } else {
           startPos = start + 1;
@@ -574,7 +573,7 @@ export class Keyboard extends Device {
           newPos = startPos;
         }
       } else {
-        newPos = start === end ? Math.min(end + 1, (element as HTMLInputElement).value.length) : end;
+        newPos = start === end ? Math.min(end + 1, selection.getLength(element)) : end;
       }
     }
 
@@ -605,7 +604,7 @@ export class Keyboard extends Device {
       this.updateCurrentPos(0);
     } else {
       // key === Keys.END
-      const length = (element as HTMLInputElement).value.length;
+      const length = selection.getLength(element);
       if (this.isPressed(Keys.SHIFT)) {
         if (this.currentPos === start) {
           // Current position is at the beginning of the selection. Typing end changes the
@@ -655,7 +654,7 @@ export class Keyboard extends Device {
 
     const focusChanged = this.focusOnElement();
     if (this.editable && focusChanged) {
-      const length = (element as HTMLInputElement).value.length;
+      const length = selection.getLength(element);
       selection.setCursorPosition(element, length);
       this.updateCurrentPos(length);
     }

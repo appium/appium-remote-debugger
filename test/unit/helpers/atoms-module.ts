@@ -35,6 +35,8 @@ const DOM_GLOBAL_NAMES = [
   'MouseEvent',
   'KeyboardEvent',
   'TouchEvent',
+  'InputEvent',
+  'NodeFilter',
   'DOMRect',
 ] as const;
 
