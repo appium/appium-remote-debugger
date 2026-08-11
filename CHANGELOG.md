@@ -1,3 +1,9 @@
+## [17.0.2](https://github.com/appium/appium-remote-debugger/compare/v17.0.1...v17.0.2) (2026-08-11)
+
+### Bug Fixes
+
+* Restore per-keystroke typing fidelity for number inputs ([#16697](https://github.com/appium/appium-remote-debugger/issues/16697)) ([#531](https://github.com/appium/appium-remote-debugger/issues/531)) ([4770ffa](https://github.com/appium/appium-remote-debugger/commit/4770ffa4e61023be9f90741a307154f5b5bf2203))
+
 ## [17.0.1](https://github.com/appium/appium-remote-debugger/compare/v17.0.0...v17.0.1) (2026-08-10)
 
 ### Bug Fixes
