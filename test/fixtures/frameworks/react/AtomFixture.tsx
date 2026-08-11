@@ -1,40 +1,36 @@
 import {useRef, useState} from 'react';
 
-// A single fixture component bundling several React-controlled DOM shapes atoms are exercised
-// against in test/unit/frameworks/react.spec.ts, mirroring how atoms.spec.ts's FIXTURE_HTML
-// bundles many plain-HTML element types into one page.
+// Bundles several React-controlled DOM shapes that atoms are exercised against in
+// test/unit/frameworks/react.spec.ts, mirroring atoms.spec.ts's FIXTURE_HTML.
 export default function AtomFixture() {
-  // Case 1: a controlled text input. The echo span is what lets a test prove React's own state
-  // (not just the DOM `.value` property) actually updated in response to a simulated keystroke.
+  // Case 1: controlled text input; the echo span proves React state (not just DOM `.value`) updated.
   const [name, setName] = useState('');
 
-  // Case 2: a controlled checkbox, echoed the same way.
+  // Case 2: controlled checkbox, echoed the same way.
   const [agreed, setAgreed] = useState(false);
 
-  // Case 3: two single-character controlled inputs where the first's onChange focuses the second
-  // once it has a character — the React-controlled analog of a masked/segmented input's
-  // auto-advance behavior (appium/appium#16697), driven by a React re-render/commit rather than a
-  // manually attached `addEventListener`.
+  // Case 3: auto-advance pair (appium/appium#16697), focus moved via a React re-render.
   const [otp0, setOtp0] = useState('');
   const [otp1, setOtp1] = useState('');
   const otp1Ref = useRef<HTMLInputElement>(null);
 
-  // Case 4: a controlled <select>. Unlike a controlled text input, selecting an option is driven
-  // by the browser's own native click default action on the <option> (not a JS-level `.value =`
-  // write), so it doesn't run into the same tracker-desync risk as typing.
+  // Case 4: controlled <select> — option selection is a native click, not a JS `.value =` write.
   const [fruit, setFruit] = useState('apple');
 
-  // Case 5: a controlled radio group, same reasoning as the <select> — native click toggles
-  // `.checked`, not a JS write.
+  // Case 5: controlled radio group, same native-click reasoning as the <select>.
   const [color, setColor] = useState<'red' | 'blue'>('red');
 
-  // Case 6: a controlled text input that starts genuinely non-empty — both the DOM value and
-  // React's state agree on 'prefilled' from the very first render, rather than relying on `type()`
-  // (Case 1) to have put a value there first. This is what makes a `clear()` test meaningful: the
-  // echo has something real to lose, instead of starting empty and vacuously "staying" empty
-  // regardless of whether `clear()` actually reached React — a property that should hold
-  // independently of whether `type()` itself is working correctly.
+  // Case 6: starts non-empty from the first render, so a `clear()` test has something real to lose.
   const [prefilled, setPrefilled] = useState('prefilled');
+
+  // Case 8: visibility driven by re-render; reuses Case 4's `fruit` state as the trigger.
+  const isConditionalShown = fruit !== 'apple';
+
+  // Case 9: a real inline style, for reading computed style off React-rendered DOM.
+  const styledColor = 'rgb(255, 0, 0)';
+
+  // Case 10: a form with onSubmit, to check the `submit` atom's dispatched event reaches it.
+  const [submitted, setSubmitted] = useState(false);
 
   return (
     <div>
@@ -97,8 +93,7 @@ export default function AtomFixture() {
       />
       <span id="react-radio-echo">{color}</span>
 
-      {/* Case 7: a button whose `disabled` attribute is driven by React state via an ordinary
-          prop/re-render (not a JS-level property write), reusing the checkbox's `agreed` state. */}
+      {/* Case 7: `disabled` driven by a re-render (not a JS write), reusing the checkbox's state. */}
       <button id="react-toggle-btn" type="button" disabled={!agreed}>
         Continue
       </button>
@@ -110,6 +105,25 @@ export default function AtomFixture() {
         onChange={(e) => setPrefilled(e.target.value)}
       />
       <span id="react-prefilled-echo">{prefilled}</span>
+
+      <span id="react-conditional" style={{display: isConditionalShown ? 'inline' : 'none'}}>
+        Now visible
+      </span>
+
+      <span id="react-styled" style={{color: styledColor}}>
+        Styled
+      </span>
+
+      <form
+        id="react-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSubmitted(true);
+        }}
+      >
+        <input id="react-form-input" type="text" defaultValue="x" />
+        <span id="react-form-echo">{submitted ? 'submitted' : 'not-submitted'}</span>
+      </form>
     </div>
   );
 }

@@ -5,25 +5,13 @@ import {importAtomsModule} from '../helpers/atoms-module.js';
 import {patchLayout} from '../helpers/layout.js';
 import {mountReactFixture} from '../helpers/react-fixture.js';
 
-// Atoms are otherwise only tested against raw hand-written HTML fixtures (atoms.spec.ts,
-// atoms-src/*.spec.ts). These tests instead exercise them against DOM rendered by a real React
-// component, covering `type`/`clear` (core/keyboard.ts, core/selection.ts, core/action.ts),
-// `click` (core/action.ts) against a checkbox, a <select>'s <option>, and a radio group,
-// `isSelected`/`getText` (webdriver/element.ts), `get` (webdriver/attribute.ts), and `isEnabled`
-// (core/dom.ts).
+// Unlike atoms.spec.ts/atoms-src/*.spec.ts's raw HTML fixtures, these exercise atoms against DOM
+// rendered by a real React component (type/clear/click/submit/locators/isEnabled/etc.). Storage
+// and frame/script-execution atoms are out of scope — they don't touch component-rendered DOM.
 //
-// This suite guards a real bug that used to exist here: React installs an instance-level override
-// on a controlled input's `value` setter at mount time, to keep its internal `_valueTracker` in
-// sync with every JS-level write, from any source. Writing `element.value = x` via *plain*
-// assignment (as opposed to going through the `value` setter found on the element's *prototype*,
-// bypassing any such instance-level override) resolves to that instance accessor, updating both
-// the DOM value and React's own tracker together — so a synthetic `input`/`change` event dispatched
-// afterwards looks like a no-op to React and its `onChange` never fires, even though the DOM value
-// genuinely changed. `setElementValue` (atoms/src/core/dom-core.ts), used by keyboard.ts,
-// selection.ts, and action.ts's `clear`/`type`, fixes this by always going through the prototype's
-// setter — matching how a real, physical keystroke works, since that never runs through any JS
-// setter at all. `click`-driven changes (toggling `.checked`, selecting an `<option>`) were never
-// affected: they go through the browser's own native default action, not a JS-level write.
+// Guards a real bug: React overrides a controlled input's `value` setter to track JS writes, so a
+// plain `element.value = x` looks like a no-op and `onChange` never fires. `setElementValue`
+// (atoms/src/core/dom-core.ts) fixes this by writing through the prototype's setter instead.
 describe('React DOM compatibility', function () {
   let unmount: (() => void) | undefined;
 
@@ -44,9 +32,7 @@ describe('React DOM compatibility', function () {
     type(input, 'hello');
 
     assert.strictEqual(input.value, 'hello');
-    // Regression guard for the `setElementValue` fix described above: without it, the DOM's
-    // `.value` would update here but React's `onChange` would never fire, so its state (and
-    // therefore this echo, which is rendered from that state) would never update either.
+    // Regression guard: without setElementValue, the DOM updates but onChange never fires.
     assert.strictEqual(echo.textContent, 'hello');
   });
 
@@ -56,10 +42,7 @@ describe('React DOM compatibility', function () {
     patchLayout();
 
     const {clear} = await importAtomsModule(['core', 'action.ts']);
-    // Starts genuinely pre-filled (both the DOM value and React's own state agree on 'prefilled'
-    // from the first render — see AtomFixture.tsx's Case 6 comment). Deliberately not built via
-    // `type()` first: since Case 1 may already leave React's state desynced from the DOM, layering
-    // `clear()` on top of that would give the echo assertion below nothing real to prove either way.
+    // Pre-filled from the first render (not via type(), which would confound this with Case 1).
     const input = container.querySelector('#react-prefilled-input') as HTMLInputElement;
     const echo = container.querySelector('#react-prefilled-echo') as HTMLSpanElement;
     assert.strictEqual(echo.textContent, 'prefilled');
@@ -67,8 +50,6 @@ describe('React DOM compatibility', function () {
     clear(input);
 
     assert.strictEqual(input.value, '');
-    // Same underlying fix as the `type` test above: `clear` (core/action.ts) also goes through
-    // `setElementValue` rather than writing `element.value = ''` directly.
     assert.strictEqual(echo.textContent, '');
   });
 
@@ -161,5 +142,127 @@ describe('React DOM compatibility', function () {
 
     assert.strictEqual(otp0.value, '1');
     assert.strictEqual(otp1.value, '2');
+  });
+
+  it('finds and matches elements by CSS locator against React-rendered DOM', async function () {
+    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
+    unmount = doUnmount;
+    patchLayout();
+
+    const {findElement, findElements} = await importAtomsModule(['core', 'locators', 'index.ts']);
+    const checkbox = container.querySelector('#react-checkbox');
+    const radios = container.querySelectorAll("input[name='react-color']");
+
+    assert.strictEqual(findElement({'css selector': '#react-checkbox'}, container), checkbox);
+    const found = findElements({'css selector': "input[name='react-color']"}, container);
+    assert.strictEqual(found.length, radios.length);
+    assert.strictEqual(found[0], radios[0]);
+    assert.strictEqual(found[1], radios[1]);
+  });
+
+  it('reports the focused React-rendered element as the active element', async function () {
+    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
+    unmount = doUnmount;
+    patchLayout();
+
+    const {activeElement} = await importAtomsModule(['core', 'frame.ts']);
+    const otp0 = container.querySelector('#react-otp-0') as HTMLInputElement;
+    otp0.focus();
+
+    assert.strictEqual(activeElement(), otp0);
+  });
+
+  it('sees an element React conditionally shows via a re-render, not a JS-level style write', async function () {
+    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
+    unmount = doUnmount;
+    patchLayout();
+
+    const {click} = await importAtomsModule(['core', 'action.ts']);
+    const {isShown} = await importAtomsModule(['core', 'dom.ts']);
+    const bananaOption = container.querySelector('#react-select option[value="banana"]') as HTMLOptionElement;
+    const conditional = container.querySelector('#react-conditional') as HTMLSpanElement;
+
+    assert.strictEqual(isShown(conditional), false);
+
+    click(bananaOption);
+
+    assert.strictEqual(isShown(conditional), true);
+  });
+
+  it('distinguishes editable/focusable/interactable React elements from a disabled one', async function () {
+    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
+    unmount = doUnmount;
+    patchLayout();
+
+    const {isEditable, isFocusable, isInteractable} = await importAtomsModule(['core', 'dom.ts']);
+    const input = container.querySelector('#react-text-input') as HTMLInputElement;
+    const disabledButton = container.querySelector('#react-toggle-btn') as HTMLButtonElement;
+
+    assert.strictEqual(isEditable(input), true);
+    assert.strictEqual(isFocusable(input), true);
+    assert.strictEqual(isInteractable(input), true);
+
+    assert.strictEqual(isEditable(disabledButton), false);
+    // isFocusable is tag-based, not enabled-state-based — that's isInteractable's job.
+    assert.strictEqual(isFocusable(disabledButton), true);
+    assert.strictEqual(isInteractable(disabledButton), false);
+  });
+
+  it("reads a React element's inline style via getEffectiveStyle", async function () {
+    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
+    unmount = doUnmount;
+    patchLayout();
+
+    const {getEffectiveStyle} = await importAtomsModule(['core', 'dom.ts']);
+    const styled = container.querySelector('#react-styled') as HTMLSpanElement;
+
+    // jsdom's getComputedStyle serializes a fully-opaque color in rgba() form.
+    assert.strictEqual(getEffectiveStyle(styled, 'color'), 'rgba(255, 0, 0, 1)');
+  });
+
+  it("reads a React element's size and location", async function () {
+    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
+    unmount = doUnmount;
+    patchLayout();
+
+    const {getSize} = await importAtomsModule(['core', 'action.ts']);
+    const {getLocationInView, getLocation} = await importAtomsModule(['webdriver', 'element.ts']);
+    const input = container.querySelector('#react-text-input') as HTMLInputElement;
+
+    // Values come from patchLayout()'s fixed box. Compared field-by-field, not with deepStrictEqual:
+    // these return Size/Coordinate/Rect instances, which deepStrictEqual treats a plain object as
+    // unequal to (it checks the prototype too).
+    const size = getSize(input);
+    assert.strictEqual(size.width, 100);
+    assert.strictEqual(size.height, 20);
+
+    const locationInView = getLocationInView(input);
+    assert.strictEqual(locationInView.x, 0);
+    assert.strictEqual(locationInView.y, 0);
+
+    // getLocation returns a Rect (left/top), unlike getLocationInView's Coordinate (x/y) above.
+    const location = getLocation(input);
+    assert.strictEqual(location?.left, 0);
+    assert.strictEqual(location?.top, 0);
+    assert.strictEqual(location?.width, 100);
+    assert.strictEqual(location?.height, 20);
+  });
+
+  it("submitting a React-rendered form fires the component's onSubmit handler", async function () {
+    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
+    unmount = doUnmount;
+    patchLayout();
+
+    const {submit} = await importAtomsModule(['core', 'action.ts']);
+    const formInput = container.querySelector('#react-form-input') as HTMLInputElement;
+    const echo = container.querySelector('#react-form-echo') as HTMLSpanElement;
+    assert.strictEqual(echo.textContent, 'not-submitted');
+
+    // Unlike click/change, React doesn't flush the resulting state update synchronously here, so
+    // wait a tick — same as a real WebDriver caller, which always has a round-trip between commands.
+    submit(formInput);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.strictEqual(echo.textContent, 'submitted');
   });
 });

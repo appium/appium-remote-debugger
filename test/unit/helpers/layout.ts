@@ -1,15 +1,9 @@
 type LayoutWindow = Pick<typeof globalThis, 'Element' | 'HTMLElement'> & {getComputedStyle: typeof getComputedStyle};
 
-// jsdom does not implement real CSS layout: every element reports a zero-size
-// getBoundingClientRect/offset*/scroll* regardless of its actual visibility, which makes the
-// atoms' visibility/interactability checks (bot.dom.isShown, getOverflowState, ...) treat every
-// element as clipped and not shown. Give elements a plausible fixed box (matching computed
-// display:none/visibility:hidden so genuinely hidden elements still report zero size) so the
-// atoms' real algorithms run their normal path instead of always hitting the "not shown" case.
-//
-// Defaults to the ambient `window` global installed by `installDomGlobals()`; pass a JSDOM
-// instance's own `window` explicitly when patching a separate jsdom realm (e.g. atoms.spec.ts,
-// which creates a fresh `JSDOM` per test rather than using the shared ambient globals).
+// jsdom reports zero-size layout for every element, which makes the atoms' visibility checks treat
+// everything as clipped/not-shown. Gives elements a plausible fixed box instead (still zero for
+// display:none/visibility:hidden). Defaults to the ambient `window`; pass one explicitly for a
+// separate jsdom realm (e.g. atoms.spec.ts's own per-test `JSDOM` instance).
 export function patchLayout(win: LayoutWindow = (globalThis as unknown as {window: LayoutWindow}).window): void {
   win.Element.prototype.getBoundingClientRect = function (this: Element) {
     const style = win.getComputedStyle(this);

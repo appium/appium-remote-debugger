@@ -14,18 +14,10 @@ export interface MountedReactFixture {
 }
 
 /**
- * Mounts a React fixture component (`test/fixtures/frameworks/**`) into a `<div>` appended to the
- * shared jsdom `document` installed by `installDomGlobals()`, and returns it along with an
- * `unmount()` to tear it back down.
- *
- * react, react-dom, and the fixture component are bundled together in a single esbuild pass, then
- * imported as one real ES module — rather than having this helper `import('react-dom/client')` as
- * an ordinary Node ESM import while the fixture is bundled separately. Doing the latter would give
- * `react-dom/client` and the fixture's `import 'react'` two independent copies of React's internal
- * module state (esbuild's bundle vs. Node's own module cache), which throws "Invalid hook call"
- * the moment the fixture calls a hook. `platform: 'browser'` (rather than atoms-module.ts's
- * `'neutral'`) is required here so esbuild resolves `react-dom/client`'s browser export condition;
- * `jsx: 'automatic'` lets the bundled `.tsx` fixture use JSX without a `React` import in scope.
+ * Mounts a React fixture component (`test/fixtures/frameworks/**`) into a `<div>` in the shared
+ * jsdom `document`, returning it plus an `unmount()`. React/react-dom/the fixture are bundled
+ * together in one esbuild pass so they share a single copy of React's module state — bundling them
+ * separately causes "Invalid hook call".
  */
 export async function mountReactFixture(fixturePath: string[]): Promise<MountedReactFixture> {
   installDomGlobals();
