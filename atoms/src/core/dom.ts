@@ -10,12 +10,17 @@ export {getAttribute, getProperty, isElement, isSelectable, isSelected};
 export const IS_SHADOW_DOM_ENABLED = typeof ShadowRoot === 'function';
 
 /**
- * Retrieves the active element for a node's owner document.
+ * Retrieves the active element for a node's owner document, piercing into any open shadow roots:
+ * `document.activeElement` alone only ever reports the shadow host, not the actual focused
+ * element inside it.
  */
 export function getActiveElement(nodeOrWindow: Node | Window): Element | null {
   const doc = 'document' in nodeOrWindow ? nodeOrWindow.document : getOwnerDocument(nodeOrWindow as Node);
   try {
-    const active = doc?.activeElement;
+    let active = doc?.activeElement;
+    while (active && IS_SHADOW_DOM_ENABLED && active.shadowRoot?.activeElement) {
+      active = active.shadowRoot.activeElement;
+    }
     return active && active.nodeName ? active : null;
   } catch {
     return null;

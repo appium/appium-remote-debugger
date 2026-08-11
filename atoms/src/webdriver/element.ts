@@ -110,7 +110,12 @@ interface SequenceRecord {
  * WebDriver JSON wire protocol to the appropriate `Key` value.
  * @see https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol
  */
-export function type(element: Element, keys: string[], keyboard?: Keyboard, persistModifiers?: boolean): void {
+export function type(
+  element: Element,
+  keys: string[] | string | number,
+  keyboard?: Keyboard,
+  persistModifiers?: boolean,
+): void {
   const persistModifierKeys = !!persistModifiers;
   function createSequenceRecord(): SequenceRecord {
     return {persist: persistModifierKeys, keys: []};
@@ -120,7 +125,14 @@ export function type(element: Element, keys: string[], keyboard?: Keyboard, pers
   let current = createSequenceRecord();
   convertedSequences.push(current);
 
-  for (const sequence of keys) {
+  // `keys` is normally a string or string[] built from the WebDriver wire protocol, but callers
+  // (e.g. xcuitest-driver's setValue/sendKeys, which accept a raw number) can also pass a bare
+  // number straight through. Numbers aren't iterable, so `for (const sequence of keys)` below
+  // would throw "keys is not iterable" instead of typing; stringify it first, same as a string
+  // input (each of its characters becomes its own single-character sequence, same as today).
+  const normalizedKeys = typeof keys === 'number' ? String(keys) : keys;
+
+  for (const sequence of normalizedKeys) {
     for (const key of sequence.split('')) {
       if (isWebDriverKey(key)) {
         const webdriverKey = JSON_TO_KEY_MAP.get(key);

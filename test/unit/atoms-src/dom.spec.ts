@@ -3,7 +3,7 @@ import {describe, it} from 'node:test';
 
 import {JSDOM} from 'jsdom';
 
-import {importAtomsModuleInternal} from '../helpers/atoms-module.js';
+import {importAtomsModule, importAtomsModuleInternal} from '../helpers/atoms-module.js';
 
 const NAMES = [
   'toCamelCase',
@@ -138,6 +138,37 @@ describe('atoms/src/core/dom.ts', function () {
       const nbsp = String.fromCharCode(0xa0);
       const result = await run('a  b', 'pre', null);
       assert.strictEqual(result, `a${nbsp}${nbsp}b`);
+    });
+  });
+
+  describe('getActiveElement (exported)', function () {
+    it('pierces into an open shadow root to find the actual focused element (appium/appium#16697)', async function () {
+      // document.activeElement alone only ever reports the shadow host, not the focused element
+      // inside it, which broke keyboard focus-tracking for custom elements like a masked input.
+      const {getActiveElement} = await importAtomsModule(['core', 'dom.ts']);
+      const {window} = new JSDOM('<div id="host"></div>');
+      const host = window.document.getElementById('host')!;
+      const shadowRoot = host.attachShadow({mode: 'open'});
+      const input = window.document.createElement('input');
+      shadowRoot.appendChild(input);
+      input.focus();
+
+      assert.strictEqual(window.document.activeElement, host);
+      assert.strictEqual(getActiveElement(window.document), input);
+    });
+
+    it('returns the top-level active element when there is no shadow root involved', async function () {
+      const {getActiveElement} = await importAtomsModule(['core', 'dom.ts']);
+      const {window} = new JSDOM('<input id="a"/>');
+      const el = window.document.getElementById('a')!;
+      el.focus();
+      assert.strictEqual(getActiveElement(window.document), el);
+    });
+
+    it('falls back to the document body when nothing is explicitly focused', async function () {
+      const {getActiveElement} = await importAtomsModule(['core', 'dom.ts']);
+      const {window} = new JSDOM('<body></body>');
+      assert.strictEqual(getActiveElement(window.document), window.document.body);
     });
   });
 });

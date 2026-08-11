@@ -1,5 +1,5 @@
 import {Device, Modifier, findAncestorForm, isFormSubmitElement, type ModifiersState} from './device.js';
-import {isEditable, isElement} from './dom.js';
+import {getActiveElement, isEditable, isElement} from './dom.js';
 import {BotError, ErrorCode} from './error.js';
 import * as events from './events.js';
 import {isMac} from './platform.js';
@@ -176,6 +176,115 @@ const KEY_CODE_TO_MODIFIER = new Map<number, Modifier>([
   [Keys.META.code as number, Modifier.META],
 ]);
 
+/** Standard `KeyboardEvent.code`/`.key` values for a `Key`. `key` is omitted for character keys — their `.key` is just the typed character, resolved dynamically via `getChar` since it depends on shift state. */
+interface DomKeyInfo {
+  code: string;
+  key?: string;
+}
+
+const KEY_TO_DOM_INFO = new Map<Key, DomKeyInfo>([
+  [Keys.BACKSPACE, {code: 'Backspace', key: 'Backspace'}],
+  [Keys.TAB, {code: 'Tab', key: 'Tab'}],
+  [Keys.ENTER, {code: 'Enter', key: 'Enter'}],
+  [Keys.SHIFT, {code: 'ShiftLeft', key: 'Shift'}],
+  [Keys.CONTROL, {code: 'ControlLeft', key: 'Control'}],
+  [Keys.ALT, {code: 'AltLeft', key: 'Alt'}],
+  [Keys.PAUSE, {code: 'Pause', key: 'Pause'}],
+  [Keys.CAPS_LOCK, {code: 'CapsLock', key: 'CapsLock'}],
+  [Keys.ESC, {code: 'Escape', key: 'Escape'}],
+  [Keys.SPACE, {code: 'Space'}],
+  [Keys.PAGE_UP, {code: 'PageUp', key: 'PageUp'}],
+  [Keys.PAGE_DOWN, {code: 'PageDown', key: 'PageDown'}],
+  [Keys.END, {code: 'End', key: 'End'}],
+  [Keys.HOME, {code: 'Home', key: 'Home'}],
+  [Keys.LEFT, {code: 'ArrowLeft', key: 'ArrowLeft'}],
+  [Keys.UP, {code: 'ArrowUp', key: 'ArrowUp'}],
+  [Keys.RIGHT, {code: 'ArrowRight', key: 'ArrowRight'}],
+  [Keys.DOWN, {code: 'ArrowDown', key: 'ArrowDown'}],
+  [Keys.PRINT_SCREEN, {code: 'PrintScreen', key: 'PrintScreen'}],
+  [Keys.INSERT, {code: 'Insert', key: 'Insert'}],
+  [Keys.DELETE, {code: 'Delete', key: 'Delete'}],
+  [Keys.ZERO, {code: 'Digit0'}],
+  [Keys.ONE, {code: 'Digit1'}],
+  [Keys.TWO, {code: 'Digit2'}],
+  [Keys.THREE, {code: 'Digit3'}],
+  [Keys.FOUR, {code: 'Digit4'}],
+  [Keys.FIVE, {code: 'Digit5'}],
+  [Keys.SIX, {code: 'Digit6'}],
+  [Keys.SEVEN, {code: 'Digit7'}],
+  [Keys.EIGHT, {code: 'Digit8'}],
+  [Keys.NINE, {code: 'Digit9'}],
+  [Keys.A, {code: 'KeyA'}],
+  [Keys.B, {code: 'KeyB'}],
+  [Keys.C, {code: 'KeyC'}],
+  [Keys.D, {code: 'KeyD'}],
+  [Keys.E, {code: 'KeyE'}],
+  [Keys.F, {code: 'KeyF'}],
+  [Keys.G, {code: 'KeyG'}],
+  [Keys.H, {code: 'KeyH'}],
+  [Keys.I, {code: 'KeyI'}],
+  [Keys.J, {code: 'KeyJ'}],
+  [Keys.K, {code: 'KeyK'}],
+  [Keys.L, {code: 'KeyL'}],
+  [Keys.M, {code: 'KeyM'}],
+  [Keys.N, {code: 'KeyN'}],
+  [Keys.O, {code: 'KeyO'}],
+  [Keys.P, {code: 'KeyP'}],
+  [Keys.Q, {code: 'KeyQ'}],
+  [Keys.R, {code: 'KeyR'}],
+  [Keys.S, {code: 'KeyS'}],
+  [Keys.T, {code: 'KeyT'}],
+  [Keys.U, {code: 'KeyU'}],
+  [Keys.V, {code: 'KeyV'}],
+  [Keys.W, {code: 'KeyW'}],
+  [Keys.X, {code: 'KeyX'}],
+  [Keys.Y, {code: 'KeyY'}],
+  [Keys.Z, {code: 'KeyZ'}],
+  [Keys.META, {code: 'MetaLeft', key: 'Meta'}],
+  [Keys.META_RIGHT, {code: 'MetaRight', key: 'Meta'}],
+  [Keys.CONTEXT_MENU, {code: 'ContextMenu', key: 'ContextMenu'}],
+  [Keys.NUM_ZERO, {code: 'Numpad0'}],
+  [Keys.NUM_ONE, {code: 'Numpad1'}],
+  [Keys.NUM_TWO, {code: 'Numpad2'}],
+  [Keys.NUM_THREE, {code: 'Numpad3'}],
+  [Keys.NUM_FOUR, {code: 'Numpad4'}],
+  [Keys.NUM_FIVE, {code: 'Numpad5'}],
+  [Keys.NUM_SIX, {code: 'Numpad6'}],
+  [Keys.NUM_SEVEN, {code: 'Numpad7'}],
+  [Keys.NUM_EIGHT, {code: 'Numpad8'}],
+  [Keys.NUM_NINE, {code: 'Numpad9'}],
+  [Keys.NUM_MULTIPLY, {code: 'NumpadMultiply'}],
+  [Keys.NUM_PLUS, {code: 'NumpadAdd'}],
+  [Keys.NUM_MINUS, {code: 'NumpadSubtract'}],
+  [Keys.NUM_PERIOD, {code: 'NumpadDecimal'}],
+  [Keys.NUM_DIVISION, {code: 'NumpadDivide'}],
+  [Keys.NUM_LOCK, {code: 'NumLock', key: 'NumLock'}],
+  [Keys.F1, {code: 'F1', key: 'F1'}],
+  [Keys.F2, {code: 'F2', key: 'F2'}],
+  [Keys.F3, {code: 'F3', key: 'F3'}],
+  [Keys.F4, {code: 'F4', key: 'F4'}],
+  [Keys.F5, {code: 'F5', key: 'F5'}],
+  [Keys.F6, {code: 'F6', key: 'F6'}],
+  [Keys.F7, {code: 'F7', key: 'F7'}],
+  [Keys.F8, {code: 'F8', key: 'F8'}],
+  [Keys.F9, {code: 'F9', key: 'F9'}],
+  [Keys.F10, {code: 'F10', key: 'F10'}],
+  [Keys.F11, {code: 'F11', key: 'F11'}],
+  [Keys.F12, {code: 'F12', key: 'F12'}],
+  [Keys.EQUALS, {code: 'Equal'}],
+  [Keys.SEPARATOR, {code: 'NumpadComma'}],
+  [Keys.HYPHEN, {code: 'Minus'}],
+  [Keys.COMMA, {code: 'Comma'}],
+  [Keys.PERIOD, {code: 'Period'}],
+  [Keys.SLASH, {code: 'Slash'}],
+  [Keys.BACKTICK, {code: 'Backquote'}],
+  [Keys.OPEN_BRACKET, {code: 'BracketLeft'}],
+  [Keys.BACKSLASH, {code: 'Backslash'}],
+  [Keys.CLOSE_BRACKET, {code: 'BracketRight'}],
+  [Keys.SEMICOLON, {code: 'Semicolon'}],
+  [Keys.APOSTROPHE, {code: 'Quote'}],
+]);
+
 /** The value used for newlines in this browser/OS combination. */
 const NEW_LINE = '\n';
 
@@ -236,12 +345,14 @@ export class Keyboard extends Device {
       throw new BotError(ErrorCode.UNKNOWN_ERROR, 'Cannot press a modifier key that is already pressed.');
     }
 
+    const followedFocus = this.followActiveElement();
+
     const performDefault = key.code !== null && this.fireKeyEventInternal(events.EventType.KEYDOWN, key);
     if (performDefault) {
       if (!this.requiresKeyPress(key) || this.fireKeyEventInternal(events.EventType.KEYPRESS, key, false)) {
         this.maybeSubmitForm(key);
         if (this.editable) {
-          this.maybeEditText(key);
+          this.maybeEditText(key, followedFocus);
         }
       }
     }
@@ -276,10 +387,13 @@ export class Keyboard extends Device {
     }
   }
 
-  /** Maybe edits text when a key is pressed in an editable form. */
-  private maybeEditText(key: Key): void {
+  /**
+   * Maybe edits text when a key is pressed in an editable form.
+   * @param replaceUnselectableValue See `updateOnCharacter`.
+   */
+  private maybeEditText(key: Key, replaceUnselectableValue: boolean): void {
     if (key.character) {
-      this.updateOnCharacter(key);
+      this.updateOnCharacter(key, replaceUnselectableValue);
     } else {
       switch (key) {
         case Keys.ENTER:
@@ -301,16 +415,41 @@ export class Keyboard extends Device {
     }
   }
 
-  /** Releases the given key. Releasing a key that is not pressed throws. */
+  /**
+   * Releases the given key. Releasing a key that is not pressed throws.
+   *
+   * Deliberately doesn't re-resolve the active element the way `pressKey` does: this key's keyup
+   * must target the same element its keydown just did, not wherever focus has moved to as a
+   * *result* of that keydown (e.g. a masked input's auto-advance) — the next `pressKey` picks that
+   * up for the following key instead.
+   */
   releaseKey(key: Key): void {
     if (!this.isPressed(key)) {
       throw new BotError(ErrorCode.UNKNOWN_ERROR, `Cannot release a key that is not pressed. (${key.code})`);
     }
+
     if (key.code !== null) {
       this.fireKeyEventInternal(events.EventType.KEYUP, key);
     }
 
     this.setKeyPressed(key, false);
+  }
+
+  /**
+   * Re-targets this keyboard at the currently focused element, mirroring how a physical keyboard
+   * always types wherever focus is — an app's own JS (e.g. a masked input's auto-advance) can move
+   * focus between keystrokes, which a fixed target element would miss (appium/appium#16697).
+   * @return Whether the target actually changed.
+   */
+  private followActiveElement(): boolean {
+    const active = getActiveElement(this.getElement());
+    if (!active || active === this.getElement()) {
+      return false;
+    }
+    this.setElement(active);
+    this.editable = isEditable(active);
+    this.updateCurrentPos(selection.supportsSelection(active) ? selection.getStart(active) : 0);
+    return true;
   }
 
   /** Given the current SHIFT/CAPS_LOCK state, returns the character typed by pressing `key`. */
@@ -322,14 +461,27 @@ export class Keyboard extends Device {
     return (shiftPressed ? key.shiftChar : key.character) as string;
   }
 
-  private updateOnCharacter(key: Key): void {
+  /**
+   * @param replaceUnselectableValue Whether to replace, rather than append to, an element whose
+   * value can't be checked for an existing selection (e.g. `type="number"`, where
+   * `selectionStart`/`End` throw). True only for the first character after `pressKey` just
+   * followed focus to a new element: there's no way to tell whether the app selected that
+   * element's content when it moved focus there — a common auto-advance pattern for
+   * masked/segmented inputs (appium/appium#16697) — so assume it did, matching how a real
+   * keystroke would replace a selection rather than append past it. The element the caller
+   * originally targeted must still append, per `sendKeys` semantics.
+   */
+  private updateOnCharacter(key: Key, replaceUnselectableValue: boolean): void {
     const character = this.getChar(key);
-    const newPos = selection.getStart(this.getElement()) + 1;
-    if (selection.supportsSelection(this.getElement())) {
-      selection.setText(this.getElement(), character);
-      selection.setStart(this.getElement(), newPos);
+    const element = this.getElement();
+    const newPos = selection.getStart(element) + 1;
+    if (selection.supportsSelection(element)) {
+      selection.setText(element, character);
+      selection.setStart(element, newPos);
+    } else if (replaceUnselectableValue) {
+      (element as HTMLInputElement).value = character;
     } else {
-      (this.getElement() as HTMLInputElement).value += character;
+      (element as HTMLInputElement).value += character;
     }
     this.fireHtmlEvent(events.EventType.TEXTINPUT);
     this.fireHtmlEvent(events.EventType.INPUT);
@@ -477,6 +629,7 @@ export class Keyboard extends Device {
       throw new BotError(ErrorCode.UNKNOWN_ERROR, 'Key must have a keycode to be fired.');
     }
 
+    const domInfo = KEY_TO_DOM_INFO.get(key);
     const args: events.KeyboardArgs = {
       altKey: this.isPressed(Keys.ALT),
       ctrlKey: this.isPressed(Keys.CONTROL),
@@ -484,6 +637,8 @@ export class Keyboard extends Device {
       shiftKey: this.isPressed(Keys.SHIFT),
       keyCode: key.code,
       charCode: key.character && type === events.EventType.KEYPRESS ? this.getChar(key).charCodeAt(0) : 0,
+      key: key.character ? this.getChar(key) : (domInfo?.key ?? 'Unidentified'),
+      code: domInfo?.code ?? '',
       preventDefault,
     };
 

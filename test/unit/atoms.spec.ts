@@ -303,6 +303,22 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '');
     });
 
+    it('type dispatches standard KeyboardEvent.key/.code values, not just legacy keyCode', async function () {
+      // Widgets that read the modern KeyboardEvent API (e.g. a masked/segmented input's own
+      // per-keystroke validation) see nothing usable from keyCode/charCode alone (appium/appium#16697).
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#textinput']);
+      window.eval(`
+        window.__seenKeys = [];
+        document.querySelector('#textinput').addEventListener('keydown', (e) => window.__seenKeys.push([e.key, e.code]));
+      `);
+      const backspace = String.fromCharCode(0xe003);
+      await runInjectAtom(window, 'type', [el, `7${backspace}`]);
+      assert.deepStrictEqual(crossRealmToLocal(window.eval('window.__seenKeys')), [
+        ['7', 'Digit7'],
+        ['Backspace', 'Backspace'],
+      ]);
+    });
+
     it('type resolves a WebDriver special key (Backspace) via the PUA Key map', async function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#textinput']);
       // WebDriver Key.BACK_SPACE (see webdriver/key.ts), built via fromCharCode to avoid embedding
@@ -328,6 +344,38 @@ describe('atoms (green path, jsdom, mobile Safari)', function () {
       const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
       await runInjectAtom(window, 'type', [el, '1e-3']);
       assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '1e-3');
+    });
+
+    it('type appends to a number input that already has a value, matching sendKeys semantics (#16697)', async function () {
+      // Same sequence reported in #16697 ("00" then "7"): appending, not replacing, is the
+      // spec-conformant `sendKeys` behavior here, since `sendKeys` never implies a prior clear.
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, '00']);
+      await runInjectAtom(window, 'type', [el, '7']);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '007');
+    });
+
+    it('type dispatches one keyup per character into a number input, not a single batched event (#16697)', async function () {
+      // A plain digit run never hits the #18765 intermediate-invalid-value problem, so it should
+      // stay on the per-character loop instead of the number fast path — custom number-input
+      // widgets (e.g. a masked/segmented duration input) rely on per-keystroke events like this.
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      window.eval(`
+        window.__keyupCount = 0;
+        document.querySelector('#numberinput').addEventListener('keyup', () => window.__keyupCount++);
+      `);
+      await runInjectAtom(window, 'type', [el, '777']);
+      assert.strictEqual(window.eval('window.__keyupCount'), 3);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '777');
+    });
+
+    it('type accepts a raw JS number for values, not just a string', async function () {
+      // xcuitest-driver's setValue()/sendKeys() accept a plain number and, under the default
+      // sendKeyStrategy, forward it to this atom unconverted (only the 'oneByOne' strategy and the
+      // native path stringify it first) — a bare number used to throw "keys is not iterable" here.
+      const el = await runInjectAtom(window, 'find_element_fragment', ['css selector', '#numberinput']);
+      await runInjectAtom(window, 'type', [el, 123]);
+      assert.strictEqual(await runInjectAtom(window, 'get_attribute_value', [el, 'value']), '123');
     });
 
     it('type falls back to per-key handling for a number input when a special key breaks the fast path', async function () {
