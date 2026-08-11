@@ -10,5 +10,11 @@
     "moduleResolution": "NodeNext"
   },
   "include": ["lib", "test"],
-  "exclude": ["test/unit/atoms-src", "test/unit/helpers/atoms-module.ts"]
+  "exclude": [
+    "test/unit/atoms-src",
+    "test/unit/helpers/atoms-module.ts",
+    "test/unit/helpers/react-fixture.ts",
+    "test/unit/frameworks",
+    "test/fixtures"
+  ]
 }

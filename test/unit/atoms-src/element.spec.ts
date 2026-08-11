@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 
 import {importAtomsModule, importAtomsModuleInternal} from '../helpers/atoms-module.js';
+import {patchLayout} from '../helpers/layout.js';
 
 // isWebDriverKey checks whether a character falls in the Unicode Private-Use-Area range this
 // codebase's `Key` map (webdriver/key.ts) actually uses. Built via String.fromCharCode rather
@@ -41,18 +42,6 @@ describe('atoms/src/webdriver/element.ts', function () {
   });
 
   describe('type (exported)', function () {
-    // jsdom reports every element as zero-size, which the atoms' visibility/interactability
-    // checks treat as clipped and not shown; give elements a plausible fixed box so `type()`'s
-    // interactability gate passes, same workaround as atoms.spec.ts's patchLayout.
-    function patchLayout(): void {
-      Element.prototype.getBoundingClientRect = function () {
-        return {x: 0, y: 0, top: 0, left: 0, right: 100, bottom: 20, width: 100, height: 20} as DOMRect;
-      };
-      for (const prop of ['clientWidth', 'clientHeight', 'offsetWidth', 'offsetHeight']) {
-        Object.defineProperty(HTMLElement.prototype, prop, {configurable: true, get: () => 100});
-      }
-    }
-
     // Minimal stand-in for a masked/segmented-input widget: field `a` moves focus to field `b`
     // once it decides `a` is "full", mimicking such a widget's own auto-advance JS.
     function buildTwoFieldShadowWidget(): {a: HTMLInputElement; b: HTMLInputElement} {
