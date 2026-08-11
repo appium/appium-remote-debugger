@@ -1,3 +1,9 @@
+## [17.0.3](https://github.com/appium/appium-remote-debugger/compare/v17.0.2...v17.0.3) (2026-08-11)
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @types/jsdom from 28.0.3 to 30.0.0 ([#532](https://github.com/appium/appium-remote-debugger/issues/532)) ([21c827a](https://github.com/appium/appium-remote-debugger/commit/21c827a8a54a98d07f515fa160fcb4876146504b))
+
 ## [17.0.2](https://github.com/appium/appium-remote-debugger/compare/v17.0.1...v17.0.2) (2026-08-11)
 
 ### Bug Fixes
