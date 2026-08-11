@@ -119,5 +119,30 @@ describe('atoms/src/core/selection.ts', function () {
 
       assert.strictEqual(div.textContent, 'abc');
     });
+
+    it('fires exactly one cancelable beforeinput and no native input event of its own', async function () {
+      const selection = await loadSelection();
+      const div = makeContentEditableDiv();
+      const events: string[] = [];
+      div.addEventListener('beforeinput', (e) => events.push(e.type));
+      div.addEventListener('input', (e) => events.push(e.type));
+
+      typeCharacter(selection, div, 'a');
+
+      // Only beforeinput — the caller (keyboard.ts) is solely responsible for firing `input`,
+      // avoiding the double `input` event execCommand('insertText') would have produced.
+      assert.deepStrictEqual(events, ['beforeinput']);
+    });
+
+    it('skips the edit when a beforeinput listener calls preventDefault()', async function () {
+      const selection = await loadSelection();
+      const div = makeContentEditableDiv('a');
+      selection.setCursorPosition(div, 1);
+      div.addEventListener('beforeinput', (e) => e.preventDefault());
+
+      selection.setText(div, 'b');
+
+      assert.strictEqual(div.textContent, 'a');
+    });
   });
 });

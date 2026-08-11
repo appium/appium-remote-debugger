@@ -138,15 +138,24 @@ function hasNativeSelectionSupport(el: Element): boolean {
   }
 }
 
-/** Replaces the current selection inside a content-editable element with `text`. */
+/**
+ * Replaces the current selection inside a content-editable element with `text`. Mutates the DOM
+ * manually rather than via `execCommand('insertText', ...)`, whose own native `input` event would
+ * double up with `Keyboard.updateOnCharacter()`'s unconditional `fireHtmlEvent(EventType.INPUT)`.
+ */
 function setContentEditableText(element: Element, text: string): void {
   const doc = element.ownerDocument;
   const [start, end] = getContentEditableOffsets(element);
   setContentEditableOffsets(element, start, end);
 
-  // execCommand is deprecated, but WebKit still supports it and it fires the `beforeinput`/`input`
-  // events editors such as Slate/ProseMirror expect, which a manual Range mutation would not.
-  if (typeof doc.execCommand === 'function' && doc.execCommand('insertText', false, text)) {
+  // Fire (and check) `beforeinput` before mutating, so a listener's preventDefault() can cancel it.
+  const beforeInput = new InputEvent('beforeinput', {
+    bubbles: true,
+    cancelable: true,
+    inputType: text.length > 0 ? 'insertText' : 'deleteContentBackward',
+    data: text.length > 0 ? text : null,
+  });
+  if (!element.dispatchEvent(beforeInput)) {
     return;
   }
 
@@ -159,15 +168,6 @@ function setContentEditableText(element: Element, text: string): void {
   if (text.length > 0) {
     range.insertNode(doc.createTextNode(text));
   }
-
-  element.dispatchEvent(
-    new InputEvent('beforeinput', {
-      bubbles: true,
-      cancelable: true,
-      inputType: text.length > 0 ? 'insertText' : 'deleteContentBackward',
-      data: text.length > 0 ? text : null,
-    }),
-  );
 
   const newOffset = start + text.length;
   setContentEditableOffsets(element, newOffset, newOffset);
