@@ -27,6 +27,33 @@ export function getProperty(element: Element, propertyName: string): unknown {
 }
 
 /**
+ * Sets an editable element's `value`, through the `value` setter found on its prototype rather
+ * than any instance-level override.
+ *
+ * Frameworks that implement "controlled" form inputs (React chief among them) install an
+ * instance-level `value` accessor at mount time that shadows the prototype's own setter, so it can
+ * keep an internal record of the value in sync with every JS-level write, from any source. A plain
+ * `element.value = x` therefore resolves to that instance accessor (own properties shadow
+ * prototype ones), which updates both the DOM value and the framework's own record together — so
+ * when the caller then dispatches a synthetic `input`/`change` event, the framework sees its record
+ * already matching the new DOM value and never fires the corresponding change handler. A real,
+ * physical keystroke never goes through any JS setter at all, so it never updates that record
+ * either, which is exactly why the framework treats the subsequent event as a genuine change.
+ * Calling the prototype's setter directly reproduces that: the DOM value updates, but the
+ * framework's own record is left stale, so it correctly detects — and reacts to — the change once
+ * the event fires.
+ */
+export function setElementValue(element: Element, value: string): void {
+  const instanceSetter = Object.getOwnPropertyDescriptor(element, 'value')?.set;
+  const prototypeSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(element), 'value')?.set;
+  if (prototypeSetter && prototypeSetter !== instanceSetter) {
+    prototypeSetter.call(element, value);
+  } else {
+    (element as unknown as {value: string}).value = value;
+  }
+}
+
+/**
  * Returns whether the given node is an element and, optionally, whether it
  * has the given tag name. If the tag name is not provided, returns true if
  * the node is an element, regardless of its tag name.

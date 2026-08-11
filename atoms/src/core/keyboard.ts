@@ -1,5 +1,5 @@
 import {Device, Modifier, findAncestorForm, isFormSubmitElement, type ModifiersState} from './device.js';
-import {getActiveElement, isEditable, isElement} from './dom.js';
+import {getActiveElement, isEditable, isElement, setElementValue} from './dom.js';
 import {BotError, ErrorCode} from './error.js';
 import * as events from './events.js';
 import {isMac} from './platform.js';
@@ -479,9 +479,9 @@ export class Keyboard extends Device {
       selection.setText(element, character);
       selection.setStart(element, newPos);
     } else if (replaceUnselectableValue) {
-      (element as HTMLInputElement).value = character;
+      setElementValue(element, character);
     } else {
-      (element as HTMLInputElement).value += character;
+      setElementValue(element, (element as HTMLInputElement).value + character);
     }
     this.fireHtmlEvent(events.EventType.TEXTINPUT);
     this.fireHtmlEvent(events.EventType.INPUT);
@@ -498,7 +498,7 @@ export class Keyboard extends Device {
         selection.setText(this.getElement(), NEW_LINE);
         selection.setStart(this.getElement(), newPos);
       } else {
-        (this.getElement() as HTMLTextAreaElement).value += NEW_LINE;
+        setElementValue(this.getElement(), (this.getElement() as HTMLTextAreaElement).value + NEW_LINE);
       }
       this.fireHtmlEvent(events.EventType.INPUT);
       this.updateCurrentPos(newPos);

@@ -1,10 +1,18 @@
 import {standardizeColor} from './color.js';
-import {getAttribute, getOwnerDocument, getProperty, isElement, isSelectable, isSelected} from './dom-core.js';
+import {
+  getAttribute,
+  getOwnerDocument,
+  getProperty,
+  isElement,
+  isSelectable,
+  isSelected,
+  setElementValue,
+} from './dom-core.js';
 import * as cssLocator from './locators/css.js';
 import {Coordinate, Rect, clamp} from './types.js';
 import type {Box} from './types.js';
 
-export {getAttribute, getProperty, isElement, isSelectable, isSelected};
+export {getAttribute, getProperty, isElement, isSelectable, isSelected, setElementValue};
 
 /** Whether Shadow DOM operations are supported by the browser. */
 export const IS_SHADOW_DOM_ENABLED = typeof ShadowRoot === 'function';
