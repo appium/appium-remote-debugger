@@ -49,7 +49,7 @@
     "prepare": "npm run build",
     "test": "node --test --enable-source-maps --test-force-exit --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
     "e2e-test": "node --test --enable-source-maps --test-force-exit --test-concurrency=1 --test-timeout=3600000 \"./build/test/functional/safari-e2e.spec.js\"",
-    "e2e-test:atoms": "node --test --enable-source-maps --test-force-exit --test-concurrency=1 --test-timeout=3600000 \"./build/test/functional/atoms-e2e.spec.js\"",
+    "e2e-test:atoms": "node --enable-source-maps scripts/run-e2e-atoms.mjs",
     "inspect-safari": "node scripts/web_inspector_proxy.mjs",
     "get-web-inspector-socket": "node scripts/get-web-inspector-socket.mjs",
     "build:atoms": "node scripts/build-atoms.mjs"
