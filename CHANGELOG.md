@@ -1,3 +1,9 @@
+## [17.0.4](https://github.com/appium/appium-remote-debugger/compare/v17.0.3...v17.0.4) (2026-08-11)
+
+### Bug Fixes
+
+* Recognize ShadowRoot instances when wrapping execute_script results ([#530](https://github.com/appium/appium-remote-debugger/issues/530)) ([f19b0be](https://github.com/appium/appium-remote-debugger/commit/f19b0bebf6b9e63df6feb78f697d6e36525ab05e))
+
 ## [17.0.3](https://github.com/appium/appium-remote-debugger/compare/v17.0.2...v17.0.3) (2026-08-11)
 
 ### Miscellaneous Chores
