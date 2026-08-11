@@ -1,4 +1,5 @@
 import {Device, findAncestorForm} from './device.js';
+import {getAncestor} from './dom-core.js';
 import {
   getClientRect,
   getClientRegion,
@@ -184,8 +185,23 @@ export function moveMouse(element: Element, coords?: Coordinate, mouse?: Mouse):
   m.move(element, c);
 }
 
-/** Clicks on the given `element` with a virtual mouse. */
+/**
+ * Clicks on the given `element` with a virtual mouse.
+ * @throws If the click would only take effect by opening a new top-level browsing context (e.g. a
+ * `target="_blank"` link): WebKit requires a genuine user gesture to do that, which this
+ * script-dispatched click cannot provide, so the browser would otherwise silently veto it — use
+ * the driver's native tap instead (e.g. Appium's `nativeWebTap` capability/setting) for this
+ * element.
+ */
 export function click(element: Element, coords?: Coordinate, mouse?: Mouse, force?: boolean): void {
+  if (opensNewBrowsingContext(element)) {
+    throw new BotError(
+      ErrorCode.INVALID_ELEMENT_STATE,
+      'Element opens a new browsing context (e.g. target="_blank"), which requires a real user ' +
+        'gesture to do so and cannot be clicked via script; use a native tap instead',
+    );
+  }
+
   const c = prepareToInteractWith(element, coords);
   const m = mouse || new Mouse();
   m.move(element, c);
@@ -446,6 +462,31 @@ function checkInteractable(element: Element): void {
       'Element is not currently interactable and may not be manipulated',
     );
   }
+}
+
+/**
+ * Whether clicking `element` would need the browser to open a *new* top-level browsing context
+ * (e.g. an `<a target="_blank">` link), rather than navigating an existing one in place.
+ *
+ * A `target` naming a frame/window that already exists just navigates it, which needs no special
+ * permission; only a name with no existing match opens a brand new context, which WebKit gates
+ * behind a real user gesture (appium/appium-xcuitest-driver#2536 — an atoms click is dispatched
+ * via script, so it can never carry one, and WebKit then silently drops the navigation instead of
+ * raising any script-visible error).
+ */
+function opensNewBrowsingContext(element: Node): boolean {
+  const anchor = getAncestor(element, (node) => isElement(node, 'A'), true) as HTMLAnchorElement | null;
+  if (!anchor?.getAttribute('href')) {
+    return false;
+  }
+
+  const target = anchor.target;
+  if (!target || target === '_self' || target === '_parent' || target === '_top') {
+    return false;
+  }
+
+  const win = anchor.ownerDocument.defaultView;
+  return !win || !(target in win);
 }
 
 // A Device used only to reach Device's public focus/submit/find-ancestor-form behavior. A
