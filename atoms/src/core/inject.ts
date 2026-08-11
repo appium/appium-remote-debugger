@@ -54,9 +54,16 @@ export function wrapValue(value: unknown): unknown {
       throw new BotError(ErrorCode.JAVASCRIPT_ERROR, 'Recursive object cannot be transferred');
     }
 
-    // Sniff out DOM elements/documents via duck-typing rather than instanceof, since instanceof
-    // may not always work (e.g. a value from another window/realm).
-    if ('nodeType' in obj && (obj.nodeType === Node.ELEMENT_NODE || obj.nodeType === Node.DOCUMENT_NODE)) {
+    // Sniff out DOM elements/documents/shadow roots via duck-typing rather than instanceof, since
+    // instanceof may not always work (e.g. a value from another window/realm). A ShadowRoot has a
+    // `host` back-reference to its host element, so without this it would fall through to
+    // plain-object serialization below and recurse forever via `host.shadowRoot === obj`.
+    if (
+      'nodeType' in obj &&
+      (obj.nodeType === Node.ELEMENT_NODE ||
+        obj.nodeType === Node.DOCUMENT_NODE ||
+        (obj.nodeType === Node.DOCUMENT_FRAGMENT_NODE && 'host' in obj))
+    ) {
       const elementKey = addElement(obj as unknown as Element);
       return {[ELEMENT_KEY]: elementKey, [W3C_ELEMENT_KEY]: elementKey};
     }
