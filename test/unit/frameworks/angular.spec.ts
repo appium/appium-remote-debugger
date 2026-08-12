@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {afterEach, describe, it} from 'node:test';
+import {afterEach, beforeEach, describe, it} from 'node:test';
 
 import {mountAngularFixture} from '../helpers/angular-fixture.js';
 import {importAtomsModule} from '../helpers/atoms-module.js';
@@ -15,18 +15,20 @@ import {patchLayout} from '../helpers/layout.js';
 // atom interaction it's checking, standing in for the round trip a real WebDriver client always
 // has between commands.
 describe('Angular DOM compatibility', function () {
-  let unmount: (() => void) | undefined;
+  let container: HTMLElement;
+  let tick: () => void;
+  let unmount: () => void;
+
+  beforeEach(async function () {
+    ({container, tick, unmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']));
+    patchLayout();
+  });
 
   afterEach(function () {
-    unmount?.();
-    unmount = undefined;
+    unmount();
   });
 
   it('typing into a bound text input updates Angular state, not just the DOM value', async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {type} = await importAtomsModule(['webdriver', 'element.ts']);
     const input = container.querySelector('#ng-text-input') as HTMLInputElement;
     const echo = container.querySelector('#ng-text-echo') as HTMLSpanElement;
@@ -39,10 +41,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('clearing a bound text input updates Angular state, not just the DOM value', async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {clear} = await importAtomsModule(['core', 'action.ts']);
     // Pre-filled from the first render (not via type(), which would confound this with the case above).
     const input = container.querySelector('#ng-prefilled-input') as HTMLInputElement;
@@ -57,10 +55,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('clicking a bound checkbox updates Angular state, not just the DOM checked property', async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isSelected, getText} = await importAtomsModule(['webdriver', 'element.ts']);
     const checkbox = container.querySelector('#ng-checkbox') as HTMLInputElement;
@@ -75,10 +69,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it("a re-render toggles a button's disabled state, and isEnabled/get(disabled) see it", async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isEnabled} = await importAtomsModule(['core', 'dom.ts']);
     const {get} = await importAtomsModule(['webdriver', 'attribute.ts']);
@@ -96,10 +86,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it("clicking an <option> updates a bound <select>'s Angular state", async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {getText} = await importAtomsModule(['webdriver', 'element.ts']);
     const select = container.querySelector('#ng-select') as HTMLSelectElement;
@@ -114,10 +100,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('clicking a radio button updates its bound Angular group state', async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isSelected} = await importAtomsModule(['webdriver', 'element.ts']);
     const red = container.querySelector('#ng-radio-red') as HTMLInputElement;
@@ -136,10 +118,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('follows focus into a field moved to mid-typing via a ViewChild ref (appium/appium#16697)', async function () {
-    const {container, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {type} = await importAtomsModule(['webdriver', 'element.ts']);
     const otp0 = container.querySelector('#ng-otp-0') as HTMLInputElement;
     const otp1 = container.querySelector('#ng-otp-1') as HTMLInputElement;
@@ -154,10 +132,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('finds and matches elements by CSS locator against Angular-rendered DOM', async function () {
-    const {container, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {findElement, findElements} = await importAtomsModule(['core', 'locators', 'index.ts']);
     const checkbox = container.querySelector('#ng-checkbox');
     const radios = container.querySelectorAll("input[name='ng-color']");
@@ -170,10 +144,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('reports the focused Angular-rendered element as the active element', async function () {
-    const {container, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {activeElement} = await importAtomsModule(['core', 'frame.ts']);
     const otp0 = container.querySelector('#ng-otp-0') as HTMLInputElement;
     otp0.focus();
@@ -182,10 +152,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('sees an element Angular conditionally shows via a re-render, not a JS-level style write', async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isShown} = await importAtomsModule(['core', 'dom.ts']);
     const bananaOption = container.querySelector('#ng-select option[value="banana"]') as HTMLOptionElement;
@@ -200,10 +166,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('distinguishes editable/focusable/interactable Angular elements from a disabled one', async function () {
-    const {container, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {isEditable, isFocusable, isInteractable} = await importAtomsModule(['core', 'dom.ts']);
     const input = container.querySelector('#ng-text-input') as HTMLInputElement;
     const disabledButton = container.querySelector('#ng-toggle-btn') as HTMLButtonElement;
@@ -219,10 +181,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it("reads an Angular element's inline style via getEffectiveStyle", async function () {
-    const {container, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {getEffectiveStyle} = await importAtomsModule(['core', 'dom.ts']);
     const styled = container.querySelector('#ng-styled') as HTMLSpanElement;
 
@@ -231,10 +189,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it("reads an Angular element's size and location", async function () {
-    const {container, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {getSize} = await importAtomsModule(['core', 'action.ts']);
     const {getLocationInView, getLocation} = await importAtomsModule(['webdriver', 'element.ts']);
     const input = container.querySelector('#ng-text-input') as HTMLInputElement;
@@ -259,10 +213,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it("submitting an Angular-rendered form fires the component's (submit) handler", async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {submit} = await importAtomsModule(['core', 'action.ts']);
     const formInput = container.querySelector('#ng-form-input') as HTMLInputElement;
     const echo = container.querySelector('#ng-form-echo') as HTMLSpanElement;
@@ -275,10 +225,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('finds an element that an `@if` block just inserted, and loses it once the block removes it', async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {getText} = await importAtomsModule(['webdriver', 'element.ts']);
     const {findElement} = await importAtomsModule(['core', 'locators', 'index.ts']);
@@ -301,10 +247,6 @@ describe('Angular DOM compatibility', function () {
   });
 
   it('finds elements an `@for` block adds to a live list after a signal update', async function () {
-    const {container, tick, unmount: doUnmount} = await mountAngularFixture(['angular', 'AtomFixture.ts']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {findElements} = await importAtomsModule(['core', 'locators', 'index.ts']);
     const {getText} = await importAtomsModule(['webdriver', 'element.ts']);
