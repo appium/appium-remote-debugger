@@ -1,3 +1,9 @@
+## [17.0.5](https://github.com/appium/appium-remote-debugger/compare/v17.0.4...v17.0.5) (2026-08-12)
+
+### Bug Fixes
+
+* Support typing into contenteditable elements in the type atom ([#529](https://github.com/appium/appium-remote-debugger/issues/529)) ([da022b3](https://github.com/appium/appium-remote-debugger/commit/da022b35cb57f64072ff5b4881e7fde9cf4129b5))
+
 ## [17.0.4](https://github.com/appium/appium-remote-debugger/compare/v17.0.3...v17.0.4) (2026-08-11)
 
 ### Bug Fixes
