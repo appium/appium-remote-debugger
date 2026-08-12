@@ -1,3 +1,9 @@
+## [17.0.6](https://github.com/appium/appium-remote-debugger/compare/v17.0.5...v17.0.6) (2026-08-12)
+
+### Miscellaneous Chores
+
+* exercise atoms against React-rendered DOM, not just static HTML fixtures ([#535](https://github.com/appium/appium-remote-debugger/issues/535)) ([9f9a33a](https://github.com/appium/appium-remote-debugger/commit/9f9a33afb3f62f5f1f6b4d945f9f91153ce5c4ba))
+
 ## [17.0.5](https://github.com/appium/appium-remote-debugger/compare/v17.0.4...v17.0.5) (2026-08-12)
 
 ### Bug Fixes
