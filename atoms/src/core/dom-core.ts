@@ -27,6 +27,21 @@ export function getProperty(element: Element, propertyName: string): unknown {
 }
 
 /**
+ * Sets an editable element's `value` via the prototype's setter, bypassing any instance-level
+ * override. Frameworks like React install such an override to track JS-level writes; a plain
+ * `element.value = x` would update their internal record too, so their change handler never fires.
+ */
+export function setElementValue(element: Element, value: string): void {
+  const instanceSetter = Object.getOwnPropertyDescriptor(element, 'value')?.set;
+  const prototypeSetter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(element), 'value')?.set;
+  if (prototypeSetter && prototypeSetter !== instanceSetter) {
+    prototypeSetter.call(element, value);
+  } else {
+    (element as unknown as {value: string}).value = value;
+  }
+}
+
+/**
  * Returns whether the given node is an element and, optionally, whether it
  * has the given tag name. If the tag name is not provided, returns true if
  * the node is an element, regardless of its tag name.

@@ -15,5 +15,16 @@ export default defineConfig({
       files: ['test/unit/atoms-src/**'],
       env: {browser: true, node: true},
     },
+    {
+      // Reference DOM globals (document, getComputedStyle, ...) the same way, either directly or
+      // via JSX/React markup that only makes sense in a browser-like environment.
+      files: [
+        'test/unit/helpers/layout.ts',
+        'test/unit/helpers/react-fixture.ts',
+        'test/unit/frameworks/**',
+        'test/fixtures/frameworks/**',
+      ],
+      env: {browser: true, node: true},
+    },
   ],
 });

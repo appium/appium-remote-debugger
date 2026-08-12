@@ -28,4 +28,5 @@ jobs:
     - run: sfw npm install
     - run: npm run lint
     - run: npm run format:check
+    - run: npm run typecheck:fixtures
     - run: npm run test

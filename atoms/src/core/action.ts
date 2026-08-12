@@ -11,6 +11,7 @@ import {
   isInteractable,
   isShown,
   OverflowState,
+  setElementValue,
 } from './dom.js';
 import {BotError, ErrorCode} from './error.js';
 import {fire, EventType} from './events.js';
@@ -33,7 +34,7 @@ export function clear(element: Element): void {
   const el = element as HTMLInputElement;
   if (el.value) {
     legacyFocusOnElement(element);
-    el.value = '';
+    setElementValue(element, '');
     fire(element, EventType.CHANGE);
     const body = document.body;
     if (body) {
@@ -45,7 +46,7 @@ export function clear(element: Element): void {
     // Number input fields with invalid input report their value as an empty string with no way to
     // tell whether there is a current value.
     legacyFocusOnElement(element);
-    el.value = '';
+    setElementValue(element, '');
   } else if (isContentEditable(element)) {
     legacyFocusOnElement(element);
     element.textContent = '';
@@ -126,7 +127,7 @@ export function type(
       fire(element, EventType.TOUCHSTART);
       fire(element, EventType.TOUCHEND);
       fire(element, EventType.FOCUS);
-      (element as HTMLInputElement).value = match[0];
+      setElementValue(element, match[0]);
       fire(element, EventType.CHANGE);
       fire(element, EventType.BLUR);
       return;
@@ -142,7 +143,7 @@ export function type(
   if ((element as HTMLInputElement).type === 'number') {
     const val = Array.isArray(values) ? values.join('') : values;
     if (typeof val === 'string' && val.length > 0 && /^[-+.\deE]*$/.test(val) && /[-+.eE]/.test(val)) {
-      (element as HTMLInputElement).value += val;
+      setElementValue(element, (element as HTMLInputElement).value + val);
       fire(element, EventType.TEXTINPUT);
       fire(element, EventType.INPUT);
       return;

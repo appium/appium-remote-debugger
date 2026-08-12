@@ -14,5 +14,11 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "references": [{"path": "./tsconfig.json"}],
-  "include": ["test/unit/atoms-src/**/*.ts", "test/unit/helpers/atoms-module.ts"]
+  "include": [
+    "test/unit/atoms-src/**/*.ts",
+    "test/unit/helpers/atoms-module.ts",
+    "test/unit/helpers/react-fixture.ts",
+    "test/unit/helpers/layout.ts",
+    "test/unit/frameworks/**/*.ts"
+  ]
 }

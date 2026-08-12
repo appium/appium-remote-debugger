@@ -6,7 +6,7 @@
  * `window.getSelection()`/`Range`.
  */
 
-import {isContentEditable} from './dom.js';
+import {isContentEditable, setElementValue} from './dom.js';
 
 type TextField = HTMLInputElement | HTMLTextAreaElement;
 
@@ -95,7 +95,7 @@ export function setText(textfield: Element, text: string): void {
   const oldSelectionStart = el.selectionStart as number;
   const before = value.slice(0, oldSelectionStart);
   const after = value.slice(el.selectionEnd as number);
-  el.value = before + text + after;
+  setElementValue(el, before + text + after);
   el.selectionStart = oldSelectionStart;
   el.selectionEnd = oldSelectionStart + text.length;
 }
