@@ -2,6 +2,8 @@ name: Verify Atoms
 
 on:
   push:
+    # already enforced as a release gate in publish.js.yml
+    branches-ignore: [ master ]
     paths:
     - 'atoms/**'
     - 'scripts/build-atoms.mjs'
@@ -41,8 +43,6 @@ jobs:
         fi
 
   e2e:
-    # e2e tests must never run on master
-    if: github.ref != 'refs/heads/master'
     strategy:
       matrix:
         include:
