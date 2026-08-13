@@ -38,8 +38,8 @@ export function clear(element: Element): void {
     // A real user clearing a field (e.g. select-all + delete) fires 'input' as the value changes,
     // then 'change' once the field loses focus. Frameworks bound to 'input' for live updates (most
     // of them — React is unusual in also treating 'change' as an input-changed signal) never see
-    // the clear without it.
-    fire(element, EventType.TEXTINPUT);
+    // the clear without it. Deliberately no 'textInput': per the UI Events spec it's fired only for
+    // insertion, not deletion — same reasoning updateOnBackspaceOrDelete() in keyboard.ts follows.
     fire(element, EventType.INPUT);
     fire(element, EventType.CHANGE);
     const body = document.body;
