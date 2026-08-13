@@ -1,12 +1,6 @@
 name: Verify Atoms
 
 on:
-  push:
-    paths:
-    - 'atoms/**'
-    - 'scripts/build-atoms.mjs'
-    - 'tsconfig.atoms.json'
-    - 'package.json'
   pull_request:
     paths:
     - 'atoms/**'
