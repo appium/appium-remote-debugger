@@ -1,14 +1,6 @@
 name: Verify Atoms
 
 on:
-  push:
-    # already enforced as a release gate in publish.js.yml
-    branches-ignore: [ master ]
-    paths:
-    - 'atoms/**'
-    - 'scripts/build-atoms.mjs'
-    - 'tsconfig.atoms.json'
-    - 'package.json'
   pull_request:
     paths:
     - 'atoms/**'
