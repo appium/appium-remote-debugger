@@ -7,9 +7,12 @@
     "module": "ES2022",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
+    // Angular's AtomFixture uses legacy (experimental) decorators, its own compiler's expected mode.
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "types": ["react", "react-dom"]
   },
-  "include": ["test/fixtures/frameworks/**/*.tsx"]
+  "include": ["test/fixtures/frameworks/**/*.tsx", "test/fixtures/frameworks/**/*.ts"]
 }

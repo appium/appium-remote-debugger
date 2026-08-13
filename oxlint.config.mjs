@@ -21,6 +21,7 @@ export default defineConfig({
       files: [
         'test/unit/helpers/layout.ts',
         'test/unit/helpers/react-fixture.ts',
+        'test/unit/helpers/angular-fixture.ts',
         'test/unit/frameworks/**',
         'test/fixtures/frameworks/**',
       ],

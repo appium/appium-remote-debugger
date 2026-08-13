@@ -18,6 +18,7 @@
     "test/unit/atoms-src/**/*.ts",
     "test/unit/helpers/atoms-module.ts",
     "test/unit/helpers/react-fixture.ts",
+    "test/unit/helpers/angular-fixture.ts",
     "test/unit/helpers/layout.ts",
     "test/unit/frameworks/**/*.ts"
   ]

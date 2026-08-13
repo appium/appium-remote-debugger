@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {afterEach, describe, it} from 'node:test';
+import {afterEach, beforeEach, describe, it} from 'node:test';
 
 import {importAtomsModule} from '../helpers/atoms-module.js';
 import {patchLayout} from '../helpers/layout.js';
@@ -13,18 +13,19 @@ import {mountReactFixture} from '../helpers/react-fixture.js';
 // plain `element.value = x` looks like a no-op and `onChange` never fires. `setElementValue`
 // (atoms/src/core/dom-core.ts) fixes this by writing through the prototype's setter instead.
 describe('React DOM compatibility', function () {
-  let unmount: (() => void) | undefined;
+  let container: HTMLElement;
+  let unmount: () => void;
+
+  beforeEach(async function () {
+    ({container, unmount} = await mountReactFixture(['react', 'AtomFixture.tsx']));
+    patchLayout();
+  });
 
   afterEach(function () {
-    unmount?.();
-    unmount = undefined;
+    unmount();
   });
 
   it('typing into a controlled text input updates React state, not just the DOM value', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {type} = await importAtomsModule(['webdriver', 'element.ts']);
     const input = container.querySelector('#react-text-input') as HTMLInputElement;
     const echo = container.querySelector('#react-text-echo') as HTMLSpanElement;
@@ -37,10 +38,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('clearing a controlled text input updates React state, not just the DOM value', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {clear} = await importAtomsModule(['core', 'action.ts']);
     // Pre-filled from the first render (not via type(), which would confound this with Case 1).
     const input = container.querySelector('#react-prefilled-input') as HTMLInputElement;
@@ -54,10 +51,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('clicking a controlled checkbox updates React state, not just the DOM checked property', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isSelected, getText} = await importAtomsModule(['webdriver', 'element.ts']);
     const checkbox = container.querySelector('#react-checkbox') as HTMLInputElement;
@@ -71,10 +64,6 @@ describe('React DOM compatibility', function () {
   });
 
   it("a React re-render toggles a button's disabled state, and isEnabled/get(disabled) see it", async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isEnabled} = await importAtomsModule(['core', 'dom.ts']);
     const {get} = await importAtomsModule(['webdriver', 'attribute.ts']);
@@ -91,10 +80,6 @@ describe('React DOM compatibility', function () {
   });
 
   it("clicking an <option> updates a controlled <select>'s React state", async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {getText} = await importAtomsModule(['webdriver', 'element.ts']);
     const select = container.querySelector('#react-select') as HTMLSelectElement;
@@ -108,10 +93,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('clicking a radio button updates its controlled React group state', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isSelected} = await importAtomsModule(['webdriver', 'element.ts']);
     const red = container.querySelector('#react-radio-red') as HTMLInputElement;
@@ -129,10 +110,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('follows focus into a field a React re-render moves it to mid-typing (appium/appium#16697)', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {type} = await importAtomsModule(['webdriver', 'element.ts']);
     const otp0 = container.querySelector('#react-otp-0') as HTMLInputElement;
     const otp1 = container.querySelector('#react-otp-1') as HTMLInputElement;
@@ -145,10 +122,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('finds and matches elements by CSS locator against React-rendered DOM', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {findElement, findElements} = await importAtomsModule(['core', 'locators', 'index.ts']);
     const checkbox = container.querySelector('#react-checkbox');
     const radios = container.querySelectorAll("input[name='react-color']");
@@ -161,10 +134,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('reports the focused React-rendered element as the active element', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {activeElement} = await importAtomsModule(['core', 'frame.ts']);
     const otp0 = container.querySelector('#react-otp-0') as HTMLInputElement;
     otp0.focus();
@@ -173,10 +142,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('sees an element React conditionally shows via a re-render, not a JS-level style write', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {click} = await importAtomsModule(['core', 'action.ts']);
     const {isShown} = await importAtomsModule(['core', 'dom.ts']);
     const bananaOption = container.querySelector('#react-select option[value="banana"]') as HTMLOptionElement;
@@ -190,10 +155,6 @@ describe('React DOM compatibility', function () {
   });
 
   it('distinguishes editable/focusable/interactable React elements from a disabled one', async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {isEditable, isFocusable, isInteractable} = await importAtomsModule(['core', 'dom.ts']);
     const input = container.querySelector('#react-text-input') as HTMLInputElement;
     const disabledButton = container.querySelector('#react-toggle-btn') as HTMLButtonElement;
@@ -209,10 +170,6 @@ describe('React DOM compatibility', function () {
   });
 
   it("reads a React element's inline style via getEffectiveStyle", async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {getEffectiveStyle} = await importAtomsModule(['core', 'dom.ts']);
     const styled = container.querySelector('#react-styled') as HTMLSpanElement;
 
@@ -221,10 +178,6 @@ describe('React DOM compatibility', function () {
   });
 
   it("reads a React element's size and location", async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {getSize} = await importAtomsModule(['core', 'action.ts']);
     const {getLocationInView, getLocation} = await importAtomsModule(['webdriver', 'element.ts']);
     const input = container.querySelector('#react-text-input') as HTMLInputElement;
@@ -249,10 +202,6 @@ describe('React DOM compatibility', function () {
   });
 
   it("submitting a React-rendered form fires the component's onSubmit handler", async function () {
-    const {container, unmount: doUnmount} = await mountReactFixture(['react', 'AtomFixture.tsx']);
-    unmount = doUnmount;
-    patchLayout();
-
     const {submit} = await importAtomsModule(['core', 'action.ts']);
     const formInput = container.querySelector('#react-form-input') as HTMLInputElement;
     const echo = container.querySelector('#react-form-echo') as HTMLSpanElement;

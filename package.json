@@ -65,6 +65,10 @@
     "teen_process": "^4.0.4"
   },
   "devDependencies": {
+    "@angular/common": "^22.1.1",
+    "@angular/compiler": "^22.1.1",
+    "@angular/core": "^22.1.1",
+    "@angular/platform-browser": "^22.1.1",
     "@appium/oxc-config": "^1.1.0",
     "@appium/semantic-release-config": "^1.1.0",
     "@appium/tsconfig": "^1.2.0",
