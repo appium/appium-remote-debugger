@@ -1,3 +1,9 @@
+## [17.0.7](https://github.com/appium/appium-remote-debugger/compare/v17.0.6...v17.0.7) (2026-08-13)
+
+### Miscellaneous Chores
+
+* exercise atoms against Angular-rendered DOM ([#536](https://github.com/appium/appium-remote-debugger/issues/536)) ([9399ac1](https://github.com/appium/appium-remote-debugger/commit/9399ac18e9662162a90fba80eea655fc36b1101f))
+
 ## [17.0.6](https://github.com/appium/appium-remote-debugger/compare/v17.0.5...v17.0.6) (2026-08-12)
 
 ### Miscellaneous Chores

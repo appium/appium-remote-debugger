@@ -1,6 +1,6 @@
 {
   "name": "appium-remote-debugger",
-  "version": "17.0.6",
+  "version": "17.0.7",
   "description": "Appium proxy for Remote Debugger protocol",
   "keywords": [
     "appium"
