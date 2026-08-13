@@ -41,6 +41,8 @@ jobs:
         fi
 
   e2e:
+    # e2e tests must never run on master
+    if: github.ref != 'refs/heads/master'
     strategy:
       matrix:
         include:
