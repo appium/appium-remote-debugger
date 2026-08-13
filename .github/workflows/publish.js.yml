@@ -28,7 +28,7 @@ jobs:
       run: |
         npm run build:atoms
         if ! git diff --exit-code -- atoms; then
-          echo "::error::'atoms/' does not match what 'npm run build:atoms' produces from 'atoms/src/'. Run it locally and commit the result."
+          echo "::error::'atoms/' on master does not match what 'npm run build:atoms' produces from 'atoms/src/'. This should have been caught by the 'Verify Atoms' check on the PR — aborting release."
           exit 1
         fi
     - run: npm run build
