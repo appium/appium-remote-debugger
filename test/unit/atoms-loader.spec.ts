@@ -1,13 +1,26 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import {describe, it} from 'node:test';
 
-import {getAtom, getScriptForAtom} from '../../lib/atoms.js';
+import {fs} from '@appium/support';
+
+import {ATOM_NAMES, getAtom, getScriptForAtom} from '../../lib/atoms.js';
+import {getModuleRoot} from '../../lib/utils/index.js';
 
 // Unlike test/unit/atoms.spec.ts (which evals the compiled atoms in jsdom to exercise the atoms'
 // own behavior), this file unit-tests lib/atoms.ts's own helpers directly: loading/caching a
 // compiled atom file and building the injectable script string around it. Both are plain Node
 // functions with no DOM dependency, so no jsdom is needed here.
 describe('lib/atoms', function () {
+  describe('ATOM_NAMES', function () {
+    it('matches the committed atoms/*.js files exactly, so it cannot silently drift', async function () {
+      const atomFiles = (await fs.readdir(path.resolve(getModuleRoot(), 'atoms')))
+        .filter((name) => name.endsWith('.js'))
+        .map((name) => name.slice(0, -'.js'.length));
+      assert.deepStrictEqual([...ATOM_NAMES].sort(), atomFiles.sort());
+    });
+  });
+
   describe('getAtom', function () {
     it('loads a real compiled atom as a non-empty Buffer', async function () {
       const atom = await getAtom('click');

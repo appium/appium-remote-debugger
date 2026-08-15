@@ -8,6 +8,61 @@ import {getModuleRoot} from './utils/index.js';
 const ATOMS_CACHE: Record<string, Buffer> = {};
 
 /**
+ * Names of the Selenium-style atoms bundled under `atoms/` and loadable via `getAtom`/
+ * `executeAtom`/`executeAtomAsync`. Keep in sync with the `ATOMS` array in
+ * `scripts/build-atoms.mjs` (see `docs/update-atoms.md`) — `test/unit/atoms-loader.spec.ts`
+ * guards against drift by comparing this list against the committed `atoms/*.js` files.
+ */
+export const ATOM_NAMES = [
+  'active_element',
+  'clear_local_storage',
+  'clear_session_storage',
+  'clear',
+  'click',
+  'default_content',
+  'execute_async_script',
+  'execute_script',
+  'find_element_fragment',
+  'find_element',
+  'find_elements',
+  'frame_by_id_or_name',
+  'frame_by_index',
+  'get_attribute_value',
+  'get_attribute',
+  'get_effective_style',
+  'get_element_from_cache',
+  'get_frame_window',
+  'get_local_storage_item',
+  'get_local_storage_key',
+  'get_local_storage_keys',
+  'get_local_storage_size',
+  'get_location',
+  'get_session_storage_item',
+  'get_session_storage_key',
+  'get_session_storage_keys',
+  'get_session_storage_size',
+  'get_size',
+  'get_text',
+  'get_top_left_coordinates',
+  'get_value_of_css_property',
+  'is_displayed',
+  'is_editable',
+  'is_enabled',
+  'is_focusable',
+  'is_interactable',
+  'is_selected',
+  'remove_local_storage_item',
+  'remove_session_storage_item',
+  'set_local_storage_item',
+  'set_session_storage_item',
+  'submit',
+  'type',
+] as const;
+
+/** Name of a Selenium-style atom bundled under `atoms/`. */
+export type AtomName = (typeof ATOM_NAMES)[number];
+
+/**
  * Loads an atom script from the atoms directory and caches it.
  * If the atom has been loaded before, returns the cached version.
  *

@@ -30,10 +30,10 @@ export async function captureScreenshot(this: RemoteDebugger, opts: ScreenshotCa
 
   const arect =
     rect ??
-    ((await this.executeAtom('execute_script', [
+    (await this.executeAtom<Rect>('execute_script', [
       'return {x: 0, y: 0, width: window.innerWidth, height: window.innerHeight}',
       [],
-    ])) as Rect);
+    ]));
   const response = await this.requireRpcClient().send('Page.snapshotRect', {
     ...arect,
     appIdKey: getAppIdKey(this),

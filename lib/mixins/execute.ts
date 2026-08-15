@@ -3,6 +3,7 @@ import {util, timing} from '@appium/support';
 import {retryInterval} from 'asyncbox';
 
 import {getScriptForAtom} from '../atoms.js';
+import type {AtomName} from '../atoms.js';
 import type {RemoteDebugger} from '../remote-debugger.js';
 import type {AppIdKey, PageIdKey} from '../types.js';
 import {checkParams, simpleStringify, convertJavascriptEvaluationResult, RESPONSE_LOG_LENGTH} from '../utils/index.js';
@@ -20,15 +21,15 @@ const RPC_RESPONSE_TIMEOUT_MS = 5000;
  * @param frames - Frame context array for frame-specific execution. Defaults to empty array.
  * @returns A promise that resolves to the result received from the atom execution.
  */
-export async function executeAtom(
+export async function executeAtom<R = any>(
   this: RemoteDebugger,
-  atom: string,
+  atom: AtomName,
   args: any[] = [],
   frames: string[] = [],
-): Promise<any> {
+): Promise<R> {
   this.log.debug(`Executing atom '${atom}' with 'args=${JSON.stringify(args)}; frames=${frames}'`);
   const script = await getScriptForAtom(atom, args, frames);
-  const value = await this.execute(script);
+  const value = await this.execute<R>(script);
   this.log.debug(
     `Received result for atom '${atom}' execution: ${util.truncateString(simpleStringify(value), RESPONSE_LOG_LENGTH)}`,
   );
@@ -46,12 +47,12 @@ export async function executeAtom(
  * @param frames - Frame context array for frame-specific execution. Defaults to empty array.
  * @returns A promise that resolves to the result received from the atom execution.
  */
-export async function executeAtomAsync(
+export async function executeAtomAsync<R = any>(
   this: RemoteDebugger,
-  atom: string,
+  atom: AtomName,
   args: any[] = [],
   frames: string[] = [],
-): Promise<any> {
+): Promise<R> {
   // helper to send directly to the web inspector
   const evaluate = async (method: string, opts: any) =>
     await this.requireRpcClient(true).send(
@@ -141,7 +142,7 @@ export async function executeAtomAsync(
       );
     } catch {}
   }
-  return convertJavascriptEvaluationResult(res);
+  return convertJavascriptEvaluationResult(res) as R;
 }
 
 /**
@@ -153,12 +154,12 @@ export async function executeAtomAsync(
  * @returns A promise that resolves to the result of the JavaScript evaluation,
  *          converted to a usable format.
  */
-export async function execute(
+export async function execute<R = any>(
   this: RemoteDebugger,
   command: string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for API compatibility
   override?: boolean,
-): Promise<any> {
+): Promise<R> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),
@@ -177,7 +178,7 @@ export async function execute(
     appIdKey,
     pageIdKey,
   });
-  return convertJavascriptEvaluationResult(res);
+  return convertJavascriptEvaluationResult(res) as R;
 }
 
 /**
@@ -190,7 +191,12 @@ export async function execute(
  * @returns A promise that resolves to the result of the function call,
  *          converted to a usable format.
  */
-export async function callFunction(this: RemoteDebugger, objectId: string, fn: string, args?: any[]): Promise<any> {
+export async function callFunction<R = any>(
+  this: RemoteDebugger,
+  objectId: string,
+  fn: string,
+  args?: any[],
+): Promise<R> {
   const {appIdKey, pageIdKey} = checkParams({
     appIdKey: getAppIdKey(this),
     pageIdKey: getPageIdKey(this),
@@ -210,5 +216,5 @@ export async function callFunction(this: RemoteDebugger, objectId: string, fn: s
     pageIdKey,
   });
 
-  return convertJavascriptEvaluationResult(res);
+  return convertJavascriptEvaluationResult(res) as R;
 }
