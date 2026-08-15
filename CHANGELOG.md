@@ -1,3 +1,9 @@
+## [17.1.0](https://github.com/appium/appium-remote-debugger/compare/v17.0.7...v17.1.0) (2026-08-15)
+
+### Features
+
+* export atom names and make execute/executeAtom results generic ([#538](https://github.com/appium/appium-remote-debugger/issues/538)) ([3fb1387](https://github.com/appium/appium-remote-debugger/commit/3fb138713510b4889466b1b298a77f81e3d9eae0))
+
 ## [17.0.7](https://github.com/appium/appium-remote-debugger/compare/v17.0.6...v17.0.7) (2026-08-13)
 
 ### Miscellaneous Chores
