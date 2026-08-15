@@ -1,3 +1,5 @@
+import {ATOM_NAMES} from './atoms.js';
+import type {AtomName} from './atoms.js';
 import {RemoteDebuggerRealDevice} from './remote-debugger-real-device.js';
 import {RemoteDebugger, REMOTE_DEBUGGER_PORT} from './remote-debugger.js';
 import type {RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions} from './types.js';
@@ -20,5 +22,5 @@ export function createRemoteDebugger(
     : new RemoteDebugger(opts as RemoteDebuggerOptions);
 }
 
-export {RemoteDebugger, RemoteDebuggerRealDevice, REMOTE_DEBUGGER_PORT};
-export type {RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions};
+export {RemoteDebugger, RemoteDebuggerRealDevice, REMOTE_DEBUGGER_PORT, ATOM_NAMES};
+export type {RemoteDebuggerRealDeviceOptions, RemoteDebuggerOptions, AtomName};
