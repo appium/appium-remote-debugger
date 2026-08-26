@@ -25,6 +25,18 @@ interface AutomationBrowsingContext {
  * Web Inspector session (via `RpcClient`), addressed through a distinct
  * `WIRTypeAutomation` target and its own sender id, rather than through the
  * `Target.sendMessageToTarget` wrapper used for Page/Runtime traffic.
+ *
+ * KNOWN LIMITATION (confirmed against a real iOS Simulator): `Automation.getBrowsingContexts`
+ * only ever reports browsing contexts created via `Automation.createBrowsingContext` on THIS
+ * session - it never sees a tab that already existed, or one opened through any other means
+ * (including the tab already selected via the ordinary Inspector `Page`/`Runtime` protocol).
+ * This mirrors traditional WebDriver semantics (a session owns the windows it creates) and
+ * means this class cannot be used to attach dialog handling to an already-selected/ambient
+ * page - only to a page this session created itself via `Automation.createBrowsingContext`
+ * (which does also appear in the app's normal page listing, so it CAN still be driven through
+ * the regular Inspector protocol afterwards). There is intentionally no public API built on
+ * top of this class yet; wire one up only once a caller is prepared to work within that
+ * constraint (e.g. by creating and switching to a dedicated automation-owned tab).
  */
 export class AutomationSession {
   private readonly rpcClient: RpcClient;
@@ -80,11 +92,7 @@ export class AutomationSession {
     await this.rpcClient.send('connectToApp', {appIdKey}, false);
     const automationPageIdKey = (await targetPageIdKeyPromise).WIRPageIdentifierKey as PageIdKey;
 
-    await this.rpcClient.send(
-      'setSenderKey',
-      {appIdKey, pageIdKey: automationPageIdKey, senderId: sessionId},
-      false,
-    );
+    await this.rpcClient.send('setSenderKey', {appIdKey, pageIdKey: automationPageIdKey, senderId: sessionId}, false);
 
     const connectionIdPromise = this.waitForListingMatch(
       appIdKey,
@@ -157,7 +165,11 @@ export class AutomationSession {
     }
     try {
       // Required, or webinspectord silently ignores the next socket setup for this page.
-      await this.rpcClient.send('forwardDidClose', {appIdKey, pageIdKey: automationPageIdKey, senderId: sessionId}, false);
+      await this.rpcClient.send(
+        'forwardDidClose',
+        {appIdKey, pageIdKey: automationPageIdKey, senderId: sessionId},
+        false,
+      );
     } catch (err: any) {
       this.log.debug(`Failed to cleanly close the automation session '${sessionId}': ${err.message}`);
     }

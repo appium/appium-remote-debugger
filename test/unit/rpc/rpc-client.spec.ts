@@ -54,9 +54,14 @@ describe('rpc-client', function () {
         getTarget: sinon.stub().returns(undefined),
         sendMessage: sinon.stub().resolves(),
       };
-      const fullOpts = await sendToDevice.call(mockRpcClient as any, 'setConnectionKey', {
-        senderId: 'automation-session-id',
-      } as any, false);
+      const fullOpts = await sendToDevice.call(
+        mockRpcClient as any,
+        'setConnectionKey',
+        {
+          senderId: 'automation-session-id',
+        } as any,
+        false,
+      );
       assert.strictEqual(fullOpts.senderId, 'automation-session-id');
       assert.strictEqual(fullOpts.connId, 'connection-id');
     });

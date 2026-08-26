@@ -1,5 +1,5 @@
-import {EventEmitter} from 'node:events';
 import assert from 'node:assert/strict';
+import {EventEmitter} from 'node:events';
 import {describe, it, beforeEach} from 'node:test';
 
 import sinon from 'sinon';
@@ -77,10 +77,7 @@ describe('AutomationSession', function () {
 
     it('should time out if the automation target never appears in a listing', async function () {
       rpcClient.send.callsFake(async () => undefined);
-      await assert.rejects(
-        automationSession.ensureStarted(APP_ID_KEY, 50),
-        /Timed out.*automation target/,
-      );
+      await assert.rejects(automationSession.ensureStarted(APP_ID_KEY, 50), /Timed out.*automation target/);
     });
   });
 

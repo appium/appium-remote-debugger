@@ -30,10 +30,7 @@ export function getAutomationSession(instance: RemoteDebugger): (typeof instance
 }
 
 /** Sets the current Automation (JS alert handling) session. */
-export function setAutomationSession(
-  instance: RemoteDebugger,
-  value: (typeof instance)['_automationSession'],
-): void {
+export function setAutomationSession(instance: RemoteDebugger, value: (typeof instance)['_automationSession']): void {
   instance['_automationSession'] = value;
 }
 
