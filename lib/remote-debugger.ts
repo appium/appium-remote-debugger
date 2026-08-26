@@ -4,6 +4,7 @@ import type {AppiumLogger, StringRecord} from '@appium/types';
 import type {CancellablePromise} from 'asyncbox';
 
 import {log as defaultLog} from './logger.js';
+import * as alertMixins from './mixins/alerts.js';
 import * as connectMixins from './mixins/connect.js';
 import * as cookieMixins from './mixins/cookies.js';
 import * as eventMixins from './mixins/events.js';
@@ -13,6 +14,7 @@ import * as miscellaneousMixins from './mixins/misc.js';
 import * as navigationMixins from './mixins/navigate.js';
 import * as screenshotMixins from './mixins/screenshot.js';
 import {RpcClientSimulator} from './rpc/index.js';
+import type {AutomationSession} from './rpc/automation-session.js';
 import type {RpcClient} from './rpc/rpc-client.js';
 import type {RemoteDebuggerOptions, AppDict, EventListener, PageIdKey, AppIdKey} from './types.js';
 import {getModuleProperties} from './utils/index.js';
@@ -57,6 +59,10 @@ export class RemoteDebugger extends EventEmitter {
   overrideUserAgent = miscellaneousMixins.overrideUserAgent;
   garbageCollect = miscellaneousMixins.garbageCollect;
   isJavascriptExecutionBlocked = miscellaneousMixins.isJavascriptExecutionBlocked;
+  getAlertText = alertMixins.getAlertText;
+  acceptAlert = alertMixins.acceptAlert;
+  dismissAlert = alertMixins.dismissAlert;
+  sendAlertText = alertMixins.sendAlertText;
 
   // callbacks
   onPageChange = messageHandlerMixins.onPageChange;
@@ -77,6 +83,7 @@ export class RemoteDebugger extends EventEmitter {
   protected _currentState?: string;
   protected _pageLoadDelay?: CancellablePromise<void>;
   protected _rpcClient: RpcClient | null = null;
+  protected _automationSession?: AutomationSession;
   protected _pageLoading: boolean = false;
   protected _navigatingToPage: boolean = false;
   protected _allowNavigationWithoutReload: boolean;
@@ -227,6 +234,7 @@ export class RemoteDebugger extends EventEmitter {
     this._pageLoadDelay = undefined;
 
     this._rpcClient = null;
+    this._automationSession = undefined;
     this._clientEventListeners = {};
   }
 
@@ -239,6 +247,7 @@ export class RemoteDebugger extends EventEmitter {
     this._pageLoading = false;
 
     this._rpcClient = null;
+    this._automationSession = undefined;
 
     for (const evt of [
       RemoteDebugger.EVENT_DISCONNECT,

@@ -393,14 +393,15 @@ export class RpcClient {
         const targetId = opts.targetId ?? this.getTarget(appIdKey, pageIdKey);
 
         // retrieve the correct command to send
+        // connId is always pinned to the current connection, but senderId may be
+        // overridden by the caller (e.g. an Automation session uses its own sender id)
         const fullOpts: RemoteCommandOpts & RemoteCommandId = defaults(
           {
             connId: this.connId,
-            senderId: this.senderId,
             targetId,
             id: msgId.toString(),
           },
-          opts,
+          {senderId: this.senderId, ...opts},
         );
         let cmd: RawRemoteCommand;
         try {

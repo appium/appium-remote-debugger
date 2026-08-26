@@ -143,6 +143,54 @@ export class RemoteMessages {
   }
 
   /**
+   * Creates a command to request a WebKit Automation session for the given application.
+   * Only Safari honors this (via `_WKAutomationDelegate`), and only when the device's
+   * Remote Automation setting is enabled.
+   *
+   * @param connId - The connection identifier.
+   * @param appIdKey - The application identifier key.
+   * @param sessionId - A fresh identifier for the automation session being requested.
+   * @returns A RawRemoteCommand for requesting an automation session.
+   */
+  forwardAutomationSessionRequest(connId: string, appIdKey: AppIdKey, sessionId: string): RawRemoteCommand {
+    return {
+      __argument: {
+        WIRConnectionIdentifierKey: connId,
+        WIRApplicationIdentifierKey: appIdKey,
+        WIRSessionCapabilitiesKey: {
+          'org.webkit.webdriver.webrtc.allow-insecure-media-capture': true,
+          'org.webkit.webdriver.webrtc.suppress-ice-candidate-filtering': false,
+        },
+        WIRSessionIdentifierKey: sessionId,
+      },
+      __selector: '_rpc_forwardAutomationSessionRequest:',
+    };
+  }
+
+  /**
+   * Creates a command to notify the device that a socket (page or automation target)
+   * is being closed. Required before an Automation session's page id can be reused,
+   * or webinspectord silently ignores the next socket setup for that page.
+   *
+   * @param connId - The connection identifier.
+   * @param appIdKey - The application identifier key.
+   * @param pageIdKey - The page identifier key being closed.
+   * @param senderId - The sender identifier that had the socket open.
+   * @returns A RawRemoteCommand for closing the socket.
+   */
+  forwardDidClose(connId: string, appIdKey: AppIdKey, pageIdKey: PageIdKey, senderId: string): RawRemoteCommand {
+    return {
+      __argument: {
+        WIRConnectionIdentifierKey: connId,
+        WIRApplicationIdentifierKey: appIdKey,
+        WIRPageIdentifierKey: pageIdKey,
+        WIRSenderKey: senderId,
+      },
+      __selector: '_rpc_forwardDidClose:',
+    };
+  }
+
+  /**
    * Creates a full command with all default parameters included.
    * This includes objectGroup, includeCommandLineAPI, and other runtime options.
    *
@@ -240,7 +288,7 @@ export class RemoteMessages {
    * @returns A RawRemoteCommand for direct protocol communication.
    */
   getDirectCommand(opts: RemoteCommandOpts & ProtocolCommandOpts): RawRemoteCommand {
-    const {method, params, connId, senderId, appIdKey, pageIdKey, id} = opts;
+    const {method, params, connId, senderId, appIdKey, pageIdKey, id, sessionId} = opts;
 
     const plist = {
       __argument: {
@@ -251,6 +299,7 @@ export class RemoteMessages {
         },
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
+        WIRSessionIdentifierKey: sessionId,
         WIRApplicationIdentifierKey: appIdKey,
         ...toPageIdKey(pageIdKey),
       },
@@ -269,7 +318,7 @@ export class RemoteMessages {
    * @throws Error if required parameters are missing for specific commands.
    */
   getRemoteCommand(command: string, opts: RemoteCommandOpts & RemoteCommandId): RawRemoteCommand {
-    const {id, connId, appIdKey, senderId, pageIdKey, targetId} = opts;
+    const {id, connId, appIdKey, senderId, pageIdKey, targetId, sessionId} = opts;
 
     // deal with Safari Web Inspector commands
     switch (command) {
@@ -298,10 +347,22 @@ export class RemoteMessages {
           throw new Error('Cannot launch application without a bundle ID');
         }
         return this.launchApplication(opts.bundleId);
+      case 'forwardAutomationSessionRequest':
+        if (!connId || !appIdKey || !opts.sessionId) {
+          throw new Error('Cannot request an automation session without a connection ID, app ID, and session ID');
+        }
+        return this.forwardAutomationSessionRequest(connId, appIdKey, opts.sessionId);
+      case 'forwardDidClose':
+        if (!connId || !appIdKey || !pageIdKey || !senderId) {
+          throw new Error('Cannot close a socket without a connection ID, app ID, page ID, and sender ID');
+        }
+        return this.forwardDidClose(connId, appIdKey, pageIdKey, senderId);
     }
 
     // deal with WebKit commands
-    const builderFunction = (COMMANDS[command as keyof typeof COMMANDS] || MINIMAL_COMMAND) as CommandBuilderFunction;
+    const builderFunction = (
+      isDirectCommand(command) ? DIRECT_COMMAND : COMMANDS[command as keyof typeof COMMANDS] || MINIMAL_COMMAND
+    ) as CommandBuilderFunction;
     const commonOpts = getProtocolCommand(id, command, opts, isDirectCommand(command));
     return this[builderFunction]({
       ...commonOpts,
@@ -310,6 +371,7 @@ export class RemoteMessages {
       senderId,
       pageIdKey,
       targetId,
+      sessionId,
     });
   }
 }
@@ -322,5 +384,5 @@ export class RemoteMessages {
  * @returns True if the command should use direct format, false otherwise.
  */
 export function isDirectCommand(command: string): boolean {
-  return COMMANDS[command as keyof typeof COMMANDS] === DIRECT_COMMAND;
+  return COMMANDS[command as keyof typeof COMMANDS] === DIRECT_COMMAND || command.startsWith('Automation.');
 }

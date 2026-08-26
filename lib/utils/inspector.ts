@@ -4,6 +4,7 @@ import type {StringRecord} from '@appium/types';
 import type {AppInfo, AppDict, Page} from '../types.js';
 
 export const WEB_CONTENT_BUNDLE_ID = 'com.apple.WebKit.WebContent';
+export const SAFARI_BUNDLE_ID = 'com.apple.mobilesafari';
 
 const INACTIVE_APP_CODE = 0;
 

@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import {describe, it, beforeEach} from 'node:test';
 
-import {getPossibleDebuggerAppKeys} from '../../../lib/mixins/connect.js';
+import sinon from 'sinon';
+
+import {disconnect, getPossibleDebuggerAppKeys} from '../../../lib/mixins/connect.js';
 import {RemoteDebugger} from '../../../lib/remote-debugger.js';
 import type {AppInfo} from '../../../lib/types.js';
 
@@ -10,6 +12,37 @@ describe('connect', function () {
 
   beforeEach(function () {
     rd = new RemoteDebugger();
+  });
+
+  describe('disconnect', function () {
+    it('should stop an active automation session before disconnecting the rpc client', async function () {
+      const calls: string[] = [];
+      const automationSession = {
+        stop: sinon.stub().callsFake(async () => {
+          calls.push('automationSession.stop');
+        }),
+      };
+      const rpcClient = {
+        disconnect: sinon.stub().callsFake(async () => {
+          calls.push('rpcClient.disconnect');
+        }),
+      };
+      (rd as any)._automationSession = automationSession;
+      (rd as any)._rpcClient = rpcClient;
+
+      await disconnect.call(rd);
+
+      assert.deepStrictEqual(calls, ['automationSession.stop', 'rpcClient.disconnect']);
+    });
+
+    it('should not fail when there is no automation session', async function () {
+      const rpcClient = {disconnect: sinon.stub().resolves()};
+      (rd as any)._rpcClient = rpcClient;
+
+      await disconnect.call(rd);
+
+      assert.strictEqual(rpcClient.disconnect.calledOnce, true);
+    });
   });
 
   describe('getPossibleDebuggerAppKeys', function () {

@@ -32,4 +32,58 @@ describe('rpc-client', function () {
       assert.deepStrictEqual(waitForTargetSpy.firstCall.args, ['appId', 'pageKey']);
     });
   });
+
+  describe('.sendToDevice', function () {
+    it('should let opts.senderId override the connection senderId while pinning connId', async function () {
+      const {sendToDevice} = RpcClient.prototype;
+      const getRemoteCommandSpy = sinon.spy((_command: string, opts: any) => ({
+        __argument: {...opts},
+        __selector: '_rpc_reportIdentifier:',
+      }));
+      const mockRpcClient = {
+        msgId: 1,
+        connId: 'connection-id',
+        senderId: 'default-sender-id',
+        messageHandler: {
+          on: sinon.stub(),
+          once: sinon.stub(),
+          listenerCount: sinon.stub().returns(0),
+          prependOnceListener: sinon.stub(),
+        },
+        remoteMessages: {getRemoteCommand: getRemoteCommandSpy},
+        getTarget: sinon.stub().returns(undefined),
+        sendMessage: sinon.stub().resolves(),
+      };
+      const fullOpts = await sendToDevice.call(mockRpcClient as any, 'setConnectionKey', {
+        senderId: 'automation-session-id',
+      } as any, false);
+      assert.strictEqual(fullOpts.senderId, 'automation-session-id');
+      assert.strictEqual(fullOpts.connId, 'connection-id');
+    });
+
+    it('should fall back to the connection senderId when opts does not specify one', async function () {
+      const {sendToDevice} = RpcClient.prototype;
+      const getRemoteCommandSpy = sinon.spy((_command: string, opts: any) => ({
+        __argument: {...opts},
+        __selector: '_rpc_reportIdentifier:',
+      }));
+      const mockRpcClient = {
+        msgId: 1,
+        connId: 'connection-id',
+        senderId: 'default-sender-id',
+        messageHandler: {
+          on: sinon.stub(),
+          once: sinon.stub(),
+          listenerCount: sinon.stub().returns(0),
+          prependOnceListener: sinon.stub(),
+        },
+        remoteMessages: {getRemoteCommand: getRemoteCommandSpy},
+        getTarget: sinon.stub().returns(undefined),
+        sendMessage: sinon.stub().resolves(),
+      };
+      const fullOpts = await sendToDevice.call(mockRpcClient as any, 'setConnectionKey', {} as any, false);
+      assert.strictEqual(fullOpts.senderId, 'default-sender-id');
+      assert.strictEqual(fullOpts.connId, 'connection-id');
+    });
+  });
 });
