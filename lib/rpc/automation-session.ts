@@ -171,7 +171,7 @@ export class AutomationSession {
         false,
       );
     } catch (err: any) {
-      this.log.debug(`Failed to cleanly close the automation session '${sessionId}': ${err.message}`);
+      this.log.debug(`Failed to cleanly close the automation session '${sessionId}': ${err?.message ?? err}`);
     }
   }
 

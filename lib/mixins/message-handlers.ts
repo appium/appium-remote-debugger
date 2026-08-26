@@ -105,7 +105,9 @@ export function onAppDisconnect(this: RemoteDebugger, err: Error | null | undefi
   // tear it down - webinspectord will otherwise consider it still active
   const automationSession = getAutomationSession(this);
   if (automationSession && automationSession.trackedAppIdKey === appIdKey) {
-    void automationSession.stop();
+    void automationSession.stop().catch((stopErr: any) => {
+      this.log.debug(`Failed to stop the automation session on app disconnect: ${stopErr?.message ?? stopErr}`);
+    });
   }
 
   // get rid of the entry in our app dictionary,
