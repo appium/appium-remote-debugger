@@ -4,6 +4,9 @@ import {describe, it, type TestContext} from 'node:test';
 import type {StringRecord} from '@appium/types';
 import {retryInterval} from 'asyncbox';
 
+import {log} from '../../lib/logger.js';
+import {getAppIdKey, getRcpClient} from '../../lib/mixins/property-accessors.js';
+import {AutomationSession} from '../../lib/rpc/index.js';
 import {PAGE_TITLE, useRemoteDebuggerFixture} from './rd-fixture.js';
 
 describe('Safari remote debugger', function () {
@@ -76,6 +79,28 @@ describe('Safari remote debugger', function () {
       });
       assert.ok(screenshot.startsWith('iVBOR'));
     });
+  });
+
+  it('should establish and tear down an Automation session without disrupting normal traffic', async function () {
+    await fixture.selectTestPage();
+
+    const rd = fixture.rd();
+    const appIdKey = getAppIdKey(rd);
+    assert.ok(appIdKey != null);
+    const rpcClient = getRcpClient(rd);
+    assert.ok(rpcClient);
+
+    const automationSession = new AutomationSession(rpcClient, log);
+    assert.strictEqual(automationSession.isStarted, false);
+
+    try {
+      await automationSession.ensureStarted(appIdKey);
+      assert.strictEqual(automationSession.isStarted, true);
+    } finally {
+      // Must always run, or a leaked session breaks every test after this one.
+      await automationSession.stop();
+    }
+    assert.strictEqual(automationSession.isStarted, false);
   });
 
   it(`should be able to call 'selectApp' after already connecting to app`, async function () {
