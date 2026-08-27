@@ -299,7 +299,9 @@ export class RemoteMessages {
         },
         WIRConnectionIdentifierKey: connId,
         WIRSenderKey: senderId,
-        WIRSessionIdentifierKey: sessionId,
+        // omitNilValues only strips top-level keys; an undefined value here makes
+        // bplist-creator throw (node-bplist-creator/issues/29), so omit it explicitly.
+        ...(sessionId ? {WIRSessionIdentifierKey: sessionId} : {}),
         WIRApplicationIdentifierKey: appIdKey,
         ...toPageIdKey(pageIdKey),
       },
