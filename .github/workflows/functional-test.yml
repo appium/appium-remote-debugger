@@ -40,6 +40,7 @@ jobs:
       with:
         node-version: lts/*
         check-latest: true
+    - run: npm install
     - name: Start iOS Simulator UI
       run: open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
     - name: Boot iOS Simulator
@@ -50,7 +51,8 @@ jobs:
         os_version: "${{ matrix.ios }}"
         shutdown_after_job: false
         wait_for_boot: true
-    - run: npm install
+    - name: Finalize simulator boot
+      run: node scripts/ci/wait-for-simulator-idle.mjs "${{ steps.prepareSimulator.outputs.udid }}"
     - name: E2E Tests
       uses: nick-fields/retry@v4
       with:
