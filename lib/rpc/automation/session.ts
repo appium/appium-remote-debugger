@@ -191,6 +191,10 @@ export class AutomationSession {
       (entry) => entry.WIRTypeKey === AUTOMATION_TARGET_TYPE && entry.WIRSessionIdentifierKey === sessionId,
       `Timed out after ${timeoutMs}ms waiting for the automation target for session '${sessionId}'`,
     );
+    // Marks the promise as handled so a later rejection (e.g. its own timeout firing) doesn't
+    // surface as an unhandled rejection if one of the sends below throws first - we still await
+    // the same promise instance for its real value/error below.
+    targetPageIdKeyPromise.catch(() => {});
     await this.rpcClient.send('forwardAutomationSessionRequest', {appIdKey, sessionId}, false);
     await this.rpcClient.send('connectToApp', {appIdKey}, false);
     const automationPageIdKey = (await targetPageIdKeyPromise).WIRPageIdentifierKey as PageIdKey;
@@ -206,6 +210,7 @@ export class AutomationSession {
         entry.WIRConnectionIdentifierKey !== undefined,
       `Timed out after ${timeoutMs}ms waiting for the automation session '${sessionId}' connection id`,
     );
+    connectionIdPromise.catch(() => {});
     await this.rpcClient.send('connectToApp', {appIdKey}, false);
     await connectionIdPromise;
 
@@ -232,14 +237,22 @@ export class AutomationSession {
    */
   async stop(): Promise<void> {
     if (this.isStarted) {
+      let handles: string[] = [];
       try {
-        for (const handle of await this.getWindowHandles()) {
-          await this.callAutomation('closeBrowsingContext', {handle});
-        }
+        handles = await this.getWindowHandles();
       } catch (err: any) {
         this.log.debug(
-          `Failed to close owned browsing contexts before stopping the automation session: ${err?.message ?? err}`,
+          `Failed to list owned browsing contexts before stopping the automation session: ${err?.message ?? err}`,
         );
+      }
+      for (const handle of handles) {
+        try {
+          await this.callAutomation('closeBrowsingContext', {handle});
+        } catch (err: any) {
+          this.log.debug(
+            `Failed to close browsing context '${handle}' before stopping the automation session: ${err?.message ?? err}`,
+          );
+        }
       }
     }
 
@@ -339,12 +352,29 @@ export class AutomationSession {
     }
   }
 
-  /** Converts an outgoing script argument back into WebKit's own node-handle shape, if it's an element. */
-  private toWireArg(value: any): any {
-    if (value && typeof value === 'object' && util.W3C_WEB_ELEMENT_IDENTIFIER in value) {
+  /**
+   * Converts an outgoing script argument back into WebKit's own node-handle shape, if it (or
+   * anything nested inside an array/plain object it contains) is an element.
+   */
+  private toWireArg(value: any, seen: object[] = []): any {
+    if (!value || typeof value !== 'object') {
+      return value;
+    }
+    if (util.W3C_WEB_ELEMENT_IDENTIFIER in value) {
       return {[this.nodeHandleKey()]: this.unwrapElement(value)};
     }
-    return value;
+    if (seen.includes(value)) {
+      return value;
+    }
+    seen = [...seen, value];
+    if (Array.isArray(value)) {
+      return value.map((entry) => this.toWireArg(entry, seen));
+    }
+    const result: StringRecord = {};
+    for (const key of Object.keys(value)) {
+      result[key] = this.toWireArg(value[key], seen);
+    }
+    return result;
   }
 
   private nodeHandleKey(): string {

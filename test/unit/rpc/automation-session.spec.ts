@@ -247,6 +247,23 @@ describe('AutomationSession', function () {
       assert.strictEqual(navigateCall.args[1].handle, TOP_LEVEL_HANDLE);
       assert.strictEqual(navigateCall.args[1].url, 'https://example.com');
     });
+
+    it('should wait for navigation before reading the page source', async function () {
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.evaluateJavaScriptFunction') {
+          return {result: JSON.stringify('<html></html>')};
+        }
+        return undefined;
+      });
+
+      await automationSession.getPageSource();
+
+      const commands = rpcClient.send.getCalls().map((call) => call.args[0]);
+      assert.deepStrictEqual(commands, [
+        'Automation.waitForNavigationToComplete',
+        'Automation.evaluateJavaScriptFunction',
+      ]);
+    });
   });
 
   describe('window management', function () {
@@ -280,6 +297,39 @@ describe('AutomationSession', function () {
         'forwardDidClose',
       ]);
       assert.strictEqual(automationSession.isStarted, false);
+    });
+
+    it('should keep closing remaining owned windows even if closing one fails', async function () {
+      rpcClient.send.callsFake(async (command: string, opts: any) => {
+        if (command === 'Automation.getBrowsingContexts') {
+          return {
+            contexts: [
+              {handle: 'ctx-1', active: false, url: 'about:blank'},
+              {handle: 'ctx-2', active: true, url: 'about:blank'},
+            ],
+          };
+        }
+        if (command === 'Automation.closeBrowsingContext' && opts.handle === 'ctx-1') {
+          throw new Error('already closed');
+        }
+        return undefined;
+      });
+
+      await automationSession.stop();
+
+      const closeCalls = rpcClient.send
+        .getCalls()
+        .filter((call) => call.args[0] === 'Automation.closeBrowsingContext')
+        .map((call) => call.args[1].handle);
+      assert.deepStrictEqual(closeCalls, ['ctx-1', 'ctx-2']);
+      assert.strictEqual(automationSession.isStarted, false);
+    });
+
+    it('should clear the top-level handle when closing the current window', async function () {
+      rpcClient.send.resolves(undefined);
+      await automationSession.closeWindow();
+
+      await assert.rejects(automationSession.getCurrentUrl(), errors.NoSuchWindowError);
     });
   });
 
@@ -435,6 +485,18 @@ describe('AutomationSession', function () {
       const opts = rpcClient.send.firstCall.args[1];
       assert.strictEqual(opts.expectsImplicitCallbackArgument, true);
       assert.strictEqual(opts.callbackTimeout, automationSession.scriptTimeoutMs);
+    });
+
+    it('should convert element args nested inside an array/object to WebKit node-handle shape', async function () {
+      rpcClient.send.resolves({result: JSON.stringify(null)});
+      const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
+
+      await automationSession.executeScript('return null;', [[el], {nested: el}]);
+
+      const {arguments: sentArgs} = rpcClient.send.firstCall.args[1];
+      const [arrayArg, objectArg] = sentArgs.map((a: string) => JSON.parse(a));
+      assert.deepStrictEqual(arrayArg, [{[`session-node-${capturedSessionId}`]: 'node-1'}]);
+      assert.deepStrictEqual(objectArg, {nested: {[`session-node-${capturedSessionId}`]: 'node-1'}});
     });
   });
 

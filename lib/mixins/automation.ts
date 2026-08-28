@@ -29,6 +29,13 @@ export async function startAutomationSession(this: RemoteDebugger): Promise<Auto
   if (existing?.isStarted && existing.trackedAppIdKey === appIdKey) {
     return existing;
   }
+  if (existing) {
+    try {
+      await existing.stop();
+    } finally {
+      setAutomationSession(this, undefined);
+    }
+  }
 
   const session = new AutomationSession(this.requireRpcClient(true), this.log);
   await session.start(appIdKey);

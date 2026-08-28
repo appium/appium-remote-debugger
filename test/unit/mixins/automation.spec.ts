@@ -58,6 +58,54 @@ describe('automation', function () {
       assert.strictEqual(session, existing);
     });
 
+    it('should stop an existing session for a different app before starting a new one', async function () {
+      const stop = sinon.stub().resolves();
+      const existing = {isStarted: true, trackedAppIdKey: 'PID:999', stop};
+      const rpcClient = new FakeRpcClient();
+      let capturedSessionId: string | undefined;
+      let connectToAppCallCount = 0;
+      rpcClient.send.callsFake(async (command: string, opts: any) => {
+        if (command === 'forwardAutomationSessionRequest') {
+          capturedSessionId = opts.sessionId;
+        } else if (command === 'connectToApp') {
+          connectToAppCallCount++;
+          rpcClient.emit('_rpc_forwardGetListing:', null, APP_ID_KEY, {
+            '4242': {
+              WIRTypeKey: 'WIRTypeAutomation',
+              WIRSessionIdentifierKey: capturedSessionId,
+              WIRPageIdentifierKey: '4242',
+              ...(connectToAppCallCount >= 2 ? {WIRConnectionIdentifierKey: 'connection-1'} : {}),
+            },
+          });
+        } else if (command === 'Automation.createBrowsingContext') {
+          return {handle: 'ctx-1'};
+        }
+        return undefined;
+      });
+      (rd as any)._rpcClient = rpcClient;
+      (rd as any)._appIdKey = APP_ID_KEY;
+      (rd as any)._appDict = {[APP_ID_KEY]: SAFARI_INFO};
+      (rd as any)._automationSession = existing;
+
+      const session = await startAutomationSession.call(rd);
+
+      assert.strictEqual(stop.calledOnce, true);
+      assert.notStrictEqual(session, existing);
+      assert.strictEqual((rd as any)._automationSession, session);
+    });
+
+    it('should clear the stale session reference even if stopping it throws, and propagate the error', async function () {
+      const stop = sinon.stub().rejects(new Error('boom'));
+      const existing = {isStarted: true, trackedAppIdKey: 'PID:999', stop};
+      (rd as any)._appIdKey = APP_ID_KEY;
+      (rd as any)._appDict = {[APP_ID_KEY]: SAFARI_INFO};
+      (rd as any)._automationSession = existing;
+
+      await assert.rejects(startAutomationSession.call(rd), /boom/);
+
+      assert.strictEqual((rd as any)._automationSession, undefined);
+    });
+
     it('should start a fresh session and store it', async function () {
       const rpcClient = new FakeRpcClient();
       let capturedSessionId: string | undefined;

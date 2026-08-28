@@ -23,6 +23,7 @@ describe('connect', function () {
       onAppDisconnect.call(rd, null, {WIRApplicationIdentifierKey: 'PID:1'});
 
       assert.strictEqual(automationSession.stop.calledOnce, true);
+      assert.strictEqual((rd as any)._automationSession, undefined);
     });
 
     it('should not stop the automation session when a different app disconnects', function () {
@@ -36,6 +37,7 @@ describe('connect', function () {
       onAppDisconnect.call(rd, null, {WIRApplicationIdentifierKey: 'PID:2'});
 
       assert.strictEqual(automationSession.stop.called, false);
+      assert.strictEqual((rd as any)._automationSession, automationSession);
     });
 
     it('should not fail when there is no automation session', function () {

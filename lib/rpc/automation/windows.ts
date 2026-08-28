@@ -14,12 +14,14 @@ export async function createWindow(this: AutomationSession, presentationHint?: '
   return response.handle;
 }
 
-/** Closes the current window/tab. */
+/** Closes the current window/tab. The caller must switchToWindow() before driving another one. */
 export async function closeWindow(this: AutomationSession): Promise<void> {
   if (!this.currentWindowHandle) {
     return;
   }
   await this.callAutomation('closeBrowsingContext', {handle: this.currentWindowHandle});
+  this.topLevelHandle = undefined;
+  this.resetFrameState();
 }
 
 /** Returns the handles of every browsing context this session owns. */

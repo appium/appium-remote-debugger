@@ -57,6 +57,7 @@ export async function getTitle(this: AutomationSession): Promise<string> {
 
 /** Returns the current page's serialized HTML source. */
 export async function getPageSource(this: AutomationSession): Promise<string> {
+  await waitForNavigationToComplete.call(this);
   return await this.executeScript<string>('return document.documentElement.outerHTML;');
 }
 
