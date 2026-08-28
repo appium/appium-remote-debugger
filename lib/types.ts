@@ -118,6 +118,8 @@ export interface RemoteCommandOpts {
   id?: string;
   connId?: string;
   senderId?: string;
+  /** Automation session identifier, required for Automation.* domain commands */
+  sessionId?: string;
   targetId?: TargetId;
   bundleId?: string;
   enabled?: boolean;
@@ -167,6 +169,10 @@ interface RemoteCommandArgument<T extends SocketDataKey> {
   WIRMessageDataTypeKey?: string;
   WIRDestinationKey?: string;
   WIRMessageDataKey?: string;
+  /** Automation session identifier, present on Automation domain socket data */
+  WIRSessionIdentifierKey?: string;
+  /** Capabilities dict sent when requesting an Automation session */
+  WIRSessionCapabilitiesKey?: StringRecord;
   [key: string]: any;
 }
 

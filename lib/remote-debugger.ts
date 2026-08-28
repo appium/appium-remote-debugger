@@ -12,6 +12,7 @@ import * as messageHandlerMixins from './mixins/message-handlers.js';
 import * as miscellaneousMixins from './mixins/misc.js';
 import * as navigationMixins from './mixins/navigate.js';
 import * as screenshotMixins from './mixins/screenshot.js';
+import type {AutomationSession} from './rpc/automation-session.js';
 import {RpcClientSimulator} from './rpc/index.js';
 import type {RpcClient} from './rpc/rpc-client.js';
 import type {RemoteDebuggerOptions, AppDict, EventListener, PageIdKey, AppIdKey} from './types.js';
@@ -77,6 +78,7 @@ export class RemoteDebugger extends EventEmitter {
   protected _currentState?: string;
   protected _pageLoadDelay?: CancellablePromise<void>;
   protected _rpcClient: RpcClient | null = null;
+  protected _automationSession?: AutomationSession;
   protected _pageLoading: boolean = false;
   protected _navigatingToPage: boolean = false;
   protected _allowNavigationWithoutReload: boolean;
@@ -227,6 +229,7 @@ export class RemoteDebugger extends EventEmitter {
     this._pageLoadDelay = undefined;
 
     this._rpcClient = null;
+    this._automationSession = undefined;
     this._clientEventListeners = {};
   }
 
@@ -239,6 +242,7 @@ export class RemoteDebugger extends EventEmitter {
     this._pageLoading = false;
 
     this._rpcClient = null;
+    this._automationSession = undefined;
 
     for (const evt of [
       RemoteDebugger.EVENT_DISCONNECT,

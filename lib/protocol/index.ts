@@ -23,6 +23,17 @@ const COMMANDS = {
   //#region AUDIT DOMAIN
   //#endregion
 
+  // https://github.com/WebKit/WebKit/blob/main/Source/WebKit/UIProcess/Automation/Automation.json
+  // Private domain, only reachable against Safari with Remote Automation enabled
+  //#region AUTOMATION DOMAIN
+  'Automation.getBrowsingContexts': [],
+  'Automation.isShowingJavaScriptDialog': ['browsingContextHandle'],
+  'Automation.acceptCurrentJavaScriptDialog': ['browsingContextHandle'],
+  'Automation.dismissCurrentJavaScriptDialog': ['browsingContextHandle'],
+  'Automation.messageOfCurrentJavaScriptDialog': ['browsingContextHandle'],
+  'Automation.setUserInputForCurrentJavaScriptPrompt': ['browsingContextHandle', 'userInput'],
+  //#endregion
+
   // https://github.com/WebKit/WebKit/blob/main/Source/JavaScriptCore/inspector/protocol/Browser.json
   //#region BROWSER DOMAIN
   'Browser.enable': [], // Enables Browser domain events. e.g. extentionsEnabled

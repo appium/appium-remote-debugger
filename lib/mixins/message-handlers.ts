@@ -9,6 +9,7 @@ import {
   setAppIdKey,
   getAppDict,
   getAppIdKey,
+  getAutomationSession,
   getBundleId,
   getNavigatingToPage,
   setCurrentState,
@@ -99,6 +100,15 @@ export function onAppDisconnect(this: RemoteDebugger, err: Error | null | undefi
   const appIdKey = dict.WIRApplicationIdentifierKey;
   this.log.debug(`Application '${appIdKey}' disconnected. Removing from app dictionary.`);
   this.log.debug(`Current app is '${getAppIdKey(this)}'`);
+
+  // if the disconnected app had an automation session (JS alert handling),
+  // tear it down - webinspectord will otherwise consider it still active
+  const automationSession = getAutomationSession(this);
+  if (automationSession && automationSession.trackedAppIdKey === appIdKey) {
+    void automationSession.stop().catch((stopErr: any) => {
+      this.log.debug(`Failed to stop the automation session on app disconnect: ${stopErr?.message ?? stopErr}`);
+    });
+  }
 
   // get rid of the entry in our app dictionary,
   // since it is no longer available

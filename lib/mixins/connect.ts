@@ -4,12 +4,13 @@ import {retryInterval, waitForCondition} from 'asyncbox';
 import type {RemoteDebugger} from '../remote-debugger.js';
 import {NEW_APP_CONNECTED_ERROR, EMPTY_PAGE_DICTIONARY_ERROR} from '../rpc/rpc-client.js';
 import type {AppDict, Page, AppIdKey, PageIdKey, AppPage} from '../types.js';
-import {pageArrayFromDict, WEB_CONTENT_BUNDLE_ID, appIdsForBundle} from '../utils/index.js';
+import {pageArrayFromDict, WEB_CONTENT_BUNDLE_ID, SAFARI_BUNDLE_ID, appIdsForBundle} from '../utils/index.js';
 import {events} from './events.js';
 import {
   setAppIdKey,
   getAppDict,
   getAppIdKey,
+  getAutomationSession,
   setPageIdKey,
   getRcpClient,
   getIsSafari,
@@ -23,7 +24,6 @@ const APP_CONNECT_TIMEOUT_MS = 0;
 const APP_CONNECT_INTERVAL_MS = 100;
 const SELECT_APP_RETRIES = 20;
 const SELECT_APP_RETRY_SLEEP_MS = 500;
-const SAFARI_BUNDLE_ID = 'com.apple.mobilesafari';
 const BLANK_PAGE_URL = 'about:blank';
 const WEB_CONTENT_PROCESS_BUNDLE_ID = 'process-com.apple.WebKit.WebContent';
 const SAFARI_VIEW_PROCESS_BUNDLE_ID = 'process-SafariViewService';
@@ -107,6 +107,8 @@ export async function connect(this: RemoteDebugger, timeout: number = APP_CONNEC
  * emitting a disconnect event, and performing cleanup via teardown.
  */
 export async function disconnect(this: RemoteDebugger): Promise<void> {
+  // must happen while the socket is still open, or the close notification cannot be sent
+  await getAutomationSession(this)?.stop();
   await getRcpClient(this)?.disconnect();
   this.emit(events.EVENT_DISCONNECT, true);
   this.teardown();

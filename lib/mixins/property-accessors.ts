@@ -24,6 +24,16 @@ export function getRcpClient(instance: RemoteDebugger): (typeof instance)['_rpcC
   return instance['_rpcClient'];
 }
 
+/** Gets the current Automation (JS alert handling) session, if one has been created. */
+export function getAutomationSession(instance: RemoteDebugger): (typeof instance)['_automationSession'] {
+  return instance['_automationSession'];
+}
+
+/** Sets the current Automation (JS alert handling) session. */
+export function setAutomationSession(instance: RemoteDebugger, value: (typeof instance)['_automationSession']): void {
+  instance['_automationSession'] = value;
+}
+
 /** Gets the currently selected page id key. */
 export function getPageIdKey(instance: RemoteDebugger): (typeof instance)['_pageIdKey'] {
   return instance['_pageIdKey'];

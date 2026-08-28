@@ -2,10 +2,9 @@ import {withTimeout} from 'asyncbox';
 
 import type {RemoteDebugger} from '../remote-debugger.js';
 import type {EventListener} from '../types.js';
-import {checkParams, TimeoutError} from '../utils/index.js';
+import {checkParams, TimeoutError, SAFARI_BUNDLE_ID} from '../utils/index.js';
 import {getAppIdKey, getPageIdKey} from './property-accessors.js';
 
-const SAFARI_BUNDLE_ID = 'com.apple.mobilesafari';
 const GARBAGE_COLLECT_TIMEOUT_MS = 5000;
 
 /**
