@@ -1,5 +1,3 @@
-import type {StringRecord} from '@appium/types';
-
 import {getAutomationAtomScript} from './atoms.js';
 import {waitForNavigationToComplete} from './navigation.js';
 import type {AutomationSession} from './session.js';
@@ -8,10 +6,7 @@ import type {AutomationElement} from './types.js';
 /** Switches into a child frame, addressed either by its ordinal index or its `<iframe>`/`<frame>` element. */
 export async function switchToFrame(this: AutomationSession, target: number | AutomationElement): Promise<void> {
   await waitForNavigationToComplete.call(this);
-  const params: StringRecord = {browsingContextHandle: this.requireTopLevelHandle()};
-  if (this.currentFrameHandle) {
-    params.frameHandle = this.currentFrameHandle;
-  }
+  const params = this.withFrameHandle({browsingContextHandle: this.requireTopLevelHandle()});
   if (typeof target === 'number') {
     params.ordinal = target;
   } else {

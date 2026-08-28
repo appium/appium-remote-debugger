@@ -275,11 +275,13 @@ export function getProtocolCommand(
     throw new Error(`Unknown command: '${method}'`);
   }
 
-  // omit whitelisted-but-absent params entirely (not as `undefined`) - some builders
-  // (e.g. direct Automation.* commands) embed `params` in a nested plist object that
-  // only gets top-level nil-stripping, and bplist-creator throws on nested `undefined`
+  // Direct commands (e.g. Automation.*) embed `params` in a nested plist object that only gets
+  // top-level nil-stripping, and bplist-creator throws on nested `undefined` - so for those,
+  // omit whitelisted-but-absent params entirely instead of setting them to `undefined`. Indirect
+  // commands don't need this: their params get JSON.stringify'd, which already drops `undefined`
+  // values on its own.
   const params: StringRecord = (paramNames as readonly string[]).reduce(function (acc: StringRecord, name: string) {
-    if (opts[name] !== undefined) {
+    if (!direct || opts[name] !== undefined) {
       acc[name] = opts[name];
     }
     return acc;

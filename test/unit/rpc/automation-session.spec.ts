@@ -266,6 +266,29 @@ describe('AutomationSession', function () {
     });
   });
 
+  describe('withFrameHandle', function () {
+    it('should leave params unchanged when driving the top-level context', function () {
+      const params = automationSession.withFrameHandle({handle: 'h'});
+      assert.deepStrictEqual(params, {handle: 'h'});
+    });
+
+    it('should attach the current frame handle when driving a frame', function () {
+      (automationSession as any).currentFrameHandle = 'frame-1';
+      const params = automationSession.withFrameHandle({handle: 'h'});
+      assert.deepStrictEqual(params, {handle: 'h', frameHandle: 'frame-1'});
+    });
+
+    it('should be used by every command that needs to target the current frame', async function () {
+      await startFullSession();
+      (automationSession as any).currentFrameHandle = 'frame-1';
+      rpcClient.send.resolves(undefined);
+
+      await automationSession.performInteractionSequence([], []);
+
+      assert.strictEqual(rpcClient.send.firstCall.args[1].frameHandle, 'frame-1');
+    });
+  });
+
   describe('window management', function () {
     beforeEach(async function () {
       await startFullSession();

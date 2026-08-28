@@ -1,5 +1,3 @@
-import type {StringRecord} from '@appium/types';
-
 import type {AutomationSession} from './session.js';
 
 /** Takes a base64-encoded screenshot of the current viewport. */
@@ -12,10 +10,7 @@ export async function takeScreenshot(
   this: AutomationSession,
   opts: {nodeHandle?: string; scrollIntoViewIfNeeded?: boolean},
 ): Promise<string> {
-  const params: StringRecord = {handle: this.requireTopLevelHandle(), clipToViewport: true};
-  if (this.currentFrameHandle) {
-    params.frameHandle = this.currentFrameHandle;
-  }
+  const params = this.withFrameHandle({handle: this.requireTopLevelHandle(), clipToViewport: true});
   if (opts.scrollIntoViewIfNeeded) {
     params.scrollIntoViewIfNeeded = true;
   }

@@ -1,5 +1,3 @@
-import type {StringRecord} from '@appium/types';
-
 import type {AutomationSession} from './session.js';
 
 /** Navigates the current browsing context to a URL. */
@@ -63,12 +61,9 @@ export async function getPageSource(this: AutomationSession): Promise<string> {
 
 /** Waits for any in-flight navigation to finish. Shared with `frames.ts` - not part of the public API, so not mixed onto the class. */
 export async function waitForNavigationToComplete(this: AutomationSession): Promise<void> {
-  const params: StringRecord = {
+  const params = this.withFrameHandle({
     browsingContextHandle: this.requireTopLevelHandle(),
     pageLoadTimeout: this.pageLoadTimeoutMs,
-  };
-  if (this.currentFrameHandle) {
-    params.frameHandle = this.currentFrameHandle;
-  }
+  });
   await this.callAutomation('waitForNavigationToComplete', params);
 }

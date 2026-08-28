@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 
+import {getProtocolCommand} from '../../lib/protocol/index.js';
 import {isDirectCommand, RemoteMessages} from '../../lib/rpc/remote-messages.js';
 
 describe('RemoteMessages', function () {
@@ -156,6 +157,22 @@ describe('RemoteMessages', function () {
       const socketData = remoteCommand.__argument.WIRSocketDataKey as any;
       assert.deepStrictEqual(socketData.params, {handle: 'test-handle', origin: {x: 10, y: 20}});
       assert.strictEqual('size' in socketData.params, false);
+    });
+  });
+
+  describe('getProtocolCommand', function () {
+    it('should omit an unset optional param entirely for a direct command (bplist-creator crashes on nested undefined)', function () {
+      const {params} = getProtocolCommand('test-id', 'Automation.setWindowFrameOfBrowsingContext', {handle: 'h'}, true);
+      assert.strictEqual('origin' in params, false);
+    });
+
+    it('should keep an unset optional param as an explicit key for an indirect command, unlike direct commands', function () {
+      // Indirect commands' params get JSON.stringify'd (which already drops `undefined` values on
+      // its own), so there's no bplist crash risk here - this only pins down that the direct-only
+      // fix above didn't widen into changing this unrelated path too.
+      const {params} = getProtocolCommand('test-id', 'Page.reload', {ignoreCache: true}, false);
+      assert.strictEqual('revalidateAllResources' in params, true);
+      assert.strictEqual(params.revalidateAllResources, undefined);
     });
   });
 

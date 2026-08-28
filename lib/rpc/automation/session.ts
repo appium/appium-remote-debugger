@@ -25,31 +25,24 @@ import type {AutomationElement} from './types.js';
 import * as windowsMixins from './windows.js';
 
 /**
- * Manages a WebKit `Automation` domain session for a single application, and exposes
- * a WebDriver-shaped API (navigation, element find/interact, cookies, window/frame
- * management, script execution, screenshots, JS-dialog handling) built on top of it.
+ * Manages a WebKit `Automation` domain session for a single app, exposing a WebDriver-shaped
+ * API (navigation, element find/interact, cookies, window/frame management, script execution,
+ * screenshots, JS-dialog handling) on top of it.
  *
- * Only Mobile Safari implements `_WKAutomationDelegate`, and only when the
- * device's Remote Automation setting is enabled - this session cannot be
- * established against third-party apps' WKWebViews.
+ * Only Mobile Safari implements `_WKAutomationDelegate`, and only with Remote Automation
+ * enabled - this can't be established against third-party apps' WKWebViews. It rides the same
+ * USB/local-socket transport as the regular Web Inspector session, addressed through a distinct
+ * `WIRTypeAutomation` target and its own sender id.
  *
- * The session rides the exact same USB/local-socket transport as the regular
- * Web Inspector session (via `RpcClient`), addressed through a distinct
- * `WIRTypeAutomation` target and its own sender id, rather than through the
- * `Target.sendMessageToTarget` wrapper used for Page/Runtime traffic.
+ * KNOWN LIMITATION (observed against a real Simulator): `Automation.getBrowsingContexts` only
+ * ever reports contexts this session itself created via `Automation.createBrowsingContext` -
+ * never a pre-existing tab. So `start()` always creates and switches to a fresh one; a session
+ * never drives a tab it didn't create.
  *
- * KNOWN LIMITATION (confirmed against a real iOS Simulator): `Automation.getBrowsingContexts`
- * only ever reports browsing contexts created via `Automation.createBrowsingContext` on THIS
- * session - it never sees a tab that already existed, or one opened through any other means
- * (including a tab already selected via the ordinary Inspector `Page`/`Runtime` protocol).
- * Because of that, `start()` creates and switches to a fresh top-level browsing context of
- * its own - a session always drives a tab it created itself, never a pre-existing one.
- *
- * Feature methods (elements, navigation, frames, windows, cookies, screenshots, input,
- * W3C Actions, dialogs) live in sibling files under this directory and are mixed onto the
- * class below, matching the mixin pattern `RemoteDebugger` itself uses - this class holds
- * only the session handshake, wire-protocol dispatch, and element (un)wrapping that every
- * mixin needs.
+ * Feature methods (elements, navigation, frames, windows, cookies, screenshots, input, W3C
+ * Actions, dialogs) live in sibling files and are mixed onto the class below, mirroring
+ * `RemoteDebugger`'s own mixin pattern - this class holds only the handshake, wire-protocol
+ * dispatch, and element (un)wrapping every mixin needs.
  */
 export class AutomationSession {
   protected readonly rpcClient: RpcClient;
@@ -295,20 +288,25 @@ export class AutomationSession {
     return this.topLevelHandle;
   }
 
+  /** Adds `frameHandle` to `params` when driving a frame, not the top-level context. Mutates and returns `params`. */
+  withFrameHandle(params: StringRecord): StringRecord {
+    if (this.currentFrameHandle) {
+      params.frameHandle = this.currentFrameHandle;
+    }
+    return params;
+  }
+
   /** Invokes a `function(element, ...)`-shaped script, resolving/wrapping element args and results. */
   async evaluateJavaScriptFunction<T = any>(
     fn: string,
     args: any[] = [],
     opts: {implicitCallback?: boolean; callbackTimeoutMs?: number} = {},
   ): Promise<T> {
-    const params: StringRecord = {
+    const params: StringRecord = this.withFrameHandle({
       browsingContextHandle: this.requireTopLevelHandle(),
       function: fn,
       arguments: args.map((arg) => JSON.stringify(this.toWireArg(arg))),
-    };
-    if (this.currentFrameHandle) {
-      params.frameHandle = this.currentFrameHandle;
-    }
+    });
     if (opts.implicitCallback) {
       params.expectsImplicitCallbackArgument = true;
     }

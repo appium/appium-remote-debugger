@@ -34,9 +34,6 @@ export async function performInteractionSequence(
   inputSources: StringRecord[],
   steps: StringRecord[],
 ): Promise<void> {
-  const params: StringRecord = {handle: this.requireTopLevelHandle(), inputSources, steps};
-  if (this.currentFrameHandle) {
-    params.frameHandle = this.currentFrameHandle;
-  }
+  const params = this.withFrameHandle({handle: this.requireTopLevelHandle(), inputSources, steps});
   await this.callAutomation('performInteractionSequence', params);
 }
