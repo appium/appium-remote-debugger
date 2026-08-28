@@ -1,0 +1,11 @@
+function(){"use strict";var AtomExport=(()=>{var l=Object.defineProperty;var c=Object.getOwnPropertyDescriptor;var f=Object.getOwnPropertyNames;var E=Object.prototype.hasOwnProperty;var d=(e,t)=>{for(var o in t)l(e,o,{get:t[o],enumerable:!0})},N=(e,t,o,i)=>{if(t&&typeof t=="object"||typeof t=="function")for(let n of f(t))!E.call(e,n)&&n!==o&&l(e,n,{get:()=>t[n],enumerable:!(i=c(t,n))||i.enumerable});return e};var m=e=>N(l({},"__esModule",{value:!0}),e);var L={};d(L,{default:()=>u});function a(e,t){return e[t]}function s(e,t){return e instanceof HTMLFormElement?e.nodeType===Node.ELEMENT_NODE&&(!t||t==="FORM"):!!e&&e.nodeType===Node.ELEMENT_NODE&&(!t||e.tagName.toUpperCase()===t)}var b=new Set(["text","search","tel","url","email","password","number"]);function O(e){if(s(e,"TEXTAREA"))return!0;if(s(e,"INPUT")){let t=e.type.toLowerCase();return b.has(t)}return _(e)}function g(e){return s(e,"INPUT")&&e.type.toLowerCase()==="file"}function r(e,t){return s(e,"INPUT")&&e.type.toLowerCase()===t}function _(e){let t=e;if(t.contentEditable===void 0)return!1;if(t.isContentEditable!==void 0)return t.isContentEditable;function o(i){if(i.contentEditable==="inherit"){let n=R(i);return n?o(n):!1}return i.contentEditable==="true"}return o(t)}function u(e){return(O(e)||g(e)||r(e,"range")||r(e,"date")||r(e,"month")||r(e,"week")||r(e,"time")||r(e,"datetime-local")||r(e,"color"))&&!a(e,"readOnly")}function R(e){let t=e.parentNode;for(;t&&t.nodeType!==Node.ELEMENT_NODE&&t.nodeType!==Node.DOCUMENT_NODE&&t.nodeType!==Node.DOCUMENT_FRAGMENT_NODE;)t=t.parentNode;return t&&s(t)?t:null}return m(L);})();
+
+try {
+  return AtomExport.default.apply(null,arguments);
+} catch (e) {
+  if (e && e.isAutomationError) {
+    throw new Error(JSON.stringify({state: e.state, message: e.message}));
+  }
+  throw e;
+}
+}

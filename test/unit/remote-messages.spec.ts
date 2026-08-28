@@ -19,6 +19,31 @@ describe('RemoteMessages', function () {
       'Timeline.stop',
       'Automation.getBrowsingContexts',
       'Automation.acceptCurrentJavaScriptDialog',
+      'Automation.createBrowsingContext',
+      'Automation.closeBrowsingContext',
+      'Automation.getBrowsingContext',
+      'Automation.maximizeWindowOfBrowsingContext',
+      'Automation.hideWindowOfBrowsingContext',
+      'Automation.setWindowFrameOfBrowsingContext',
+      'Automation.navigateBrowsingContext',
+      'Automation.goBackInBrowsingContext',
+      'Automation.goForwardInBrowsingContext',
+      'Automation.reloadBrowsingContext',
+      'Automation.waitForNavigationToComplete',
+      'Automation.resolveParentFrameHandle',
+      'Automation.resolveChildFrameHandle',
+      'Automation.switchToBrowsingContext',
+      'Automation.evaluateJavaScriptFunction',
+      'Automation.computeElementLayout',
+      'Automation.selectOptionElement',
+      'Automation.performMouseInteraction',
+      'Automation.performKeyboardInteractions',
+      'Automation.performInteractionSequence',
+      'Automation.addSingleCookie',
+      'Automation.deleteAllCookies',
+      'Automation.deleteSingleCookie',
+      'Automation.getAllCookies',
+      'Automation.takeScreenshot',
     ];
     for (const command of commands) {
       it(`should be able to retrieve ${command} command`, function () {
@@ -95,6 +120,42 @@ describe('RemoteMessages', function () {
       assert.strictEqual(socketData.method, 'Automation.acceptCurrentJavaScriptDialog');
       assert.deepStrictEqual(socketData.params, {browsingContextHandle: 'test-handle'});
       assert.strictEqual(remoteCommand.__argument.WIRSessionIdentifierKey, 'test-session-id');
+    });
+
+    it('should pass through array/object params for Automation.performKeyboardInteractions unchanged', function () {
+      const interactions = [
+        {type: 'KeyPress', key: 'Shift'},
+        {type: 'InsertByKey', text: 'a'},
+      ];
+      const remoteCommand = remoteMessages.getRemoteCommand('Automation.performKeyboardInteractions', {
+        id: 'test-id',
+        connId: 'test-conn-id',
+        appIdKey: 'test-app-id',
+        pageIdKey: 'test-page-id',
+        senderId: 'test-session-id',
+        sessionId: 'test-session-id',
+        handle: 'test-handle',
+        interactions,
+      });
+      const socketData = remoteCommand.__argument.WIRSocketDataKey as any;
+      assert.deepStrictEqual(socketData.params, {handle: 'test-handle', interactions});
+    });
+
+    it('should omit unset optional params for Automation.setWindowFrameOfBrowsingContext, not send them as undefined', function () {
+      const remoteCommand = remoteMessages.getRemoteCommand('Automation.setWindowFrameOfBrowsingContext', {
+        id: 'test-id',
+        connId: 'test-conn-id',
+        appIdKey: 'test-app-id',
+        pageIdKey: 'test-page-id',
+        senderId: 'test-session-id',
+        sessionId: 'test-session-id',
+        handle: 'test-handle',
+        origin: {x: 10, y: 20},
+        // `size` intentionally omitted
+      });
+      const socketData = remoteCommand.__argument.WIRSocketDataKey as any;
+      assert.deepStrictEqual(socketData.params, {handle: 'test-handle', origin: {x: 10, y: 20}});
+      assert.strictEqual('size' in socketData.params, false);
     });
   });
 
