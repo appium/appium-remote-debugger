@@ -1,3 +1,9 @@
+## [17.2.0](https://github.com/appium/appium-remote-debugger/compare/v17.1.0...v17.2.0) (2026-08-28)
+
+### Features
+
+* Add automation session support ([#539](https://github.com/appium/appium-remote-debugger/issues/539)) ([db68d1d](https://github.com/appium/appium-remote-debugger/commit/db68d1d88a29f42d003f5c02cb2ec680aaa113ad))
+
 ## [17.1.0](https://github.com/appium/appium-remote-debugger/compare/v17.0.7...v17.1.0) (2026-08-15)
 
 ### Features
