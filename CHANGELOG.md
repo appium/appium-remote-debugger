@@ -1,3 +1,9 @@
+## [17.2.1](https://github.com/appium/appium-remote-debugger/compare/v17.2.0...v17.2.1) (2026-08-29)
+
+### Miscellaneous Chores
+
+* bump base-driver & support ([#541](https://github.com/appium/appium-remote-debugger/issues/541)) ([71b70a8](https://github.com/appium/appium-remote-debugger/commit/71b70a8022d7641f9a7ff16af49afd23eb78bf5a))
+
 ## [17.2.0](https://github.com/appium/appium-remote-debugger/compare/v17.1.0...v17.2.0) (2026-08-28)
 
 ### Features
