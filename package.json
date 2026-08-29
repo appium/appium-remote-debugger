@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@appium/base-driver": "^10.8.0",
-    "@appium/support": "^7.2.2",
+    "@appium/support": "^7.2.6",
     "appium-ios-device": "^3.0.0",
     "async-lock": "^1.4.1",
     "asyncbox": "^6.3.0",
