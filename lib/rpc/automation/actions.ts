@@ -1,5 +1,5 @@
 import {errors} from '@appium/base-driver';
-import type {ActionSequence, KeyAction, PointerAction, WheelAction, StringRecord} from '@appium/types';
+import type {ActionSequence, KeyAction, NullAction, PointerAction, WheelAction, StringRecord} from '@appium/types';
 
 import {VIRTUAL_KEYS} from './keys.js';
 import type {AutomationSession} from './session.js';
@@ -7,14 +7,16 @@ import type {AutomationElement} from './types.js';
 
 const BUTTON_NAMES: StringRecord<'Left' | 'Middle' | 'Right'> = {0: 'Left', 1: 'Middle', 2: 'Right'};
 
-interface PointerRunningState {
+/** Per-source "currently held" state, tracked on `AutomationSession` across `performW3CActions` calls. */
+export interface PointerRunningState {
   pressedButton?: 'Left' | 'Middle' | 'Right';
   location?: {x: number; y: number};
   origin?: 'Viewport' | 'Pointer' | 'Element';
   nodeHandle?: string;
 }
 
-interface KeyRunningState {
+/** Per-source "currently held" state, tracked on `AutomationSession` across `performW3CActions` calls. */
+export interface KeyRunningState {
   pressedCharKey?: string;
   pressedVirtualKeys: Set<string>;
 }
@@ -27,13 +29,14 @@ interface KeyRunningState {
  * imperative per-action verbs - held buttons/keys are re-asserted on every tick until
  * an explicit up, rather than relying on WebKit's own "sustained if unmentioned"
  * default (under-specified for how it interacts with partial state updates).
+ *
+ * Held state (`pointerInputState`/`keyInputState`) lives on the session, not this call,
+ * so buttons/keys pressed by one Actions call and not yet released stay held across a
+ * later one - matching the W3C "input state" model. `releaseActions()` clears it.
  */
 export async function performW3CActions(this: AutomationSession, actions: ActionSequence[]): Promise<void> {
   const maxTicks = actions.reduce((max, seq) => Math.max(max, seq.actions.length), 0);
   const inputSources = actions.map((seq) => ({sourceId: seq.id, sourceType: toW3cSourceType(seq)}));
-
-  const pointerRunning = new Map<string, PointerRunningState>();
-  const keyRunning = new Map<string, KeyRunningState>();
 
   const steps: StringRecord[] = [];
   for (let tick = 0; tick < maxTicks; tick++) {
@@ -41,13 +44,13 @@ export async function performW3CActions(this: AutomationSession, actions: Action
     for (const seq of actions) {
       let state: StringRecord | null;
       if (seq.type === 'key') {
-        state = buildKeyTickState(seq.id, seq.actions[tick], keyRunning);
+        state = buildKeyTickState(seq.id, seq.actions[tick], this.keyInputState);
       } else if (seq.type === 'pointer') {
-        state = buildPointerTickState(this, seq.id, seq.actions[tick], pointerRunning);
+        state = buildPointerTickState(this, seq.id, seq.actions[tick], this.pointerInputState);
       } else if (seq.type === 'wheel') {
         state = buildWheelTickState(this, seq.id, seq.actions[tick]);
       } else {
-        state = null;
+        state = buildNoneTickState(seq.id, seq.actions[tick]);
       }
       if (state) {
         states.push(state);
@@ -57,6 +60,19 @@ export async function performW3CActions(this: AutomationSession, actions: Action
   }
 
   await this.performInteractionSequence(inputSources, steps);
+}
+
+/** WebDriver `releaseActions`: cancels any in-progress sequence and forgets all held keys/buttons. */
+export async function releaseActions(this: AutomationSession): Promise<void> {
+  if (this.pointerInputState.size === 0 && this.keyInputState.size === 0) {
+    return;
+  }
+  try {
+    await this.cancelInteractionSequence();
+  } finally {
+    this.pointerInputState.clear();
+    this.keyInputState.clear();
+  }
 }
 
 function toW3cSourceType(seq: ActionSequence): 'Null' | 'Keyboard' | 'Mouse' | 'Touch' | 'Pen' | 'Wheel' {
@@ -100,9 +116,12 @@ function buildKeyTickState(
     }
   }
 
+  // A zero-length pause carries nothing worth sending - only a real (non-zero) one needs
+  // to reach WebKit, since its sole purpose is to extend the tick's wait.
+  const pauseDuration = action?.type === 'pause' && action.duration ? action.duration : undefined;
   if (!state.pressedCharKey && state.pressedVirtualKeys.size === 0) {
     running.delete(sourceId);
-    return null;
+    return pauseDuration === undefined ? null : {sourceId, duration: pauseDuration};
   }
   const result: StringRecord = {sourceId};
   if (state.pressedCharKey) {
@@ -110,6 +129,9 @@ function buildKeyTickState(
   }
   if (state.pressedVirtualKeys.size > 0) {
     result.pressedVirtualKeys = Array.from(state.pressedVirtualKeys);
+  }
+  if (pauseDuration !== undefined) {
+    result.duration = pauseDuration;
   }
   return result;
 }
@@ -136,8 +158,15 @@ function buildPointerTickState(
     state.nodeHandle = nodeHandle;
   }
 
+  let duration: number | undefined;
+  if (action?.type === 'pointerMove') {
+    duration = action.duration;
+  } else if (action?.type === 'pause' && action.duration) {
+    // Same zero-length-pause-is-a-no-op reasoning as buildKeyTickState.
+    duration = action.duration;
+  }
   if (!state.location && !state.pressedButton) {
-    return null;
+    return duration === undefined ? null : {sourceId, duration};
   }
   const result: StringRecord = {sourceId};
   if (state.location) {
@@ -150,8 +179,8 @@ function buildPointerTickState(
   if (state.pressedButton) {
     result.pressedButton = state.pressedButton;
   }
-  if (action?.type === 'pointerMove' && action.duration !== undefined) {
-    result.duration = action.duration;
+  if (duration !== undefined) {
+    result.duration = duration;
   }
   return result;
 }
@@ -161,6 +190,9 @@ function buildWheelTickState(
   sourceId: string,
   action: WheelAction | undefined,
 ): StringRecord | null {
+  if (action?.type === 'pause') {
+    return action.duration ? {sourceId, duration: action.duration} : null;
+  }
   if (action?.type !== 'scroll') {
     return null;
   }
@@ -178,6 +210,12 @@ function buildWheelTickState(
     result.duration = action.duration;
   }
   return result;
+}
+
+// A 'none' source (InputSourceType 'Null' in WebKit's own terms) only ever pauses - its
+// sole purpose is to extend a tick's wait without touching any other source's state.
+function buildNoneTickState(sourceId: string, action: NullAction | undefined): StringRecord | null {
+  return action?.duration ? {sourceId, duration: action.duration} : null;
 }
 
 function resolveButton(button: number): 'Left' | 'Middle' | 'Right' {

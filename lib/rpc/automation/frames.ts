@@ -30,8 +30,9 @@ export async function switchToDefaultContent(this: AutomationSession): Promise<v
 /** Returns the currently focused element in the current frame, if any. */
 export async function getActiveElement(this: AutomationSession): Promise<AutomationElement | null> {
   await waitForNavigationToComplete.call(this);
-  const raw = await this.evaluateJavaScriptFunction<any>(await getAutomationAtomScript('get_active_element'));
-  return raw == null ? null : this.wrapElement(this.extractNodeHandle(raw));
+  return await this.evaluateJavaScriptFunction<AutomationElement | null>(
+    await getAutomationAtomScript('get_active_element'),
+  );
 }
 
 async function setCurrentFrame(this: AutomationSession, handle: string): Promise<void> {

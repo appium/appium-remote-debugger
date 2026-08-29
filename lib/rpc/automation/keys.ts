@@ -1,5 +1,9 @@
 import type {StringRecord} from '@appium/types';
 
+// WebDriver's "release all modifiers" key. Deliberately absent from VIRTUAL_KEYS below -
+// it isn't typed, it's a signal to clear sticky modifier state.
+export const NULL_KEY = '\ue000';
+
 // WebDriver PUA-encoded key -> [Automation virtual key name, sticky modifier it represents (if any)].
 export const VIRTUAL_KEYS: StringRecord<[string, string | null]> = {
   '\ue001': ['Cancel', null],

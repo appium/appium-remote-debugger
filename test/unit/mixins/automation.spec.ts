@@ -106,6 +106,45 @@ describe('automation', function () {
       assert.strictEqual((rd as any)._automationSession, undefined);
     });
 
+    it('should stop the newly created session if start() fails after the protocol session was established', async function () {
+      const rpcClient = new FakeRpcClient();
+      let capturedSessionId: string | undefined;
+      let connectToAppCallCount = 0;
+      const commands: string[] = [];
+      rpcClient.send.callsFake(async (command: string, opts: any) => {
+        commands.push(command);
+        if (command === 'forwardAutomationSessionRequest') {
+          capturedSessionId = opts.sessionId;
+        } else if (command === 'connectToApp') {
+          connectToAppCallCount++;
+          rpcClient.emit('_rpc_forwardGetListing:', null, APP_ID_KEY, {
+            '4242': {
+              WIRTypeKey: 'WIRTypeAutomation',
+              WIRSessionIdentifierKey: capturedSessionId,
+              WIRPageIdentifierKey: '4242',
+              ...(connectToAppCallCount >= 2 ? {WIRConnectionIdentifierKey: 'connection-1'} : {}),
+            },
+          });
+        } else if (command === 'Automation.createBrowsingContext') {
+          // The handshake (ensureStarted) succeeds, but creating the session's own tab fails.
+          throw new Error('tab creation failed');
+        } else if (command === 'Automation.getBrowsingContexts') {
+          return {contexts: []};
+        }
+        return undefined;
+      });
+      (rd as any)._rpcClient = rpcClient;
+      (rd as any)._appIdKey = APP_ID_KEY;
+      (rd as any)._appDict = {[APP_ID_KEY]: SAFARI_INFO};
+
+      await assert.rejects(startAutomationSession.call(rd), /tab creation failed/);
+
+      assert.strictEqual((rd as any)._automationSession, undefined);
+      // Proves stop() actually ran on the orphaned session (not just that it was discarded) -
+      // otherwise webinspectord is left thinking this protocol session is still open.
+      assert.ok(commands.includes('forwardDidClose'));
+    });
+
     it('should start a fresh session and store it', async function () {
       const rpcClient = new FakeRpcClient();
       let capturedSessionId: string | undefined;

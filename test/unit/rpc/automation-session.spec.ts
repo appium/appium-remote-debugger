@@ -227,6 +227,29 @@ describe('AutomationSession', function () {
 
       await assert.rejects(automationSession.click(el), /obscured/);
     });
+
+    it('should release a held sticky modifier mid-string on the WebDriver NULL key, without typing it', async function () {
+      const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.evaluateJavaScriptFunction') {
+          return {result: JSON.stringify(null)};
+        }
+        return undefined;
+      });
+
+      await automationSession.sendKeys(el, '\ue008a\ue000b');
+
+      const interactionsCall = rpcClient.send
+        .getCalls()
+        .find((call) => call.args[0] === 'Automation.performKeyboardInteractions');
+      assert.ok(interactionsCall);
+      assert.deepStrictEqual(interactionsCall.args[1].interactions, [
+        {type: 'KeyPress', key: 'Shift'},
+        {type: 'InsertByKey', text: 'a'},
+        {type: 'KeyRelease', key: 'Shift'},
+        {type: 'InsertByKey', text: 'b'},
+      ]);
+    });
   });
 
   describe('navigation', function () {
@@ -487,6 +510,120 @@ describe('AutomationSession', function () {
         /Unsupported W3C pointer button/,
       );
     });
+
+    it('should translate a non-zero key-source pause into a tick duration, holding any pressed keys', async function () {
+      await automationSession.performW3CActions([
+        {
+          type: 'key',
+          id: 'kb',
+          actions: [
+            {type: 'keyDown', value: 'a'},
+            {type: 'pause', duration: 250},
+            {type: 'keyUp', value: 'a'},
+          ],
+        },
+      ]);
+
+      const {steps} = rpcClient.send.firstCall.args[1];
+      assert.deepStrictEqual(steps, [
+        {states: [{sourceId: 'kb', pressedCharKey: 'a'}]},
+        {states: [{sourceId: 'kb', pressedCharKey: 'a', duration: 250}]},
+        {states: []},
+      ]);
+    });
+
+    it('should translate a non-zero pointer-source pause into a tick duration, holding the pressed button', async function () {
+      await automationSession.performW3CActions([
+        {
+          type: 'pointer',
+          id: 'p1',
+          actions: [
+            {type: 'pointerDown', button: 0},
+            {type: 'pause', duration: 300},
+            {type: 'pointerUp', button: 0},
+          ],
+        },
+      ]);
+
+      const {steps} = rpcClient.send.firstCall.args[1];
+      assert.deepStrictEqual(steps, [
+        {states: [{sourceId: 'p1', pressedButton: 'Left'}]},
+        {states: [{sourceId: 'p1', pressedButton: 'Left', duration: 300}]},
+        {states: []},
+      ]);
+    });
+
+    it('should translate a non-zero wheel-source pause into a duration-only tick', async function () {
+      await automationSession.performW3CActions([{type: 'wheel', id: 'w1', actions: [{type: 'pause', duration: 200}]}]);
+
+      const {steps} = rpcClient.send.firstCall.args[1];
+      assert.deepStrictEqual(steps, [{states: [{sourceId: 'w1', duration: 200}]}]);
+    });
+
+    it('should translate a non-zero none-source pause into a duration-only tick that extends the wait', async function () {
+      await automationSession.performW3CActions([{type: 'none', id: 'n1', actions: [{type: 'pause', duration: 400}]}]);
+
+      const {steps} = rpcClient.send.firstCall.args[1];
+      assert.deepStrictEqual(steps, [{states: [{sourceId: 'n1', duration: 400}]}]);
+    });
+
+    it('should carry held key/button state across separate performW3CActions calls', async function () {
+      await automationSession.performW3CActions([
+        {type: 'key', id: 'kb', actions: [{type: 'keyDown', value: '\ue008'}]}, // Shift down, left held
+      ]);
+      rpcClient.send.resetHistory();
+
+      await automationSession.performW3CActions([{type: 'key', id: 'kb', actions: [{type: 'keyUp', value: '\ue008'}]}]);
+
+      const {steps} = rpcClient.send.firstCall.args[1];
+      assert.deepStrictEqual(steps, [{states: []}]);
+    });
+  });
+
+  describe('releaseActions', function () {
+    beforeEach(async function () {
+      await startFullSession();
+      rpcClient.send.resolves(undefined);
+    });
+
+    it('should be a no-op when nothing is held', async function () {
+      await automationSession.releaseActions();
+      assert.strictEqual(rpcClient.send.callCount, 0);
+    });
+
+    it('should cancel the interaction sequence and forget held state', async function () {
+      await automationSession.performW3CActions([
+        {type: 'pointer', id: 'p1', actions: [{type: 'pointerDown', button: 0}]},
+      ]);
+      rpcClient.send.resetHistory();
+
+      await automationSession.releaseActions();
+
+      const [command, opts] = rpcClient.send.firstCall.args;
+      assert.strictEqual(command, 'Automation.cancelInteractionSequence');
+      assert.strictEqual(opts.handle, TOP_LEVEL_HANDLE);
+
+      rpcClient.send.resetHistory();
+      await automationSession.performW3CActions([
+        {type: 'pointer', id: 'p1', actions: [{type: 'pointerUp', button: 0}]},
+      ]);
+      const {steps} = rpcClient.send.firstCall.args[1];
+      // No held button remains after releaseActions - pointerUp on nothing-held is a no-op state.
+      assert.deepStrictEqual(steps, [{states: []}]);
+    });
+
+    it('should still forget held state if the cancel call itself fails', async function () {
+      await automationSession.performW3CActions([{type: 'key', id: 'kb', actions: [{type: 'keyDown', value: 'a'}]}]);
+      rpcClient.send.rejects(new Error('cancel failed'));
+
+      await assert.rejects(automationSession.releaseActions(), /cancel failed/);
+
+      rpcClient.send.resetHistory();
+      rpcClient.send.resolves(undefined);
+      await automationSession.performW3CActions([{type: 'key', id: 'kb', actions: [{type: 'keyUp', value: 'a'}]}]);
+      const {steps} = rpcClient.send.firstCall.args[1];
+      assert.deepStrictEqual(steps, [{states: []}]);
+    });
   });
 
   describe('script execution', function () {
@@ -520,6 +657,28 @@ describe('AutomationSession', function () {
       const [arrayArg, objectArg] = sentArgs.map((a: string) => JSON.parse(a));
       assert.deepStrictEqual(arrayArg, [{[`session-node-${capturedSessionId}`]: 'node-1'}]);
       assert.deepStrictEqual(objectArg, {nested: {[`session-node-${capturedSessionId}`]: 'node-1'}});
+    });
+
+    it('should wrap a DOM element returned directly from a script into the W3C element shape', async function () {
+      rpcClient.send.resolves({result: JSON.stringify({[`session-node-${capturedSessionId}`]: 'node-1'})});
+
+      const result = await automationSession.executeScript('return document.body;');
+
+      assert.deepStrictEqual(result, {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'});
+    });
+
+    it('should wrap elements nested inside an array/object in a script result', async function () {
+      const nodeHandleKey = `session-node-${capturedSessionId}`;
+      rpcClient.send.resolves({
+        result: JSON.stringify([{[nodeHandleKey]: 'node-1'}, {nested: {[nodeHandleKey]: 'node-2'}, other: 'text'}]),
+      });
+
+      const result = await automationSession.executeScript<any>('return [document.body, {nested: x, other: "text"}];');
+
+      assert.deepStrictEqual(result, [
+        {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'},
+        {nested: {ELEMENT: 'node-2', 'element-6066-11e4-a52e-4f735466cecf': 'node-2'}, other: 'text'},
+      ]);
     });
   });
 

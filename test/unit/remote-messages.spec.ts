@@ -40,6 +40,7 @@ describe('RemoteMessages', function () {
       'Automation.performMouseInteraction',
       'Automation.performKeyboardInteractions',
       'Automation.performInteractionSequence',
+      'Automation.cancelInteractionSequence',
       'Automation.addSingleCookie',
       'Automation.deleteAllCookies',
       'Automation.deleteSingleCookie',

@@ -37,3 +37,9 @@ export async function performInteractionSequence(
   const params = this.withFrameHandle({handle: this.requireTopLevelHandle(), inputSources, steps});
   await this.callAutomation('performInteractionSequence', params);
 }
+
+/** Cancels an in-progress `performInteractionSequence` call, e.g. as part of releasing held input state. */
+export async function cancelInteractionSequence(this: AutomationSession): Promise<void> {
+  const params = this.withFrameHandle({handle: this.requireTopLevelHandle()});
+  await this.callAutomation('cancelInteractionSequence', params);
+}

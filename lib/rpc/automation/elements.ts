@@ -3,7 +3,7 @@ import type {StringRecord} from '@appium/types';
 import {waitForCondition} from 'asyncbox';
 
 import {getAutomationAtomScript, type AutomationAtomName} from './atoms.js';
-import {MODIFIER_TO_KEY, VIRTUAL_KEYS} from './keys.js';
+import {MODIFIER_TO_KEY, NULL_KEY, VIRTUAL_KEYS} from './keys.js';
 import {takeScreenshot} from './screenshot.js';
 import type {AutomationSession} from './session.js';
 import type {AutomationElement, AutomationRect, LocatorStrategy} from './types.js';
@@ -17,8 +17,7 @@ export async function findElement(
   value: string,
   root?: AutomationElement,
 ): Promise<AutomationElement | null> {
-  const raw = await pollForRawNodes.call(this, 'find_element', strategy, value, root, (result) => result == null);
-  return raw == null ? null : this.wrapElement(this.extractNodeHandle(raw));
+  return await pollForRawNodes.call(this, 'find_element', strategy, value, root, (result) => result == null);
 }
 
 /** Finds every matching element, polling until at least one match or the implicit wait elapses. */
@@ -36,7 +35,7 @@ export async function findElements(
     root,
     (result) => !result || result.length === 0,
   );
-  return (raw ?? []).map((entry: any) => this.wrapElement(this.extractNodeHandle(entry)));
+  return raw ?? [];
 }
 
 /** Taps/clicks the element via a native touch interaction, or selects it if it's an `<option>`. */
@@ -80,6 +79,14 @@ export async function sendKeys(this: AutomationSession, el: AutomationElement, t
   const interactions: StringRecord[] = [];
   const stickyModifiers = new Set<string>();
   for (const char of text) {
+    if (char === NULL_KEY) {
+      // WebDriver spec: NULL releases every currently-held modifier without typing anything.
+      for (const modifier of stickyModifiers) {
+        interactions.push({type: 'KeyRelease', key: MODIFIER_TO_KEY[modifier]});
+      }
+      stickyModifiers.clear();
+      continue;
+    }
     const virtualKey = VIRTUAL_KEYS[char];
     if (virtualKey) {
       const [key, modifier] = virtualKey;

@@ -65,6 +65,7 @@ const COMMANDS = {
   'Automation.performMouseInteraction': ['handle', 'position', 'button', 'interaction', 'modifiers'],
   'Automation.performKeyboardInteractions': ['handle', 'interactions'],
   'Automation.performInteractionSequence': ['handle', 'frameHandle', 'inputSources', 'steps'],
+  'Automation.cancelInteractionSequence': ['handle', 'frameHandle'],
   'Automation.addSingleCookie': ['browsingContextHandle', 'cookie'],
   'Automation.deleteAllCookies': ['browsingContextHandle'],
   'Automation.deleteSingleCookie': ['browsingContextHandle', 'cookieName'],

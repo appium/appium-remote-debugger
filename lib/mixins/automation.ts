@@ -38,7 +38,14 @@ export async function startAutomationSession(this: RemoteDebugger): Promise<Auto
   }
 
   const session = new AutomationSession(this.requireRpcClient(true), this.log);
-  await session.start(appIdKey);
+  try {
+    await session.start(appIdKey);
+  } catch (err) {
+    // start() may have already established the protocol-level session before failing
+    // (e.g. tab creation) - stop() is a no-op if it didn't get that far.
+    await session.stop();
+    throw err;
+  }
   setAutomationSession(this, session);
   return session;
 }

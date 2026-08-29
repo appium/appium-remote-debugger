@@ -53,6 +53,11 @@ export class AutomationSession {
   protected topLevelHandle?: string;
   protected currentFrameHandle: string = '';
   protected currentParentFrameHandle: string = '';
+  // Held state for the W3C Actions API - which keys/buttons are currently down per input
+  // source - kept here (not local to a single performW3CActions call) so it survives across
+  // Actions calls, per the W3C "input state" model. See actions.ts.
+  protected pointerInputState = new Map<string, actionsMixins.PointerRunningState>();
+  protected keyInputState = new Map<string, actionsMixins.KeyRunningState>();
 
   /** How long to wait for a page-load-affecting navigation to complete. */
   pageLoadTimeoutMs: number = DEFAULT_PAGE_LOAD_TIMEOUT_MS;
@@ -126,9 +131,11 @@ export class AutomationSession {
   performMouseInteraction = inputMixins.performMouseInteraction;
   performKeyboardInteractions = inputMixins.performKeyboardInteractions;
   performInteractionSequence = inputMixins.performInteractionSequence;
+  cancelInteractionSequence = inputMixins.cancelInteractionSequence;
 
   // W3C Actions API
   performW3CActions = actionsMixins.performW3CActions;
+  releaseActions = actionsMixins.releaseActions;
 
   // JS dialogs (alert/confirm/prompt)
   isShowingJavaScriptDialog = dialogsMixins.isShowingJavaScriptDialog;
@@ -314,12 +321,7 @@ export class AutomationSession {
       params.callbackTimeout = opts.callbackTimeoutMs;
     }
     const response = await this.callAutomation<{result: string}>('evaluateJavaScriptFunction', params);
-    return JSON.parse(response.result) as T;
-  }
-
-  /** Extracts the WebKit-native node handle from an `evaluateJavaScriptFunction` DOM-node result. */
-  extractNodeHandle(raw: any): string {
-    return raw[this.nodeHandleKey()];
+    return this.wrapScriptResult(JSON.parse(response.result)) as T;
   }
 
   /** Builds our own W3C-shaped element handle (same shape atoms return elements in). */
@@ -375,6 +377,33 @@ export class AutomationSession {
     return result;
   }
 
+  /**
+   * Converts an incoming script result back from WebKit's node-handle shape into our own
+   * W3C-shaped element handle, if it (or anything nested inside an array/plain object it
+   * contains) is one. The mirror image of `toWireArg`.
+   */
+  private wrapScriptResult(value: any, seen: object[] = []): any {
+    if (!value || typeof value !== 'object') {
+      return value;
+    }
+    const nodeHandleKey = this.nodeHandleKey();
+    if (nodeHandleKey in value) {
+      return this.wrapElement(value[nodeHandleKey]);
+    }
+    if (seen.includes(value)) {
+      return value;
+    }
+    seen = [...seen, value];
+    if (Array.isArray(value)) {
+      return value.map((entry) => this.wrapScriptResult(entry, seen));
+    }
+    const result: StringRecord = {};
+    for (const key of Object.keys(value)) {
+      result[key] = this.wrapScriptResult(value[key], seen);
+    }
+    return result;
+  }
+
   private nodeHandleKey(): string {
     return `session-node-${this.sessionId}`;
   }
@@ -385,6 +414,8 @@ export class AutomationSession {
     this.automationPageIdKey = undefined;
     this.topLevelHandle = undefined;
     this.resetFrameState();
+    this.pointerInputState.clear();
+    this.keyInputState.clear();
   }
 
   private async waitForListingMatch(
