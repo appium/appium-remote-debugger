@@ -1,3 +1,9 @@
+## [17.4.0](https://github.com/appium/appium-remote-debugger/compare/v17.3.0...v17.4.0) (2026-08-29)
+
+### Features
+
+* export AutomationSession and its types from the package root ([#542](https://github.com/appium/appium-remote-debugger/issues/542)) ([afde3f6](https://github.com/appium/appium-remote-debugger/commit/afde3f6269121199e02ee6d761762b6748fcfadd))
+
 ## [17.3.0](https://github.com/appium/appium-remote-debugger/compare/v17.2.1...v17.3.0) (2026-08-29)
 
 ### Features
