@@ -1,3 +1,9 @@
+## [17.3.0](https://github.com/appium/appium-remote-debugger/compare/v17.2.1...v17.3.0) (2026-08-29)
+
+### Features
+
+* make the Automation session a full WebDriver backend ([#540](https://github.com/appium/appium-remote-debugger/issues/540)) ([1f35745](https://github.com/appium/appium-remote-debugger/commit/1f3574527953b3e71c7867226a0c2f12cbf14175))
+
 ## [17.2.1](https://github.com/appium/appium-remote-debugger/compare/v17.2.0...v17.2.1) (2026-08-29)
 
 ### Miscellaneous Chores
