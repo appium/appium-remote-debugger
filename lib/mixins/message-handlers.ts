@@ -10,6 +10,7 @@ import {
   getAppDict,
   getAppIdKey,
   getAutomationSession,
+  setAutomationSession,
   getBundleId,
   getNavigatingToPage,
   setCurrentState,
@@ -108,6 +109,7 @@ export function onAppDisconnect(this: RemoteDebugger, err: Error | null | undefi
     void automationSession.stop().catch((stopErr: any) => {
       this.log.debug(`Failed to stop the automation session on app disconnect: ${stopErr?.message ?? stopErr}`);
     });
+    setAutomationSession(this, undefined);
   }
 
   // get rid of the entry in our app dictionary,

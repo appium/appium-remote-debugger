@@ -32,6 +32,45 @@ const COMMANDS = {
   'Automation.dismissCurrentJavaScriptDialog': ['browsingContextHandle'],
   'Automation.messageOfCurrentJavaScriptDialog': ['browsingContextHandle'],
   'Automation.setUserInputForCurrentJavaScriptPrompt': ['browsingContextHandle', 'userInput'],
+  'Automation.createBrowsingContext': ['presentationHint'],
+  'Automation.closeBrowsingContext': ['handle'],
+  'Automation.getBrowsingContext': ['handle'],
+  'Automation.maximizeWindowOfBrowsingContext': ['handle'],
+  'Automation.hideWindowOfBrowsingContext': ['handle'],
+  'Automation.setWindowFrameOfBrowsingContext': ['handle', 'origin', 'size'],
+  'Automation.navigateBrowsingContext': ['handle', 'url', 'pageLoadTimeout'],
+  'Automation.goBackInBrowsingContext': ['handle', 'pageLoadTimeout'],
+  'Automation.goForwardInBrowsingContext': ['handle', 'pageLoadTimeout'],
+  'Automation.reloadBrowsingContext': ['handle', 'pageLoadTimeout'],
+  'Automation.waitForNavigationToComplete': ['browsingContextHandle', 'frameHandle', 'pageLoadTimeout'],
+  'Automation.resolveParentFrameHandle': ['browsingContextHandle', 'frameHandle'],
+  'Automation.resolveChildFrameHandle': ['browsingContextHandle', 'frameHandle', 'ordinal', 'nodeHandle'],
+  'Automation.switchToBrowsingContext': ['browsingContextHandle', 'frameHandle'],
+  'Automation.evaluateJavaScriptFunction': [
+    'browsingContextHandle',
+    'frameHandle',
+    'function',
+    'arguments',
+    'expectsImplicitCallbackArgument',
+    'callbackTimeout',
+  ],
+  'Automation.computeElementLayout': [
+    'browsingContextHandle',
+    'frameHandle',
+    'nodeHandle',
+    'scrollIntoViewIfNeeded',
+    'coordinateSystem',
+  ],
+  'Automation.selectOptionElement': ['browsingContextHandle', 'frameHandle', 'nodeHandle'],
+  'Automation.performMouseInteraction': ['handle', 'position', 'button', 'interaction', 'modifiers'],
+  'Automation.performKeyboardInteractions': ['handle', 'interactions'],
+  'Automation.performInteractionSequence': ['handle', 'frameHandle', 'inputSources', 'steps'],
+  'Automation.cancelInteractionSequence': ['handle', 'frameHandle'],
+  'Automation.addSingleCookie': ['browsingContextHandle', 'cookie'],
+  'Automation.deleteAllCookies': ['browsingContextHandle'],
+  'Automation.deleteSingleCookie': ['browsingContextHandle', 'cookieName'],
+  'Automation.getAllCookies': ['browsingContextHandle'],
+  'Automation.takeScreenshot': ['handle', 'frameHandle', 'nodeHandle', 'scrollIntoViewIfNeeded', 'clipToViewport'],
   //#endregion
 
   // https://github.com/WebKit/WebKit/blob/main/Source/JavaScriptCore/inspector/protocol/Browser.json
@@ -237,8 +276,15 @@ export function getProtocolCommand(
     throw new Error(`Unknown command: '${method}'`);
   }
 
+  // Direct commands (e.g. Automation.*) embed `params` in a nested plist object that only gets
+  // top-level nil-stripping, and bplist-creator throws on nested `undefined` - so for those,
+  // omit whitelisted-but-absent params entirely instead of setting them to `undefined`. Indirect
+  // commands don't need this: their params get JSON.stringify'd, which already drops `undefined`
+  // values on its own.
   const params: StringRecord = (paramNames as readonly string[]).reduce(function (acc: StringRecord, name: string) {
-    acc[name] = opts[name];
+    if (!direct || opts[name] !== undefined) {
+      acc[name] = opts[name];
+    }
     return acc;
   }, {} as StringRecord);
   const result: ProtocolCommandOpts = {
