@@ -493,10 +493,20 @@ describe('AutomationSession', function () {
       assert.strictEqual(command, 'Automation.performInteractionSequence');
       assert.deepStrictEqual(opts.inputSources, [{sourceId: 'finger1', sourceType: 'Touch'}]);
       assert.deepStrictEqual(opts.steps, [
-        {states: [{sourceId: 'finger1', location: {x: 10, y: 20}, origin: 'Viewport', duration: 0, mouseInteraction: 'Move'}]},
         {
           states: [
-            {sourceId: 'finger1', location: {x: 10, y: 20}, origin: 'Viewport', pressedButton: 'Left', mouseInteraction: 'Down'},
+            {sourceId: 'finger1', location: {x: 10, y: 20}, origin: 'Viewport', duration: 0, mouseInteraction: 'Move'},
+          ],
+        },
+        {
+          states: [
+            {
+              sourceId: 'finger1',
+              location: {x: 10, y: 20},
+              origin: 'Viewport',
+              pressedButton: 'Left',
+              mouseInteraction: 'Down',
+            },
           ],
         },
         {
@@ -637,7 +647,9 @@ describe('AutomationSession', function () {
         },
       ]);
 
-      const layoutCalls = rpcClient.send.getCalls().filter((call) => call.args[0] === 'Automation.computeElementLayout');
+      const layoutCalls = rpcClient.send
+        .getCalls()
+        .filter((call) => call.args[0] === 'Automation.computeElementLayout');
       assert.strictEqual(layoutCallCount, 4);
       // First pass scrolls both into view; second pass re-reads both without scrolling again.
       assert.deepStrictEqual(
