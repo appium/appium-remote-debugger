@@ -51,10 +51,6 @@ const DEFAULT_COOKIE_LIFETIME_SECONDS = 400 * 24 * 60 * 60;
  * valid `Cookie` rather than forwarding the caller's object as-is. This also fixes a latent bug:
  * the WebDriver cookie field is named `expiry`, not `expires` - passing a caller-supplied expiry
  * straight through as `expires` would have silently dropped it.
- *
- * A rejected call has also been observed to wedge the connection for minutes - the same class of
- * bug as https://bugs.webkit.org/show_bug.cgi?id=322937, just triggered by a rejection instead of
- * a successful `performInteractionSequence`. Filling in the required fields avoids the trigger.
  */
 export async function addCookie(this: AutomationSession, cookie: StringRecord): Promise<void> {
   const {expiry, ...resolvedCookie} = cookie;
