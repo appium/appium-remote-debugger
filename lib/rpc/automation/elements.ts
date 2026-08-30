@@ -54,7 +54,7 @@ export async function click(this: AutomationSession, el: AutomationElement): Pro
     await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('click'), [el]);
     return;
   }
-  const layout = await computeLayout.call(this, el, true, 'LayoutViewport');
+  const layout = await computeLayout.call(this, el, true, 'Viewport');
   if (layout.isObscured) {
     throw new errors.ElementClickInterceptedError(
       'Element is not clickable at its current position because it is obscured',
@@ -62,18 +62,25 @@ export async function click(this: AutomationSession, el: AutomationElement): Pro
   }
   // iOS has no real pointing device - Automation.performMouseInteraction is not
   // implemented there (confirmed against a real Simulator: 'NotImplemented'). Touch
-  // is the input model WebKit actually supports on iOS/iPadOS. Per WebKit's own
-  // Automation.json, a touch-down is a state with `pressedButton: 'Left'`; a step with
-  // no state for the source defaults to 'released' - two steps make a full tap.
-  // (A single location-only state, with no pressedButton, is just a move - confirmed
-  // against a real Simulator: it doesn't focus the element or register as a tap.)
+  // is the input model WebKit actually supports on iOS/iPadOS. `mouseInteraction` is
+  // required on both states - per WebKit's own Automation.json, if it's "unmentioned
+  // and the interaction cannot be determined through other heuristics, the state is
+  // dropped" (confirmed: WebAutomationSession's C++ has no such heuristic, only its
+  // WebDriver/Session.cpp reference client does - omitting it silently no-ops the tap).
   await this.performInteractionSequence(
     [{sourceId: this.sessionId, sourceType: 'Touch'}],
     [
       {
-        states: [{sourceId: this.sessionId, location: {x: layout.center.x, y: layout.center.y}, pressedButton: 'Left'}],
+        states: [
+          {
+            sourceId: this.sessionId,
+            location: {x: layout.center.x, y: layout.center.y},
+            pressedButton: 'Left',
+            mouseInteraction: 'Down',
+          },
+        ],
       },
-      {states: []},
+      {states: [{sourceId: this.sessionId, mouseInteraction: 'Up'}]},
     ],
   );
 }
@@ -239,7 +246,7 @@ export async function computeLayout(
   this: AutomationSession,
   el: AutomationElement,
   scrollIfNeeded: boolean,
-  coordinateSystem: 'Page' | 'LayoutViewport',
+  coordinateSystem: 'Page' | 'Viewport',
 ): Promise<{rect: AutomationRect; center: {x: number; y: number}; isObscured: boolean}> {
   const params: StringRecord = {
     browsingContextHandle: this.requireTopLevelHandle(),

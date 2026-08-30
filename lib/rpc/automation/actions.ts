@@ -107,7 +107,7 @@ async function resolveElementOriginCenters(
   }
   const centers = new Map<string, {x: number; y: number}>();
   for (const nodeHandle of nodeHandles) {
-    const layout = await computeLayout.call(session, session.wrapElement(nodeHandle), true, 'LayoutViewport');
+    const layout = await computeLayout.call(session, session.wrapElement(nodeHandle), true, 'Viewport');
     centers.set(nodeHandle, layout.center);
   }
   return centers;
@@ -184,12 +184,19 @@ function buildPointerTickState(
   const state = running.get(sourceId) ?? {};
   running.set(sourceId, state);
 
+  // WebKit's own `mouseInteraction` doc comment: "if unmentioned and the interaction cannot be
+  // determined through other heuristics, the state is dropped" - and there is no such heuristic
+  // in WebAutomationSession's own C++, only in WebDriver/Session.cpp's reference client. Omitting
+  // it (as this function used to) makes every state a silent no-op: no touch/mouse event at all,
+  // no error either. Every branch below must set it alongside `pressedButton`/`location`.
   if (action?.type === 'pointerUp') {
     running.delete(sourceId);
-    return null;
+    return {sourceId, mouseInteraction: 'Up'};
   }
+  let mouseInteraction: 'Down' | 'Move' | undefined;
   if (action?.type === 'pointerDown') {
     state.pressedButton = resolveButton(action.button);
+    mouseInteraction = 'Down';
   } else if (action?.type === 'pointerMove') {
     if (action.origin && action.origin !== 'viewport' && action.origin !== 'pointer') {
       // Element origin: pre-resolved to an absolute viewport point (see
@@ -202,6 +209,7 @@ function buildPointerTickState(
       state.location = {x: action.x, y: action.y};
       state.origin = action.origin === 'pointer' ? 'Pointer' : 'Viewport';
     }
+    mouseInteraction = 'Move';
   }
 
   let duration: number | undefined;
@@ -221,6 +229,9 @@ function buildPointerTickState(
   }
   if (state.pressedButton) {
     result.pressedButton = state.pressedButton;
+  }
+  if (mouseInteraction) {
+    result.mouseInteraction = mouseInteraction;
   }
   if (duration !== undefined) {
     result.duration = duration;

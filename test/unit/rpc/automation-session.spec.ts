@@ -202,11 +202,13 @@ describe('AutomationSession', function () {
       assert.ok(touchCall);
       const {inputSources, steps} = touchCall.args[1];
       assert.strictEqual(inputSources[0].sourceType, 'Touch');
-      // touch-down (with pressedButton) then release (empty state) - a bare location-only
-      // state is just a move, not a tap (confirmed against a real Simulator)
+      // touch-down (with pressedButton + mouseInteraction) then an explicit release state -
+      // `mouseInteraction` is required or WebKit silently drops the whole state (see click()'s
+      // own doc comment).
       assert.deepStrictEqual(steps[0].states[0].location, {x: 6, y: 12});
       assert.strictEqual(steps[0].states[0].pressedButton, 'Left');
-      assert.deepStrictEqual(steps[1].states, []);
+      assert.strictEqual(steps[0].states[0].mouseInteraction, 'Down');
+      assert.deepStrictEqual(steps[1].states, [{sourceId: steps[1].states[0].sourceId, mouseInteraction: 'Up'}]);
     });
 
     it('should route a checkbox input through the click atom instead of native touch', async function () {
@@ -536,15 +538,27 @@ describe('AutomationSession', function () {
       assert.strictEqual(command, 'Automation.performInteractionSequence');
       assert.deepStrictEqual(opts.inputSources, [{sourceId: 'finger1', sourceType: 'Touch'}]);
       assert.deepStrictEqual(opts.steps, [
-        {states: [{sourceId: 'finger1', location: {x: 10, y: 20}, origin: 'Viewport', duration: 0}]},
-        {states: [{sourceId: 'finger1', location: {x: 10, y: 20}, origin: 'Viewport', pressedButton: 'Left'}]},
+        {states: [{sourceId: 'finger1', location: {x: 10, y: 20}, origin: 'Viewport', duration: 0, mouseInteraction: 'Move'}]},
         {
           states: [
-            {sourceId: 'finger1', location: {x: 15, y: 25}, origin: 'Viewport', pressedButton: 'Left', duration: 100},
+            {sourceId: 'finger1', location: {x: 10, y: 20}, origin: 'Viewport', pressedButton: 'Left', mouseInteraction: 'Down'},
           ],
         },
-        // pointerUp omits the source entirely - that's how WebKit represents a release
-        {states: []},
+        {
+          states: [
+            {
+              sourceId: 'finger1',
+              location: {x: 15, y: 25},
+              origin: 'Viewport',
+              pressedButton: 'Left',
+              duration: 100,
+              mouseInteraction: 'Move',
+            },
+          ],
+        },
+        // pointerUp carries an explicit mouseInteraction:'Up' - WebKit drops states that don't
+        // name an interaction, so omitting the source entirely (as this used to) is a no-op.
+        {states: [{sourceId: 'finger1', mouseInteraction: 'Up'}]},
       ]);
     });
 
@@ -586,7 +600,7 @@ describe('AutomationSession', function () {
 
       const {steps} = rpcClient.send.firstCall.args[1];
       assert.deepStrictEqual(steps, [
-        {states: [{sourceId: 'p1', pressedButton: 'Left'}]},
+        {states: [{sourceId: 'p1', pressedButton: 'Left', mouseInteraction: 'Down'}]},
         {
           states: [
             {sourceId: 'p1', pressedButton: 'Left'},
@@ -622,7 +636,9 @@ describe('AutomationSession', function () {
       assert.ok(interactionCall);
       const {steps} = interactionCall.args[1];
       // center (20, 20) + the requested (5, 5) offset from it
-      assert.deepStrictEqual(steps, [{states: [{sourceId: 'p1', location: {x: 25, y: 25}, origin: 'Viewport'}]}]);
+      assert.deepStrictEqual(steps, [
+        {states: [{sourceId: 'p1', location: {x: 25, y: 25}, origin: 'Viewport', mouseInteraction: 'Move'}]},
+      ]);
     });
 
     it('should translate a wheel scroll action', async function () {
@@ -683,9 +699,9 @@ describe('AutomationSession', function () {
 
       const {steps} = rpcClient.send.firstCall.args[1];
       assert.deepStrictEqual(steps, [
-        {states: [{sourceId: 'p1', pressedButton: 'Left'}]},
+        {states: [{sourceId: 'p1', pressedButton: 'Left', mouseInteraction: 'Down'}]},
         {states: [{sourceId: 'p1', pressedButton: 'Left', duration: 300}]},
-        {states: []},
+        {states: [{sourceId: 'p1', mouseInteraction: 'Up'}]},
       ]);
     });
 
@@ -744,8 +760,8 @@ describe('AutomationSession', function () {
         {type: 'pointer', id: 'p1', actions: [{type: 'pointerUp', button: 0}]},
       ]);
       const {steps} = rpcClient.send.firstCall.args[1];
-      // No held button remains after releaseActions - pointerUp on nothing-held is a no-op state.
-      assert.deepStrictEqual(steps, [{states: []}]);
+      // pointerUp always emits an explicit release state, regardless of whether anything was held.
+      assert.deepStrictEqual(steps, [{states: [{sourceId: 'p1', mouseInteraction: 'Up'}]}]);
     });
 
     it('should still forget held state if the cancel call itself fails', async function () {
