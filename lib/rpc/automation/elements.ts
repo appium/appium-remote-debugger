@@ -37,13 +37,10 @@ export async function findElements(
   return raw ?? [];
 }
 
-// Native touch-based tapping (see below) has been confirmed - against our own driver AND
-// Apple's own safaridriver, on iOS 27 beta and stable iOS 26.x, on Simulator AND real hardware -
-// to report success while not actually toggling a checkbox/radio `<input>`'s checked state at
-// all. Route these through the `click` JS atom instead (a real, synthetic DOM event dispatch,
-// the same mechanism the atoms-based execution path already uses successfully), same as
-// `sendKeys` was moved off native keyboard delivery for the analogous reason.
-// Reported to WebKit: https://bugs.webkit.org/show_bug.cgi?id=322939
+// Native touch-based tapping (see below) reports success without actually toggling a
+// checkbox/radio `<input>`'s checked state (confirmed on our driver and safaridriver alike).
+// Route these through the `click` JS atom instead, same as `sendKeys` was moved off native
+// keyboard delivery for the analogous reason. https://bugs.webkit.org/show_bug.cgi?id=322939
 const CHECKABLE_INPUT_TYPES = new Set(['checkbox', 'radio']);
 
 /** Taps/clicks the element via a native touch interaction, or selects it if it's an `<option>`. */

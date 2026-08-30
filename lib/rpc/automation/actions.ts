@@ -35,15 +35,10 @@ export interface KeyRunningState {
  * later one - matching the W3C "input state" model. `releaseActions()` clears it.
  */
 export async function performW3CActions(this: AutomationSession, actions: ActionSequence[]): Promise<void> {
-  // Sending a nodeHandle + `origin: 'Element'` straight through to performInteractionSequence
-  // and letting WebKit resolve it has been observed to fail with MoveTargetOutOfBoundsError on
-  // at least one iOS 27 beta Simulator, even for an element computeElementLayout itself resolves
-  // to a perfectly in-bounds inViewCenterPoint moments earlier - WebKit's own element-origin
-  // resolution inside performInteractionSequence is unreliable there. Sidestep it entirely:
-  // resolve every distinct element origin's on-screen center ourselves up front (scrolling it
-  // into view in the process, exactly like click() does via the same computeElementLayout call),
-  // and send an absolute, already-resolved location instead of a nodeHandle + origin:'Element'
-  // pair - mirroring how click() already talks to performInteractionSequence successfully.
+  // WebKit's own element-origin resolution inside performInteractionSequence is unreliable on
+  // some Simulators (nodeHandle + origin:'Element' can fail MoveTargetOutOfBoundsError even for
+  // an in-bounds element). Sidestep it: resolve each element's on-screen center ourselves via
+  // computeElementLayout and send an absolute location instead, like click() already does.
   const elementCenters = await resolveElementOriginCenters(this, actions);
 
   const maxTicks = actions.reduce((max, seq) => Math.max(max, seq.actions.length), 0);
