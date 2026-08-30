@@ -391,51 +391,6 @@ describe('AutomationSession', function () {
       assert.strictEqual('size' in opts, false);
     });
 
-    it('should close every owned window before sending forwardDidClose on stop', async function () {
-      rpcClient.send.callsFake(async (command: string) => {
-        if (command === 'Automation.getBrowsingContexts') {
-          return {contexts: [{handle: TOP_LEVEL_HANDLE, active: true, url: 'about:blank'}]};
-        }
-        return undefined;
-      });
-
-      await automationSession.stop();
-
-      const commands = rpcClient.send.getCalls().map((call) => call.args[0]);
-      assert.deepStrictEqual(commands, [
-        'Automation.getBrowsingContexts',
-        'Automation.closeBrowsingContext',
-        'forwardDidClose',
-      ]);
-      assert.strictEqual(automationSession.isStarted, false);
-    });
-
-    it('should keep closing remaining owned windows even if closing one fails', async function () {
-      rpcClient.send.callsFake(async (command: string, opts: any) => {
-        if (command === 'Automation.getBrowsingContexts') {
-          return {
-            contexts: [
-              {handle: 'ctx-1', active: false, url: 'about:blank'},
-              {handle: 'ctx-2', active: true, url: 'about:blank'},
-            ],
-          };
-        }
-        if (command === 'Automation.closeBrowsingContext' && opts.handle === 'ctx-1') {
-          throw new Error('already closed');
-        }
-        return undefined;
-      });
-
-      await automationSession.stop();
-
-      const closeCalls = rpcClient.send
-        .getCalls()
-        .filter((call) => call.args[0] === 'Automation.closeBrowsingContext')
-        .map((call) => call.args[1].handle);
-      assert.deepStrictEqual(closeCalls, ['ctx-1', 'ctx-2']);
-      assert.strictEqual(automationSession.isStarted, false);
-    });
-
     it('should clear the top-level handle when closing the current window', async function () {
       rpcClient.send.resolves(undefined);
       await automationSession.closeWindow();
@@ -875,9 +830,6 @@ describe('AutomationSession', function () {
       await automationSession.stop();
 
       assert.strictEqual(automationSession.isStarted, false);
-      // stop() first enumerates+closes owned windows (none here), then closes the session itself
-      const commands = rpcClient.send.getCalls().map((call) => call.args[0]);
-      assert.deepStrictEqual(commands, ['Automation.getBrowsingContexts', 'forwardDidClose']);
       const [command, opts] = rpcClient.send.lastCall.args;
       assert.strictEqual(command, 'forwardDidClose');
       assert.strictEqual(opts.appIdKey, APP_ID_KEY);
@@ -896,6 +848,33 @@ describe('AutomationSession', function () {
 
       await assert.doesNotReject(automationSession.stop());
       assert.strictEqual(automationSession.isStarted, false);
+    });
+
+    it('should not enumerate/close windows unless closeAllWindows is true', async function () {
+      await startFullSession();
+      await automationSession.stop();
+
+      const commands = rpcClient.send.getCalls().map((call) => call.args[0]);
+      assert.deepStrictEqual(commands, ['forwardDidClose']);
+    });
+
+    it('should close every owned window first when closeAllWindows is true', async function () {
+      await startFullSession();
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.getBrowsingContexts') {
+          return {contexts: [{handle: TOP_LEVEL_HANDLE, active: true, url: 'about:blank'}]};
+        }
+        return undefined;
+      });
+
+      await automationSession.stop({closeAllWindows: true});
+
+      const commands = rpcClient.send.getCalls().map((call) => call.args[0]);
+      assert.deepStrictEqual(commands, [
+        'Automation.getBrowsingContexts',
+        'Automation.closeBrowsingContext',
+        'forwardDidClose',
+      ]);
     });
   });
 
@@ -935,6 +914,19 @@ describe('AutomationSession', function () {
 
       const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
       await assert.rejects(automationSession.getText(el), errors.StaleElementReferenceError);
+    });
+  });
+
+  describe('command timeout', function () {
+    beforeEach(async function () {
+      await startFullSession();
+      automationSession.commandTimeoutMs = 20;
+      // simulates the observed real-hardware wedge: WebKit never responds to an Automation.* call
+      rpcClient.send.callsFake(() => new Promise(() => {}));
+    });
+
+    it('throws a TimeoutError instead of hanging forever when WebKit never responds', async function () {
+      await assert.rejects(automationSession.getWindowHandles(), errors.TimeoutError);
     });
   });
 });

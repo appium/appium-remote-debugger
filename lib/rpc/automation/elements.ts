@@ -43,6 +43,7 @@ export async function findElements(
 // all. Route these through the `click` JS atom instead (a real, synthetic DOM event dispatch,
 // the same mechanism the atoms-based execution path already uses successfully), same as
 // `sendKeys` was moved off native keyboard delivery for the analogous reason.
+// Reported to WebKit: https://bugs.webkit.org/show_bug.cgi?id=322939
 const CHECKABLE_INPUT_TYPES = new Set(['checkbox', 'radio']);
 
 /** Taps/clicks the element via a native touch interaction, or selects it if it's an `<option>`. */
@@ -95,6 +96,8 @@ export async function clear(this: AutomationSession, el: AutomationElement): Pro
  * `Automation.performKeyboardInteractions` reporting success while typing nothing (confirmed
  * against a real iOS 27 beta Simulator and iOS 26.4 in CI alike) - the underlying key-event
  * simulation itself just isn't implemented/wired up on iOS the way it is on macOS.
+ *
+ * Reported to WebKit: https://bugs.webkit.org/show_bug.cgi?id=322938
  */
 export async function sendKeys(this: AutomationSession, el: AutomationElement, text: string): Promise<void> {
   await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('type'), [el, text]);

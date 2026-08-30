@@ -12,6 +12,8 @@ import type {AutomationSession} from './session.js';
  * cookies aren't visible to JS, and only name/value are available - no domain/path/expiry/
  * secure/sameSite metadata (matches what the atoms-based execution path already returns for a
  * JS-set cookie's readback, since document.cookie has the same visibility limits there too).
+ *
+ * Reported to WebKit: https://bugs.webkit.org/show_bug.cgi?id=322937
  */
 export async function getCookies(this: AutomationSession): Promise<StringRecord[]> {
   const cookieString = await this.evaluateJavaScriptFunction<string>('function() { return document.cookie; }');
@@ -47,12 +49,14 @@ const DEFAULT_COOKIE_LIFETIME_SECONDS = 400 * 24 * 60 * 60;
  * `Automation.addSingleCookie`'s `Cookie` parameter turns out to be far stricter than its
  * WebDriver counterpart: WebKit rejects it outright (`MissingParameter: The parameter '<name>'
  * was not found`) for any of `domain`, `path`, or `expires` left unset, even though a WebDriver
- * client is expected to be able to omit all three. A rejected call has also been observed to
- * wedge the Automation target's message queue, hanging every *subsequent* call for minutes with
- * no response at all, which made the actual cause very hard to spot - so it's worth always
- * filling in a complete, valid `Cookie` rather than forwarding the caller's object as-is. This
- * also fixes a latent bug: the WebDriver cookie field is named `expiry`, not `expires` - passing
- * a caller-supplied expiry straight through as `expires` would have silently dropped it.
+ * client is expected to be able to omit all three - so it's worth always filling in a complete,
+ * valid `Cookie` rather than forwarding the caller's object as-is. This also fixes a latent bug:
+ * the WebDriver cookie field is named `expiry`, not `expires` - passing a caller-supplied expiry
+ * straight through as `expires` would have silently dropped it.
+ *
+ * A rejected call has also been observed to wedge the connection for minutes - the same class of
+ * bug as https://bugs.webkit.org/show_bug.cgi?id=322937, just triggered by a rejection instead of
+ * a successful `performInteractionSequence`. Filling in the required fields avoids the trigger.
  */
 export async function addCookie(this: AutomationSession, cookie: StringRecord): Promise<void> {
   const {expiry, ...resolvedCookie} = cookie;

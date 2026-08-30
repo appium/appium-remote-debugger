@@ -1,12 +1,14 @@
 import {errors} from '@appium/base-driver';
 import {util} from '@appium/support';
 import type {AppiumLogger, StringRecord} from '@appium/types';
+import {TimeoutError as AsyncboxTimeoutError, withTimeout} from 'asyncbox';
 
 import type {AppIdKey, PageIdKey} from '../../types.js';
 import type {RpcClient} from '../rpc-client.js';
 import * as actionsMixins from './actions.js';
 import {
   AUTOMATION_TARGET_TYPE,
+  DEFAULT_COMMAND_TIMEOUT_MS,
   DEFAULT_PAGE_LOAD_TIMEOUT_MS,
   DEFAULT_SCRIPT_TIMEOUT_MS,
   DEFAULT_SESSION_TIMEOUT_MS,
@@ -65,6 +67,8 @@ export class AutomationSession {
   scriptTimeoutMs: number = DEFAULT_SCRIPT_TIMEOUT_MS;
   /** How long `findElement`/`findElements` polls for a match before giving up. */
   implicitWaitTimeoutMs: number = 0;
+  /** How long a single `Automation.*` command waits for WebKit's response before giving up. */
+  commandTimeoutMs: number = DEFAULT_COMMAND_TIMEOUT_MS;
 
   // elements
   findElement = elementsMixins.findElement;
@@ -231,12 +235,17 @@ export class AutomationSession {
   }
 
   /**
-   * Tears down the automation session, if one is active. Closes every browsing
-   * context the session created first. Idempotent, and swallows errors - teardown
-   * must never block the caller's own cleanup.
+   * Tears down the automation session, if one is active. Idempotent, and swallows errors -
+   * teardown must never block the caller's own cleanup.
+   *
+   * `closeAllWindows` (off by default) enumerates and closes every browsing context the session
+   * created first. Leave it off unless you need it: that's the exact position where
+   * https://bugs.webkit.org/show_bug.cgi?id=322937's connection wedge tends to hit, turning a
+   * routine teardown into a multi-minute stall - `forwardDidClose` below plus the caller's own
+   * reconnect abandon these contexts either way.
    */
-  async stop(): Promise<void> {
-    if (this.isStarted) {
+  async stop(opts: {closeAllWindows?: boolean} = {}): Promise<void> {
+    if (opts.closeAllWindows && this.isStarted) {
       let handles: string[] = [];
       try {
         handles = await this.getWindowHandles();
@@ -334,20 +343,29 @@ export class AutomationSession {
     return util.unwrapElement(el);
   }
 
-  /** Sends a raw `Automation.<method>` command with the session's own routing params attached. */
+  /** Sends a raw `Automation.<method>` command, bounded by `commandTimeoutMs`. */
   async callAutomation<T = any>(method: string, params: StringRecord): Promise<T> {
     if (!this.isStarted) {
       throw new errors.NoSuchDriverError('Automation session has not been started');
     }
     try {
-      return await this.rpcClient.send(`Automation.${method}`, {
-        appIdKey: this.appIdKey,
-        pageIdKey: this.automationPageIdKey,
-        senderId: this.sessionId,
-        sessionId: this.sessionId,
-        ...params,
-      });
+      return await withTimeout(
+        this.rpcClient.send(`Automation.${method}`, {
+          appIdKey: this.appIdKey,
+          pageIdKey: this.automationPageIdKey,
+          senderId: this.sessionId,
+          sessionId: this.sessionId,
+          ...params,
+        }),
+        this.commandTimeoutMs,
+      );
     } catch (err) {
+      if (err instanceof AsyncboxTimeoutError) {
+        throw new errors.TimeoutError(
+          `WebKit did not respond to 'Automation.${method}' within ${this.commandTimeoutMs}ms - ` +
+            `the remote debugger connection may be wedged and need to be reconnected`,
+        );
+      }
       throw mapAutomationError(err);
     }
   }
