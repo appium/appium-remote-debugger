@@ -312,17 +312,25 @@ export class AutomationSession {
     return params;
   }
 
-  /** Invokes a `function(element, ...)`-shaped script, resolving/wrapping element args and results. */
+  /**
+   * Invokes a `function(element, ...)`-shaped script, resolving/wrapping element args and
+   * results. Runs in the currently-switched-to frame by default; pass `topLevelOnly: true` to
+   * force the top-level browsing context regardless (e.g. for a window-level query like
+   * `getWindowRect`'s viewport fallback, which must not read an iframe's own dimensions).
+   */
   async evaluateJavaScriptFunction<T = any>(
     fn: string,
     args: any[] = [],
-    opts: {implicitCallback?: boolean; callbackTimeoutMs?: number} = {},
+    opts: {implicitCallback?: boolean; callbackTimeoutMs?: number; topLevelOnly?: boolean} = {},
   ): Promise<T> {
-    const params: StringRecord = this.withFrameHandle({
+    const params: StringRecord = {
       browsingContextHandle: this.requireTopLevelHandle(),
       function: fn,
       arguments: args.map((arg) => JSON.stringify(this.toWireArg(arg))),
-    });
+    };
+    if (!opts.topLevelOnly) {
+      this.withFrameHandle(params);
+    }
     if (opts.implicitCallback) {
       params.expectsImplicitCallbackArgument = true;
     }

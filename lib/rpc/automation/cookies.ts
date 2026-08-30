@@ -35,12 +35,6 @@ export async function getCookie(this: AutomationSession, name: string): Promise<
   return (await this.getCookies()).find((cookie) => cookie.name === name);
 }
 
-// A cookie added with no explicit expiry is a WebDriver "session" cookie, but
-// Automation.addSingleCookie has no such shorthand - it requires a concrete `expires` regardless.
-// ~400 days matches modern browsers' own max cookie age, so it effectively never expires in the
-// course of a test run.
-const DEFAULT_COOKIE_LIFETIME_SECONDS = 400 * 24 * 60 * 60;
-
 /**
  * Sets a cookie on the current browsing context.
  *
@@ -51,6 +45,10 @@ const DEFAULT_COOKIE_LIFETIME_SECONDS = 400 * 24 * 60 * 60;
  * valid `Cookie` rather than forwarding the caller's object as-is. This also fixes a latent bug:
  * the WebDriver cookie field is named `expiry`, not `expires` - passing a caller-supplied expiry
  * straight through as `expires` would have silently dropped it.
+ *
+ * A caller that omits `expiry` wants a WebDriver "session" cookie - mapped to `expires: 0,
+ * session: true`, matching WebKit's own WebDriver adapter (Source/WebDriver/Session.cpp), rather
+ * than synthesizing a long-lived expiry that would outlive the browser session.
  */
 export async function addCookie(this: AutomationSession, cookie: StringRecord): Promise<void> {
   const {expiry, ...resolvedCookie} = cookie;
@@ -58,10 +56,10 @@ export async function addCookie(this: AutomationSession, cookie: StringRecord): 
     resolvedCookie.domain = new URL(await this.getCurrentUrl()).hostname;
   }
   resolvedCookie.path ||= '/';
-  resolvedCookie.expires ??= expiry ?? Math.floor(Date.now() / 1000) + DEFAULT_COOKIE_LIFETIME_SECONDS;
+  resolvedCookie.expires ??= expiry ?? 0;
   resolvedCookie.secure ??= false;
   resolvedCookie.httpOnly ??= false;
-  resolvedCookie.session ??= false;
+  resolvedCookie.session ??= expiry === undefined;
   resolvedCookie.sameSite ??= 'None';
   await this.callAutomation('addSingleCookie', {
     browsingContextHandle: this.requireTopLevelHandle(),

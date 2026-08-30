@@ -4,13 +4,15 @@ import {spec} from 'node:test/reporters';
 
 // Some e2e suites (e.g. atoms-e2e) can intermittently stall on CI; each test in such a suite
 // carries its own explicit timeout so a stuck test fails on its own rather than eating the whole
-// run's budget. A timeout is not a real bug, so it must not fail the CI job - only a genuine
-// thrown error or assertion should. This replicates `--test-force-exit --test-concurrency=1
-// --test-timeout=3600000` via run(), then checks each test:fail's `failureType` to tell the two
-// cases apart before setting the exit code.
-const files = process.argv.slice(2);
+// run's budget. There, a timeout is not a real bug, so it must not fail the CI job - only a
+// genuine thrown error or assertion should. Other suites (e.g. safari-e2e) carry no such
+// intentional per-test timeout budget, so a timeout there usually means a real stall/regression
+// and must still fail the job - hence `--tolerate-timeouts` is opt-in per suite, not global.
+const args = process.argv.slice(2);
+const tolerateTimeouts = args.includes('--tolerate-timeouts');
+const files = args.filter((arg) => arg !== '--tolerate-timeouts');
 if (files.length === 0) {
-  console.error('Usage: run-e2e.mjs <test-file> [test-file...]');
+  console.error('Usage: run-e2e.mjs [--tolerate-timeouts] <test-file> [test-file...]');
   process.exit(1);
 }
 
@@ -30,7 +32,7 @@ stream.on('test:fail', (data) => {
   if (data.details?.type !== 'test') {
     return;
   }
-  if (data.details?.error?.failureType === 'testTimeoutFailure') {
+  if (tolerateTimeouts && data.details?.error?.failureType === 'testTimeoutFailure') {
     console.error(`::warning::Ignoring CI timeout in "${data.name}" - not counted as a suite failure`);
   } else {
     hasRealFailure = true;

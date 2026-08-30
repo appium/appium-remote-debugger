@@ -51,7 +51,7 @@
     "prepare": "npm run build",
     "test": "node --test --enable-source-maps --test-force-exit --test-timeout=60000 \"./build/test/unit/**/*.spec.js\"",
     "e2e-test": "node --enable-source-maps scripts/ci/run-e2e.mjs \"./build/test/functional/safari-e2e.spec.js\"",
-    "e2e-test:atoms": "node --enable-source-maps scripts/ci/run-e2e.mjs \"./build/test/functional/atoms-e2e.spec.js\"",
+    "e2e-test:atoms": "node --enable-source-maps scripts/ci/run-e2e.mjs --tolerate-timeouts \"./build/test/functional/atoms-e2e.spec.js\"",
     "e2e-test:automation": "node --enable-source-maps scripts/ci/run-e2e.mjs \"./build/test/functional/automation-session-api-e2e.spec.js\"",
     "inspect-safari": "node scripts/web_inspector_proxy.mjs",
     "get-web-inspector-socket": "node scripts/get-web-inspector-socket.mjs",

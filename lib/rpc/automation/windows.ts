@@ -49,7 +49,9 @@ export async function getBrowsingContext(this: AutomationSession): Promise<Autom
  *
  * `getBrowsingContext`'s own reported `windowSize` has been observed to come back as `{0, 0}`
  * on at least one iOS Simulator (beta OS build) even though the page itself has a real,
- * correctly-sized viewport - fall back to reading it directly off the DOM in that case.
+ * correctly-sized viewport - fall back to reading it directly off the DOM in that case. Forces
+ * `topLevelOnly` since this is a window-level (not per-frame) query - otherwise, if the session is
+ * currently switched into an iframe, this would read the iframe's own dimensions instead.
  */
 export async function getWindowRect(this: AutomationSession): Promise<AutomationRect> {
   const context = await this.getBrowsingContext();
@@ -61,6 +63,8 @@ export async function getWindowRect(this: AutomationSession): Promise<Automation
   }
   const viewport = await this.evaluateJavaScriptFunction<{width: number; height: number}>(
     'function() { return {width: window.innerWidth, height: window.innerHeight}; }',
+    [],
+    {topLevelOnly: true},
   );
   return {x, y, width: viewport.width, height: viewport.height};
 }

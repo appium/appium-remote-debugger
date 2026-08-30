@@ -430,10 +430,12 @@ describe('AutomationSession', function () {
       const sentCookie = addCall.args[1].cookie;
       assert.strictEqual(sentCookie.domain, 'example.com');
       assert.strictEqual(sentCookie.path, '/');
-      assert.strictEqual(typeof sentCookie.expires, 'number');
+      // A missing `expiry` is a WebDriver "session" cookie - mapped to expires: 0, session: true,
+      // matching WebKit's own WebDriver adapter, not a synthesized long-lived expiry.
+      assert.strictEqual(sentCookie.expires, 0);
       assert.strictEqual(sentCookie.secure, false);
       assert.strictEqual(sentCookie.httpOnly, false);
-      assert.strictEqual(sentCookie.session, false);
+      assert.strictEqual(sentCookie.session, true);
       assert.strictEqual(sentCookie.sameSite, 'None');
     });
 
@@ -592,6 +594,70 @@ describe('AutomationSession', function () {
       assert.deepStrictEqual(steps, [
         {states: [{sourceId: 'p1', location: {x: 25, y: 25}, origin: 'Viewport', mouseInteraction: 'Move'}]},
       ]);
+    });
+
+    it('should re-read every element center after all scrolling settles, not cache a mid-scroll reading', async function () {
+      // Scrolling a second element into view can move an already-resolved element's on-screen
+      // position (e.g. a drag between two far-apart elements) - computeElementLayout is called
+      // once per element to scroll it into view, then again (without scrolling) for every element
+      // once all scrolling has settled, so both centers reflect the same final scroll position.
+      const elA = {ELEMENT: 'node-a', 'element-6066-11e4-a52e-4f735466cecf': 'node-a'};
+      const elB = {ELEMENT: 'node-b', 'element-6066-11e4-a52e-4f735466cecf': 'node-b'};
+      let layoutCallCount = 0;
+      // First pass (scrolling): A reads as (10, 10). Second pass (settled, no more scrolling):
+      // A has moved to (999, 999) because scrolling B into view moved it - the stale first-pass
+      // reading must not be what ends up on the wire.
+      const layoutsByNodeHandle: Record<string, {x: number; y: number}[]> = {
+        'node-a': [
+          {x: 10, y: 10},
+          {x: 999, y: 999},
+        ],
+        'node-b': [
+          {x: 50, y: 50},
+          {x: 50, y: 50},
+        ],
+      };
+      rpcClient.send.callsFake(async (command: string, opts: any) => {
+        if (command === 'Automation.computeElementLayout') {
+          layoutCallCount++;
+          const center = layoutsByNodeHandle[opts.nodeHandle].shift();
+          return {rect: {origin: center, size: {width: 0, height: 0}}, inViewCenterPoint: center, isObscured: false};
+        }
+        return undefined;
+      });
+
+      await automationSession.performW3CActions([
+        {
+          type: 'pointer',
+          id: 'p1',
+          actions: [
+            {type: 'pointerMove', x: 0, y: 0, origin: elA as any},
+            {type: 'pointerMove', x: 0, y: 0, origin: elB as any},
+          ],
+        },
+      ]);
+
+      const layoutCalls = rpcClient.send.getCalls().filter((call) => call.args[0] === 'Automation.computeElementLayout');
+      assert.strictEqual(layoutCallCount, 4);
+      // First pass scrolls both into view; second pass re-reads both without scrolling again.
+      assert.deepStrictEqual(
+        layoutCalls.map((call) => [call.args[1].nodeHandle, call.args[1].scrollIntoViewIfNeeded]),
+        [
+          ['node-a', true],
+          ['node-b', true],
+          ['node-a', false],
+          ['node-b', false],
+        ],
+      );
+
+      const interactionCall = rpcClient.send
+        .getCalls()
+        .find((call) => call.args[0] === 'Automation.performInteractionSequence');
+      assert.ok(interactionCall);
+      const {steps} = interactionCall.args[1];
+      // Both ticks must use the settled (second-pass) reading for A, not the stale first-pass one.
+      assert.deepStrictEqual(steps[0].states[0].location, {x: 999, y: 999});
+      assert.deepStrictEqual(steps[1].states[0].location, {x: 50, y: 50});
     });
 
     it('should translate a wheel scroll action', async function () {

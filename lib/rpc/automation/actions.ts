@@ -85,6 +85,13 @@ export async function releaseActions(this: AutomationSession): Promise<void> {
  * Resolves the on-screen center of every distinct element referenced as a `pointerMove`/`scroll`
  * origin, scrolling each into view in the process (via `computeElementLayout`'s own
  * `scrollIntoViewIfNeeded`, same as `click()`).
+ *
+ * Two passes, not one: scrolling a second (or third...) distinct element into view can move an
+ * already-resolved element's on-screen position - e.g. a drag between two far-apart elements -
+ * which would leave its earlier-cached center stale before the interaction sequence even starts.
+ * The first pass scrolls every element into view at least once; the second re-reads each one's
+ * center (without scrolling again) once all of that scrolling has settled, so every cached center
+ * reflects the same final scroll position.
  */
 async function resolveElementOriginCenters(
   session: AutomationSession,
@@ -105,9 +112,12 @@ async function resolveElementOriginCenters(
       }
     }
   }
+  for (const nodeHandle of nodeHandles) {
+    await computeLayout.call(session, session.wrapElement(nodeHandle), true, 'Viewport');
+  }
   const centers = new Map<string, {x: number; y: number}>();
   for (const nodeHandle of nodeHandles) {
-    const layout = await computeLayout.call(session, session.wrapElement(nodeHandle), true, 'Viewport');
+    const layout = await computeLayout.call(session, session.wrapElement(nodeHandle), false, 'Viewport');
     centers.set(nodeHandle, layout.center);
   }
   return centers;
