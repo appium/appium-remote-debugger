@@ -277,9 +277,7 @@ describe('AutomationSession', function () {
 
       await automationSession.click(el);
 
-      assert.ok(
-        rpcClient.send.getCalls().some((call) => call.args[0] === 'Automation.performInteractionSequence'),
-      );
+      assert.ok(rpcClient.send.getCalls().some((call) => call.args[0] === 'Automation.performInteractionSequence'));
     });
 
     it('should throw when the element is obscured', async function () {
@@ -472,9 +470,7 @@ describe('AutomationSession', function () {
 
       await automationSession.addCookie({name: 'a', value: '1'});
 
-      const addCall = rpcClient.send
-        .getCalls()
-        .find((call) => call.args[0] === 'Automation.addSingleCookie');
+      const addCall = rpcClient.send.getCalls().find((call) => call.args[0] === 'Automation.addSingleCookie');
       assert.ok(addCall);
       const sentCookie = addCall.args[1].cookie;
       assert.strictEqual(sentCookie.domain, 'example.com');
@@ -499,9 +495,7 @@ describe('AutomationSession', function () {
         httpOnly: true,
       });
 
-      const addCall = rpcClient.send
-        .getCalls()
-        .find((call) => call.args[0] === 'Automation.addSingleCookie');
+      const addCall = rpcClient.send.getCalls().find((call) => call.args[0] === 'Automation.addSingleCookie');
       assert.ok(addCall);
       assert.deepStrictEqual(addCall.args[1].cookie, {
         name: 'a',
