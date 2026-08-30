@@ -2,16 +2,20 @@
 import {run} from 'node:test';
 import {spec} from 'node:test/reporters';
 
-// The atoms e2e suite exercises a real iOS Simulator over a proprietary WebKit protocol, which is
-// known to intermittently stall on CI. Each test in that suite carries its own explicit timeout
-// (see the comment at the top of test/functional/atoms-e2e.spec.ts) so a stuck test fails on its
-// own rather than eating the whole run's budget. A test hitting that timeout is not a genuine
-// assertion/atom bug, so it must not fail the CI job on its own - only a real thrown error or
-// failed assertion should. This runner replicates `--test-force-exit --test-concurrency=1
-// --test-timeout=3600000` via run()'s options, then inspects each test:fail event's
-// `failureType` to tell the two cases apart before deciding the process exit code.
+// Some e2e suites (e.g. atoms-e2e) can intermittently stall on CI; each test in such a suite
+// carries its own explicit timeout so a stuck test fails on its own rather than eating the whole
+// run's budget. A timeout is not a real bug, so it must not fail the CI job - only a genuine
+// thrown error or assertion should. This replicates `--test-force-exit --test-concurrency=1
+// --test-timeout=3600000` via run(), then checks each test:fail's `failureType` to tell the two
+// cases apart before setting the exit code.
+const files = process.argv.slice(2);
+if (files.length === 0) {
+  console.error('Usage: run-e2e.mjs <test-file> [test-file...]');
+  process.exit(1);
+}
+
 const stream = run({
-  files: ['./build/test/functional/atoms-e2e.spec.js'],
+  files,
   concurrency: 1,
   timeout: 3600000,
   forceExit: true,
