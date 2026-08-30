@@ -209,6 +209,79 @@ describe('AutomationSession', function () {
       assert.deepStrictEqual(steps[1].states, []);
     });
 
+    it('should route a checkbox input through the click atom instead of native touch', async function () {
+      // Native touch-based tapping has been confirmed (against both this driver and Apple's own
+      // safaridriver, on multiple iOS versions and real hardware) to report success while never
+      // actually toggling a checkbox/radio's checked state - see click()'s own doc comment.
+      const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
+      let evalCallCount = 0;
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.evaluateJavaScriptFunction') {
+          evalCallCount++;
+          if (evalCallCount === 1) {
+            return {result: JSON.stringify('input')}; // getTagName
+          }
+          if (evalCallCount === 2) {
+            return {result: JSON.stringify('checkbox')}; // getAttribute('type')
+          }
+          return {result: JSON.stringify(null)}; // the click atom itself
+        }
+        return undefined;
+      });
+
+      await automationSession.click(el);
+
+      assert.strictEqual(evalCallCount, 3);
+      assert.strictEqual(
+        rpcClient.send.getCalls().some((call) => call.args[0] === 'Automation.performInteractionSequence'),
+        false,
+      );
+    });
+
+    it('should route a radio input through the click atom instead of native touch', async function () {
+      const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
+      let evalCallCount = 0;
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.evaluateJavaScriptFunction') {
+          evalCallCount++;
+          return {result: JSON.stringify(evalCallCount === 1 ? 'input' : evalCallCount === 2 ? 'radio' : null)};
+        }
+        return undefined;
+      });
+
+      await automationSession.click(el);
+
+      assert.strictEqual(
+        rpcClient.send.getCalls().some((call) => call.args[0] === 'Automation.performInteractionSequence'),
+        false,
+      );
+    });
+
+    it('should still use native touch for a non-checkable input', async function () {
+      const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
+      let evalCallCount = 0;
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.evaluateJavaScriptFunction') {
+          evalCallCount++;
+          return {result: JSON.stringify(evalCallCount === 1 ? 'input' : 'text')};
+        }
+        if (command === 'Automation.computeElementLayout') {
+          return {
+            rect: {origin: {x: 1, y: 2}, size: {width: 10, height: 20}},
+            inViewCenterPoint: {x: 6, y: 12},
+            isObscured: false,
+          };
+        }
+        return undefined;
+      });
+
+      await automationSession.click(el);
+
+      assert.ok(
+        rpcClient.send.getCalls().some((call) => call.args[0] === 'Automation.performInteractionSequence'),
+      );
+    });
+
     it('should throw when the element is obscured', async function () {
       const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
       rpcClient.send.callsFake(async (command: string) => {
@@ -228,27 +301,19 @@ describe('AutomationSession', function () {
       await assert.rejects(automationSession.click(el), /obscured/);
     });
 
-    it('should release a held sticky modifier mid-string on the WebDriver NULL key, without typing it', async function () {
+    it('should dispatch the bundled type atom with the element and raw text', async function () {
+      // sendKeys goes through the bundled `type` JS atom (evaluateJavaScriptFunction), not any
+      // native Automation-domain keyboard primitive - see sendKeys' own doc comment for why.
       const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
-      rpcClient.send.callsFake(async (command: string) => {
-        if (command === 'Automation.evaluateJavaScriptFunction') {
-          return {result: JSON.stringify(null)};
-        }
-        return undefined;
-      });
+      rpcClient.send.resolves({result: JSON.stringify(null)});
 
-      await automationSession.sendKeys(el, '\ue008a\ue000b');
+      await automationSession.sendKeys(el, 'ab');
 
-      const interactionsCall = rpcClient.send
-        .getCalls()
-        .find((call) => call.args[0] === 'Automation.performKeyboardInteractions');
-      assert.ok(interactionsCall);
-      assert.deepStrictEqual(interactionsCall.args[1].interactions, [
-        {type: 'KeyPress', key: 'Shift'},
-        {type: 'InsertByKey', text: 'a'},
-        {type: 'KeyRelease', key: 'Shift'},
-        {type: 'InsertByKey', text: 'b'},
-      ]);
+      const [command, opts] = rpcClient.send.firstCall.args;
+      assert.strictEqual(command, 'Automation.evaluateJavaScriptFunction');
+      assert.strictEqual(opts.browsingContextHandle, TOP_LEVEL_HANDLE);
+      const args = opts.arguments.map((a: string) => JSON.parse(a));
+      assert.deepStrictEqual(args, [{[`session-node-${capturedSessionId}`]: 'node-1'}, 'ab']);
     });
   });
 
@@ -384,11 +449,80 @@ describe('AutomationSession', function () {
       await startFullSession();
     });
 
-    it('should list cookies for the current browsing context', async function () {
-      rpcClient.send.resolves({cookies: [{name: 'a', value: '1'}]});
+    it('should list cookies for the current browsing context by reading document.cookie', async function () {
+      // Automation.getAllCookies has been observed to hang with no response at all - read via
+      // evaluateJavaScriptFunction instead, same as every other reliable call in this file.
+      rpcClient.send.resolves({result: JSON.stringify('a=1; b=2')});
       const cookies = await automationSession.getCookies();
-      assert.deepStrictEqual(cookies, [{name: 'a', value: '1'}]);
-      assert.strictEqual(rpcClient.send.firstCall.args[1].browsingContextHandle, TOP_LEVEL_HANDLE);
+      assert.deepStrictEqual(cookies, [
+        {name: 'a', value: '1'},
+        {name: 'b', value: '2'},
+      ]);
+      const [command, opts] = rpcClient.send.firstCall.args;
+      assert.strictEqual(command, 'Automation.evaluateJavaScriptFunction');
+      assert.strictEqual(opts.browsingContextHandle, TOP_LEVEL_HANDLE);
+    });
+
+    it('should return an empty array when there are no cookies', async function () {
+      rpcClient.send.resolves({result: JSON.stringify('')});
+      assert.deepStrictEqual(await automationSession.getCookies(), []);
+    });
+
+    it('should default a missing cookie domain/path to the current document host and root', async function () {
+      // Automation.addSingleCookie rejects a cookie missing `domain` or `path` outright - and
+      // that rejection has been observed to wedge the Automation target's message queue, hanging
+      // every later call for minutes. Always filling in both avoids sending it malformed.
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.getBrowsingContext') {
+          return {context: {url: 'https://example.com/path'}};
+        }
+        return undefined;
+      });
+
+      await automationSession.addCookie({name: 'a', value: '1'});
+
+      const addCall = rpcClient.send
+        .getCalls()
+        .find((call) => call.args[0] === 'Automation.addSingleCookie');
+      assert.ok(addCall);
+      const sentCookie = addCall.args[1].cookie;
+      assert.strictEqual(sentCookie.domain, 'example.com');
+      assert.strictEqual(sentCookie.path, '/');
+      assert.strictEqual(typeof sentCookie.expires, 'number');
+      assert.strictEqual(sentCookie.secure, false);
+      assert.strictEqual(sentCookie.httpOnly, false);
+      assert.strictEqual(sentCookie.session, false);
+      assert.strictEqual(sentCookie.sameSite, 'None');
+    });
+
+    it('should keep explicitly provided cookie fields as-is and map the WebDriver `expiry` field to `expires`', async function () {
+      rpcClient.send.resolves(undefined);
+
+      await automationSession.addCookie({
+        name: 'a',
+        value: '1',
+        domain: 'custom.example',
+        path: '/app',
+        expiry: 12345,
+        secure: true,
+        httpOnly: true,
+      });
+
+      const addCall = rpcClient.send
+        .getCalls()
+        .find((call) => call.args[0] === 'Automation.addSingleCookie');
+      assert.ok(addCall);
+      assert.deepStrictEqual(addCall.args[1].cookie, {
+        name: 'a',
+        value: '1',
+        domain: 'custom.example',
+        path: '/app',
+        expires: 12345,
+        secure: true,
+        httpOnly: true,
+        session: false,
+        sameSite: 'None',
+      });
     });
   });
 
@@ -477,16 +611,33 @@ describe('AutomationSession', function () {
       ]);
     });
 
-    it('should resolve an Element-relative pointerMove origin to a nodeHandle', async function () {
+    it('should resolve an Element-relative pointerMove origin to an absolute viewport location', async function () {
+      // performInteractionSequence's own Element-origin resolution is unreliable (observed
+      // MoveTargetOutOfBoundsError against a real Simulator even for an in-bounds element) -
+      // the center is resolved ourselves via computeElementLayout instead, same as click().
       const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
+      rpcClient.send.callsFake(async (command: string) => {
+        if (command === 'Automation.computeElementLayout') {
+          return {
+            rect: {origin: {x: 10, y: 10}, size: {width: 20, height: 20}},
+            inViewCenterPoint: {x: 20, y: 20},
+            isObscured: false,
+          };
+        }
+        return undefined;
+      });
+
       await automationSession.performW3CActions([
         {type: 'pointer', id: 'p1', actions: [{type: 'pointerMove', x: 5, y: 5, origin: el as any}]},
       ]);
 
-      const {steps} = rpcClient.send.firstCall.args[1];
-      assert.deepStrictEqual(steps, [
-        {states: [{sourceId: 'p1', location: {x: 5, y: 5}, origin: 'Element', nodeHandle: 'node-1'}]},
-      ]);
+      const interactionCall = rpcClient.send
+        .getCalls()
+        .find((call) => call.args[0] === 'Automation.performInteractionSequence');
+      assert.ok(interactionCall);
+      const {steps} = interactionCall.args[1];
+      // center (20, 20) + the requested (5, 5) offset from it
+      assert.deepStrictEqual(steps, [{states: [{sourceId: 'p1', location: {x: 25, y: 25}, origin: 'Viewport'}]}]);
     });
 
     it('should translate a wheel scroll action', async function () {

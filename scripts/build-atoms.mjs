@@ -61,6 +61,7 @@ const ATOMS = [
 // no WebDriver-wire-protocol (`{ELEMENT}`-wrapping, `{status,value}` response) layer involved.
 const AUTOMATION_ATOMS = [
   'clear',
+  'click',
   'find_element',
   'find_elements',
   'focus',
@@ -77,6 +78,7 @@ const AUTOMATION_ATOMS = [
   'is_selected',
   'submit',
   'enter_fullscreen',
+  'type',
 ];
 
 // esbuild's bundled IIFE output assigns to a variable named by `globalName`, scoped to this

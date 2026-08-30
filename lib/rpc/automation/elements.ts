@@ -3,7 +3,6 @@ import type {StringRecord} from '@appium/types';
 import {waitForCondition} from 'asyncbox';
 
 import {getAutomationAtomScript, type AutomationAtomName} from './atoms.js';
-import {MODIFIER_TO_KEY, NULL_KEY, VIRTUAL_KEYS} from './keys.js';
 import {takeScreenshot} from './screenshot.js';
 import type {AutomationSession} from './session.js';
 import type {AutomationElement, AutomationRect, LocatorStrategy} from './types.js';
@@ -38,10 +37,23 @@ export async function findElements(
   return raw ?? [];
 }
 
+// Native touch-based tapping (see below) has been confirmed - against our own driver AND
+// Apple's own safaridriver, on iOS 27 beta and stable iOS 26.x, on Simulator AND real hardware -
+// to report success while not actually toggling a checkbox/radio `<input>`'s checked state at
+// all. Route these through the `click` JS atom instead (a real, synthetic DOM event dispatch,
+// the same mechanism the atoms-based execution path already uses successfully), same as
+// `sendKeys` was moved off native keyboard delivery for the analogous reason.
+const CHECKABLE_INPUT_TYPES = new Set(['checkbox', 'radio']);
+
 /** Taps/clicks the element via a native touch interaction, or selects it if it's an `<option>`. */
 export async function click(this: AutomationSession, el: AutomationElement): Promise<void> {
-  if ((await this.getTagName(el)) === 'option') {
+  const tagName = await this.getTagName(el);
+  if (tagName === 'option') {
     await selectOptionElement.call(this, el);
+    return;
+  }
+  if (tagName === 'input' && CHECKABLE_INPUT_TYPES.has((await this.getAttribute(el, 'type'))?.toLowerCase() ?? '')) {
+    await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('click'), [el]);
     return;
   }
   const layout = await computeLayout.call(this, el, true, 'LayoutViewport');
@@ -73,42 +85,19 @@ export async function clear(this: AutomationSession, el: AutomationElement): Pro
   await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('clear'), [el]);
 }
 
-/** Focuses the element and types the given text, translating special WebDriver key codes. */
+/**
+ * Focuses the element and types the given text, translating special WebDriver key codes.
+ *
+ * Dispatched via the bundled `type` JS atom (the same synthetic-keyboard-event engine the
+ * atoms-based execution path already uses) rather than any native Automation-domain keyboard
+ * primitive. Ruled out a client-side args bug here (unlike the `addSingleCookie` `domain`/`path`
+ * case): a real touch-based `click()` first, to establish true first-responder focus, still left
+ * `Automation.performKeyboardInteractions` reporting success while typing nothing (confirmed
+ * against a real iOS 27 beta Simulator and iOS 26.4 in CI alike) - the underlying key-event
+ * simulation itself just isn't implemented/wired up on iOS the way it is on macOS.
+ */
 export async function sendKeys(this: AutomationSession, el: AutomationElement, text: string): Promise<void> {
-  await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('focus'), [el]);
-  const interactions: StringRecord[] = [];
-  const stickyModifiers = new Set<string>();
-  for (const char of text) {
-    if (char === NULL_KEY) {
-      // WebDriver spec: NULL releases every currently-held modifier without typing anything.
-      for (const modifier of stickyModifiers) {
-        interactions.push({type: 'KeyRelease', key: MODIFIER_TO_KEY[modifier]});
-      }
-      stickyModifiers.clear();
-      continue;
-    }
-    const virtualKey = VIRTUAL_KEYS[char];
-    if (virtualKey) {
-      const [key, modifier] = virtualKey;
-      if (modifier) {
-        const wasActive = stickyModifiers.has(modifier);
-        if (wasActive) {
-          stickyModifiers.delete(modifier);
-        } else {
-          stickyModifiers.add(modifier);
-        }
-        interactions.push({type: wasActive ? 'KeyRelease' : 'KeyPress', key});
-      } else {
-        interactions.push({type: 'InsertByKey', key});
-      }
-    } else {
-      interactions.push({type: 'InsertByKey', text: char});
-    }
-  }
-  for (const modifier of stickyModifiers) {
-    interactions.push({type: 'KeyRelease', key: MODIFIER_TO_KEY[modifier]});
-  }
-  await this.performKeyboardInteractions(interactions);
+  await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('type'), [el, text]);
 }
 
 /** Submits the form the element belongs to. */
@@ -238,7 +227,15 @@ async function selectOptionElement(this: AutomationSession, el: AutomationElemen
   });
 }
 
-async function computeLayout(
+/**
+ * Resolves an element's layout, optionally scrolling it into view first.
+ *
+ * `inViewCenterPoint` has been observed missing from WebKit's response even when
+ * `scrollIntoViewIfNeeded` was requested - e.g. for an element pinned to the very bottom of a
+ * page, past the last position the page can actually scroll to. Falls back to the rect's own
+ * geometric center in that case, rather than crashing on `undefined`.
+ */
+export async function computeLayout(
   this: AutomationSession,
   el: AutomationElement,
   scrollIfNeeded: boolean,
@@ -253,9 +250,10 @@ async function computeLayout(
   };
   const result = await this.callAutomation<any>('computeElementLayout', params);
   const {origin, size} = result.rect;
+  const center = result.inViewCenterPoint ?? {x: origin.x + size.width / 2, y: origin.y + size.height / 2};
   return {
     rect: {x: Math.round(origin.x), y: Math.round(origin.y), width: size.width, height: size.height},
-    center: {x: result.inViewCenterPoint.x, y: result.inViewCenterPoint.y},
+    center: {x: center.x, y: center.y},
     isObscured: !!result.isObscured,
   };
 }

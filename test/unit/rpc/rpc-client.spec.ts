@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import {EventEmitter} from 'node:events';
 import {describe, it} from 'node:test';
 
+import AsyncLock from 'async-lock';
 import sinon from 'sinon';
 
 import {RpcClient} from '../../../lib/rpc/rpc-client.js';
@@ -89,6 +91,55 @@ describe('rpc-client', function () {
       const fullOpts = await sendToDevice.call(mockRpcClient as any, 'setConnectionKey', {} as any, false);
       assert.strictEqual(fullOpts.senderId, 'default-sender-id');
       assert.strictEqual(fullOpts.connId, 'connection-id');
+    });
+  });
+
+  describe('.selectPage', function () {
+    it('should not hang forever waiting for a page-initialized event that never fires', async function () {
+      // If the target page was already created earlier (e.g. a Safari process/page reused
+      // across separate connections), WebKit never re-emits a "target created" event for it, so
+      // the internal ON_PAGE_INITIALIZED_EVENT this waits on never fires either. The fallback
+      // timeout must still fire and let the wait continue rather than hang indefinitely.
+      const {selectPage} = RpcClient.prototype;
+      const mockRpcClient = {
+        _pageSelectionLock: new AsyncLock(),
+        _pageSelectionMonitor: new EventEmitter(),
+        _provisionedPages: new Set(),
+        _pendingTargetNotification: null,
+        _targetCreationTimeoutMs: 50,
+        getTarget: sinon.stub().returns(undefined),
+        send: sinon.stub().resolves(),
+      };
+
+      await selectPage.call(mockRpcClient as any, 'appId', 'pageKey');
+      // Resolving at all (rather than timing out this test) is the assertion.
+    });
+
+    it('should resolve immediately once the matching page-initialized event fires', async function () {
+      const {selectPage} = RpcClient.prototype;
+      const mockRpcClient = {
+        _pageSelectionLock: new AsyncLock(),
+        _pageSelectionMonitor: new EventEmitter(),
+        _provisionedPages: new Set(),
+        _pendingTargetNotification: null,
+        _targetCreationTimeoutMs: 10 * 60 * 1000,
+        getTarget: sinon.stub().returns(undefined),
+        send: sinon.stub().resolves(),
+      };
+
+      const listenerAttached = new Promise<void>((resolve) => {
+        mockRpcClient._pageSelectionMonitor.once('newListener', (event) => {
+          if (event === 'onPageInitialized') {
+            resolve();
+          }
+        });
+      });
+      const selectPagePromise = selectPage.call(mockRpcClient as any, 'appId', 'pageKey');
+      await listenerAttached;
+      // A non-matching event first, to confirm it's ignored rather than resolving early.
+      mockRpcClient._pageSelectionMonitor.emit('onPageInitialized', 'otherApp', 'otherPage');
+      mockRpcClient._pageSelectionMonitor.emit('onPageInitialized', 'appId', 'pageKey');
+      await selectPagePromise;
     });
   });
 });

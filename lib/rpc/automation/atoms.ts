@@ -18,6 +18,7 @@ const ATOMS_CACHE: Record<string, Buffer> = {};
  */
 export const AUTOMATION_ATOM_NAMES = [
   'clear',
+  'click',
   'find_element',
   'find_elements',
   'focus',
@@ -34,6 +35,7 @@ export const AUTOMATION_ATOM_NAMES = [
   'is_selected',
   'submit',
   'enter_fullscreen',
+  'type',
 ] as const;
 
 /** Name of an `Automation`-flavored atom bundled under `atoms/automation/`. */

@@ -1,6 +1,7 @@
 import {errors} from '@appium/base-driver';
 import type {ActionSequence, KeyAction, NullAction, PointerAction, WheelAction, StringRecord} from '@appium/types';
 
+import {computeLayout} from './elements.js';
 import {VIRTUAL_KEYS} from './keys.js';
 import type {AutomationSession} from './session.js';
 import type {AutomationElement} from './types.js';
@@ -11,8 +12,7 @@ const BUTTON_NAMES: StringRecord<'Left' | 'Middle' | 'Right'> = {0: 'Left', 1: '
 export interface PointerRunningState {
   pressedButton?: 'Left' | 'Middle' | 'Right';
   location?: {x: number; y: number};
-  origin?: 'Viewport' | 'Pointer' | 'Element';
-  nodeHandle?: string;
+  origin?: 'Viewport' | 'Pointer';
 }
 
 /** Per-source "currently held" state, tracked on `AutomationSession` across `performW3CActions` calls. */
@@ -35,6 +35,17 @@ export interface KeyRunningState {
  * later one - matching the W3C "input state" model. `releaseActions()` clears it.
  */
 export async function performW3CActions(this: AutomationSession, actions: ActionSequence[]): Promise<void> {
+  // Sending a nodeHandle + `origin: 'Element'` straight through to performInteractionSequence
+  // and letting WebKit resolve it has been observed to fail with MoveTargetOutOfBoundsError on
+  // at least one iOS 27 beta Simulator, even for an element computeElementLayout itself resolves
+  // to a perfectly in-bounds inViewCenterPoint moments earlier - WebKit's own element-origin
+  // resolution inside performInteractionSequence is unreliable there. Sidestep it entirely:
+  // resolve every distinct element origin's on-screen center ourselves up front (scrolling it
+  // into view in the process, exactly like click() does via the same computeElementLayout call),
+  // and send an absolute, already-resolved location instead of a nodeHandle + origin:'Element'
+  // pair - mirroring how click() already talks to performInteractionSequence successfully.
+  const elementCenters = await resolveElementOriginCenters(this, actions);
+
   const maxTicks = actions.reduce((max, seq) => Math.max(max, seq.actions.length), 0);
   const inputSources = actions.map((seq) => ({sourceId: seq.id, sourceType: toW3cSourceType(seq)}));
 
@@ -46,9 +57,9 @@ export async function performW3CActions(this: AutomationSession, actions: Action
       if (seq.type === 'key') {
         state = buildKeyTickState(seq.id, seq.actions[tick], this.keyInputState);
       } else if (seq.type === 'pointer') {
-        state = buildPointerTickState(this, seq.id, seq.actions[tick], this.pointerInputState);
+        state = buildPointerTickState(this, seq.id, seq.actions[tick], this.pointerInputState, elementCenters);
       } else if (seq.type === 'wheel') {
-        state = buildWheelTickState(this, seq.id, seq.actions[tick]);
+        state = buildWheelTickState(this, seq.id, seq.actions[tick], elementCenters);
       } else {
         state = buildNoneTickState(seq.id, seq.actions[tick]);
       }
@@ -73,6 +84,38 @@ export async function releaseActions(this: AutomationSession): Promise<void> {
     this.pointerInputState.clear();
     this.keyInputState.clear();
   }
+}
+
+/**
+ * Resolves the on-screen center of every distinct element referenced as a `pointerMove`/`scroll`
+ * origin, scrolling each into view in the process (via `computeElementLayout`'s own
+ * `scrollIntoViewIfNeeded`, same as `click()`).
+ */
+async function resolveElementOriginCenters(
+  session: AutomationSession,
+  actions: ActionSequence[],
+): Promise<Map<string, {x: number; y: number}>> {
+  const nodeHandles = new Set<string>();
+  for (const seq of actions) {
+    if (seq.type !== 'pointer' && seq.type !== 'wheel') {
+      continue;
+    }
+    for (const action of seq.actions) {
+      if (action.type !== 'pointerMove' && action.type !== 'scroll') {
+        continue;
+      }
+      const {origin} = action;
+      if (origin && origin !== 'viewport' && origin !== 'pointer') {
+        nodeHandles.add(session.unwrapElement(origin as AutomationElement));
+      }
+    }
+  }
+  const centers = new Map<string, {x: number; y: number}>();
+  for (const nodeHandle of nodeHandles) {
+    const layout = await computeLayout.call(session, session.wrapElement(nodeHandle), true, 'LayoutViewport');
+    centers.set(nodeHandle, layout.center);
+  }
+  return centers;
 }
 
 function toW3cSourceType(seq: ActionSequence): 'Null' | 'Keyboard' | 'Mouse' | 'Touch' | 'Pen' | 'Wheel' {
@@ -141,6 +184,7 @@ function buildPointerTickState(
   sourceId: string,
   action: PointerAction | undefined,
   running: Map<string, PointerRunningState>,
+  elementCenters: Map<string, {x: number; y: number}>,
 ): StringRecord | null {
   const state = running.get(sourceId) ?? {};
   running.set(sourceId, state);
@@ -152,10 +196,17 @@ function buildPointerTickState(
   if (action?.type === 'pointerDown') {
     state.pressedButton = resolveButton(action.button);
   } else if (action?.type === 'pointerMove') {
-    const {origin, nodeHandle} = resolveOrigin(session, action.origin);
-    state.location = {x: action.x, y: action.y};
-    state.origin = origin;
-    state.nodeHandle = nodeHandle;
+    if (action.origin && action.origin !== 'viewport' && action.origin !== 'pointer') {
+      // Element origin: pre-resolved to an absolute viewport point (see
+      // resolveElementOriginCenters) - x/y are the W3C-spec offset from the element's center.
+      const nodeHandle = session.unwrapElement(action.origin as AutomationElement);
+      const center = requireElementCenter(elementCenters, nodeHandle);
+      state.location = {x: center.x + action.x, y: center.y + action.y};
+      state.origin = 'Viewport';
+    } else {
+      state.location = {x: action.x, y: action.y};
+      state.origin = action.origin === 'pointer' ? 'Pointer' : 'Viewport';
+    }
   }
 
   let duration: number | undefined;
@@ -172,9 +223,6 @@ function buildPointerTickState(
   if (state.location) {
     result.location = state.location;
     result.origin = state.origin;
-    if (state.nodeHandle) {
-      result.nodeHandle = state.nodeHandle;
-    }
   }
   if (state.pressedButton) {
     result.pressedButton = state.pressedButton;
@@ -189,6 +237,7 @@ function buildWheelTickState(
   session: AutomationSession,
   sourceId: string,
   action: WheelAction | undefined,
+  elementCenters: Map<string, {x: number; y: number}>,
 ): StringRecord | null {
   if (action?.type === 'pause') {
     return action.duration ? {sourceId, duration: action.duration} : null;
@@ -196,20 +245,36 @@ function buildWheelTickState(
   if (action?.type !== 'scroll') {
     return null;
   }
-  const {origin, nodeHandle} = resolveOrigin(session, action.origin);
+  let location: {x: number; y: number};
+  if (action.origin && action.origin !== 'viewport') {
+    const nodeHandle = session.unwrapElement(action.origin as AutomationElement);
+    const center = requireElementCenter(elementCenters, nodeHandle);
+    location = {x: center.x + action.x, y: center.y + action.y};
+  } else {
+    location = {x: action.x, y: action.y};
+  }
   const result: StringRecord = {
     sourceId,
-    location: {x: action.x, y: action.y},
+    location,
     delta: {width: action.deltaX, height: action.deltaY},
-    origin,
+    origin: 'Viewport',
   };
-  if (nodeHandle) {
-    result.nodeHandle = nodeHandle;
-  }
   if (action.duration !== undefined) {
     result.duration = action.duration;
   }
   return result;
+}
+
+function requireElementCenter(
+  elementCenters: Map<string, {x: number; y: number}>,
+  nodeHandle: string,
+): {x: number; y: number} {
+  const center = elementCenters.get(nodeHandle);
+  if (!center) {
+    // Shouldn't happen - resolveElementOriginCenters collects every element origin up front.
+    throw new Error(`No resolved on-screen center found for element origin '${nodeHandle}'`);
+  }
+  return center;
 }
 
 // A 'none' source (InputSourceType 'Null' in WebKit's own terms) only ever pauses - its
@@ -226,17 +291,4 @@ function resolveButton(button: number): 'Left' | 'Middle' | 'Right' {
     );
   }
   return name;
-}
-
-function resolveOrigin(
-  session: AutomationSession,
-  origin: 'viewport' | 'pointer' | AutomationElement | Record<string, any> | undefined,
-): {origin: 'Viewport' | 'Pointer' | 'Element'; nodeHandle?: string} {
-  if (!origin || origin === 'viewport') {
-    return {origin: 'Viewport'};
-  }
-  if (origin === 'pointer') {
-    return {origin: 'Pointer'};
-  }
-  return {origin: 'Element', nodeHandle: session.unwrapElement(origin as AutomationElement)};
 }

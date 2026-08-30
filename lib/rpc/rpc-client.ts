@@ -806,15 +806,6 @@ export class RpcClient {
       log.debug(`Waiting up to ${msLeft}ms for page '${pageIdKey}' of app '${appIdKey}' to be selected`);
       await new Promise<void>((resolve) => {
         const onPageInitialized = (notifiedAppIdKey: AppIdKey, notifiedPageIdKey: PageIdKey) => {
-          const timeoutHandler = setTimeout(() => {
-            this._pageSelectionMonitor.off(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
-            log.warn(
-              `Page '${pageIdKey}' for app '${appIdKey}' has not been selected ` +
-                `within ${timer.getDuration().asMilliSeconds}ms. Continuing anyway`,
-            );
-            resolve();
-          }, msLeft);
-
           if (notifiedAppIdKey === appIdKey && notifiedPageIdKey === pageIdKey) {
             clearTimeout(timeoutHandler);
             this._pageSelectionMonitor.off(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
@@ -827,6 +818,20 @@ export class RpcClient {
             );
           }
         };
+
+        // Armed unconditionally, not from inside onPageInitialized: if this page's target was
+        // already created earlier (e.g. a Safari process/page reused across test runs), no
+        // page-initialized event ever fires for it at all, and a timeout that only gets
+        // scheduled once some (any) page-initialized event arrives would never get scheduled -
+        // hanging this wait forever instead of just continuing on.
+        const timeoutHandler = setTimeout(() => {
+          this._pageSelectionMonitor.off(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
+          log.warn(
+            `Page '${pageIdKey}' for app '${appIdKey}' has not been selected ` +
+              `within ${timer.getDuration().asMilliSeconds}ms. Continuing anyway`,
+          );
+          resolve();
+        }, msLeft);
 
         this._pageSelectionMonitor.on(ON_PAGE_INITIALIZED_EVENT, onPageInitialized);
       });
