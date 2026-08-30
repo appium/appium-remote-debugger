@@ -2,34 +2,32 @@ import type {StringRecord} from '@appium/types';
 
 import type {AutomationSession} from './session.js';
 
-/**
- * Returns all cookies visible to the current browsing context.
- *
- * Reads via `document.cookie` rather than `Automation.getAllCookies` - the latter has been
- * observed to hang indefinitely with no response at all (reproduced twice against a real
- * Simulator, both times immediately after a performInteractionSequence-driven interaction),
- * unlike evaluateJavaScriptFunction, which has been reliable throughout. The tradeoff: HttpOnly
- * cookies aren't visible to JS, and only name/value are available - no domain/path/expiry/
- * secure/sameSite metadata (matches what the atoms-based execution path already returns for a
- * JS-set cookie's readback, since document.cookie has the same visibility limits there too).
- *
- * Reported to WebKit: https://bugs.webkit.org/show_bug.cgi?id=322937
- */
-export async function getCookies(this: AutomationSession): Promise<StringRecord[]> {
-  const cookieString = await this.evaluateJavaScriptFunction<string>('function() { return document.cookie; }');
-  return parseCookieString(cookieString);
+/** Raw shape of `Automation.getAllCookies`'s `Cookie` entries. */
+interface AutomationCookie {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  expires: number;
+  size: number;
+  httpOnly: boolean;
+  secure: boolean;
+  session: boolean;
+  sameSite: string;
 }
 
-function parseCookieString(cookieString: string): StringRecord[] {
-  if (!cookieString) {
-    return [];
-  }
-  return cookieString.split(';').map((pair) => {
-    const eqIndex = pair.indexOf('=');
-    return eqIndex === -1
-      ? {name: pair.trim(), value: ''}
-      : {name: pair.slice(0, eqIndex).trim(), value: pair.slice(eqIndex + 1).trim()};
+/** Converts a WebKit `Cookie` into the shape WebDriver clients expect: `expiry`, not `expires`
+ *  or `size`/`session`, and omitted (not 0) for a session cookie. */
+function toWebDriverCookie({size: _size, session, expires, ...cookie}: AutomationCookie): StringRecord {
+  return session ? cookie : {...cookie, expiry: expires};
+}
+
+/** Returns all cookies visible to the current browsing context. */
+export async function getCookies(this: AutomationSession): Promise<StringRecord[]> {
+  const {cookies} = await this.callAutomation<{cookies: AutomationCookie[]}>('getAllCookies', {
+    browsingContextHandle: this.requireTopLevelHandle(),
   });
+  return cookies.map(toWebDriverCookie);
 }
 
 /** Returns the cookie with the given name, if any. */

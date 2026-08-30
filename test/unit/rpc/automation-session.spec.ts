@@ -404,22 +404,58 @@ describe('AutomationSession', function () {
       await startFullSession();
     });
 
-    it('should list cookies for the current browsing context by reading document.cookie', async function () {
-      // Automation.getAllCookies has been observed to hang with no response at all - read via
-      // evaluateJavaScriptFunction instead, same as every other reliable call in this file.
-      rpcClient.send.resolves({result: JSON.stringify('a=1; b=2')});
+    it('should list cookies for the current browsing context via Automation.getAllCookies', async function () {
+      rpcClient.send.resolves({
+        cookies: [
+          {
+            name: 'a',
+            value: '1',
+            domain: 'example.com',
+            path: '/',
+            expires: 0,
+            size: 3,
+            httpOnly: false,
+            secure: false,
+            session: true,
+            sameSite: 'None',
+          },
+          {
+            name: 'b',
+            value: '2',
+            domain: 'example.com',
+            path: '/',
+            expires: 12345,
+            size: 3,
+            httpOnly: true,
+            secure: true,
+            session: false,
+            sameSite: 'Lax',
+          },
+        ],
+      });
+
       const cookies = await automationSession.getCookies();
+
       assert.deepStrictEqual(cookies, [
-        {name: 'a', value: '1'},
-        {name: 'b', value: '2'},
+        {name: 'a', value: '1', domain: 'example.com', path: '/', httpOnly: false, secure: false, sameSite: 'None'},
+        {
+          name: 'b',
+          value: '2',
+          domain: 'example.com',
+          path: '/',
+          httpOnly: true,
+          secure: true,
+          sameSite: 'Lax',
+          expiry: 12345,
+        },
       ]);
       const [command, opts] = rpcClient.send.firstCall.args;
-      assert.strictEqual(command, 'Automation.evaluateJavaScriptFunction');
+      assert.strictEqual(command, 'Automation.getAllCookies');
       assert.strictEqual(opts.browsingContextHandle, TOP_LEVEL_HANDLE);
     });
 
     it('should return an empty array when there are no cookies', async function () {
-      rpcClient.send.resolves({result: JSON.stringify('')});
+      rpcClient.send.resolves({cookies: []});
       assert.deepStrictEqual(await automationSession.getCookies(), []);
     });
 
