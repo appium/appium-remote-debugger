@@ -211,61 +211,14 @@ describe('AutomationSession', function () {
       assert.deepStrictEqual(steps[1].states, [{sourceId: steps[1].states[0].sourceId, mouseInteraction: 'Up'}]);
     });
 
-    it('should route a checkbox input through the click atom instead of native touch', async function () {
-      // Native touch-based tapping has been confirmed (against both this driver and Apple's own
-      // safaridriver, on multiple iOS versions and real hardware) to report success while never
-      // actually toggling a checkbox/radio's checked state - see click()'s own doc comment.
+    it('should use native touch for a checkbox input too', async function () {
+      // Native touch tapping toggles a checkbox/radio's checked state correctly once the
+      // required `mouseInteraction` field is set (see click()'s own doc comment) - no special
+      // input-type routing needed.
       const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
-      let evalCallCount = 0;
       rpcClient.send.callsFake(async (command: string) => {
         if (command === 'Automation.evaluateJavaScriptFunction') {
-          evalCallCount++;
-          if (evalCallCount === 1) {
-            return {result: JSON.stringify('input')}; // getTagName
-          }
-          if (evalCallCount === 2) {
-            return {result: JSON.stringify('checkbox')}; // getAttribute('type')
-          }
-          return {result: JSON.stringify(null)}; // the click atom itself
-        }
-        return undefined;
-      });
-
-      await automationSession.click(el);
-
-      assert.strictEqual(evalCallCount, 3);
-      assert.strictEqual(
-        rpcClient.send.getCalls().some((call) => call.args[0] === 'Automation.performInteractionSequence'),
-        false,
-      );
-    });
-
-    it('should route a radio input through the click atom instead of native touch', async function () {
-      const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
-      let evalCallCount = 0;
-      rpcClient.send.callsFake(async (command: string) => {
-        if (command === 'Automation.evaluateJavaScriptFunction') {
-          evalCallCount++;
-          return {result: JSON.stringify(evalCallCount === 1 ? 'input' : evalCallCount === 2 ? 'radio' : null)};
-        }
-        return undefined;
-      });
-
-      await automationSession.click(el);
-
-      assert.strictEqual(
-        rpcClient.send.getCalls().some((call) => call.args[0] === 'Automation.performInteractionSequence'),
-        false,
-      );
-    });
-
-    it('should still use native touch for a non-checkable input', async function () {
-      const el = {ELEMENT: 'node-1', 'element-6066-11e4-a52e-4f735466cecf': 'node-1'};
-      let evalCallCount = 0;
-      rpcClient.send.callsFake(async (command: string) => {
-        if (command === 'Automation.evaluateJavaScriptFunction') {
-          evalCallCount++;
-          return {result: JSON.stringify(evalCallCount === 1 ? 'input' : 'text')};
+          return {result: JSON.stringify('input')}; // getTagName
         }
         if (command === 'Automation.computeElementLayout') {
           return {

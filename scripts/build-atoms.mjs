@@ -61,7 +61,6 @@ const ATOMS = [
 // no WebDriver-wire-protocol (`{ELEMENT}`-wrapping, `{status,value}` response) layer involved.
 const AUTOMATION_ATOMS = [
   'clear',
-  'click',
   'find_element',
   'find_elements',
   'focus',

@@ -102,11 +102,7 @@ describe('Automation session - per-API isolation', function () {
     });
   });
 
-  // Native touch synthesis reports success without actually toggling a checkbox/radio's checked
-  // state - same bug as the one click() already routes around via the JS atom (elements.ts), but
-  // here hit through the raw Actions API, which isn't covered by that workaround.
-  // https://bugs.webkit.org/show_bug.cgi?id=322939
-  it('performW3CActions - pointer down/up via an Element origin', {skip: 'WebKit bug 322939'}, async function () {
+  it('performW3CActions - pointer down/up via an Element origin', async function () {
     await withSession(async (session) => {
       await session.navigate(fixture.freshUrl());
       const checkbox = await session.findElement('css selector', '#checkbox');

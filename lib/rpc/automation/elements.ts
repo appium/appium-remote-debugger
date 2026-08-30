@@ -37,21 +37,11 @@ export async function findElements(
   return raw ?? [];
 }
 
-// Native touch-based tapping (see below) reports success without actually toggling a
-// checkbox/radio `<input>`'s checked state (confirmed on our driver and safaridriver alike).
-// Route these through the `click` JS atom instead, same as `sendKeys` was moved off native
-// keyboard delivery for the analogous reason. https://bugs.webkit.org/show_bug.cgi?id=322939
-const CHECKABLE_INPUT_TYPES = new Set(['checkbox', 'radio']);
-
 /** Taps/clicks the element via a native touch interaction, or selects it if it's an `<option>`. */
 export async function click(this: AutomationSession, el: AutomationElement): Promise<void> {
   const tagName = await this.getTagName(el);
   if (tagName === 'option') {
     await selectOptionElement.call(this, el);
-    return;
-  }
-  if (tagName === 'input' && CHECKABLE_INPUT_TYPES.has((await this.getAttribute(el, 'type'))?.toLowerCase() ?? '')) {
-    await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('click'), [el]);
     return;
   }
   const layout = await computeLayout.call(this, el, true, 'Viewport');
