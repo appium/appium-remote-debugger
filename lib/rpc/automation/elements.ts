@@ -3,7 +3,6 @@ import type {StringRecord} from '@appium/types';
 import {waitForCondition} from 'asyncbox';
 
 import {getAutomationAtomScript, type AutomationAtomName} from './atoms.js';
-import {MODIFIER_TO_KEY, NULL_KEY, VIRTUAL_KEYS} from './keys.js';
 import {takeScreenshot} from './screenshot.js';
 import type {AutomationSession} from './session.js';
 import type {AutomationElement, AutomationRect, LocatorStrategy} from './types.js';
@@ -40,11 +39,12 @@ export async function findElements(
 
 /** Taps/clicks the element via a native touch interaction, or selects it if it's an `<option>`. */
 export async function click(this: AutomationSession, el: AutomationElement): Promise<void> {
-  if ((await this.getTagName(el)) === 'option') {
+  const tagName = await this.getTagName(el);
+  if (tagName === 'option') {
     await selectOptionElement.call(this, el);
     return;
   }
-  const layout = await computeLayout.call(this, el, true, 'LayoutViewport');
+  const layout = await computeLayout.call(this, el, true, 'Viewport');
   if (layout.isObscured) {
     throw new errors.ElementClickInterceptedError(
       'Element is not clickable at its current position because it is obscured',
@@ -52,18 +52,25 @@ export async function click(this: AutomationSession, el: AutomationElement): Pro
   }
   // iOS has no real pointing device - Automation.performMouseInteraction is not
   // implemented there (confirmed against a real Simulator: 'NotImplemented'). Touch
-  // is the input model WebKit actually supports on iOS/iPadOS. Per WebKit's own
-  // Automation.json, a touch-down is a state with `pressedButton: 'Left'`; a step with
-  // no state for the source defaults to 'released' - two steps make a full tap.
-  // (A single location-only state, with no pressedButton, is just a move - confirmed
-  // against a real Simulator: it doesn't focus the element or register as a tap.)
+  // is the input model WebKit actually supports on iOS/iPadOS. `mouseInteraction` is
+  // required on both states - per WebKit's own Automation.json, if it's "unmentioned
+  // and the interaction cannot be determined through other heuristics, the state is
+  // dropped" (confirmed: WebAutomationSession's C++ has no such heuristic, only its
+  // WebDriver/Session.cpp reference client does - omitting it silently no-ops the tap).
   await this.performInteractionSequence(
     [{sourceId: this.sessionId, sourceType: 'Touch'}],
     [
       {
-        states: [{sourceId: this.sessionId, location: {x: layout.center.x, y: layout.center.y}, pressedButton: 'Left'}],
+        states: [
+          {
+            sourceId: this.sessionId,
+            location: {x: layout.center.x, y: layout.center.y},
+            pressedButton: 'Left',
+            mouseInteraction: 'Down',
+          },
+        ],
       },
-      {states: []},
+      {states: [{sourceId: this.sessionId, mouseInteraction: 'Up'}]},
     ],
   );
 }
@@ -73,42 +80,21 @@ export async function clear(this: AutomationSession, el: AutomationElement): Pro
   await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('clear'), [el]);
 }
 
-/** Focuses the element and types the given text, translating special WebDriver key codes. */
+/**
+ * Focuses the element and types the given text, translating special WebDriver key codes.
+ *
+ * Dispatched via the bundled `type` JS atom (the same synthetic-keyboard-event engine the
+ * atoms-based execution path already uses) rather than any native Automation-domain keyboard
+ * primitive. Ruled out a client-side args bug here (unlike the `addSingleCookie` `domain`/`path`
+ * case): a real touch-based `click()` first, to establish true first-responder focus, still left
+ * `Automation.performKeyboardInteractions` reporting success while typing nothing (confirmed
+ * against a real iOS 27 beta Simulator and iOS 26.4 in CI alike) - the underlying key-event
+ * simulation itself just isn't implemented/wired up on iOS the way it is on macOS.
+ *
+ * Reported to WebKit: https://bugs.webkit.org/show_bug.cgi?id=322938
+ */
 export async function sendKeys(this: AutomationSession, el: AutomationElement, text: string): Promise<void> {
-  await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('focus'), [el]);
-  const interactions: StringRecord[] = [];
-  const stickyModifiers = new Set<string>();
-  for (const char of text) {
-    if (char === NULL_KEY) {
-      // WebDriver spec: NULL releases every currently-held modifier without typing anything.
-      for (const modifier of stickyModifiers) {
-        interactions.push({type: 'KeyRelease', key: MODIFIER_TO_KEY[modifier]});
-      }
-      stickyModifiers.clear();
-      continue;
-    }
-    const virtualKey = VIRTUAL_KEYS[char];
-    if (virtualKey) {
-      const [key, modifier] = virtualKey;
-      if (modifier) {
-        const wasActive = stickyModifiers.has(modifier);
-        if (wasActive) {
-          stickyModifiers.delete(modifier);
-        } else {
-          stickyModifiers.add(modifier);
-        }
-        interactions.push({type: wasActive ? 'KeyRelease' : 'KeyPress', key});
-      } else {
-        interactions.push({type: 'InsertByKey', key});
-      }
-    } else {
-      interactions.push({type: 'InsertByKey', text: char});
-    }
-  }
-  for (const modifier of stickyModifiers) {
-    interactions.push({type: 'KeyRelease', key: MODIFIER_TO_KEY[modifier]});
-  }
-  await this.performKeyboardInteractions(interactions);
+  await this.evaluateJavaScriptFunction<void>(await getAutomationAtomScript('type'), [el, text]);
 }
 
 /** Submits the form the element belongs to. */
@@ -238,11 +224,19 @@ async function selectOptionElement(this: AutomationSession, el: AutomationElemen
   });
 }
 
-async function computeLayout(
+/**
+ * Resolves an element's layout, optionally scrolling it into view first.
+ *
+ * `inViewCenterPoint` has been observed missing from WebKit's response even when
+ * `scrollIntoViewIfNeeded` was requested - e.g. for an element pinned to the very bottom of a
+ * page, past the last position the page can actually scroll to. Falls back to the rect's own
+ * geometric center in that case, rather than crashing on `undefined`.
+ */
+export async function computeLayout(
   this: AutomationSession,
   el: AutomationElement,
   scrollIfNeeded: boolean,
-  coordinateSystem: 'Page' | 'LayoutViewport',
+  coordinateSystem: 'Page' | 'Viewport',
 ): Promise<{rect: AutomationRect; center: {x: number; y: number}; isObscured: boolean}> {
   const params: StringRecord = {
     browsingContextHandle: this.requireTopLevelHandle(),
@@ -253,9 +247,10 @@ async function computeLayout(
   };
   const result = await this.callAutomation<any>('computeElementLayout', params);
   const {origin, size} = result.rect;
+  const center = result.inViewCenterPoint ?? {x: origin.x + size.width / 2, y: origin.y + size.height / 2};
   return {
     rect: {x: Math.round(origin.x), y: Math.round(origin.y), width: size.width, height: size.height},
-    center: {x: result.inViewCenterPoint.x, y: result.inViewCenterPoint.y},
+    center: {x: center.x, y: center.y},
     isObscured: !!result.isObscured,
   };
 }

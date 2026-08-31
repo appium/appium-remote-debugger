@@ -77,6 +77,7 @@ const AUTOMATION_ATOMS = [
   'is_selected',
   'submit',
   'enter_fullscreen',
+  'type',
 ];
 
 // esbuild's bundled IIFE output assigns to a variable named by `globalName`, scoped to this

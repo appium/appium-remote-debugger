@@ -50,10 +50,17 @@ export async function startAutomationSession(this: RemoteDebugger): Promise<Auto
   return session;
 }
 
-/** Tears down the active automation session, if any. */
-export async function stopAutomationSession(this: RemoteDebugger): Promise<void> {
+/**
+ * Tears down the active automation session, if any.
+ * @param opts.closeAllWindows - Close every browsing context the session created first. Off by
+ *        default - see {@link AutomationSession.stop} for why.
+ */
+export async function stopAutomationSession(
+  this: RemoteDebugger,
+  opts: {closeAllWindows?: boolean} = {},
+): Promise<void> {
   try {
-    await getAutomationSession(this)?.stop();
+    await getAutomationSession(this)?.stop(opts);
   } finally {
     setAutomationSession(this, undefined);
   }

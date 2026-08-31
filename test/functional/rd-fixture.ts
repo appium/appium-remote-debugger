@@ -37,6 +37,7 @@ async function deleteDeviceWithRetry(udid: string): Promise<void> {
 export interface RdFixture {
   rd(): RemoteDebugger;
   address(): string;
+  freshUrl(): string;
   selectTestPage(): Promise<void>;
 }
 
@@ -50,6 +51,7 @@ export function useRemoteDebuggerFixture(): RdFixture {
   let simCreated = false;
   let address: string;
   let rd: RemoteDebugger;
+  let navigationCounter = 0;
 
   before(async function () {
     const portPromise = startHttpServer();
@@ -117,6 +119,13 @@ export function useRemoteDebuggerFixture(): RdFixture {
   return {
     rd: () => rd,
     address: () => address,
+    // WebKit restores form control state (e.g. a checkbox's checked-ness) when navigating back
+    // to a URL it's already seen, even in a brand-new Automation-created browsing context - so
+    // two tests navigating to the exact same `address()` can see the previous test's DOM state
+    // leak through (observed: a checkbox left checked by one test starts already-checked in the
+    // next, so clicking it toggles it back off). A unique query string per navigation defeats
+    // that reuse; `serve-static` ignores the query when resolving which file to serve.
+    freshUrl: () => `${address}?_t=${++navigationCounter}`,
     async selectTestPage(): Promise<void> {
       // Safari's reported app/page dictionary can briefly churn (e.g. right after a previous
       // test navigated away, or while a stale tab from an earlier test is still settling), so
