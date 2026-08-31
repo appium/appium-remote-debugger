@@ -8,11 +8,16 @@ import type {AutomationElement} from './types.js';
 
 const BUTTON_NAMES: StringRecord<'Left' | 'Middle' | 'Right'> = {0: 'Left', 1: 'Middle', 2: 'Right'};
 
-/** Per-source "currently held" state, tracked on `AutomationSession` across `performW3CActions` calls. */
+/**
+ * Per-source "currently held" state, tracked on `AutomationSession` across `performW3CActions`
+ * calls. `location`, once set, is always an absolute viewport coordinate - a W3C `pointer`-
+ * relative origin is resolved against it immediately (see `buildPointerTickState`) rather than
+ * tracked as a raw delta, since it gets resent verbatim on every later sustain/pause/pointerDown
+ * tick for as long as the source holds a location.
+ */
 export interface PointerRunningState {
   pressedButton?: 'Left' | 'Middle' | 'Right';
   location?: {x: number; y: number};
-  origin?: 'Viewport' | 'Pointer';
 }
 
 /** Per-source "currently held" state, tracked on `AutomationSession` across `performW3CActions` calls. */
@@ -214,10 +219,17 @@ function buildPointerTickState(
       const nodeHandle = session.unwrapElement(action.origin as AutomationElement);
       const center = requireElementCenter(elementCenters, nodeHandle);
       state.location = {x: center.x + action.x, y: center.y + action.y};
-      state.origin = 'Viewport';
+    } else if (action.origin === 'pointer') {
+      // WebKit re-resolves a `Pointer`-origin state against the *current* pointer location
+      // every time it receives one - including on a later sustain/pause/pointerDown tick that
+      // just resends this same held state below, which would otherwise keep re-applying the
+      // delta and drift the pointer further on every such tick. Resolve it to an absolute point
+      // ourselves instead, against the last tracked location (defaulting to (0, 0) per spec if
+      // the source has never moved), so what gets held/resent from here on is a true no-op.
+      const base = state.location ?? {x: 0, y: 0};
+      state.location = {x: base.x + action.x, y: base.y + action.y};
     } else {
       state.location = {x: action.x, y: action.y};
-      state.origin = action.origin === 'pointer' ? 'Pointer' : 'Viewport';
     }
     mouseInteraction = 'Move';
   }
@@ -235,7 +247,7 @@ function buildPointerTickState(
   const result: StringRecord = {sourceId};
   if (state.location) {
     result.location = state.location;
-    result.origin = state.origin;
+    result.origin = 'Viewport';
   }
   if (state.pressedButton) {
     result.pressedButton = state.pressedButton;

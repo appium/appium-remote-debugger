@@ -736,6 +736,46 @@ describe('AutomationSession', function () {
       ]);
     });
 
+    it('should resolve a pointer-relative origin to an absolute point instead of a resendable delta', async function () {
+      // WebKit re-resolves a `Pointer`-origin state against its *current* pointer location on
+      // every state it receives - if the same relative delta were held/resent on a later
+      // sustain/pause/pointerDown tick (as pressedButton/element-origin locations legitimately
+      // are), the pointer would drift further with each resend: (10,20) -> (20,40) -> (30,60)
+      // instead of staying put at (10,20).
+      await automationSession.performW3CActions([
+        {
+          type: 'pointer',
+          id: 'p1',
+          actions: [
+            {type: 'pointerMove', x: 10, y: 20, origin: 'pointer', duration: 0},
+            {type: 'pause', duration: 50},
+            {type: 'pointerDown', button: 0},
+          ],
+        },
+      ]);
+
+      const {steps} = rpcClient.send.firstCall.args[1];
+      assert.deepStrictEqual(steps, [
+        {
+          states: [
+            {sourceId: 'p1', location: {x: 10, y: 20}, origin: 'Viewport', duration: 0, mouseInteraction: 'Move'},
+          ],
+        },
+        {states: [{sourceId: 'p1', location: {x: 10, y: 20}, origin: 'Viewport', duration: 50}]},
+        {
+          states: [
+            {
+              sourceId: 'p1',
+              location: {x: 10, y: 20},
+              origin: 'Viewport',
+              pressedButton: 'Left',
+              mouseInteraction: 'Down',
+            },
+          ],
+        },
+      ]);
+    });
+
     it('should translate a non-zero wheel-source pause into a duration-only tick', async function () {
       await automationSession.performW3CActions([{type: 'wheel', id: 'w1', actions: [{type: 'pause', duration: 200}]}]);
 
