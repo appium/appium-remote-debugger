@@ -1,3 +1,9 @@
+## [17.4.1](https://github.com/appium/appium-remote-debugger/compare/v17.4.0...v17.4.1) (2026-08-31)
+
+### Bug Fixes
+
+* Add workarounds for known WebKit automation bugs ([#543](https://github.com/appium/appium-remote-debugger/issues/543)) ([6f05db2](https://github.com/appium/appium-remote-debugger/commit/6f05db2315b1c510ff50ac1b11512fa2cebdd2cb))
+
 ## [17.4.0](https://github.com/appium/appium-remote-debugger/compare/v17.3.0...v17.4.0) (2026-08-29)
 
 ### Features
