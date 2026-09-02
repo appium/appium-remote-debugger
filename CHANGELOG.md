@@ -1,3 +1,9 @@
+## [17.4.2](https://github.com/appium/appium-remote-debugger/compare/v17.4.1...v17.4.2) (2026-09-02)
+
+### Miscellaneous Chores
+
+* bump support-related dependencies ([#544](https://github.com/appium/appium-remote-debugger/issues/544)) ([644abcb](https://github.com/appium/appium-remote-debugger/commit/644abcb511800cce3c5ff37f2e2f520c118896fe))
+
 ## [17.4.1](https://github.com/appium/appium-remote-debugger/compare/v17.4.0...v17.4.1) (2026-08-31)
 
 ### Bug Fixes
