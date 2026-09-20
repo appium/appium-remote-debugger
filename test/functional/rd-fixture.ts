@@ -1,9 +1,9 @@
 import {after, afterEach, before, beforeEach} from 'node:test';
 
+import {NativeSimctl} from '@appium/coresim';
 import {util} from '@appium/support';
 import {getSimulator, type Simulator} from 'appium-ios-simulator';
 import {retry, retryInterval} from 'asyncbox';
-import {Simctl} from 'node-simctl';
 
 import {createRemoteDebugger} from '../../lib/index.js';
 import type {RemoteDebugger} from '../../lib/remote-debugger.js';
@@ -15,11 +15,39 @@ const SIM_NAME = process.env.SIM_DEVICE_NAME || `appium-test-${util.uuidV4()}`;
 const DEVICE_NAME = process.env.DEVICE_NAME || 'iPhone 17';
 const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '26.2';
 
-async function getExistingSim(deviceName: string, platformVersion: string): Promise<Simulator | null> {
-  const devices = await new Simctl().getDevices(platformVersion);
+const nativeSimctl = new NativeSimctl();
 
-  for (const device of Object.values(devices)) {
-    if (device.name === deviceName) {
+// CI only sets a major.minor PLATFORM_VERSION (e.g. '26.2'), while runtime.versionString can carry
+// a patch component (e.g. '26.2.1') - compare only as many components as platformVersion specifies.
+function matchesPlatformVersion(versionString: string, platformVersion: string): boolean {
+  const actual = versionString.split('.');
+  return platformVersion.split('.').every((part, i) => actual[i] === part);
+}
+
+async function getRuntimeIdentifier(platformVersion: string): Promise<string> {
+  const runtime = (await nativeSimctl.getSupportedRuntimes()).find((r) =>
+    matchesPlatformVersion(r.versionString, platformVersion),
+  );
+  if (!runtime) {
+    throw new Error(`No supported runtime found for platform version '${platformVersion}'`);
+  }
+  return runtime.identifier;
+}
+
+async function getDeviceTypeIdentifier(deviceName: string): Promise<string> {
+  const deviceType = (await nativeSimctl.getSupportedDeviceTypes()).find((d) => d.name === deviceName);
+  if (!deviceType) {
+    throw new Error(`No supported device type found for name '${deviceName}'`);
+  }
+  return deviceType.identifier;
+}
+
+async function getExistingSim(deviceName: string, platformVersion: string): Promise<Simulator | null> {
+  const runtimeIdentifier = await getRuntimeIdentifier(platformVersion);
+  const devices = await nativeSimctl.getDevices();
+
+  for (const device of devices) {
+    if (device.name === deviceName && device.runtimeIdentifier === runtimeIdentifier) {
       return await getSimulator(device.udid);
     }
   }
@@ -28,9 +56,8 @@ async function getExistingSim(deviceName: string, platformVersion: string): Prom
 }
 
 async function deleteDeviceWithRetry(udid: string): Promise<void> {
-  const simctl = new Simctl({udid});
   try {
-    await retryInterval(10, 1000, simctl.deleteDevice.bind(simctl));
+    await retryInterval(10, 1000, () => nativeSimctl.deleteDevice(udid));
   } catch {}
 }
 
@@ -58,8 +85,12 @@ export function useRemoteDebuggerFixture(): RdFixture {
 
     sim = (await getExistingSim(DEVICE_NAME, PLATFORM_VERSION)) as Simulator;
     if (!sim) {
-      const udid = await new Simctl().createDevice(SIM_NAME, DEVICE_NAME, PLATFORM_VERSION);
-      sim = await getSimulator(udid);
+      const [deviceTypeIdentifier, runtimeIdentifier] = await Promise.all([
+        getDeviceTypeIdentifier(DEVICE_NAME),
+        getRuntimeIdentifier(PLATFORM_VERSION),
+      ]);
+      const device = await nativeSimctl.createDevice(SIM_NAME, deviceTypeIdentifier, runtimeIdentifier);
+      sim = await getSimulator(device.udid);
       simCreated = true;
     }
     await sim.run({
