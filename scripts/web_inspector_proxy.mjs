@@ -1,11 +1,11 @@
+import {NativeSimctl} from '@appium/coresim';
 import {plist, util} from '@appium/support';
-import {getSimulator} from 'appium-ios-simulator';
 /* eslint-disable no-console */
 import {SubProcess} from 'teen_process';
 
 async function getSocket(udid) {
-  const sim = await getSimulator(udid);
-  return await sim.getWebInspectorSocket();
+  const nativeSimctl = new NativeSimctl();
+  return await nativeSimctl.getWebInspectorSocket(udid);
 }
 
 function printRecord(lines) {
