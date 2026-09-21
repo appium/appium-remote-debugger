@@ -1,8 +1,7 @@
 import {after, afterEach, before, beforeEach} from 'node:test';
 
-import {NativeSimctl} from '@appium/coresim';
+import {NativeSimctl, SimDeviceState, type SimDeviceInfo} from '@appium/coresim';
 import {util} from '@appium/support';
-import {getSimulator, type Simulator} from 'appium-ios-simulator';
 import {retry, retryInterval} from 'asyncbox';
 
 import {createRemoteDebugger} from '../../lib/index.js';
@@ -42,17 +41,10 @@ async function getDeviceTypeIdentifier(deviceName: string): Promise<string> {
   return deviceType.identifier;
 }
 
-async function getExistingSim(deviceName: string, platformVersion: string): Promise<Simulator | null> {
+async function getExistingDevice(deviceName: string, platformVersion: string): Promise<SimDeviceInfo | null> {
   const runtimeIdentifier = await getRuntimeIdentifier(platformVersion);
   const devices = await nativeSimctl.getDevices();
-
-  for (const device of devices) {
-    if (device.name === deviceName && device.runtimeIdentifier === runtimeIdentifier) {
-      return await getSimulator(device.udid);
-    }
-  }
-
-  return null;
+  return devices.find((device) => device.name === deviceName && device.runtimeIdentifier === runtimeIdentifier) ?? null;
 }
 
 async function deleteDeviceWithRetry(udid: string): Promise<void> {
@@ -74,7 +66,7 @@ export interface RdFixture {
  * test. Call once per describe block.
  */
 export function useRemoteDebuggerFixture(): RdFixture {
-  let sim: Simulator;
+  let udid: string;
   let simCreated = false;
   let address: string;
   let rd: RemoteDebugger;
@@ -83,32 +75,41 @@ export function useRemoteDebuggerFixture(): RdFixture {
   before(async function () {
     const portPromise = startHttpServer();
 
-    sim = (await getExistingSim(DEVICE_NAME, PLATFORM_VERSION)) as Simulator;
-    if (!sim) {
+    const existing = await getExistingDevice(DEVICE_NAME, PLATFORM_VERSION);
+    if (existing) {
+      udid = existing.udid;
+    } else {
       const [deviceTypeIdentifier, runtimeIdentifier] = await Promise.all([
         getDeviceTypeIdentifier(DEVICE_NAME),
         getRuntimeIdentifier(PLATFORM_VERSION),
       ]);
-      const device = await nativeSimctl.createDevice(SIM_NAME, deviceTypeIdentifier, runtimeIdentifier);
-      sim = await getSimulator(device.udid);
+      udid = (await nativeSimctl.createDevice(SIM_NAME, deviceTypeIdentifier, runtimeIdentifier)).udid;
       simCreated = true;
     }
-    await sim.run({
-      startupTimeout: process.env.CI ? 600000 : 120000,
+
+    const devices = await nativeSimctl.getDevices();
+    const state = devices.find((device) => device.udid === udid)?.state;
+    if (state !== SimDeviceState.Booted && state !== SimDeviceState.Booting) {
+      await nativeSimctl.bootDevice(udid);
+    }
+    await nativeSimctl.waitForBoot(udid, {
+      timeoutMs: process.env.CI ? 600000 : 120000,
     });
     address = `http://127.0.0.1:${await portPromise}`;
   });
   after(async function () {
-    await sim.shutdown();
+    try {
+      await nativeSimctl.shutdownDevice(udid);
+    } catch {}
     if (simCreated) {
-      await deleteDeviceWithRetry(sim.udid);
+      await deleteDeviceWithRetry(udid);
     }
 
     stopHttpServer();
   });
 
   beforeEach(async function () {
-    const socketPath = await sim.getWebInspectorSocket();
+    const socketPath = await nativeSimctl.getWebInspectorSocket(udid);
     rd = createRemoteDebugger(
       {
         bundleId: 'com.apple.mobilesafari',
@@ -125,7 +126,7 @@ export function useRemoteDebuggerFixture(): RdFixture {
     );
 
     const maxRetries = process.env.CI ? 10 : 5;
-    await retry(maxRetries, async () => await sim.openUrl(address));
+    await retry(maxRetries, async () => await nativeSimctl.openUrl(udid, address));
     await retry(maxRetries, async () => {
       if (Object.keys(await rd.connect(60000)).length === 0) {
         await rd.disconnect();

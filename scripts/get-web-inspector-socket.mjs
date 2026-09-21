@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import {getSimulator} from 'appium-ios-simulator';
+import {NativeSimctl} from '@appium/coresim';
 
 async function main() {
   const udid = process.argv[2];
@@ -10,11 +10,11 @@ async function main() {
     return;
   }
 
-  const sim = await getSimulator(udid);
+  const nativeSimctl = new NativeSimctl();
   let socket;
   let error;
   try {
-    socket = await sim.getWebInspectorSocket();
+    socket = await nativeSimctl.getWebInspectorSocket(udid);
   } catch (err) {
     error = err;
   }
