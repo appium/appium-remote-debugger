@@ -1,3 +1,9 @@
+## [17.4.3](https://github.com/appium/appium-remote-debugger/compare/v17.4.2...v17.4.3) (2026-09-21)
+
+### Miscellaneous Chores
+
+* drop appium-ios-simulator, rely solely on @appium/coresim ([#547](https://github.com/appium/appium-remote-debugger/issues/547)) ([9727530](https://github.com/appium/appium-remote-debugger/commit/97275300d5968a1794790d0024ffb46671f365fd))
+
 ## [17.4.2](https://github.com/appium/appium-remote-debugger/compare/v17.4.1...v17.4.2) (2026-09-02)
 
 ### Miscellaneous Chores
